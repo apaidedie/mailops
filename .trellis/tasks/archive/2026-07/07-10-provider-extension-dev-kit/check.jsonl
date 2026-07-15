@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Quality gate must cover focused tests, readiness check, and whitespace validation."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"The script must avoid noisy logging and must not expose secrets in output."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"The implementation should reuse existing scaffold and validation helpers instead of duplicating provider internals."}

@@ -1,0 +1,20 @@
+﻿{
+  "constants": [
+    "DB_SCHEMA_VERSION",
+    "DB_SCHEMA_VERSION_KEY",
+    "DB_SCHEMA_LAST_UPGRADE_TRACE_ID_KEY",
+    "DB_SCHEMA_LAST_UPGRADE_ERROR_KEY"
+  ],
+  "connection": [
+    "create_sqlite_connection",
+    "get_db",
+    "close_db",
+    "register_db"
+  ],
+  "schema": [
+    "init_db"
+  ],
+  "sensitive": [
+    "migrate_sensitive_data"
+  ]
+}

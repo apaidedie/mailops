@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Provider workbench, provider integration guide, external API command center, mobile wrapping, and secret-safe frontend UI contracts."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Provider aliases, selection policy, integration manifest, and secret-free discovery semantics must remain unchanged."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"The workbench displays backend discovery contracts through frontend cache adapters; avoid contract drift."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Reuse existing provider workbench and command-center helpers instead of duplicating provider semantics."}

@@ -1,0 +1,2 @@
+{"type":"test","path":"tests/test_external_mailbox_session_start_api.py","reason":"New focused coverage for session start behavior, permissions, fallback, and OpenAPI/capabilities exposure."}
+{"type":"test","path":"tests/test_external_api.py","reason":"Existing broad external API discovery and OpenAPI contract coverage must remain green."}

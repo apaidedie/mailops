@@ -1,0 +1,55 @@
+{
+  "modal": [
+    "toggleUpdateMethodConfig",
+    "initUpdateMethodConfigToggles",
+    "showSettingsModal",
+    "hideSettingsModal",
+    "softPaintSettingsSecretHintsIfOpen",
+    "parseSettingsJsonInput",
+    "invalidateSettingsPageCache",
+    "fetchSettingsPagePayload",
+    "collectApiSecuritySettingsPayload",
+    "loadSettings",
+    "toggleRefreshStrategy",
+    "saveSettings",
+    "switchSettingsTab",
+    "autoSaveSettings",
+    "updateCfWorkerReadonlyFields",
+    "initPollingSettings"
+  ],
+  "external_api": [
+    "buildExternalApiKeysEditorItems",
+    "setExternalApiKeysEditor",
+    "generateExternalApiKey",
+    "copyExternalApiKey"
+  ],
+  "misc": [
+    "assignSecretSettingFromInput",
+    "pickDeploymentWarningText",
+    "normalizeDeploymentWarningSeverity",
+    "buildDeploymentWarningStyle",
+    "renderDeploymentWarnings",
+    "applyDeploymentInfo",
+    "loadDeploymentInfo",
+    "formatRelativeTime"
+  ],
+  "temp_mail": [
+    "syncTempProviderSchemaInputsToSnapshot",
+    "collectTempProviderSchemaSettings",
+    "collectTempMailSettingsPayload",
+    "refreshTempMailSettingsSnapshotFromServer",
+    "onTempMailProviderChange"
+  ],
+  "tests_actions": [
+    "selectCronExample",
+    "validateCronExpression",
+    "testTelegramPush",
+    "testTelegramProxy",
+    "testWatchtower",
+    "testEmailNotification",
+    "testWebhookNotification",
+    "testVerificationAiConfig",
+    "syncCfWorkerDomains",
+    "syncCfWorkerDomains"
+  ]
+}

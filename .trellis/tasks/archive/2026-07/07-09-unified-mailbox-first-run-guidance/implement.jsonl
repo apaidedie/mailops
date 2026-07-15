@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Unified mailbox UI layout, responsiveness, accessibility, and visual quality contracts."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Provider-agnostic readiness and external integration contracts consumed by the frontend."}

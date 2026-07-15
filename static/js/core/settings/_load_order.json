@@ -1,0 +1,8 @@
+[
+  "globals.js",
+  "modal.js",
+  "external_api.js",
+  "misc.js",
+  "temp_mail.js",
+  "tests_actions.js"
+]

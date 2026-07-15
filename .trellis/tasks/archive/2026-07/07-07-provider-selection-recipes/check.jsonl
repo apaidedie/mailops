@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/backend/provider-selection-contract.md", "reason": "Quality gate for provider recipes, secret safety, manifest, and OpenAPI"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend secret-safety and command-center contract checks when provider payloads change"}

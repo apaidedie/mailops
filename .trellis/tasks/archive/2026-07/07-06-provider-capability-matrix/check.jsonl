@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Quality check source for unified mailbox UI render states, responsive layout, i18n, secret masking, and production console-output assertions."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Quality check source for provider_context, provider_integration_guide, external discovery, OpenAPI, alias preservation, and no-secret-value contracts."}

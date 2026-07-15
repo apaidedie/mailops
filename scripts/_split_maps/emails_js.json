@@ -1,0 +1,61 @@
+{
+  "data": [
+    "getEmailDetailCacheKey",
+    "clearEmailDetailCacheForMailbox",
+    "clearEmailListCacheForMailbox",
+    "invalidateEmailDetailCacheEntry",
+    "clearEmailListCacheForMailboxes",
+    "loadEmails",
+    "getEmailListColdFetchPrompt"
+  ],
+  "misc": [
+    "resolveEmailSortTimestamp",
+    "sortEmailsByNewestFirst",
+    "getEmailListEmptyMessage",
+    "isTempEmailSource",
+    "resolveEmailDetailSource",
+    "isNarrowWorkspaceViewport",
+    "setMailboxDetailFocus",
+    "setTempDetailFocus",
+    "getEmailDetailRefs",
+    "setEmailDetailToolbarVisibility",
+    "resetEmailDetailState",
+    "buildDetailVerificationOptions",
+    "extractVerificationFallbackFromDetail",
+    "normalizeEmailInlineResourceKey",
+    "resolveEmailInlineResource",
+    "rewriteEmailInlineImages",
+    "adjustIframeHeight",
+    "syncEmailListVisibility",
+    "toggleEmailList",
+    "extractVerificationFromDetail",
+    "toggleTrustMode",
+    "adjustFullscreenIframeHeight",
+    "refreshEmails",
+    "copyEmail",
+    "copyCurrentEmail",
+    "logout"
+  ],
+  "render": [
+    "paintEmailListColdFetchPrompt",
+    "renderEmailList",
+    "renderEmailDetail"
+  ],
+  "actions": [
+    "toggleEmailSelection",
+    "updateEmailBatchActionBar",
+    "confirmBatchDeleteEmails",
+    "confirmDeleteCurrentEmail",
+    "deleteEmails",
+    "deleteCurrentTempEmailMessage",
+    "selectEmail"
+  ],
+  "ui": [
+    "showEmailDetailContainer",
+    "hideEmailDetailContainer",
+    "openFullscreenEmail",
+    "closeFullscreenEmail",
+    "closeFullscreenEmailOnBackdrop",
+    "showEmailList"
+  ]
+}

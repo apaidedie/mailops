@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check the command center stays read-only, secret-safe, provider-agnostic, and mobile-safe after adding recipe guide UI."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Check UI consumption still matches the backend provider selection contract without inventing a second provider enum or leaking secrets."}

@@ -1,0 +1,35 @@
+{
+  "constants": [
+    "_LOGGER",
+    "IMAP_SERVER_OLD",
+    "IMAP_SERVER_NEW",
+    "_EXTERNAL_NESTED_UPSTREAM_CODES"
+  ],
+  "helpers": [
+    "_build_response_from_error_payload",
+    "_build_account_credential_decrypt_failed_response",
+    "_persist_refresh_token",
+    "_update_account_summary_from_verification",
+    "_parse_external_common_args",
+    "_resolve_external_error",
+    "_external_error_response",
+    "_should_return_email_not_found_for_web_extract"
+  ],
+  "mailbox_api": [
+    "api_batch_get_emails",
+    "api_get_emails",
+    "api_delete_emails",
+    "api_get_email_detail",
+    "api_extract_verification"
+  ],
+  "external_api": [
+    "api_external_get_messages",
+    "api_external_get_latest_message",
+    "api_external_get_message_detail",
+    "api_external_get_message_raw",
+    "api_external_get_verification_code",
+    "api_external_get_verification_link",
+    "api_external_wait_message",
+    "api_external_get_probe_status"
+  ]
+}

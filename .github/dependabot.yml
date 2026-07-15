@@ -1,0 +1,32 @@
+version: 2
+
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:10"
+      timezone: "Asia/Hong_Kong"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+    groups:
+      python-non-major:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:25"
+      timezone: "Asia/Hong_Kong"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+    groups:
+      actions-non-major:
+        update-types: ["minor", "patch"]

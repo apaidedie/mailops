@@ -1,0 +1,2 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Verify health readiness, OpenAPI schema, secret policy, and mailbox directory scoping requirements."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check the runtime payload, OpenAPI schema, tests, and spec stay aligned."}

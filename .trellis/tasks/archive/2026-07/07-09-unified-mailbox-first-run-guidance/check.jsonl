@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check responsive layout, interaction states, text fit, and browser QA expectations."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Check provider-agnostic and secret-safe frontend handling of readiness data."}

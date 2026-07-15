@@ -1,0 +1,8 @@
+[
+  "globals.js",
+  "data.js",
+  "misc.js",
+  "render.js",
+  "actions.js",
+  "ui.js"
+]

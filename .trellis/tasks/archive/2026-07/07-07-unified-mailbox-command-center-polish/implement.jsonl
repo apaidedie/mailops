@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Unified mailbox command center, quick-view, mobile grid, secret-safety, and UI consumption contracts."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Provider selection, unified mailbox directory, integration guide, and secret-free discovery contracts."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"The UI consumes backend discovery payloads and must not redefine cross-layer contracts."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"The polish may add helpers and must avoid duplicate provider or endpoint logic."}

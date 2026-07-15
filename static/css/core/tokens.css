@@ -1,0 +1,115 @@
+/* W3 extracted design tokens/reset */
+/* ============================================================
+   Outlook 邮件管理 — 现代国风设计系统
+   主色：砖红 / 墨绿 / 金黄 / 宣纸米白
+   ============================================================ */
+
+/* ---------- CSS 变量 ---------- */
+:root {
+  --clr-primary:        #B85C38;
+  --clr-primary-dark:   #8E3E22;
+  --clr-primary-light:  #D4795A;
+  --clr-accent:         #C8963E;
+  --clr-jade:           #3A7D44;
+  --clr-jade-light:     #5AA35F;
+  --clr-danger:         #C0392B;
+  --clr-success:        #27AE60;
+  --clr-warn:           #E67E22;
+
+  --bg:                 #F5EDE0;
+  --bg-card:            #FDFAF5;
+  --bg-sidebar:         #2C1A0E;
+  --text:               #2C1810;
+  --text-secondary:     #6B4226;
+  --text-muted:         #9E7A5A;
+  --border:             #D9C4A8;
+  --border-light:       #EDE0CE;
+  --bg-hover:           rgba(184,92,56,0.06);
+  --bg-secondary:       #F0E8D8;
+  --shadow:             rgba(44, 24, 16, 0.12);
+
+  --font-sans: 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+
+  --radius:     10px;
+  --radius-sm:  6px;
+  --transition: 0.22s ease;
+  --sidebar-w:  220px;
+}
+
+[data-theme="dark"] {
+  --bg:             #1A1208;
+  --bg-card:        #241A0F;
+  --bg-sidebar:     #120C04;
+  --text:           #EDD9BE;
+  --text-secondary: #C9A97A;
+  --text-muted:     #8C7058;
+  --border:         #3D2C1E;
+  --border-light:   #2E2014;
+  --bg-hover:        rgba(184,92,56,0.1);
+  --bg-secondary:    #1E1609;
+  --shadow:         rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; height: 100%; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  overflow: hidden;
+  transition: background var(--transition), color var(--transition);
+  line-height: 1.6;
+}
+a { color: var(--clr-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ---------- 全局布局 ---------- */
+#app { display: flex; height: 100%; overflow: hidden; }
+
+/* ===== 登录页 ===== */
+#auth-page {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg); position: relative; overflow: hidden;
+}
+#auth-page::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(184, 92, 56, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(58, 125, 68, 0.10) 0%, transparent 55%);
+}
+.auth-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 2.5rem 2.2rem; width: 100%; max-width: 420px;
+  box-shadow: 0 8px 40px var(--shadow); position: relative; z-index: 1;
+}
+.auth-logo { text-align: center; margin-bottom: 1.8rem; }
+.auth-logo .logo-icon {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent));
+  border-radius: 14px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin-bottom: 0.7rem;
+  box-shadow: 0 4px 16px rgba(184,92,56,0.35);
+}
+.auth-logo h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.auth-logo p  { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem; }
+

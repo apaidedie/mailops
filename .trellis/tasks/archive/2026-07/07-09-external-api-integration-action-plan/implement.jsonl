@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"External integration action plan must compose existing provider selection, readiness, endpoint, and secret-safety contracts."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Settings -> API Security UI changes must follow existing external API command center layout, secret-safety, and responsive contracts."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"The action plan spans backend discovery payloads, OpenAPI, smoke validation, docs, and frontend rendering."}

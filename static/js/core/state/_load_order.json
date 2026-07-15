@@ -1,0 +1,22 @@
+[
+  "globals.js",
+  "external_api_ui_globals.js",
+  "external_api_ui_paths.js",
+  "external_api_ui_contract.js",
+  "external_api_ui_commands.js",
+  "external_api_ui_misc.js",
+  "external_api_ui_ui.js",
+  "layout.js",
+  "i18n.js",
+  "temp_settings.js",
+  "provider_catalog_catalog.js",
+  "provider_catalog_temp_settings.js",
+  "provider_catalog_render.js",
+  "provider_catalog_health.js",
+  "utils_local.js",
+  "misc.js",
+  "surface.js",
+  "readiness.js",
+  "accounts_state.js",
+  "polling.js"
+]

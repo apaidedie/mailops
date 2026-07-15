@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend unified mailbox UI and provider integration guide consumption contracts, including production console-output and secret-safety rules."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Provider selection, provider integration guide, and unified mailbox directory contracts that the matrix must consume without backend drift."}

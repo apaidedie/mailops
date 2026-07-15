@@ -1,0 +1,46 @@
+{
+  "guide": [
+    "_provider_integration_endpoint_map",
+    "_provider_integration_scope",
+    "_provider_integration_aliases_for_provider",
+    "_provider_config_file_example",
+    "_provider_deployment_step",
+    "_provider_request_step",
+    "_provider_integration_entry",
+    "get_provider_integration_guide"
+  ],
+  "inventory": [
+    "_mailbox_inventory_rows",
+    "_mailbox_inventory_totals",
+    "_mailbox_readiness_provider_row"
+  ],
+  "routing": [
+    "_PROVIDER_ROUTING_SCOPE_LABELS",
+    "_provider_routing_aliases",
+    "_provider_routing_endpoint_for_scope",
+    "_provider_routing_base_lookup",
+    "_provider_routing_row",
+    "_provider_routing_scope",
+    "_provider_routing_matrix"
+  ],
+  "capability": [
+    "_provider_capability_aliases",
+    "_provider_capability_selection_fields",
+    "_provider_capability_lifecycle_actions",
+    "_provider_capability_row",
+    "_provider_capability_workflow",
+    "_provider_capability_workflow_provider_sets",
+    "_provider_capability_matrix",
+    "get_mailbox_provider_readiness_summary"
+  ],
+  "manifest": [
+    "_integration_manifest_key_hints",
+    "_integration_manifest_provider_entry",
+    "_integration_manifest_provider_selector",
+    "_integration_manifest_quickstart",
+    "_integration_manifest_action_step",
+    "_integration_manifest_workflows",
+    "get_external_integration_manifest",
+    "get_mailbox_directory_provider_context"
+  ]
+}

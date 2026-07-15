@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Quality gate for command-center UI, quick views, mobile collapse, browser QA, and forbidden console output."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Quality gate for unified mailbox directory payload and provider-selection contract preservation."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check that frontend render logic remains a display adapter over backend-owned payloads."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check for duplicated constants, local registries, and ad hoc endpoint/provider tables."}

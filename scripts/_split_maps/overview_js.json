@@ -1,0 +1,65 @@
+{
+  "helpers": [
+    "ovT",
+    "ovLocale"
+  ],
+  "misc": [
+    "ovLabelValue",
+    "getOverviewContainer",
+    "normalizeOverviewCommandStatus",
+    "overviewCommandStatusTone",
+    "normalizeOverviewCommandPriority",
+    "normalizeExternalApiHealthStatus",
+    "esc",
+    "totalValues",
+    "pickTimelineIcon",
+    "pickToneGlyph"
+  ],
+  "ui": [
+    "initOverview",
+    "switchOverviewTab",
+    "syncOverviewStaticText"
+  ],
+  "data": [
+    "refreshOverview",
+    "invalidateOverviewCache",
+    "loadOverviewTab",
+    "updateOverviewRefreshTime"
+  ],
+  "render": [
+    "renderOverviewTab",
+    "renderOverviewLoading",
+    "renderOverviewError",
+    "renderOverviewSummary",
+    "renderOverviewCommandCenter",
+    "renderOverviewCommandTile",
+    "renderOverviewCommandActions",
+    "formatOverviewCommandStatus",
+    "formatOverviewCommandPriority",
+    "renderVerificationStats",
+    "renderExternalApiStats",
+    "renderExternalApiHealthStrip",
+    "renderExternalApiEndpointHealth",
+    "formatExternalApiHealthStatus",
+    "renderExternalApiStatusBadge",
+    "formatExternalApiLastStatus",
+    "renderPoolStats",
+    "renderActivityStats",
+    "renderKpiCard",
+    "renderDataCard",
+    "renderProgressBlock",
+    "renderTable",
+    "renderBarChart",
+    "renderTimeline",
+    "renderResultBadge",
+    "formatNumber",
+    "formatPercent",
+    "formatDurationMs",
+    "formatDurationSeconds",
+    "formatTime",
+    "formatChannelLabel",
+    "formatTimelineAction",
+    "formatTimelineStatus",
+    "formatPoolActionLabel"
+  ]
+}

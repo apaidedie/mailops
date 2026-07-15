@@ -1,0 +1,3 @@
+{"type":"spec","path":".trellis/spec/backend/provider-selection-contract.md","reason":"External discovery, capabilities, manifest, and OpenAPI contracts must stay aligned and secret-free."}
+{"type":"code","path":"outlook_web/controllers/external_temp_emails.py","reason":"Closest existing controller for external mailbox directory and task temp-mail orchestration."}
+{"type":"code","path":"outlook_web/services/provider_catalog.py","reason":"Owns endpoint maps, quickstart, integration manifest workflows, and external capabilities."}

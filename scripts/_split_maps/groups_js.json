@@ -1,0 +1,49 @@
+{
+  "misc": [
+    "isCurrentMailboxGroupsSurface",
+    "updateAccountPanelFooter",
+    "getProviderLabel",
+    "goToAccountPage",
+    "buildAccountListQueryKey",
+    "getAccountListMeta",
+    "sortAccounts",
+    "applyFiltersAndSort",
+    "handleTagFilterChange",
+    "debounce",
+    "searchAccounts",
+    "buildVerificationExtractEndpoint",
+    "tryFallbackVerificationExtraction",
+    "copyVerificationInfo",
+    "copyToClipboard"
+  ],
+  "data": [
+    "applyLoadedGroups",
+    "loadGroups",
+    "loadAccountsByGroup",
+    "invalidateAccountsCache",
+    "updateAccountListCache",
+    "syncAccountSummaryToAccountCache",
+    "syncExtractedVerificationToAccountCache"
+  ],
+  "render": [
+    "renderGroupList",
+    "renderAccountList",
+    "shouldPaintEditGroupForm",
+    "rerenderAccountCaches"
+  ],
+  "actions": [
+    "selectGroup",
+    "getSelectedTagFilterIds",
+    "updateGroupSelects",
+    "showAddGroupModal",
+    "hideAddGroupModal",
+    "applyEditGroupForm",
+    "editGroup",
+    "saveGroup",
+    "deleteGroup",
+    "toggleSelectAll",
+    "selectAllAccounts",
+    "unselectAllAccounts",
+    "updateSelectAllCheckbox"
+  ]
+}

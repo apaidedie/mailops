@@ -1,0 +1,9 @@
+[
+  "globals.js",
+  "workspace.js",
+  "render.js",
+  "filters.js",
+  "quickview.js",
+  "data.js",
+  "actions.js"
+]

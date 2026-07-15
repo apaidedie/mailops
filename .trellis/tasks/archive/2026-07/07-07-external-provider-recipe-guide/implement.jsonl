@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Defines the external API command center, starter kit, workflow playbook, provider guide, secret-safety, and responsive layout contracts for this UI."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Defines the selection_recipes discovery contract and provider-agnostic, secret-safe provider selection behavior consumed by the UI."}

@@ -1,0 +1,19 @@
+{
+  "language": [
+    "getLanguage",
+    "setLanguage",
+    "applyLanguage"
+  ],
+  "translate": [
+    "translateByPattern",
+    "translateAppText",
+    "translateAttribute",
+    "translateNode"
+  ],
+  "misc": [
+    "isInI18nSkipScope",
+    "updateSwitcherState",
+    "injectSwitcher",
+    "observeMutations"
+  ]
+}

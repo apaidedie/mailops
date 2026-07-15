@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Quality gate for provider workbench mounts, helper source slices, CSS hooks, long-text wrapping, and no secret input reads."}
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Regression gate to ensure UI polish does not change provider selection or secret-safe discovery contracts."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check the Settings payload and provider catalog cache data flow before verification."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check that changes extend existing helpers rather than adding a second provider registry."}

@@ -1,0 +1,72 @@
+{
+  "constants": [
+    "_TEMP_PROVIDER_CONFIG_CONTRACTS",
+    "_TEMP_PROVIDER_SETTINGS_UI",
+    "_PROVIDER_CAPABILITY_READ_ACTIONS",
+    "_PROVIDER_CAPABILITY_WORKFLOWS",
+    "_SECRET_FIELD_HINTS"
+  ],
+  "plugin_config": [
+    "_plugin_settings_key",
+    "_plugin_field_is_secret",
+    "_plugin_config_schema",
+    "_plugin_provider_configuration_contract",
+    "_temp_provider_configuration_contract",
+    "_temp_provider_selection_contract",
+    "_temp_provider_settings_ui_contract",
+    "_account_provider_configuration_contract",
+    "_plugin_provider_config_status",
+    "_account_provider_selection_contract"
+  ],
+  "recipes": [
+    "get_provider_alias_contract",
+    "_provider_deployment_contract",
+    "_append_unique",
+    "_provider_recipe_key",
+    "_provider_recipe_alias_canonical",
+    "_provider_recipe_label",
+    "_provider_recipe_kind",
+    "_provider_recipe_active",
+    "_provider_recipe_env_hints",
+    "_provider_recipe_config_patch",
+    "_provider_recipe_config_examples",
+    "_provider_recipe_common",
+    "_provider_selection_recipe_bundle",
+    "_merge_defaults",
+    "_template_env_value",
+    "_deployment_profile_templates",
+    "get_mailbox_provider_deployment_profile"
+  ],
+  "active_filter": [
+    "_available_temp_provider_labels",
+    "_normalize_provider_name",
+    "_active_provider_names",
+    "_active_filter_enabled",
+    "_active_matches_gptmail_family",
+    "_catalog_item_active",
+    "get_active_mailbox_provider_filter_contract",
+    "_catalog_provider_names_by_kind",
+    "_catalog_provider_active",
+    "_pool_default_provider_active",
+    "_temp_mail_default_provider_diagnostic",
+    "_pool_claim_default_provider_diagnostic",
+    "get_mailbox_provider_default_diagnostics",
+    "get_active_account_provider_names",
+    "get_active_temp_provider_names",
+    "is_mailbox_provider_active"
+  ],
+  "catalog_public": [
+    "temp_mail_provider_label",
+    "temp_mail_provider_display_label",
+    "temp_mail_provider_config_status",
+    "_build_mailbox_provider_catalog",
+    "get_mailbox_provider_catalog",
+    "_provider_readiness_status",
+    "_provider_readiness_reason",
+    "_provider_diagnostic_item",
+    "get_mailbox_provider_diagnostics",
+    "account_provider_label",
+    "mailbox_session_provider_metadata",
+    "get_provider_catalog_item"
+  ]
+}

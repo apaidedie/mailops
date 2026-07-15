@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Verify the new action-plan payload remains provider-agnostic and secret-safe."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Verify action-plan rendering stays inside existing Settings external API command center and handles mobile wrapping."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check that action-plan generation reuses readiness/recommendation inputs instead of adding disconnected provider-specific tables."}

@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Owns the external health readiness and unified mailbox directory provider contract."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Health readiness changes an API contract consumed by generated clients and service code."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Implementation must reuse the unified mailbox directory inventory contract instead of duplicating provider rules."}

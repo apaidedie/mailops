@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Owns provider labels, aliases, selection policy, discovery payloads, and secret-free manifest behavior."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Owns provider UI consumption, no provider-specific frontend branching, and secret-safety rules."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Labels flow from backend discovery to settings, frontend, external APIs, docs, and tests."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Provider label cleanup should update the label owner rather than duplicate UI mappings."}

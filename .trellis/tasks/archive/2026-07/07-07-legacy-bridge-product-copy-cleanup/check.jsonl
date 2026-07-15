@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Check alias preservation, discovery contract stability, and secret-free provider manifests."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check provider UI remains catalog-driven and does not read credential fields or add provider branches."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check docs, APIs, and UI agree on the formal compatible-bridge label."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check the cleanup uses shared catalog labels instead of scattered overrides."}

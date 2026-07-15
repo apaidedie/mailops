@@ -1,0 +1,39 @@
+{
+  "cache": [
+    "invalidateTempEmailOptionsCache",
+    "getTempEmailDetailCacheKey",
+    "clearTempEmailDetailCacheForMailbox",
+    "clearTempEmailMessagesCacheForMailbox",
+    "seedEmptyTempEmailMessagesCache",
+    "invalidateTempEmailDetailCacheEntry"
+  ],
+  "options": [
+    "getTempEmailOptionsProviderName",
+    "getTempEmailOptionsCacheKey",
+    "getTempEmailProviderDisplayLabel",
+    "renderTempEmailProviderStatus",
+    "supportsManualDomainSelection",
+    "syncTempEmailProviderSelection",
+    "shouldPaintTempEmailOptions",
+    "loadTempEmailOptions",
+    "renderTempEmailOptions",
+    "onTempEmailProviderChange"
+  ],
+  "list": [
+    "isCurrentTempEmailsPage",
+    "loadTempEmails",
+    "renderTempEmailList",
+    "generateTempEmail",
+    "selectTempEmail",
+    "deleteTempEmail",
+    "copyTempEmailCurrent"
+  ],
+  "messages": [
+    "refreshTempEmailMessages",
+    "clearTempEmailMessages",
+    "applyTempEmailMessagesPayload",
+    "loadTempEmailMessages",
+    "renderTempEmailMessageList",
+    "getTempEmailDetail"
+  ]
+}

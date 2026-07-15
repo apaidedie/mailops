@@ -1,0 +1,8 @@
+[
+  "globals.js",
+  "refresh.js",
+  "misc.js",
+  "invalid_token.js",
+  "audit.js",
+  "version_update.js"
+]

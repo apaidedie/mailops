@@ -1,0 +1,54 @@
+{
+  "actions": [
+    "selectAccount",
+    "applyEditAccountForm",
+    "isAddAccountModalOpen",
+    "showAddAccountModal",
+    "hideAddAccountModal",
+    "addAccount",
+    "showEditAccountModal",
+    "hideEditAccountModal",
+    "focusEditRemarkField",
+    "showEditRemarkOnly",
+    "deleteCurrentAccount",
+    "deleteAccount",
+    "batchNotificationToggle",
+    "toggleSelectAllGroups",
+    "exportSelectedGroups",
+    "confirmExportVerify"
+  ],
+  "data": [
+    "invalidateAccountDetailCache",
+    "invalidateAccountDetailCacheMany",
+    "getImportAccountProviderOptionsFromPayload",
+    "loadProviders",
+    "loadExportGroupList"
+  ],
+  "render": [
+    "shouldPaintEditAccountForm",
+    "paintExportGroupList",
+    "softPaintExportGroupListIfOpen"
+  ],
+  "misc": [
+    "normalizeImportAccountProviderOption",
+    "findImportAccountProviderOption",
+    "updateAccountProviderNote",
+    "getImportResultProviderLabel",
+    "buildImportFailureToastMessage",
+    "onProviderChange",
+    "resolveImportGroupId",
+    "refreshMailboxAfterImport",
+    "extractImportCandidateEmails",
+    "updateAccountRemarkOnly",
+    "updateAccount",
+    "toggleAccountStatus",
+    "toggleTelegramPush"
+  ],
+  "ui": [
+    "showExportModal",
+    "hideExportModal",
+    "isExportModalOpen",
+    "showExportVerifyModal",
+    "hideExportVerifyModal"
+  ]
+}

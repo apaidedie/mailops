@@ -1,0 +1,2 @@
+{"file":".trellis/spec/backend/provider-selection-contract.md","reason":"Verify typed external read schemas, secret policy, endpoint refs, and required tests."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check schema, controller response refs, runtime payload tests, and specs stay aligned."}

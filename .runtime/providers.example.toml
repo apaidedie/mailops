@@ -1,0 +1,4 @@
+[providers]
+temp_mail_provider = "mail_tm"
+pool_default_provider = "auto"
+active_mailbox_providers = ["mail_tm", "duckmail", "imap"]
