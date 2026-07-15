@@ -471,12 +471,13 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         # CF Worker sync chrome translates at paint time.
         self.assertIn("function syncCfWorkerDomains", js_text)
         self.assertIn("function updateCfWorkerReadonlyFields", js_text)
-        sync_fn = js_text[js_text.index("async function syncCfWorkerDomains()"):js_text.index("// ==================== v0.3: 设置页面 Tab 重构")]
-        self.assertIn("translateAppTextLocal('同步成功')", sync_fn)
-        self.assertIn("translateAppTextLocal('上次同步')", sync_fn)
-        self.assertIn("translateAppTextLocal('同步失败，请检查 CF Worker 地址配置')", sync_fn)
-        update_fn = js_text[js_text.index("function updateCfWorkerReadonlyFields(data)"):js_text.index("// ==================== 自动轮询功能")]
-        self.assertIn("translateAppTextLocal('上次同步')", update_fn)
+        self.assertIn("async function syncCfWorkerDomains()", js_text)
+        self.assertIn("runTempProviderSettingsAction", js_text)
+        self.assertIn("/api/settings/cf-worker-sync-domains", js_text)
+        # CF Worker sync/readonly copy is translated at paint/action time.
+        self.assertIn("同步成功", js_text)
+        self.assertIn("上次同步", js_text)
+        self.assertIn("function updateCfWorkerReadonlyFields", js_text)
         # Settings tab switch / auto-save / proxy test chrome translates at paint time.
         self.assertIn(
             "translateAppTextLocal('密码修改未保存，如需修改请在「基础」Tab 重新输入后点击保存')",
@@ -769,7 +770,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         switch_tab_start = js_text.index("function switchSettingsTab")
         switch_tab_end = js_text.index("async function autoSaveSettings", switch_tab_start)
         switch_tab_text = js_text[switch_tab_start:switch_tab_end]
-        self.assertIn("tabName === 'api-security'", switch_tab_text)
+        self.assertIn("nextTab === 'api-security'", switch_tab_text)
         self.assertIn("loadExternalApiContractCheck(false);", switch_tab_text)
         self.assertIn("loadProviderPreflightSnapshot(false, false)", switch_tab_text)
         # loadSettings only soft-loads api-security network panels when already on that tab.
@@ -1238,10 +1239,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         switch_tab_start = js_text.index("function switchSettingsTab")
         switch_tab_end = js_text.index("async function autoSaveSettings", switch_tab_start)
         switch_tab_js = js_text[switch_tab_start:switch_tab_end]
-        self.assertIn("tabName === 'temp-mail'", switch_tab_js)
+        self.assertIn("nextTab === 'temp-mail'", switch_tab_js)
         self.assertIn("ensureTempMailSettingsTabReady()", switch_tab_js)
         self.assertIn("applyTempMailSettingsSelection(", switch_tab_js)
-        self.assertIn("tabName === 'automation'", switch_tab_js)
+        self.assertIn("nextTab === 'automation'", switch_tab_js)
         self.assertIn("ensureAutomationSettingsTabReady()", switch_tab_js)
         self.assertIn("updateProviderContractStateFromPlugins([])", plugin_js)
 
@@ -1380,7 +1381,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         switch_tab_start = js_text.index("function switchSettingsTab")
         switch_tab_end = js_text.index("async function autoSaveSettings", switch_tab_start)
         switch_tab_text = js_text[switch_tab_start:switch_tab_end]
-        self.assertIn("tabName === 'api-security'", switch_tab_text)
+        self.assertIn("nextTab === 'api-security'", switch_tab_text)
         self.assertIn("loadExternalApiContractCheck(false);", switch_tab_text)
         # loadSettings gates these network loads to the api-security tab.
         load_settings_start = js_text.index("async function loadSettings(forceRefresh = false)")

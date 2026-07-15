@@ -121,7 +121,13 @@
             // Soft-load on re-entry when page caches are warm (same pattern as overview).
             // Explicit create/delete/refresh handlers still call loaders with forceRefresh=true.
             if (page === 'temp-emails' && typeof loadTempEmails === 'function') loadTempEmails(false);
-            if (page === 'settings') loadSettings();
+            if (page === 'settings') {
+                if (typeof bindSettingsTabNav === 'function') bindSettingsTabNav();
+                if (typeof currentSettingsTab === 'undefined' || !currentSettingsTab) {
+                    currentSettingsTab = 'basic';
+                }
+                loadSettings();
+            }
             if (page === 'refresh-log') loadRefreshLogPage();
             if (page === 'pool-admin' && typeof loadPoolAdmin === 'function') loadPoolAdmin(false);
             if (page === 'audit') loadAuditLogPage();

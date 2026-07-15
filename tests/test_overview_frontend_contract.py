@@ -59,7 +59,10 @@ class OverviewFrontendContractTests(unittest.TestCase):
     def test_overview_tabs_do_not_use_structural_emoji(self):
         html = self._get_index_html()
         overview_block = html[html.index('id="page-dashboard"'): html.index('id="page-mailbox"')]
-        tab_buttons = re.findall(r'<button class="settings-tab ov-tab[^>]*>.*?</button>', overview_block)
+        tab_buttons = re.findall(
+            r'<button[^>]*class="[^"]*ov-tab[^"]*"[^>]*>.*?</button>',
+            overview_block,
+        )
 
         self.assertEqual(len(tab_buttons), 5)
         self.assertTrue(all('ov-tab-label' in button for button in tab_buttons))

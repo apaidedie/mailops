@@ -8490,6 +8490,14 @@ tr:hover td { background: rgba(184,92,56,0.04); }
   border-color: var(--border-light);
 }
 
+.ov-tab-pane {
+  display: none;
+}
+
+.ov-tab-pane.active {
+  display: block;
+}
+
 .ov-tab.active {
   color: var(--text);
   background: var(--bg-secondary);

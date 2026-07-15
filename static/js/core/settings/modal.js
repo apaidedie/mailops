@@ -744,61 +744,109 @@
         }
 
         function switchSettingsTab(tabName) {
-            const prevTab = currentSettingsTab;
-            if (prevTab === tabName) return; // 同一 Tab 无操作
-            currentSettingsTab = tabName;
+            const nextTab = String(tabName || 'basic').trim() || 'basic';
+            const prevTab = (typeof currentSettingsTab === 'undefined' || currentSettingsTab == null)
+                ? 'basic'
+                : currentSettingsTab;
+            if (prevTab === nextTab) return;
+            currentSettingsTab = nextTab;
 
             // 1. 基础 Tab 切走时，密码框有内容则清空 + Toast 提示
             if (prevTab === 'basic') {
                 const pwdEl = document.getElementById('settingsPassword');
                 if (pwdEl && pwdEl.value.trim()) {
                     pwdEl.value = '';
-                    showToast(
-                        translateAppTextLocal('密码修改未保存，如需修改请在「基础」Tab 重新输入后点击保存'),
-                        'warning'
-                    );
+                    if (typeof showToast === 'function') {
+                        showToast(
+                            translateAppTextLocal('密码修改未保存，如需修改请在「基础」Tab 重新输入后点击保存'),
+                            'warning'
+                        );
+                    }
                 }
             }
 
+            // Scope to #page-settings only — overview reuses similar class names.
+            const settingsPage = document.getElementById('page-settings');
+            const tabNav = document.getElementById('settingsTabNav');
+            const tabScope = settingsPage || document;
+
             // 2. 立即更新 Tab 按钮视觉状态
-            document.querySelectorAll('.settings-tab').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            const tabButtons = tabNav
+                ? tabNav.querySelectorAll('.settings-tab')
+                : tabScope.querySelectorAll('.settings-tab');
+            tabButtons.forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.tab === nextTab);
             });
 
-            // 3. 立即更新 Tab 内容区显隐
-            document.querySelectorAll('.settings-tab-pane').forEach(pane => {
-                pane.classList.toggle('active', pane.id === `settings-tab-${tabName}`);
+            // 3. 立即更新 Tab 内容区显隐（only real settings panes with id settings-tab-*）
+            const panes = tabScope.querySelectorAll('.settings-tab-content > .settings-tab-pane, .settings-tab-pane[id^="settings-tab-"]');
+            panes.forEach((pane) => {
+                pane.classList.toggle('active', pane.id === `settings-tab-${nextTab}`);
             });
 
-            if (tabName === 'api-security') {
-                // Snapshot-first paint of the full api-security surface set, then soft-load network panels.
-                paintApiSecuritySurfacesFromSnapshot(externalApiSettingsSnapshot, 'ready');
-                loadProviderPreflightSnapshot(false, false);
-                loadExternalApiContractCheck(false);
-                loadOperationalReadinessSnapshot(false);
-            }
-            if (tabName === 'temp-mail') {
-                ensureTempMailSettingsTabReady()
-                    .then(() => {
-                        const pending = normalizeTempMailSettingsProviderName(
-                            tempMailSettingsSnapshot?.temp_mail_provider
-                            || getOperatorDefaultTempMailProvider()
-                        );
-                        applyTempMailSettingsSelection(pending);
-                        if (isTempMailSettingsProviderMountBound()) {
-                            renderTempMailProviderConfigPanel(pending);
-                        }
-                    })
-                    .catch(() => {});
-            }
-            if (tabName === 'automation') {
-                ensureAutomationSettingsTabReady();
+            try {
+                if (nextTab === 'api-security') {
+                    if (typeof paintApiSecuritySurfacesFromSnapshot === 'function') {
+                        paintApiSecuritySurfacesFromSnapshot(externalApiSettingsSnapshot, 'ready');
+                    }
+                    if (typeof loadProviderPreflightSnapshot === 'function') {
+                        loadProviderPreflightSnapshot(false, false);
+                    }
+                    if (typeof loadExternalApiContractCheck === 'function') {
+                        loadExternalApiContractCheck(false);
+                    }
+                    if (typeof loadOperationalReadinessSnapshot === 'function') {
+                        loadOperationalReadinessSnapshot(false);
+                    }
+                }
+                if (nextTab === 'temp-mail') {
+                    const ready = (typeof ensureTempMailSettingsTabReady === 'function')
+                        ? ensureTempMailSettingsTabReady()
+                        : Promise.resolve();
+                    Promise.resolve(ready)
+                        .then(() => {
+                            const pending = normalizeTempMailSettingsProviderName(
+                                (tempMailSettingsSnapshot && tempMailSettingsSnapshot.temp_mail_provider)
+                                || (typeof getOperatorDefaultTempMailProvider === 'function'
+                                    ? getOperatorDefaultTempMailProvider()
+                                    : '')
+                            );
+                            if (typeof applyTempMailSettingsSelection === 'function') {
+                                applyTempMailSettingsSelection(pending);
+                            }
+                            if (typeof isTempMailSettingsProviderMountBound === 'function'
+                                && isTempMailSettingsProviderMountBound()
+                                && typeof renderTempMailProviderConfigPanel === 'function') {
+                                renderTempMailProviderConfigPanel(pending);
+                            }
+                        })
+                        .catch(() => {});
+                }
+                if (nextTab === 'automation' && typeof ensureAutomationSettingsTabReady === 'function') {
+                    ensureAutomationSettingsTabReady();
+                }
+            } catch (_err) {
+                // Tab chrome already switched; surface-specific paint must not block navigation.
             }
 
             // 4. 后台异步触发自动保存（基础 Tab 除外）
-            if (prevTab !== 'basic') {
+            if (prevTab && prevTab !== 'basic' && typeof autoSaveSettings === 'function') {
                 autoSaveSettings(prevTab);
             }
+        }
+
+        function bindSettingsTabNav() {
+            const tabNav = document.getElementById('settingsTabNav');
+            if (!tabNav || tabNav.dataset.boundSettingsTabs === 'true') return;
+            tabNav.addEventListener('click', (event) => {
+                const btn = event.target && event.target.closest
+                    ? event.target.closest('.settings-tab[data-tab]')
+                    : null;
+                if (!btn || !tabNav.contains(btn)) return;
+                event.preventDefault();
+                switchSettingsTab(btn.dataset.tab || 'basic');
+            });
+            tabNav.dataset.boundSettingsTabs = 'true';
         }
 
         // 自动保存逻辑（密码除外）

@@ -144,35 +144,35 @@
                         </div>
                     </div>
 
-                    <div class="settings-tab-nav ov-tab-nav">
-                        <button class="settings-tab ov-tab active" data-tab="summary"><span class="ov-tab-label">总览</span></button>
-                        <button class="settings-tab ov-tab" data-tab="verification"><span class="ov-tab-label">验证码提取</span></button>
-                        <button class="settings-tab ov-tab" data-tab="external-api"><span class="ov-tab-label">对外 API</span></button>
-                        <button class="settings-tab ov-tab" data-tab="pool"><span class="ov-tab-label">邮箱池</span></button>
-                        <button class="settings-tab ov-tab" data-tab="activity"><span class="ov-tab-label">系统活动</span></button>
+                    <div class="ov-tab-nav">
+                        <button type="button" class="ov-tab active" data-tab="summary"><span class="ov-tab-label">总览</span></button>
+                        <button type="button" class="ov-tab" data-tab="verification"><span class="ov-tab-label">验证码提取</span></button>
+                        <button type="button" class="ov-tab" data-tab="external-api"><span class="ov-tab-label">对外 API</span></button>
+                        <button type="button" class="ov-tab" data-tab="pool"><span class="ov-tab-label">邮箱池</span></button>
+                        <button type="button" class="ov-tab" data-tab="activity"><span class="ov-tab-label">系统活动</span></button>
                     </div>
 
-                    <div class="settings-tab-pane ov-tab-pane active" data-tab="summary">
+                    <div class="ov-tab-pane active" data-tab="summary">
                         <div id="ov-summary-body" class="ov-pane-body">
                             <div class="ov-empty">加载中…</div>
                         </div>
                     </div>
-                    <div class="settings-tab-pane ov-tab-pane" data-tab="verification">
+                    <div class="ov-tab-pane" data-tab="verification">
                         <div id="ov-verification-body" class="ov-pane-body">
                             <div class="ov-empty">点击后加载</div>
                         </div>
                     </div>
-                    <div class="settings-tab-pane ov-tab-pane" data-tab="external-api">
+                    <div class="ov-tab-pane" data-tab="external-api">
                         <div id="ov-external-api-body" class="ov-pane-body">
                             <div class="ov-empty">点击后加载</div>
                         </div>
                     </div>
-                    <div class="settings-tab-pane ov-tab-pane" data-tab="pool">
+                    <div class="ov-tab-pane" data-tab="pool">
                         <div id="ov-pool-body" class="ov-pane-body">
                             <div class="ov-empty">点击后加载</div>
                         </div>
                     </div>
-                    <div class="settings-tab-pane ov-tab-pane" data-tab="activity">
+                    <div class="ov-tab-pane" data-tab="activity">
                         <div id="ov-activity-body" class="ov-pane-body">
                             <div class="ov-empty">点击后加载</div>
                         </div>
@@ -595,10 +595,10 @@
 
                 <!-- Tab 导航栏 -->
                 <div class="settings-tab-nav" id="settingsTabNav">
-                    <button class="settings-tab active" data-tab="basic" onclick="switchSettingsTab('basic')">基础</button>
-                    <button class="settings-tab" data-tab="temp-mail" onclick="switchSettingsTab('temp-mail')">临时邮箱</button>
-                    <button class="settings-tab" data-tab="api-security" onclick="switchSettingsTab('api-security')">API 安全</button>
-                    <button class="settings-tab" data-tab="automation" onclick="switchSettingsTab('automation')">自动化</button>
+                    <button type="button" class="settings-tab active" data-tab="basic" onclick="switchSettingsTab('basic')">基础</button>
+                    <button type="button" class="settings-tab" data-tab="temp-mail" onclick="switchSettingsTab('temp-mail')">临时邮箱</button>
+                    <button type="button" class="settings-tab" data-tab="api-security" onclick="switchSettingsTab('api-security')">API 安全</button>
+                    <button type="button" class="settings-tab" data-tab="automation" onclick="switchSettingsTab('automation')">自动化</button>
                 </div>
 
                 <!-- Tab 内容区 -->
