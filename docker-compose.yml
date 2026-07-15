@@ -1,41 +1,13 @@
-# MailOps — one-click deploy (pull prebuilt image)
-#
-#   cp .env.example .env   # set SECRET_KEY
-#   docker compose pull && docker compose up -d
-#   open http://localhost:5001
-#
-# Image: ghcr.io/apaidedie/mailops:latest
-# Local source build: docker compose -f docker-compose.build.yml up -d --build
-
 services:
-  app:
-    image: ghcr.io/apaidedie/mailops:${IMAGE_TAG:-latest}
+  mailops:
+    image: ghcr.io/apaidedie/mailops:latest
     container_name: mailops
+    restart: always
     ports:
-      - "${APP_PORT:-5001}:5000"
-    env_file:
-      - .env
-    environment:
-      SECRET_KEY: "${SECRET_KEY:?Set SECRET_KEY in .env}"
-      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-1}"
-      GUNICORN_THREADS: "${GUNICORN_THREADS:-8}"
-      GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
-      TEMP_MAIL_PROVIDER: "${TEMP_MAIL_PROVIDER:-}"
-      EXTERNAL_POOL_DEFAULT_PROVIDER: "${EXTERNAL_POOL_DEFAULT_PROVIDER:-}"
-      ACTIVE_MAILBOX_PROVIDERS: "${ACTIVE_MAILBOX_PROVIDERS:-}"
+      - "5001:5000"
     volumes:
       - ./data:/app/data
-      - ./.runtime:/app/.runtime
-      - ./plugins:/app/plugins
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD", "python", "scripts/healthcheck.py"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 25s
+    environment:
+      # 必填：随机密钥（生成：python -c "import secrets; print(secrets.token_hex(32))"）
+      SECRET_KEY: "change-me-to-a-random-secret"
+      LOGIN_PASSWORD: "admin123"
