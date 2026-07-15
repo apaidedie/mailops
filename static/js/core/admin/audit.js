@@ -79,7 +79,12 @@
                     </div>
                 `;
             } else {
-                container.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span><p>${translateAppTextLocal('暂无审计记录')}</p></div>`;
+                container.innerHTML = (
+                    `<div class="ui-empty">`
+                    + `<div class="ui-empty-title">${translateAppTextLocal('还没有审计记录')}</div>`
+                    + `<div class="ui-empty-desc">${translateAppTextLocal('修改设置、导入账号或调用关键接口后，操作轨迹会汇总在此。')}</div>`
+                    + `</div>`
+                );
             }
         }
 

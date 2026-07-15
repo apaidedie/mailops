@@ -27,7 +27,8 @@ COPY . .
 
 # Production: one JS bundle (fewer HTTP requests → snappier UI)
 RUN python scripts/build_frontend_bundle.py \
-    && python -c "from pathlib import Path; Path('templates/partials/scripts.html').write_text(\"<script src=\\\"{{ url_for('static', filename='js/bundles/app.js') }}?v={{ APP_VERSION }}\\\"></script>\\n\", encoding='utf-8')"
+    && python -c "from pathlib import Path; Path('templates/partials/scripts.html').write_text(\"<script src=\\\"{{ url_for('static', filename='js/bundles/app.js') }}?v={{ APP_VERSION }}\\\"></script>\\n\", encoding='utf-8')" \
+    && test -f static/css/core/ui-modern.css
 
 # 创建数据目录
 RUN mkdir -p /app/data && chmod +x /app/scripts/start-gunicorn.sh /app/scripts/healthcheck.py

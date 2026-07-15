@@ -612,7 +612,13 @@
                     </div>
                 `;
             } else {
-                container.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span><p>${translateAppTextLocal('暂无刷新记录')}</p></div>`;
+                container.innerHTML = (
+                    `<div class="ui-empty">`
+                    + `<div class="ui-empty-title">${translateAppTextLocal('还没有刷新记录')}</div>`
+                    + `<div class="ui-empty-desc">${translateAppTextLocal('执行全量刷新或单账号刷新后，Token 刷新历史会出现在这里。')}</div>`
+                    + `<button type="button" class="btn btn-primary" onclick="showRefreshModal()">${translateAppTextLocal('去刷新 Token')}</button>`
+                    + `</div>`
+                );
             }
         }
 

@@ -38,17 +38,18 @@
 }
 
 [data-theme="dark"] {
-  --bg:             #1A1208;
-  --bg-card:        #241A0F;
-  --bg-sidebar:     #120C04;
-  --text:           #EDD9BE;
-  --text-secondary: #C9A97A;
-  --text-muted:     #8C7058;
-  --border:         #3D2C1E;
-  --border-light:   #2E2014;
-  --bg-hover:        rgba(184,92,56,0.1);
-  --bg-secondary:    #1E1609;
-  --shadow:         rgba(0, 0, 0, 0.4);
+  /* Lifted contrast for modern ops dashboard readability */
+  --bg:             #12100e;
+  --bg-card:        #1c1814;
+  --bg-sidebar:     #0e0c0a;
+  --text:           #f3ebe0;
+  --text-secondary: #d4c4ae;
+  --text-muted:     #a8927a;
+  --border:         #3f342a;
+  --border-light:   #322920;
+  --bg-hover:        rgba(212,120,74,0.12);
+  --bg-secondary:    #23201b;
+  --shadow:         rgba(0, 0, 0, 0.45);
 }
 
 /* ---------- Reset ---------- */

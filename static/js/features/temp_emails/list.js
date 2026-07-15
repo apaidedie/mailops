@@ -128,10 +128,10 @@
 
             if (emails.length === 0) {
                 pageContainer.innerHTML = `
-                    <div class="empty-state">
-                        <span class="empty-icon">📭</span>
-                        <p>${translateAppTextLocal('暂无临时邮箱')}</p>
-                        <button class="btn btn-primary" onclick="generateTempEmail()">${translateAppTextLocal('创建第一个临时邮箱')}</button>
+                    <div class="ui-empty">
+                        <div class="ui-empty-title">${translateAppTextLocal('还没有临时邮箱')}</div>
+                        <div class="ui-empty-desc">${translateAppTextLocal('选好 Provider 与域名后，一键创建即可开始收验证码邮件。')}</div>
+                        <button type="button" class="btn btn-primary" onclick="generateTempEmail()">${translateAppTextLocal('创建第一个临时邮箱')}</button>
                     </div>
                 `;
                 return;

@@ -456,7 +456,13 @@ function renderPoolAdmin(data) {
 
     const items = data.items || [];
     if (items.length === 0) {
-        wrapper.innerHTML = '<div class="ov-empty" style="padding:2rem;">' + paT('暂无数据') + '</div>';
+        wrapper.innerHTML = (
+            '<div class="ui-empty">'
+            + '<div class="ui-empty-title">' + paT('号池还是空的') + '</div>'
+            + '<div class="ui-empty-desc">' + paT('导入账号或创建临时邮箱后，可在这里查看占用、冷却与调度状态。') + '</div>'
+            + '<button type="button" class="btn btn-primary" onclick="navigate(\'mailbox\')">' + paT('去统一邮箱导入') + '</button>'
+            + '</div>'
+        );
         if (paginationEl) paginationEl.innerHTML = '';
         return;
     }

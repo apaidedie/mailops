@@ -1215,8 +1215,13 @@
             if (!list) return;
             if (normalizedItems.length === 0) {
                 list.innerHTML = `
-                    <div class="empty-state-lite unified-state-block">
-                        ${escapeHtml(translateUnifiedText('没有匹配的邮箱'))}
+                    <div class="ui-empty unified-state-block">
+                        <div class="ui-empty-title">${escapeHtml(translateUnifiedText('还没有邮箱'))}</div>
+                        <div class="ui-empty-desc">${escapeHtml(translateUnifiedText('导入 Outlook/IMAP 账号，或创建临时邮箱后，这里会出现统一目录。'))}</div>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                            <button type="button" class="btn btn-primary" onclick="showAddAccountModal()">${escapeHtml(translateUnifiedText('添加账号'))}</button>
+                            <button type="button" class="btn btn-outline" onclick="navigate('temp-emails')">${escapeHtml(translateUnifiedText('创建临时邮箱'))}</button>
+                        </div>
                     </div>
                 `;
                 resetUnifiedMessagePreview();
