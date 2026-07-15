@@ -271,7 +271,14 @@
 .page { flex: 1; padding: 1.8rem; overflow-y: auto; }
 .page.page-no-padding { padding: 0; overflow: hidden; }
 .page.page-workspace { padding: 0; overflow: hidden; }
-.page-hidden { display: none !important; }
+.page-hidden {
+  display: none !important;
+  content-visibility: hidden;
+}
+.page:not(.page-hidden) {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+}
 
 #page-mailbox {
   display: flex;

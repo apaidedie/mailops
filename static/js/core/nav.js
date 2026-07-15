@@ -83,54 +83,57 @@
 
         function navigate(page) {
             currentPage = page;
-            // Hide all pages
+            // Paint shell first, then load data — keeps page switches feeling snappy.
             document.querySelectorAll('.page').forEach(p => p.classList.add('page-hidden'));
             const target = document.getElementById('page-' + page);
             if (target) {
                 target.classList.remove('page-hidden');
                 target.style.display = '';
             }
-            // Update nav active state
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
             if (navBtn) navBtn.classList.add('active');
-            // Update topbar
             updateTopbar(page);
-            // Close mobile sidebar
             closeSidebar();
-            // Load page data
-            if (page === 'dashboard' && typeof initOverview === 'function') initOverview();
-            if (page === 'mailbox') {
-                if (mailboxViewMode === 'unified') {
-                    if (typeof switchMailboxViewMode === 'function') {
-                        switchMailboxViewMode('unified');
+
+            const loadPageData = () => {
+                if (page === 'dashboard' && typeof initOverview === 'function') initOverview();
+                if (page === 'mailbox') {
+                    if (mailboxViewMode === 'unified') {
+                        if (typeof switchMailboxViewMode === 'function') {
+                            switchMailboxViewMode('unified');
+                        }
+                    } else {
+                        if (groups.length === 0) {
+                            loadGroups();
+                        } else if (currentGroupId) {
+                            loadAccountsByGroup(currentGroupId);
+                        }
+                        if (typeof switchMailboxViewMode === 'function') {
+                            switchMailboxViewMode(mailboxViewMode);
+                        }
+                        syncAccountPanelDensityIfVisible();
+                        scheduleAccountPanelDensitySync();
                     }
-                } else {
-                    if (groups.length === 0) {
-                        loadGroups();
-                    } else if (currentGroupId) {
-                        loadAccountsByGroup(currentGroupId);
-                    }
-                    if (typeof switchMailboxViewMode === 'function') {
-                        switchMailboxViewMode(mailboxViewMode);
-                    }
-                    syncAccountPanelDensityIfVisible();
-                    scheduleAccountPanelDensitySync();
                 }
-            }
-            // Soft-load on re-entry when page caches are warm (same pattern as overview).
-            // Explicit create/delete/refresh handlers still call loaders with forceRefresh=true.
-            if (page === 'temp-emails' && typeof loadTempEmails === 'function') loadTempEmails(false);
-            if (page === 'settings') {
-                if (typeof bindSettingsTabNav === 'function') bindSettingsTabNav();
-                if (typeof currentSettingsTab === 'undefined' || !currentSettingsTab) {
-                    currentSettingsTab = 'basic';
+                if (page === 'temp-emails' && typeof loadTempEmails === 'function') loadTempEmails(false);
+                if (page === 'settings') {
+                    if (typeof bindSettingsTabNav === 'function') bindSettingsTabNav();
+                    if (typeof currentSettingsTab === 'undefined' || !currentSettingsTab) {
+                        currentSettingsTab = 'basic';
+                    }
+                    loadSettings(false);
                 }
-                loadSettings();
+                if (page === 'refresh-log') loadRefreshLogPage();
+                if (page === 'pool-admin' && typeof loadPoolAdmin === 'function') loadPoolAdmin(false);
+                if (page === 'audit') loadAuditLogPage();
+            };
+
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => setTimeout(loadPageData, 0));
+            } else {
+                setTimeout(loadPageData, 0);
             }
-            if (page === 'refresh-log') loadRefreshLogPage();
-            if (page === 'pool-admin' && typeof loadPoolAdmin === 'function') loadPoolAdmin(false);
-            if (page === 'audit') loadAuditLogPage();
         }
 
         function updateTopbar(page) {

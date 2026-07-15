@@ -115,3 +115,7 @@ start_temp.bat
 .aider*
 
 cookies.txt
+
+# Generated frontend bundle (built in Docker)
+static/js/bundles/
+
