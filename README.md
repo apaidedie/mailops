@@ -147,26 +147,25 @@ web_outlook_app.py    兼容入口
 
 完整说明见 **[DEPLOY.md](./DEPLOY.md)**。
 
-**服务器一键（拉取预构建镜像）**
+**服务器一键（默认 `docker-compose.yml`，拉取镜像）**
 
 ```bash
 mkdir -p mailops && cd mailops
-curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/docker-compose.server.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/docker-compose.yml -o docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/.env.example -o .env
 # 编辑 .env：SECRET_KEY 必填
 docker compose pull && docker compose up -d
 # http://服务器:5001
 ```
 
-镜像：`ghcr.io/apaidedie/mailops:latest`（`main` 分支 CI 自动构建；首次需在 GitHub Packages 将包设为 Public）。
+镜像：`ghcr.io/apaidedie/mailops:latest`
 
-**本机源码构建**
+**本机源码构建（可选）**
 
 ```bash
 git clone https://github.com/apaidedie/mailops.git && cd mailops
-cp .env.example .env   # 设置 SECRET_KEY
-docker compose up -d --build
-# http://localhost:5001
+cp .env.example .env
+docker compose -f docker-compose.build.yml up -d --build
 ```
 
 #### ClawCloud / 反向代理部署注意事项

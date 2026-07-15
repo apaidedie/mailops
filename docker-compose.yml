@@ -1,46 +1,32 @@
-# MailOps — one-command local / self-host deploy
-# Usage:
+# MailOps — one-click deploy (pull prebuilt image)
+#
 #   cp .env.example .env   # set SECRET_KEY
-#   docker compose up -d --build
+#   docker compose pull && docker compose up -d
 #   open http://localhost:5001
+#
+# Image: ghcr.io/apaidedie/mailops:latest
+# Local source build: docker compose -f docker-compose.build.yml up -d --build
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: mailops:${IMAGE_TAG:-local}
+    image: ghcr.io/apaidedie/mailops:${IMAGE_TAG:-latest}
     container_name: mailops
     ports:
       - "${APP_PORT:-5001}:5000"
     env_file:
       - .env
     environment:
-      SECRET_KEY: "${SECRET_KEY:?Set SECRET_KEY in .env (python -c \"import secrets; print(secrets.token_hex(32))\")}"
-      WATCHTOWER_HTTP_API_TOKEN: "${WATCHTOWER_HTTP_API_TOKEN:-mailops-watchtower-default}"
+      SECRET_KEY: "${SECRET_KEY:?Set SECRET_KEY in .env}"
       GUNICORN_WORKERS: "${GUNICORN_WORKERS:-1}"
       GUNICORN_THREADS: "${GUNICORN_THREADS:-8}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
       TEMP_MAIL_PROVIDER: "${TEMP_MAIL_PROVIDER:-}"
       EXTERNAL_POOL_DEFAULT_PROVIDER: "${EXTERNAL_POOL_DEFAULT_PROVIDER:-}"
       ACTIVE_MAILBOX_PROVIDERS: "${ACTIVE_MAILBOX_PROVIDERS:-}"
-      OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE: "${OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE:-}"
-      MAILTM_API_BASE: "${MAILTM_API_BASE:-}"
-      DUCKMAIL_API_BASE: "${DUCKMAIL_API_BASE:-}"
-      DUCKMAIL_BEARER_TOKEN: "${DUCKMAIL_BEARER_TOKEN:-}"
-      TEMPMAIL_LOL_API_KEY: "${TEMPMAIL_LOL_API_KEY:-}"
-      TEMP_MAIL_LOL_API_KEY: "${TEMP_MAIL_LOL_API_KEY:-}"
-      EMAILNATOR_API_KEY: "${EMAILNATOR_API_KEY:-}"
-      EMAILNATOR_EMAIL_TYPES: "${EMAILNATOR_EMAIL_TYPES:-}"
-      CF_WORKER_BASE_URL: "${CF_WORKER_BASE_URL:-}"
-      CF_WORKER_ADMIN_KEY: "${CF_WORKER_ADMIN_KEY:-}"
-      DOCKER_SELF_UPDATE_ALLOW: "${DOCKER_SELF_UPDATE_ALLOW:-false}"
     volumes:
       - ./data:/app/data
       - ./.runtime:/app/.runtime
       - ./plugins:/app/plugins
-      # Optional Docker API self-update (grants broad host Docker access):
-      # - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     logging:
       driver: json-file
@@ -52,30 +38,4 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 20s
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-    networks:
-      - mailops-net
-
-  watchtower:
-    image: containrrr/watchtower:1.7.1
-    container_name: mailops-watchtower
-    restart: unless-stopped
-    profiles: ["update"]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN:-mailops-watchtower-default}
-      - WATCHTOWER_HTTP_API_UPDATE=true
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_HTTP_API_PERIODIC_POLLS=false
-    command: --http-api-update --label-enable
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
-    networks:
-      - mailops-net
-
-networks:
-  mailops-net:
-    driver: bridge
+      start_period: 25s
