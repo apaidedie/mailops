@@ -1,78 +1,87 @@
 # MailOps 部署指南
 
-面向个人/小团队的 **Docker 一键部署**。
+## 推荐：服务器拉取镜像（一键）
 
-## 前置
+镜像：`ghcr.io/apaidedie/mailops:latest`  
+由 GitHub Actions 在 `main` 推送后自动构建。
 
-- Docker Engine + Docker Compose v2
-- 本机端口可用（默认主机 `5001` → 容器 `5000`）
-
-## 30 秒启动
+### 1. 准备目录与环境变量
 
 ```bash
-# 1. 克隆
+mkdir -p mailops && cd mailops
+curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/docker-compose.server.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/.env.example -o .env
+```
+
+编辑 `.env`，至少设置：
+
+```bash
+SECRET_KEY=<用 python -c "import secrets; print(secrets.token_hex(32))" 生成>
+LOGIN_PASSWORD=<你的强密码>
+APP_PORT=5001   # 可选，主机端口
+```
+
+### 2. 拉取并启动
+
+若 GHCR 包为 **public**（首次构建后到 GitHub → Packages 设为 public）：
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+若包为 private，先登录：
+
+```bash
+echo YOUR_GITHUB_PAT | docker login ghcr.io -u apaidedie --password-stdin
+docker compose pull
+docker compose up -d
+```
+
+打开：`http://服务器IP:5001`
+
+### 3. 常用命令
+
+```bash
+docker compose logs -f
+docker compose ps
+docker compose pull && docker compose up -d   # 更新到最新镜像
+docker compose down
+```
+
+数据在 `./data`，停容器不丢库。
+
+---
+
+## 本机源码构建（开发 / 无 GHCR 时）
+
+```bash
 git clone https://github.com/apaidedie/mailops.git
 cd mailops
-
-# 2. 环境变量
-cp .env.example .env
-# 必须设置 SECRET_KEY（Windows PowerShell 示例）：
-# python -c "import secrets; print(secrets.token_hex(32))"
-# 编辑 .env 填入 SECRET_KEY，并按需修改 LOGIN_PASSWORD
-
-# 3. 构建并后台启动
+cp .env.example .env   # 设置 SECRET_KEY
 docker compose up -d --build
-
-# 4. 打开
 # http://localhost:5001
 ```
 
-登录密码默认见 `.env` 中 `LOGIN_PASSWORD`（示例为 `admin123`，生产务必修改）。
+默认构建本地镜像 `mailops:local`（见根目录 `docker-compose.yml`）。
 
-## 常用命令
-
-```bash
-docker compose logs -f app      # 日志
-docker compose ps               # 状态
-docker compose restart app      # 重启
-docker compose down             # 停止（数据在 ./data 保留）
-docker compose up -d --build    # 拉代码后重建
-```
-
-## 数据与配置
-
-| 路径 | 说明 |
-|------|------|
-| `./data` | SQLite 与持久数据 |
-| `./plugins` | 临时邮箱 Provider 插件 |
-| `./.runtime` | 运行时配置/缓存 |
-| `.env` | 密钥与环境变量（勿提交） |
-
-## 可选：Watchtower 一键更新
-
-默认不启动 watchtower（`profiles: [update]`）。需要时：
-
-```bash
-docker compose --profile update up -d
-```
-
-## 仅构建镜像
-
-```bash
-docker build -t mailops:local .
-docker run -d --name mailops -p 5001:5000 \
-  -v "$(pwd)/data:/app/data" \
-  --env-file .env \
-  mailops:local
-```
+---
 
 ## 健康检查
 
-容器内：`GET /healthz`（不要用需登录的 `/`）。
+容器探针：`GET /healthz`（不要用需登录的 `/`）。
 
-## 安全清单
+## 安全
 
-1. 强随机 `SECRET_KEY`，部署后不要更换（用于加密库内敏感字段）
-2. 强 `LOGIN_PASSWORD`
-3. 公网暴露时配合 HTTPS 反代
-4. 勿把 `.env` 提交到 Git
+1. 强随机 `SECRET_KEY`，部署后不要随意更换  
+2. 修改默认 `LOGIN_PASSWORD`  
+3. 公网请挂 HTTPS 反代  
+4. 勿提交 `.env`  
+
+## 镜像与 CI
+
+- 仓库：https://github.com/apaidedie/mailops  
+- 镜像：`ghcr.io/apaidedie/mailops:latest`  
+- 工作流：`.github/workflows/docker-build-push.yml`（`main` 推送 / 手动 `workflow_dispatch`）
+
+Dependabot 的 PR 若只因 **SonarCloud 未配置密钥** 失败，可先关闭；与镜像构建无直接关系。镜像是否成功看 **Actions → Build and Push Docker Image**。

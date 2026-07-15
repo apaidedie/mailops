@@ -145,27 +145,29 @@ web_outlook_app.py    兼容入口
 
 ### Docker 部署（推荐）
 
-完整说明见 **[DEPLOY.md](./DEPLOY.md)**。最短路径：
+完整说明见 **[DEPLOY.md](./DEPLOY.md)**。
+
+**服务器一键（拉取预构建镜像）**
 
 ```bash
-git clone https://github.com/apaidedie/mailops.git
-cd mailops
-cp .env.example .env
-# 编辑 .env：设置 SECRET_KEY（必填）与 LOGIN_PASSWORD
-# SECRET_KEY 生成：python -c "import secrets; print(secrets.token_hex(32))"
+mkdir -p mailops && cd mailops
+curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/docker-compose.server.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/apaidedie/mailops/main/.env.example -o .env
+# 编辑 .env：SECRET_KEY 必填
+docker compose pull && docker compose up -d
+# http://服务器:5001
+```
 
+镜像：`ghcr.io/apaidedie/mailops:latest`（`main` 分支 CI 自动构建；首次需在 GitHub Packages 将包设为 Public）。
+
+**本机源码构建**
+
+```bash
+git clone https://github.com/apaidedie/mailops.git && cd mailops
+cp .env.example .env   # 设置 SECRET_KEY
 docker compose up -d --build
-# 浏览器打开 http://localhost:5001
+# http://localhost:5001
 ```
-
-默认从**本仓库本地构建**镜像 `mailops:local`，数据持久化在 `./data`。
-
-```bash
-docker compose logs -f app
-docker compose down
-```
-
-可选 Watchtower 更新配置：`docker compose --profile update up -d`（见 DEPLOY.md）。
 
 #### ClawCloud / 反向代理部署注意事项
 
