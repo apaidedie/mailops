@@ -34,6 +34,7 @@ from outlook_web.services import graph as graph_service
 from outlook_web.services import refresh as refresh_service
 from outlook_web.services.account_import_export import _build_export_text
 
+
 @login_required
 def api_export_all_accounts() -> Any:
     """导出所有邮箱账号为 TXT 文件（需要二次验证）"""
@@ -88,6 +89,7 @@ def api_export_all_accounts() -> Any:
         mimetype="text/plain; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"},
     )
+
 
 @login_required
 def api_export_selected_accounts() -> Any:
@@ -157,6 +159,7 @@ def api_export_selected_accounts() -> Any:
         mimetype="text/plain; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"},
     )
+
 
 @login_required
 def api_generate_export_verify_token() -> Any:

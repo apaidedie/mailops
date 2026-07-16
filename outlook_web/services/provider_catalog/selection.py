@@ -15,7 +15,10 @@ from outlook_web.services.providers import MAIL_PROVIDERS, get_provider_list
 from outlook_web.services.temp_mail_provider_base import normalize_provider_capabilities
 from outlook_web.services.temp_mail_provider_factory import TempMailProviderFactoryError, get_available_providers
 
-
+from .catalog import (
+    _provider_selection_recipe_bundle,
+    get_mailbox_provider_deployment_profile,
+)
 from .constants import (
     ACTIVE_MAILBOX_PROVIDER_ENV,
     DEPLOYMENT_ENV_CONTRACT,
@@ -24,10 +27,7 @@ from .constants import (
     TEMP_MAIL_PROVIDER_ENV,
 )
 from .endpoints import _CANONICAL_EXTERNAL_ENDPOINTS
-from .catalog import (
-    get_mailbox_provider_deployment_profile,
-    _provider_selection_recipe_bundle,
-)
+
 
 def get_mailbox_provider_selection_policy(*, deployment_profile: dict[str, Any] | None = None) -> dict[str, Any]:
     """Return the runtime policy for choosing mailbox providers.
@@ -108,6 +108,3 @@ def get_mailbox_provider_selection_policy(*, deployment_profile: dict[str, Any] 
     )
     policy.update(recipes)
     return policy
-
-
-

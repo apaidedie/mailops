@@ -23,7 +23,6 @@ import unittest
 
 from tests._import_app import clear_login_attempts, import_web_app_module
 
-
 _REAL_CF_E2E_ENV_KEYS = (
     "RUN_REAL_CF_E2E",
     "REAL_CF_WORKER_BASE_URL",

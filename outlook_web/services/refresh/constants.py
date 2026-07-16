@@ -18,6 +18,7 @@ from outlook_web.security.crypto import decrypt_data, encrypt_data
 
 REFRESH_LOCK_TTL_SECONDS = 60 * 60 * 2  # 2 小时，避免异常中断导致长时间卡死
 
+
 def build_refreshable_outlook_account_where(
     column: str = "account_type",
     provider_column: str = "provider",
@@ -25,6 +26,7 @@ def build_refreshable_outlook_account_where(
     """构造 Outlook-only 刷新规则，兼容历史空 account_type 数据。
     排除 provider=cloudflare_temp_mail（CF pool 账号无 OAuth token，不应进入刷新链路）。"""
     return f"({column} = 'outlook' OR {column} IS NULL) AND ({provider_column} != 'cloudflare_temp_mail' OR {provider_column} IS NULL)"
+
 
 REFRESHABLE_OUTLOOK_ACCOUNT_WHERE = build_refreshable_outlook_account_where()
 
@@ -34,6 +36,7 @@ REFRESHABLE_OUTLOOK_ACCOUNT_SELECT = f"""
     WHERE status = 'active'
       AND {REFRESHABLE_OUTLOOK_ACCOUNT_WHERE}
 """
+
 
 def is_refreshable_outlook_account(
     account_type: Optional[str],
@@ -48,6 +51,7 @@ def is_refreshable_outlook_account(
     if account_type is None:
         return True
     return isinstance(account_type, str) and account_type.strip().lower() == "outlook"
+
 
 INVALID_TOKEN_FAILED_LIST_LIMIT = 200
 

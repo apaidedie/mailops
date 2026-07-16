@@ -13,12 +13,12 @@
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_frontend_app_js
 import json
 import unittest
 from unittest.mock import patch
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_frontend_app_js
 
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 
@@ -91,14 +91,14 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn('id="tempMailProviderOptions"', html, "应包含 tempMailProvider 动态挂载点")
         self.assertIn('class="provider-radio-group" id="tempMailProviderOptions"', html)
         self.assertIn('aria-live="polite"', html)
-        self.assertIn('provider-radio-loading', html)
+        self.assertIn("provider-radio-loading", html)
         mount_start = html.index('id="tempMailProviderOptions"')
         # Mount ends before the schema-driven config panel / legacy compatibility mounts.
         for marker in (
             'id="tempMailProviderConfigPanel"',
             'id="gptmailConfigPanel"',
-            '<!-- Legacy specialized mounts',
-            '<!-- Catalog/schema-driven built-in Provider configuration -->',
+            "<!-- Legacy specialized mounts",
+            "<!-- Catalog/schema-driven built-in Provider configuration -->",
         ):
             if marker in html[mount_start:]:
                 mount_end = html.index(marker, mount_start)
@@ -128,26 +128,32 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn('class="provider-workbench" id="providerWorkbench"', html, "API 安全页应显示邮箱来源运营台")
         self.assertIn('id="providerWorkbenchSummary" aria-live="polite"', html, "邮箱来源运营台应有概览挂载点")
         self.assertIn('id="providerWorkbenchBadge"', html, "邮箱来源运营台应有状态徽标")
-        self.assertIn('邮箱来源运营台', html)
-        self.assertIn('统一查看启用范围、运行默认、领取默认、发现入口和配置风险', html)
-        self.assertIn('class="provider-preflight-console" id="providerPreflightConsole"', html, "邮箱来源运营台应显示 Provider 批量预检")
+        self.assertIn("邮箱来源运营台", html)
+        self.assertIn("统一查看启用范围、运行默认、领取默认、发现入口和配置风险", html)
+        self.assertIn(
+            'class="provider-preflight-console" id="providerPreflightConsole"', html, "邮箱来源运营台应显示 Provider 批量预检"
+        )
         self.assertIn('id="providerPreflightSummary" aria-live="polite"', html, "Provider 批量预检应有概览挂载点")
         self.assertIn('id="providerPreflightList" aria-live="polite"', html, "Provider 批量预检应有明细挂载点")
-        self.assertIn('data-provider-preflight-probe', html, "Provider 批量预检应有显式探测按钮")
-        self.assertIn('Provider 批量预检', html)
-        self.assertIn('本地只读检查全部邮箱来源；手动触发时才探测可用临时邮箱上游', html)
-        self.assertIn('加载 Provider 预检…', html)
-        self.assertIn('class="provider-contract-status" id="providerContractStatus"', html, "邮箱来源运营台应显示 Provider 扩展契约状态")
+        self.assertIn("data-provider-preflight-probe", html, "Provider 批量预检应有显式探测按钮")
+        self.assertIn("Provider 批量预检", html)
+        self.assertIn("本地只读检查全部邮箱来源；手动触发时才探测可用临时邮箱上游", html)
+        self.assertIn("加载 Provider 预检…", html)
+        self.assertIn(
+            'class="provider-contract-status" id="providerContractStatus"', html, "邮箱来源运营台应显示 Provider 扩展契约状态"
+        )
         self.assertIn('id="providerContractStatusSummary" aria-live="polite"', html, "Provider 契约状态应有概览挂载点")
         self.assertIn('id="providerContractStatusList" aria-live="polite"', html, "Provider 契约状态应有明细挂载点")
-        self.assertIn('Provider 扩展契约', html)
-        self.assertIn('查看临时邮箱 Provider 插件是否满足统一邮箱与外部 API 接入契约', html)
+        self.assertIn("Provider 扩展契约", html)
+        self.assertIn("查看临时邮箱 Provider 插件是否满足统一邮箱与外部 API 接入契约", html)
         self.assertIn('id="providerDiagnosticsSummary"', html, "API 安全页应显示邮箱来源诊断摘要")
         self.assertIn('id="providerConsole"', html, "API 安全页应显示邮箱来源控制台")
         self.assertIn('id="providerConsoleTable"', html, "邮箱来源控制台应有明细表挂载点")
         self.assertIn('data-provider-console-filter="needs_config"', html, "邮箱来源控制台应支持缺配置筛选")
         self.assertIn('data-provider-console-filter="all" aria-pressed="true"', html, "邮箱来源控制台应标记默认筛选状态")
-        self.assertIn('data-provider-console-filter="active" aria-pressed="false"', html, "邮箱来源控制台筛选按钮应暴露可访问状态")
+        self.assertIn(
+            'data-provider-console-filter="active" aria-pressed="false"', html, "邮箱来源控制台筛选按钮应暴露可访问状态"
+        )
         self.assertIn('id="tempMailProviderOptions"', html, "Provider 卡片状态挂载点应由动态 renderer 创建")
 
     def test_external_api_command_center_mounts_before_api_key_field(self):
@@ -173,7 +179,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertLess(preflight_index, contract_index)
         self.assertLess(contract_index, diagnostics_index)
         self.assertIn('data-state="loading" aria-live="polite"', html)
-        self.assertIn('正在读取外部 API 服务…', html)
+        self.assertIn("正在读取外部 API 服务…", html)
 
     def test_index_html_contains_provider_config_template_panel(self):
         """API 安全页应展示可复制的 provider 部署配置模板。"""
@@ -189,8 +195,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn('data-provider-template-format="env" aria-pressed="true"', html)
         self.assertIn('data-provider-template-format="json" aria-pressed="false"', html)
         self.assertIn('data-provider-template-format="toml" aria-pressed="false"', html)
-        self.assertIn('data-provider-template-copy', html)
-        self.assertIn('data-provider-template-copy disabled', html)
+        self.assertIn("data-provider-template-copy", html)
+        self.assertIn("data-provider-template-copy disabled", html)
         self.assertNotIn('id="providerConfigTemplates" aria-live="polite"', html)
 
     def test_index_html_contains_provider_integration_guide_panel(self):
@@ -202,10 +208,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn('id="providerIntegrationGuide"', html)
         self.assertIn('id="providerIntegrationGuideSummary" aria-live="polite"', html)
         self.assertIn('id="providerIntegrationGuideList" aria-live="polite"', html)
-        self.assertIn('Provider 接入指南', html)
+        self.assertIn("Provider 接入指南", html)
         self.assertIn('data-provider-integration-filter="all" aria-pressed="true"', html)
         self.assertIn('data-provider-integration-filter="temp" aria-pressed="false"', html)
-        self.assertIn('加载 Provider 接入指南…', html)
+        self.assertIn("加载 Provider 接入指南…", html)
 
     def test_main_js_loads_provider_catalog_for_config_status(self):
         """main.js 应复用 /api/providers 的统一 catalog 渲染配置状态。"""
@@ -322,7 +328,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("function getProviderDeploymentText", js_text)
         self.assertIn("function getProviderDeploymentAssignment", js_text)
         self.assertIn("data-provider-health-action", js_text)
-        self.assertIn("/api/providers/${encodeURIComponent(normalizedKind)}/${encodeURIComponent(normalizedProvider)}/health?probe_network=true", js_text)
+        self.assertIn(
+            "/api/providers/${encodeURIComponent(normalizedKind)}/${encodeURIComponent(normalizedProvider)}/health?probe_network=true",
+            js_text,
+        )
         self.assertIn("mailboxProviderHealthState = {};", js_text)
         self.assertIn("上游探测", js_text)
         self.assertIn("账号池不用探测", js_text)
@@ -503,7 +512,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
 
         # 创建临时邮箱栏：静态 provider 选项改为 catalog 加载占位，并由 sync 清理占位。
         select_start = html.index('id="tempEmailProviderSelect"')
-        select_end = html.index('</select>', select_start)
+        select_end = html.index("</select>", select_start)
         select_html = html[select_start:select_end]
         self.assertIn("正在加载 Provider 目录", select_html)
         self.assertNotIn('value="legacy_bridge"', select_html)
@@ -609,7 +618,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         # Success-handler temp-mail branch (after PUT), not the collect payload branch.
         temp_mail_success_marker = "await refreshTempMailSettingsSnapshotFromServer()"
         self.assertIn(temp_mail_success_marker, auto_save_js)
-        temp_mail_save = auto_save_js[auto_save_js.index(temp_mail_success_marker):]
+        temp_mail_save = auto_save_js[auto_save_js.index(temp_mail_success_marker) :]
         self.assertIn("loadMailboxProviderCatalog(true)", temp_mail_save)
         self.assertNotIn("loadProviderPreflightSnapshot(true, false)", temp_mail_save)
         self.assertIn("providerPreflightCache = null", temp_mail_save)
@@ -625,7 +634,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         # API security auto-save still force-refreshes preflight.
         api_success_marker = "externalApiSettingsSnapshot = { ...externalApiSettingsSnapshot, ...settings }"
         self.assertIn(api_success_marker, auto_save_js)
-        api_save = auto_save_js[auto_save_js.index(api_success_marker):auto_save_js.index(temp_mail_success_marker)]
+        api_save = auto_save_js[auto_save_js.index(api_success_marker) : auto_save_js.index(temp_mail_success_marker)]
         self.assertIn("loadProviderPreflightSnapshot(true, false)", api_save)
         # Settings open uses tab-specific ready hooks only; empty shared stub is gone.
         self.assertNotIn("ensureSettingsSurfaceReady", js_text)
@@ -844,7 +853,9 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("{ key: 'env', label: '.env' }", js_text)
         self.assertIn("data-external-api-starter-mode", js_text)
         self.assertIn("externalApiStarterModeTarget", js_text)
-        self.assertIn("setExternalApiStarterMode(externalApiStarterModeTarget.getAttribute('data-external-api-starter-mode')", js_text)
+        self.assertIn(
+            "setExternalApiStarterMode(externalApiStarterModeTarget.getAttribute('data-external-api-starter-mode')", js_text
+        )
         self.assertIn("data-external-api-workflow-key", js_text)
         self.assertIn("data-external-api-workflow-copy", js_text)
         self.assertIn("data-external-api-quickstart-copy", js_text)
@@ -854,11 +865,15 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("data-external-api-handoff-copy", js_text)
         self.assertIn("data-external-api-session-copy", js_text)
         self.assertIn("externalApiWorkflowTarget", js_text)
-        self.assertIn("setExternalApiWorkflowPlaybook(externalApiWorkflowTarget.getAttribute('data-external-api-workflow-key')", js_text)
+        self.assertIn(
+            "setExternalApiWorkflowPlaybook(externalApiWorkflowTarget.getAttribute('data-external-api-workflow-key')", js_text
+        )
         self.assertIn("data-external-provider-recipe-key", js_text)
         self.assertIn("data-external-provider-recipe-copy", js_text)
         self.assertIn("externalProviderRecipeTarget", js_text)
-        self.assertIn("setExternalProviderRecipe(externalProviderRecipeTarget.getAttribute('data-external-provider-recipe-key')", js_text)
+        self.assertIn(
+            "setExternalProviderRecipe(externalProviderRecipeTarget.getAttribute('data-external-provider-recipe-key')", js_text
+        )
         self.assertIn("external_api_disable_pool_claim_random", js_text)
         self.assertIn("external_api_disable_pool_stats", js_text)
         self.assertIn("部分启用", js_text)
@@ -962,7 +977,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("mailboxSessionRead", js_text)
         self.assertIn("mailboxSessionClose", js_text)
         self.assertIn("tempMailFinish", js_text)
-        self.assertIn('X-API-Key: <your-api-key>', js_text)
+        self.assertIn("X-API-Key: <your-api-key>", js_text)
         self.assertNotIn("X-API-Key: ${", js_text)
         self.assertIn("OUTLOOK_EMAIL_EXTERNAL_API_BASE", js_text)
         self.assertIn("OUTLOOK_EMAIL_EXTERNAL_API_INTEGRATION_BUNDLE", js_text)
@@ -975,7 +990,9 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("# Provider env keys from current integration manifest", js_text)
         self.assertIn("# Provider env keys from current catalog", js_text)
         self.assertIn("copyTextToClipboard(command)", js_text)
-        self.assertIn("const command = getExternalApiStarterSnippet(externalApiStarterMode, externalApiSettingsSnapshot);", js_text)
+        self.assertIn(
+            "const command = getExternalApiStarterSnippet(externalApiStarterMode, externalApiSettingsSnapshot);", js_text
+        )
         self.assertIn("const smokeCommand = getExternalApiSmokeCommand();", js_text)
         self.assertIn("copyTextToClipboard(playbook)", js_text)
         self.assertIn("const playbook = getExternalApiWorkflowPlaybookText(externalApiWorkflowKey);", js_text)
@@ -1365,12 +1382,16 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("loadExternalApiContractCheck(false);", js_text)
         self.assertIn("loadExternalApiContractCheck(true);", js_text)
         contract_load_start = js_text.index("async function loadExternalApiContractCheck")
-        contract_load_end = js_text.index(
-            "async function loadProviderPreflightSnapshot",
-            contract_load_start,
-        ) if "async function loadProviderPreflightSnapshot" in js_text[contract_load_start:] else js_text.index(
-            "function getExternalApiContractCheckSnapshot",
-            contract_load_start,
+        contract_load_end = (
+            js_text.index(
+                "async function loadProviderPreflightSnapshot",
+                contract_load_start,
+            )
+            if "async function loadProviderPreflightSnapshot" in js_text[contract_load_start:]
+            else js_text.index(
+                "function getExternalApiContractCheckSnapshot",
+                contract_load_start,
+            )
         )
         contract_load = js_text[contract_load_start:contract_load_end]
         # Soft warm path re-paints command center without network (api-security surface only).
@@ -1440,7 +1461,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("path: externalApiCanonicalPath('/integration-bundle')", js_text)
         self.assertIn("externalApiLegacyPath('/integration-bundle')", js_text)
         self.assertIn("integrationBundle: getExternalApiStarterManifestEndpoint", js_text)
-        self.assertIn("{ key: 'integration_bundle', label: 'Bundle', endpoint: externalApiCanonicalPath('/integration-bundle') }", js_text)
+        self.assertIn(
+            "{ key: 'integration_bundle', label: 'Bundle', endpoint: externalApiCanonicalPath('/integration-bundle') }",
+            js_text,
+        )
         self.assertIn("function getExternalApiBundleEndpointDescriptor", js_text)
         self.assertIn("function getExternalApiBundleCopyCommand", js_text)
         self.assertIn("function getExternalApiBundleSummaryCards", js_text)
@@ -1855,10 +1879,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(".external-api-consumer-summary-card", css_text)
         self.assertIn(".external-api-consumer-list", css_text)
         self.assertIn(".external-api-consumer-card", css_text)
-        self.assertIn(".external-api-consumer-card[data-tone=\"ready\"]", css_text)
-        self.assertIn(".external-api-consumer-card[data-tone=\"warning\"]", css_text)
-        self.assertIn(".external-api-consumer-card[data-tone=\"danger\"]", css_text)
-        self.assertIn(".external-api-consumer-card[data-tone=\"disabled\"]", css_text)
+        self.assertIn('.external-api-consumer-card[data-tone="ready"]', css_text)
+        self.assertIn('.external-api-consumer-card[data-tone="warning"]', css_text)
+        self.assertIn('.external-api-consumer-card[data-tone="danger"]', css_text)
+        self.assertIn('.external-api-consumer-card[data-tone="disabled"]', css_text)
         self.assertIn(".external-api-consumer-counts", css_text)
         self.assertIn(".external-api-consumer-chips", css_text)
         self.assertIn(".external-api-consumer-last-used", css_text)
@@ -1881,7 +1905,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(".external-api-onboarding-dot", css_text)
         self.assertIn(".external-api-starter-modes", css_text)
         self.assertIn(".external-api-starter-mode", css_text)
-        self.assertIn(".external-api-starter-mode[aria-pressed=\"true\"]", css_text)
+        self.assertIn('.external-api-starter-mode[aria-pressed="true"]', css_text)
         self.assertIn(".external-api-starter-code", css_text)
         self.assertIn("本地契约校验", i18n_text)
         self.assertIn("Local contract validation", i18n_text)
@@ -1898,7 +1922,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(".external-api-recipe-body", css_text)
         self.assertIn(".external-api-recipe-tabs", css_text)
         self.assertIn(".external-api-recipe-tab", css_text)
-        self.assertIn(".external-api-recipe-tab[aria-pressed=\"true\"]", css_text)
+        self.assertIn('.external-api-recipe-tab[aria-pressed="true"]', css_text)
         self.assertIn(".external-api-recipe-detail", css_text)
         self.assertIn(".external-api-recipe-code", css_text)
         self.assertIn(".external-api-recipe-copy", css_text)
@@ -1907,7 +1931,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(".external-api-workflow-body", css_text)
         self.assertIn(".external-api-workflow-tabs", css_text)
         self.assertIn(".external-api-workflow-tab", css_text)
-        self.assertIn(".external-api-workflow-tab[aria-pressed=\"true\"]", css_text)
+        self.assertIn('.external-api-workflow-tab[aria-pressed="true"]', css_text)
         self.assertIn(".external-api-workflow-detail", css_text)
         self.assertIn(".external-api-workflow-step", css_text)
         self.assertIn(".external-api-workflow-endpoint-line", css_text)
@@ -2038,8 +2062,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(".operational-readiness-console", css_text)
         self.assertIn(".operational-readiness-grid", css_text)
         self.assertIn(".operational-readiness-card", css_text)
-        self.assertIn(".operational-readiness-card[data-tone=\"ready\"]", css_text)
-        self.assertIn(".operational-readiness-card[data-tone=\"degraded\"]", css_text)
+        self.assertIn('.operational-readiness-card[data-tone="ready"]', css_text)
+        self.assertIn('.operational-readiness-card[data-tone="degraded"]', css_text)
         self.assertIn(".operational-readiness-status", css_text)
         self.assertIn("运行就绪检查台", i18n_text)
         self.assertIn("Operational readiness console", i18n_text)
@@ -2077,7 +2101,9 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertEqual(duckmail.get("required_env"), ["DUCKMAIL_BEARER_TOKEN"])
         self.assertEqual((duckmail.get("task_temp_apply_request") or {}).get("field"), "provider_name")
         self.assertEqual((duckmail.get("pool_claim_request") or {}).get("field"), "provider")
-        self.assertEqual((guide.get("aliases") or {}).get("runtime_temp_mail_provider_aliases", {}).get("gptmail"), "legacy_bridge")
+        self.assertEqual(
+            (guide.get("aliases") or {}).get("runtime_temp_mail_provider_aliases", {}).get("gptmail"), "legacy_bridge"
+        )
         manifest = payload.get("integration_manifest") or {}
         self.assertEqual(manifest.get("version"), 1)
         self.assertEqual((manifest.get("auth") or {}).get("placeholder"), "<your-api-key>")
@@ -2086,9 +2112,16 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         quickstart_text = json.dumps(quickstart, ensure_ascii=False)
         self.assertEqual((quickstart.get("auth") or {}).get("headers"), {"X-API-Key": "<your-api-key>"})
         self.assertEqual((quickstart.get("provider_selector_fields") or {}).get("pool_claim", {}).get("field"), "provider")
-        self.assertEqual((quickstart.get("provider_selector_fields") or {}).get("task_temp_apply", {}).get("field"), "provider_name")
-        self.assertEqual((quickstart.get("requests") or {}).get("pool_claim", {}).get("body", {}).get("provider"), "<provider-or-auto>")
-        self.assertEqual((quickstart.get("requests") or {}).get("task_temp_apply", {}).get("body", {}).get("provider_name"), "<provider-name>")
+        self.assertEqual(
+            (quickstart.get("provider_selector_fields") or {}).get("task_temp_apply", {}).get("field"), "provider_name"
+        )
+        self.assertEqual(
+            (quickstart.get("requests") or {}).get("pool_claim", {}).get("body", {}).get("provider"), "<provider-or-auto>"
+        )
+        self.assertEqual(
+            (quickstart.get("requests") or {}).get("task_temp_apply", {}).get("body", {}).get("provider_name"),
+            "<provider-name>",
+        )
         self.assertNotIn("DUCKMAIL_BEARER_TOKEN", quickstart_text)
         self.assertNotIn("duck-secret-for-ui-test", quickstart_text)
         manifest_text = json.dumps(manifest, ensure_ascii=False)
@@ -2123,9 +2156,15 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("create_task_temp_mailbox", workflows)
         claim_steps = {item.get("key"): item for item in workflows.get("claim_pool_mailbox", {}).get("steps") or []}
         self.assertEqual(claim_steps.get("read_messages", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/messages")
-        self.assertEqual(claim_steps.get("read_verification_code", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/verification-code")
-        self.assertEqual(claim_steps.get("complete_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete")
-        self.assertEqual(claim_steps.get("release_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-release")
+        self.assertEqual(
+            claim_steps.get("read_verification_code", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/verification-code"
+        )
+        self.assertEqual(
+            claim_steps.get("complete_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete"
+        )
+        self.assertEqual(
+            claim_steps.get("release_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-release"
+        )
         self.assertNotIn("DUCKMAIL_BEARER_TOKEN", json.dumps(manifest.get("workflows") or [], ensure_ascii=False))
 
     # ──────────────────────────────────────────────────────
@@ -2190,7 +2229,11 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertNotIn('id="duckmailBearerTokenHint"', html)
         self.assertIn("providerUsesTempSettingsSchemaPanel(normalizedProvider)", js_text)
         self.assertIn("data-temp-provider-setting", js_text)
-        provider_options = js_text[js_text.index("function normalizeTempMailSettingsProviderName") : js_text.index("function getTempEmailProviderCatalogOptions")]
+        provider_options = js_text[
+            js_text.index("function normalizeTempMailSettingsProviderName") : js_text.index(
+                "function getTempEmailProviderCatalogOptions"
+            )
+        ]
         self.assertNotIn("duckmail_api_base", provider_options)
         self.assertNotIn("duckmail_bearer_token", provider_options)
 
@@ -2206,7 +2249,11 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertNotIn('id="settingsEmailnatorEmailTypes"', html)
         self.assertNotIn('id="emailnatorApiKeyHint"', html)
         self.assertIn("providerUsesTempSettingsSchemaPanel(normalizedProvider)", js_text)
-        provider_options = js_text[js_text.index("function normalizeTempMailSettingsProviderName") : js_text.index("function getTempEmailProviderCatalogOptions")]
+        provider_options = js_text[
+            js_text.index("function normalizeTempMailSettingsProviderName") : js_text.index(
+                "function getTempEmailProviderCatalogOptions"
+            )
+        ]
         self.assertNotIn("emailnator_api_key", provider_options)
         self.assertNotIn("emailnator_email_types", provider_options)
 

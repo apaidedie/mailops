@@ -42,6 +42,7 @@ from .messages import get_latest_message_for_external
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 def wait_for_message(  # noqa: C901
     *,
     email_addr: str,
@@ -97,6 +98,7 @@ def wait_for_message(  # noqa: C901
 
 # ── P2: 异步探测 (probe) ──────────────────────────────
 
+
 def _validate_probe_params(
     email_addr: str,
     timeout_seconds: int,
@@ -114,6 +116,7 @@ def _validate_probe_params(
         raise InvalidParamError(f"timeout_seconds 必须在 1-{MAX_TIMEOUT_SECONDS} 秒之间")
     if poll_interval <= 0 or poll_interval > timeout_seconds:
         raise InvalidParamError("poll_interval 参数无效")
+
 
 def create_probe(
     *,
@@ -180,6 +183,7 @@ def create_probe(
         "baseline_timestamp": effective_baseline,
     }
 
+
 def get_probe_status(probe_id: str) -> Dict[str, Any]:
     """查询探测状态与结果。"""
     from outlook_web.db import get_db
@@ -218,6 +222,7 @@ def get_probe_status(probe_id: str) -> Dict[str, Any]:
 
     return result
 
+
 def cancel_pending_probes_for_email(
     email_addr: str,
     *,
@@ -241,6 +246,7 @@ def cancel_pending_probes_for_email(
     db.commit()
     return cursor.rowcount
 
+
 def _mark_expired_pending_probes(db: Any, now: str) -> None:
     db.execute(
         """
@@ -254,6 +260,7 @@ def _mark_expired_pending_probes(db: Any, now: str) -> None:
     )
     db.commit()
 
+
 def _load_pending_probe_rows(db: Any, now: str, *, limit: int = 50) -> list[Any]:
     return db.execute(
         """
@@ -264,6 +271,7 @@ def _load_pending_probe_rows(db: Any, now: str, *, limit: int = 50) -> list[Any]
         """,
         (now, limit),
     ).fetchall()
+
 
 def _get_probe_baseline_timestamp(row: Any) -> int:
     # PR#27：若 probe 创建时传入了 baseline_timestamp（来自 claim_token），优先使用
@@ -285,6 +293,7 @@ def _get_probe_baseline_timestamp(row: Any) -> int:
     except Exception:
         return int(time.time()) - int(row["timeout_seconds"] or 0)
 
+
 def _mark_probe_matched(db: Any, probe_id: str, latest: Dict[str, Any], now: str) -> None:
     db.execute(
         """
@@ -295,6 +304,7 @@ def _mark_probe_matched(db: Any, probe_id: str, latest: Dict[str, Any], now: str
         (json.dumps(latest, ensure_ascii=False), now, probe_id),
     )
     db.commit()
+
 
 def _mark_probe_error(db: Any, probe_id: str, exc: Exception, now: str) -> None:
     db.execute(
@@ -308,6 +318,7 @@ def _mark_probe_error(db: Any, probe_id: str, exc: Exception, now: str) -> None:
     )
     db.commit()
 
+
 def _poll_single_probe(db: Any, row: Any, now: str) -> None:
     latest = get_latest_message_for_external(
         email_addr=row["email_addr"],
@@ -318,6 +329,7 @@ def _poll_single_probe(db: Any, row: Any, now: str) -> None:
     )
     if int(latest.get("timestamp") or 0) >= _get_probe_baseline_timestamp(row):
         _mark_probe_matched(db, row["id"], latest, now)
+
 
 def poll_pending_probes(app: Any = None) -> int:
     """
@@ -351,6 +363,7 @@ def poll_pending_probes(app: Any = None) -> int:
     finally:
         if ctx is not None:
             ctx.pop()
+
 
 def cleanup_expired_probes(app: Any = None, max_age_minutes: int = 30) -> int:
     """清理已完成/超时/错误的探测记录（默认清理 30 分钟前的）。"""

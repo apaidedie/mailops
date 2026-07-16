@@ -1,9 +1,9 @@
 from __future__ import annotations
-from tests.frontend_js_bundle import load_feature_package_js
 
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js
 
 
 class GroupPolicyFrontendContractTests(unittest.TestCase):
@@ -36,7 +36,7 @@ class GroupPolicyFrontendContractTests(unittest.TestCase):
 
     def test_groups_js_contains_group_policy_read_and_write(self):
         client = self.app.test_client()
-        js = load_feature_package_js('static/js/features/groups')
+        js = load_feature_package_js("static/js/features/groups")
 
         # 编辑回填
         self.assertIn("groupVerificationCodeLength", js)

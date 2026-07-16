@@ -6,7 +6,6 @@ from flask import request
 
 from outlook_web import config
 
-
 BASE_CSP_DIRECTIVES = (
     "default-src 'self'",
     "base-uri 'self'",
@@ -20,7 +19,9 @@ BASE_CSP_DIRECTIVES = (
     "form-action 'self'",
 )
 UPGRADE_INSECURE_REQUESTS_DIRECTIVE = "upgrade-insecure-requests"
-PERMISSIONS_POLICY = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+PERMISSIONS_POLICY = (
+    "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+)
 
 
 def _should_emit_hsts() -> bool:

@@ -29,11 +29,12 @@ from outlook_web.services.external_api_openapi import get_external_api_openapi_c
 from outlook_web.services.provider_catalog import (
     get_external_api_capabilities_contract,
     get_external_api_integration_bundle,
-    get_external_mailbox_read_contract,
     get_external_api_readiness_summary,
+    get_external_mailbox_read_contract,
     temp_mail_provider_label,
 )
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME
+
 
 @api_key_required
 @external_api_guards()
@@ -58,6 +59,7 @@ def api_external_capabilities() -> Any:
         },
     )
     return jsonify(external_api_service.ok(data))
+
 
 @api_key_required
 @external_api_guards()
@@ -104,6 +106,7 @@ def api_external_integration_bundle() -> Any:
     finally:
         conn.close()
 
+
 @api_key_required
 @external_api_guards()
 def api_external_openapi() -> Any:
@@ -122,6 +125,7 @@ def api_external_openapi() -> Any:
     )
     return jsonify(data)
 
+
 @api_key_required
 @external_api_guards()
 def api_external_docs() -> Any:
@@ -136,6 +140,7 @@ def api_external_docs() -> Any:
         details={"format": "html", "consumer_is_legacy": bool(consumer.get("is_legacy"))},
     )
     return Response(html, mimetype="text/html; charset=utf-8")
+
 
 @api_key_required
 @external_api_guards()

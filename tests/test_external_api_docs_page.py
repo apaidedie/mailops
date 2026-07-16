@@ -116,7 +116,10 @@ class ExternalApiDocsPageTests(unittest.TestCase):
             self.assertEqual(data["documentation"]["entries"]["api_docs"]["endpoint"], "/api/v1/external/docs")
             self.assertNotIn("legacy_endpoint", data["documentation"]["entries"]["api_docs"])
             self.assertEqual(data["integration_manifest"]["discovery"]["endpoints"]["docs"], "/api/v1/external/docs")
-            self.assertEqual(data["integration_manifest"]["discovery"]["endpoints"]["integration_bundle"], "/api/v1/external/integration-bundle")
+            self.assertEqual(
+                data["integration_manifest"]["discovery"]["endpoints"]["integration_bundle"],
+                "/api/v1/external/integration-bundle",
+            )
             self.assertNotIn("duckmail-docs-secret-should-not-leak", str(data))
             self.assertNotRegex(str(data), r"dk_[0-9a-fA-F]{20,}")
 
@@ -132,7 +135,9 @@ class ExternalApiDocsPageTests(unittest.TestCase):
         self.assertNotIn("/api/external/docs", data["paths"])
         self.assertNotIn("/api/external/integration-bundle", data["paths"])
         self.assertEqual(data["paths"]["/api/v1/external/docs"]["get"]["operationId"], "externalApiDocs")
-        self.assertEqual(data["paths"]["/api/v1/external/integration-bundle"]["get"]["operationId"], "externalIntegrationBundle")
+        self.assertEqual(
+            data["paths"]["/api/v1/external/integration-bundle"]["get"]["operationId"], "externalIntegrationBundle"
+        )
         self.assertEqual(data.get("x-legacy-endpoints") or {}, {})
         self.assertEqual(data["x-capabilities"]["documentation"]["entries"]["api_docs"]["endpoint"], "/api/v1/external/docs")
 

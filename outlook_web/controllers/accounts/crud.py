@@ -39,7 +39,14 @@ from outlook_web.services.account_import_export import (
     _parse_imap_port,
 )
 
-from .helpers import _api_update_account_status, _build_account_import_failure_response, _handle_auto_import, _parse_bool_flag, sanitize_input
+from .helpers import (
+    _api_update_account_status,
+    _build_account_import_failure_response,
+    _handle_auto_import,
+    _parse_bool_flag,
+    sanitize_input,
+)
+
 
 @login_required
 def api_add_account() -> Any:
@@ -478,6 +485,7 @@ def api_add_account() -> Any:
 
     return _build_account_import_failure_response(message, summary=summary, errors=errors)
 
+
 @login_required
 def api_update_account(account_id: int) -> Any:
     """更新账号（邮箱池管理的 CF 临时邮箱不允许手动编辑）"""
@@ -603,6 +611,7 @@ def api_update_account(account_id: int) -> Any:
         status=500,
     )
 
+
 @login_required
 def api_update_account_remark(account_id: int) -> Any:
     """仅更新账号备注，不要求重复提交其他字段。"""
@@ -656,6 +665,7 @@ def api_update_account_remark(account_id: int) -> Any:
         }
     )
 
+
 @login_required
 def api_delete_account(account_id: int) -> Any:
     """删除账号（邮箱池管理的 CF 临时邮箱不允许手动删除）"""
@@ -689,6 +699,7 @@ def api_delete_account(account_id: int) -> Any:
         message_en="Failed to delete account",
         status=500,
     )
+
 
 @login_required
 def api_delete_account_by_email(email_addr: str) -> Any:

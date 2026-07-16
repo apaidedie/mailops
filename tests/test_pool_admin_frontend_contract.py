@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from tests.frontend_js_bundle import load_frontend_app_js
+
 """
 TDD D 层：号池管理前端契约测试
 
@@ -148,9 +149,7 @@ class PoolAdminFilterControlsTests(PoolAdminFrontendContractBase):
             js,
         )
         soft_paint_idx = js.index("if (!force && applyFromCache()) return;")
-        soft_skip_idx = js.index(
-            "if (!force && __poolAdminState.providerOptionsLoaded && select.options.length > 1) return;"
-        )
+        soft_skip_idx = js.index("if (!force && __poolAdminState.providerOptionsLoaded && select.options.length > 1) return;")
         self.assertLess(soft_paint_idx, soft_skip_idx)
         self.assertIn("const forceCatalogLoad = force || emptyWarmCache;", js)
         self.assertIn("Last-resort fallback when shared loader is unavailable", js)
@@ -195,13 +194,17 @@ class PoolAdminJsModuleTests(PoolAdminFrontendContractBase):
             self.assertIn("getPoolAdminQueryKey() === queryKey", js)
             self.assertIn("if (isCurrentPoolAdminView())", js)
             # Filter option painters also stay on pool-admin page.
-            paint_group = js[js.index("function paintPoolAdminGroupOptions"):js.index("async function ensurePoolAdminGroupOptions")]
+            paint_group = js[
+                js.index("function paintPoolAdminGroupOptions") : js.index("async function ensurePoolAdminGroupOptions")
+            ]
             self.assertIn("isCurrentPoolAdminPage()", paint_group)
-            apply_provider = js[js.index("function applyPoolAdminProviderOptions"):js.index("function ensurePoolAdminProviderOptions")]
+            apply_provider = js[
+                js.index("function applyPoolAdminProviderOptions") : js.index("function ensurePoolAdminProviderOptions")
+            ]
             self.assertIn("isCurrentPoolAdminPage()", apply_provider)
             # Language change soft-paints warm table + filters without force network.
             self.assertIn("window.addEventListener('ui-language-changed'", js)
-            pool_lang = js[js.index("window.addEventListener('ui-language-changed'"):]
+            pool_lang = js[js.index("window.addEventListener('ui-language-changed'") :]
             self.assertIn("renderPoolAdmin(__poolAdminState.cache)", pool_lang)
             self.assertIn("isCurrentPoolAdminPage()", pool_lang)
             self.assertIn("ensurePoolAdminGroupOptions(false)", pool_lang)

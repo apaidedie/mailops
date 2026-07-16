@@ -37,6 +37,7 @@ from outlook_web.services.verification_extractor import (
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 class ExternalApiError(Exception):
     code = "INTERNAL_ERROR"
     status = 500
@@ -46,68 +47,85 @@ class ExternalApiError(Exception):
         self.message = message
         self.data = data
 
+
 class InvalidParamError(ExternalApiError):
     code = "INVALID_PARAM"
     status = 400
+
 
 class AccountNotFoundError(ExternalApiError):
     code = "ACCOUNT_NOT_FOUND"
     status = 404
 
+
 class MailNotFoundError(ExternalApiError):
     code = "MAIL_NOT_FOUND"
     status = 404
+
 
 class VerificationCodeNotFoundError(ExternalApiError):
     code = "VERIFICATION_CODE_NOT_FOUND"
     status = 404
 
+
 class VerificationLinkNotFoundError(ExternalApiError):
     code = "VERIFICATION_LINK_NOT_FOUND"
     status = 404
+
 
 class ProxyError(ExternalApiError):
     code = "PROXY_ERROR"
     status = 502
 
+
 class UpstreamReadFailedError(ExternalApiError):
     code = "UPSTREAM_READ_FAILED"
     status = 502
+
 
 class EmailScopeForbiddenError(ExternalApiError):
     code = "EMAIL_SCOPE_FORBIDDEN"
     status = 403
 
+
 class AccountAccessForbiddenError(ExternalApiError):
     code = "ACCOUNT_ACCESS_FORBIDDEN"
     status = 403
+
 
 class TaskFinishedError(ExternalApiError):
     code = "TASK_FINISHED"
     status = 409
 
+
 class TaskTokenInvalidError(ExternalApiError):
     code = "TASK_TOKEN_INVALID"
     status = 404
+
 
 class FeatureDisabledError(ExternalApiError):
     code = "FEATURE_DISABLED"
     status = 403
 
+
 class ProbeCancelledError(ExternalApiError):
     code = "PROBE_CANCELLED"
     status = 409
+
 
 class MailboxConflictError(ExternalApiError):
     code = "MAILBOX_CONFLICT"
     status = 409
 
+
 class VerificationAiConfigIncompleteError(ExternalApiError):
     code = "VERIFICATION_AI_CONFIG_INCOMPLETE"
     status = 400
 
+
 def ok(data: Any = None, *, message: str = "success") -> Dict[str, Any]:
     return {"success": True, "code": "OK", "message": message, "data": data}
+
 
 def fail(code: str, message: str, *, data: Any = None) -> Dict[str, Any]:
     return {"success": False, "code": code, "message": message, "data": data}

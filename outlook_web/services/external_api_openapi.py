@@ -1,4 +1,5 @@
 """Compatibility shim — OpenAPI contract lives in ``external_api.openapi``."""
+
 from __future__ import annotations
 
 from outlook_web.services.external_api.openapi import get_external_api_openapi_contract

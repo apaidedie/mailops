@@ -7,6 +7,7 @@ from typing import Any
 EXTERNAL_API_LEGACY_PREFIX = "/api/external"  # removed in W2; migration reference only
 EXTERNAL_API_V1_PREFIX = "/api/v1/external"
 
+
 def _external_api_path(suffix: str, *, versioned: bool = True) -> str:
     prefix = EXTERNAL_API_V1_PREFIX if versioned else EXTERNAL_API_LEGACY_PREFIX
     normalized = suffix if suffix.startswith("/") else f"/{suffix}"
@@ -375,5 +376,3 @@ def get_external_mailbox_read_contract(*, lifecycle: str = "none") -> dict[str, 
         "read_query_fields": list(EXTERNAL_READ_QUERY_FIELDS),
         "next_actions": next_actions,
     }
-
-

@@ -19,6 +19,7 @@ from outlook_web.security.crypto import decrypt_data, encrypt_data
 from .classify import _record_invalid_token_failure, compute_refresh_lock_ttl_seconds, utcnow
 from .constants import REFRESHABLE_OUTLOOK_ACCOUNT_SELECT
 
+
 def stream_trigger_scheduled_refresh(
     *,
     force: bool,

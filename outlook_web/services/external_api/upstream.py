@@ -42,8 +42,10 @@ from .timefmt import _parse_datetime, _utcnow
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 def _probe_now_iso() -> str:
     return _utcnow().replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
 
 def _probe_summary_from_row(row: Any) -> Dict[str, Any]:
     if not row:
@@ -60,6 +62,7 @@ def _probe_summary_from_row(row: Any) -> Dict[str, Any]:
         "last_probe_error": row["last_probe_error"] or "",
     }
 
+
 def get_upstream_probe_summary(scope_type: str, scope_key: str) -> Dict[str, Any]:
     from outlook_web.db import get_db
 
@@ -74,6 +77,7 @@ def get_upstream_probe_summary(scope_type: str, scope_key: str) -> Dict[str, Any
     ).fetchone()
     return _probe_summary_from_row(row)
 
+
 def _is_probe_summary_fresh(summary: Dict[str, Any], cache_ttl_seconds: int) -> bool:
     last_probe_at = summary.get("last_probe_at") or ""
     if not last_probe_at:
@@ -83,6 +87,7 @@ def _is_probe_summary_fresh(summary: Dict[str, Any], cache_ttl_seconds: int) -> 
         return False
     age_seconds = (_utcnow() - probed_at).total_seconds()
     return age_seconds <= max(0, int(cache_ttl_seconds))
+
 
 def record_upstream_probe_summary(
     *,
@@ -130,10 +135,12 @@ def record_upstream_probe_summary(
         "last_probe_error": str(last_probe_error or "")[:500],
     }
 
+
 def _probe_error_message(exc: Exception) -> str:
     if isinstance(exc, ExternalApiError):
         return str(exc.message or exc.code or "探测失败")
     return str(exc)[:500] or type(exc).__name__
+
 
 def probe_account_upstream(
     account: Dict[str, Any],
@@ -181,12 +188,14 @@ def probe_account_upstream(
     )
     return summary
 
+
 def _pick_instance_probe_account() -> Optional[Dict[str, Any]]:
     candidates = accounts_repo.load_accounts()
     for account in candidates:
         if _account_can_read(account):
             return account
     return None
+
 
 def probe_instance_upstream(*, cache_ttl_seconds: int = 60, force: bool = False) -> Dict[str, Any]:
     cached = get_upstream_probe_summary("instance", "__instance__")

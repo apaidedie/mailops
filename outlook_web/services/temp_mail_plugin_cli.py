@@ -15,8 +15,8 @@ from outlook_web.services.temp_mail_plugin_manager import (
     scaffold_provider_plugin,
     uninstall_plugin,
 )
-from outlook_web.services.temp_mail_provider_factory import get_available_providers
 from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+from outlook_web.services.temp_mail_provider_factory import get_available_providers
 
 
 def _confirm(prompt: str) -> bool:
@@ -148,7 +148,9 @@ def _load_provider_file(provider_name: str, file_path: str) -> None:
         ) from exc
 
 
-def validate_provider_contract(provider_name: str, file_path: str | None = None, *, probe_options: bool = True) -> dict[str, object]:
+def validate_provider_contract(
+    provider_name: str, file_path: str | None = None, *, probe_options: bool = True
+) -> dict[str, object]:
     provider_key = str(provider_name or "").strip()
     if not provider_key:
         raise PluginManagerError("INVALID_PARAMS", "Provider name is required", status=400)

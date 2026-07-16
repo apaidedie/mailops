@@ -57,8 +57,8 @@ class CiReadinessGateWorkflowTests(unittest.TestCase):
     def test_docker_publish_quality_gate_runs_repository_readiness_before_tests(self):
         workflow = _read(DOCKER_WORKFLOW)
 
-        readiness_index = workflow.index("Run repository readiness gate")
-        tests_index = workflow.index("Run publish gate tests")
+        readiness_index = workflow.index("Repository readiness gate")
+        tests_index = workflow.index("Focused contract tests")
         self.assertIn("python scripts/project_readiness_check.py", workflow[readiness_index:tests_index])
         self.assertLess(readiness_index, tests_index)
 

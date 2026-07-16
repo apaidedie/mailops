@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 import tempfile
+import unittest
 import uuid
 from pathlib import Path
 from unittest.mock import patch
@@ -29,16 +29,12 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             from outlook_web.db import get_db
 
             db = get_db()
-            db.execute(
-                "DELETE FROM temp_emails WHERE email LIKE '%@unified-mailbox.test'"
-            )
-            db.execute(
-                """
+            db.execute("DELETE FROM temp_emails WHERE email LIKE '%@unified-mailbox.test'")
+            db.execute("""
                 DELETE FROM tags
                 WHERE name LIKE 'unified-tag-%'
                   AND id NOT IN (SELECT tag_id FROM account_tags)
-                """
-            )
+                """)
             db.execute("DELETE FROM accounts WHERE email LIKE '%@unified-mailbox.test'")
             db.execute("DELETE FROM tags WHERE name LIKE 'unified-tag-%'")
             db.execute("DELETE FROM groups WHERE name LIKE 'unified-group-%'")
@@ -165,9 +161,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(data["contract"]["version"], 1)
         self.assertEqual(data["contract"]["item_id_format"], "{kind}:{source_id}")
         self.assertEqual(data["contract"]["kinds"], expected_contract["kinds"])
-        self.assertEqual(
-            data["contract"]["filters"]["kind"], expected_contract["filters"]["kind"]
-        )
+        self.assertEqual(data["contract"]["filters"]["kind"], expected_contract["filters"]["kind"])
         self.assertEqual(
             data["contract"]["filters"]["status"],
             expected_contract["filters"]["status"],
@@ -180,9 +174,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             data["contract"]["filters"]["action"],
             expected_contract["filters"]["action"],
         )
-        self.assertEqual(
-            data["contract"]["filters"]["sort"], expected_contract["filters"]["sort"]
-        )
+        self.assertEqual(data["contract"]["filters"]["sort"], expected_contract["filters"]["sort"])
         self.assertEqual(
             [item["kind"] for item in data["contract"]["kind_definitions"]],
             [item["kind"] for item in expected_contract["kind_definitions"]],
@@ -196,14 +188,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             [item["sort"] for item in expected_contract["sort_definitions"]],
         )
         self.assertEqual(
-            [
-                item["read_capability"]
-                for item in data["contract"]["read_capability_definitions"]
-            ],
-            [
-                item["read_capability"]
-                for item in expected_contract["read_capability_definitions"]
-            ],
+            [item["read_capability"] for item in data["contract"]["read_capability_definitions"]],
+            [item["read_capability"] for item in expected_contract["read_capability_definitions"]],
         )
         self.assertEqual(
             [item["action"] for item in data["contract"]["action_definitions"]],
@@ -217,26 +203,14 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             data["contract"]["quick_view_presets"],
             expected_contract["quick_view_presets"],
         )
-        quick_view_keys = [
-            item["key"] for item in data["contract"]["quick_view_presets"]
-        ]
-        self.assertEqual(
-            quick_view_keys, ["all", "accounts", "temp", "readable", "attention"]
-        )
-        quick_view_by_key = {
-            item["key"]: item for item in data["contract"]["quick_view_presets"]
-        }
-        self.assertEqual(
-            quick_view_by_key["readable"]["filters"]["action"], "read_messages"
-        )
-        self.assertEqual(
-            quick_view_by_key["attention"]["filters"]["status"], "inactive"
-        )
+        quick_view_keys = [item["key"] for item in data["contract"]["quick_view_presets"]]
+        self.assertEqual(quick_view_keys, ["all", "accounts", "temp", "readable", "attention"])
+        quick_view_by_key = {item["key"]: item for item in data["contract"]["quick_view_presets"]}
+        self.assertEqual(quick_view_by_key["readable"]["filters"]["action"], "read_messages")
+        self.assertEqual(quick_view_by_key["attention"]["filters"]["status"], "inactive")
         provider_context = data["provider_context"]
         self.assertEqual(provider_context["version"], 1)
-        self.assertEqual(
-            provider_context["defaults"]["temp_mail_provider_env"], "TEMP_MAIL_PROVIDER"
-        )
+        self.assertEqual(provider_context["defaults"]["temp_mail_provider_env"], "TEMP_MAIL_PROVIDER")
         self.assertEqual(
             provider_context["defaults"]["pool_claim_provider_env"],
             "EXTERNAL_POOL_DEFAULT_PROVIDER",
@@ -250,9 +224,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             provider_context["deployment_profile"]["templates"],
         )
         self.assertEqual(
-            provider_context["selection_policy"]["scopes"]["task_temp_apply"][
-                "request_field"
-            ],
+            provider_context["selection_policy"]["scopes"]["task_temp_apply"]["request_field"],
             "provider_name",
         )
         self.assertEqual(
@@ -260,9 +232,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health",
         )
         documentation = provider_context["documentation"]
-        self.assertEqual(
-            documentation["recommended_human_start"], "provider_onboarding"
-        )
+        self.assertEqual(documentation["recommended_human_start"], "provider_onboarding")
         self.assertEqual(
             documentation["entries"]["provider_onboarding"]["path"],
             "docs/provider-onboarding.md",
@@ -279,9 +249,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             guide["source_priority"],
             provider_context["selection_policy"]["source_priority"],
         )
-        self.assertEqual(
-            guide["endpoints"]["mailboxes"], f"{CANONICAL_EXTERNAL_PREFIX}/mailboxes"
-        )
+        self.assertEqual(guide["endpoints"]["mailboxes"], f"{CANONICAL_EXTERNAL_PREFIX}/mailboxes")
         self.assertEqual(
             guide["workflow"]["create_task_temp_mailbox"]["request_field"],
             "provider_name",
@@ -291,32 +259,22 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             "legacy_bridge",
         )
         guide_providers = {item["provider"]: item for item in guide["providers"]}
-        self.assertEqual(
-            guide_providers["duckmail"]["required_env"], ["DUCKMAIL_BEARER_TOKEN"]
-        )
+        self.assertEqual(guide_providers["duckmail"]["required_env"], ["DUCKMAIL_BEARER_TOKEN"])
         self.assertEqual(
             guide_providers["duckmail"]["task_temp_apply_request"]["endpoint"],
             f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/apply",
         )
-        self.assertEqual(
-            guide_providers["mail_tm"]["optional_env"], ["MAILTM_API_BASE"]
-        )
+        self.assertEqual(guide_providers["mail_tm"]["optional_env"], ["MAILTM_API_BASE"])
         self.assertFalse(guide["secret_policy"]["exposes_secret_values"])
         readiness = provider_context["readiness_summary"]
         self.assertEqual(readiness["version"], 1)
-        self.assertIn(
-            readiness["overall_status"], {"ready", "needs_config", "degraded"}
-        )
+        self.assertIn(readiness["overall_status"], {"ready", "needs_config", "degraded"})
         self.assertEqual(readiness["totals"]["mailboxes"], 3)
         self.assertEqual(readiness["totals"]["account_mailboxes"], 2)
         self.assertEqual(readiness["totals"]["temp_mailboxes"], 1)
         self.assertGreaterEqual(readiness["totals"]["providers"], 3)
-        self.assertEqual(
-            readiness["provider_selector_fields"]["pool_claim"], "provider"
-        )
-        self.assertEqual(
-            readiness["provider_selector_fields"]["task_temp_apply"], "provider_name"
-        )
+        self.assertEqual(readiness["provider_selector_fields"]["pool_claim"], "provider")
+        self.assertEqual(readiness["provider_selector_fields"]["task_temp_apply"], "provider_name")
         self.assertEqual(
             readiness["endpoints"]["mailboxes"],
             f"{CANONICAL_EXTERNAL_PREFIX}/mailboxes",
@@ -338,9 +296,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         )
         task_scope = routing_matrix["scopes"]["task_temp_apply"]
         self.assertEqual(task_scope["request_field"], "provider_name")
-        self.assertEqual(
-            task_scope["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/apply"
-        )
+        self.assertEqual(task_scope["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/apply")
         self.assertEqual(task_scope["counts"]["total"], len(task_scope["providers"]))
         task_rows = {item["provider"]: item for item in task_scope["providers"]}
         self.assertEqual(task_rows["duckmail"]["kind"], "temp")
@@ -348,20 +304,12 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             task_rows["duckmail"]["endpoints"]["request"],
             f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/apply",
         )
-        runtime_rows = {
-            item["provider"]: item
-            for item in routing_matrix["scopes"]["temp_runtime_default"]["providers"]
-        }
+        runtime_rows = {item["provider"]: item for item in routing_matrix["scopes"]["temp_runtime_default"]["providers"]}
         self.assertEqual(runtime_rows["gptmail"]["canonical_provider"], "legacy_bridge")
-        pool_rows = {
-            item["provider"]: item
-            for item in routing_matrix["scopes"]["explicit_pool_claim"]["providers"]
-        }
+        pool_rows = {item["provider"]: item for item in routing_matrix["scopes"]["explicit_pool_claim"]["providers"]}
         self.assertEqual(pool_rows["imap"]["kind"], "account")
         self.assertTrue(pool_rows["auto"]["usable"])
-        readiness_rows = {
-            (item["kind"], item["provider"]): item for item in readiness["providers"]
-        }
+        readiness_rows = {(item["kind"], item["provider"]): item for item in readiness["providers"]}
         self.assertEqual(readiness_rows[("account", "outlook")]["mailbox_count"], 1)
         self.assertEqual(readiness_rows[("account", "qq")]["mailbox_count"], 1)
         self.assertEqual(readiness_rows[("temp", "duckmail")]["mailbox_count"], 1)
@@ -379,9 +327,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(status_facets["active"]["count"], 2)
         self.assertEqual(status_facets["inactive"]["count"], 1)
         self.assertEqual(status_facets["finished"]["count"], 0)
-        read_capability_facets = self._facet_map(
-            data, "read_capabilities", "read_capability"
-        )
+        read_capability_facets = self._facet_map(data, "read_capabilities", "read_capability")
         self.assertEqual(read_capability_facets["graph"]["count"], 1)
         self.assertEqual(read_capability_facets["imap"]["count"], 1)
         self.assertEqual(read_capability_facets["temp_provider"]["count"], 1)
@@ -391,9 +337,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(by_email[outlook_email]["provider"], "outlook")
         self.assertEqual(by_email[outlook_email]["provider_label"], "Outlook")
         self.assertEqual(by_email[outlook_email]["read_capability"], "graph")
-        self.assertEqual(
-            by_email[outlook_email]["latest"]["verification_code"], "123456"
-        )
+        self.assertEqual(by_email[outlook_email]["latest"]["verification_code"], "123456")
         self.assertIn("unified-tag-" + unique, by_email[outlook_email]["labels"])
         self.assertTrue(by_email[outlook_email]["actions"]["refresh_auth"])
         self.assertFalse(by_email[outlook_email]["actions"]["delete_remote_mailbox"])
@@ -417,9 +361,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             outlook_contract["external"]["wait_message_async"]["query"],
             {"mode": "async", "email": outlook_email},
         )
-        self.assertEqual(
-            outlook_contract["internal"]["open_mailbox"]["mode"], "standard"
-        )
+        self.assertEqual(outlook_contract["internal"]["open_mailbox"]["mode"], "standard")
         self.assertEqual(
             outlook_contract["internal"]["open_mailbox"]["group_id"],
             self._default_group_id(),
@@ -457,9 +399,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             temp_contract["external"]["read_latest_message"]["query"]["email"],
             temp_email,
         )
-        self.assertEqual(
-            temp_contract["internal"]["open_mailbox"]["mode"], "temp-emails"
-        )
+        self.assertEqual(temp_contract["internal"]["open_mailbox"]["mode"], "temp-emails")
         self.assertEqual(temp_contract["internal"]["open_mailbox"]["group_id"], None)
         self.assertEqual(
             temp_contract["internal"]["read_messages"]["endpoint"],
@@ -503,13 +443,9 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         self.assertEqual(config_file["error_code"], "PROVIDER_CONFIG_FILE_NOT_FOUND")
         self.assertFalse(config_file["loaded"])
+        self.assertEqual(provider_context["provider_filter"]["source"], "config_file_error")
         self.assertEqual(
-            provider_context["provider_filter"]["source"], "config_file_error"
-        )
-        self.assertEqual(
-            provider_context["provider_diagnostics"]["defaults"]["temp_mail_provider"][
-                "config_error_code"
-            ],
+            provider_context["provider_diagnostics"]["defaults"]["temp_mail_provider"]["config_error_code"],
             "PROVIDER_CONFIG_FILE_NOT_FOUND",
         )
 
@@ -522,21 +458,15 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             from outlook_web.repositories import temp_emails as temp_emails_repo
 
             self.assertTrue(
-                temp_emails_repo.create_temp_email(
-                    email_addr=active_temp, provider_name="mail_tm", status="active"
-                )
+                temp_emails_repo.create_temp_email(email_addr=active_temp, provider_name="mail_tm", status="active")
             )
             self.assertTrue(
-                temp_emails_repo.create_temp_email(
-                    email_addr=finished_temp, provider_name="mail_tm", status="finished"
-                )
+                temp_emails_repo.create_temp_email(email_addr=finished_temp, provider_name="mail_tm", status="finished")
             )
 
         client = self.app.test_client()
         self._login(client)
-        resp = client.get(
-            f"/api/mailboxes?kind=temp&status=active&search={unique}&page=1&page_size=10"
-        )
+        resp = client.get(f"/api/mailboxes?kind=temp&status=active&search={unique}&page=1&page_size=10")
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
@@ -553,9 +483,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(status_facets["active"]["count"], 1)
         self.assertEqual(status_facets["finished"]["count"], 1)
         self.assertEqual(status_facets["inactive"]["count"], 0)
-        read_capability_facets = self._facet_map(
-            data, "read_capabilities", "read_capability"
-        )
+        read_capability_facets = self._facet_map(data, "read_capabilities", "read_capability")
         self.assertEqual(read_capability_facets["graph"]["count"], 0)
         self.assertEqual(read_capability_facets["imap"]["count"], 0)
         self.assertEqual(read_capability_facets["temp_provider"]["count"], 1)
@@ -598,28 +526,18 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                     default_group_id,
                 ),
             )
-            temp_emails_repo.create_temp_email(
-                email_addr=temp_email, provider_name="mail_tm", status="active"
-            )
+            temp_emails_repo.create_temp_email(email_addr=temp_email, provider_name="mail_tm", status="active")
             db.commit()
 
         client = self.app.test_client()
         self._login(client)
-        graph_resp = client.get(
-            f"/api/mailboxes?search={unique}&read_capability=graph&page_size=10"
-        )
-        imap_resp = client.get(
-            f"/api/mailboxes?search={unique}&read_capability=imap&page_size=10"
-        )
-        temp_resp = client.get(
-            f"/api/mailboxes?search={unique}&read_capability=temp_provider&page_size=10"
-        )
+        graph_resp = client.get(f"/api/mailboxes?search={unique}&read_capability=graph&page_size=10")
+        imap_resp = client.get(f"/api/mailboxes?search={unique}&read_capability=imap&page_size=10")
+        temp_resp = client.get(f"/api/mailboxes?search={unique}&read_capability=temp_provider&page_size=10")
 
         self.assertEqual(graph_resp.status_code, 200)
         graph_data = graph_resp.get_json()
-        self.assertEqual(
-            [item["email"] for item in graph_data["mailboxes"]], [outlook_email]
-        )
+        self.assertEqual([item["email"] for item in graph_data["mailboxes"]], [outlook_email])
         self.assertEqual(graph_data["filters"]["read_capability"], "graph")
         self.assertEqual(
             {item["provider"] for item in graph_data["facets"]["providers"]},
@@ -628,23 +546,15 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         self.assertEqual(imap_resp.status_code, 200)
         imap_data = imap_resp.get_json()
-        self.assertEqual(
-            [item["email"] for item in imap_data["mailboxes"]], [imap_email]
-        )
+        self.assertEqual([item["email"] for item in imap_data["mailboxes"]], [imap_email])
         self.assertEqual(imap_data["filters"]["read_capability"], "imap")
-        self.assertEqual(
-            {item["provider"] for item in imap_data["facets"]["providers"]}, {"qq"}
-        )
+        self.assertEqual({item["provider"] for item in imap_data["facets"]["providers"]}, {"qq"})
 
         self.assertEqual(temp_resp.status_code, 200)
         temp_data = temp_resp.get_json()
-        self.assertEqual(
-            [item["email"] for item in temp_data["mailboxes"]], [temp_email]
-        )
+        self.assertEqual([item["email"] for item in temp_data["mailboxes"]], [temp_email])
         self.assertEqual(temp_data["filters"]["read_capability"], "temp_provider")
-        self.assertEqual(
-            {item["provider"] for item in temp_data["facets"]["providers"]}, {"mail_tm"}
-        )
+        self.assertEqual({item["provider"] for item in temp_data["facets"]["providers"]}, {"mail_tm"})
 
     def test_api_mailboxes_filters_action_capability(self):
         unique = uuid.uuid4().hex
@@ -701,40 +611,26 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         client = self.app.test_client()
         self._login(client)
-        refresh_resp = client.get(
-            f"/api/mailboxes?search={unique}&action=refresh_auth&page_size=10"
-        )
-        remote_delete_resp = client.get(
-            f"/api/mailboxes?search={unique}&action=delete_remote_mailbox&page_size=10"
-        )
-        clear_resp = client.get(
-            f"/api/mailboxes?search={unique}&action=clear_messages&page_size=10"
-        )
-        read_resp = client.get(
-            f"/api/mailboxes?search={unique}&action=read_messages&page_size=10"
-        )
+        refresh_resp = client.get(f"/api/mailboxes?search={unique}&action=refresh_auth&page_size=10")
+        remote_delete_resp = client.get(f"/api/mailboxes?search={unique}&action=delete_remote_mailbox&page_size=10")
+        clear_resp = client.get(f"/api/mailboxes?search={unique}&action=clear_messages&page_size=10")
+        read_resp = client.get(f"/api/mailboxes?search={unique}&action=read_messages&page_size=10")
 
         self.assertEqual(refresh_resp.status_code, 200)
         refresh_data = refresh_resp.get_json()
         self.assertEqual(refresh_data["filters"]["action"], "refresh_auth")
-        self.assertEqual(
-            [item["email"] for item in refresh_data["mailboxes"]], [outlook_email]
-        )
+        self.assertEqual([item["email"] for item in refresh_data["mailboxes"]], [outlook_email])
         self.assertEqual(
             {item["provider"] for item in refresh_data["facets"]["providers"]},
             {"outlook"},
         )
-        refresh_action_facets = {
-            item["action"]: item for item in refresh_data["facets"]["actions"]
-        }
+        refresh_action_facets = {item["action"]: item for item in refresh_data["facets"]["actions"]}
         self.assertEqual(refresh_action_facets["read_messages"]["count"], 3)
         self.assertEqual(refresh_action_facets["refresh_auth"]["count"], 1)
         self.assertEqual(refresh_action_facets["delete_remote_mailbox"]["count"], 1)
         self.assertEqual(refresh_action_facets["delete_message"]["count"], 1)
         self.assertEqual(refresh_action_facets["clear_messages"]["count"], 1)
-        self.assertEqual(
-            refresh_action_facets["delete_remote_mailbox"]["label"], "删除远端邮箱"
-        )
+        self.assertEqual(refresh_action_facets["delete_remote_mailbox"]["label"], "删除远端邮箱")
         self.assertEqual(
             refresh_action_facets["delete_remote_mailbox"]["label_en"],
             "Delete remote mailbox",
@@ -742,31 +638,21 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         self.assertEqual(remote_delete_resp.status_code, 200)
         remote_delete_data = remote_delete_resp.get_json()
-        self.assertEqual(
-            remote_delete_data["filters"]["action"], "delete_remote_mailbox"
-        )
-        self.assertEqual(
-            [item["email"] for item in remote_delete_data["mailboxes"]], [temp_email]
-        )
+        self.assertEqual(remote_delete_data["filters"]["action"], "delete_remote_mailbox")
+        self.assertEqual([item["email"] for item in remote_delete_data["mailboxes"]], [temp_email])
         self.assertEqual(
             {item["provider"] for item in remote_delete_data["facets"]["providers"]},
             {"duckmail"},
         )
-        remote_delete_action_facets = {
-            item["action"]: item for item in remote_delete_data["facets"]["actions"]
-        }
+        remote_delete_action_facets = {item["action"]: item for item in remote_delete_data["facets"]["actions"]}
         self.assertEqual(remote_delete_action_facets["read_messages"]["count"], 3)
         self.assertEqual(remote_delete_action_facets["refresh_auth"]["count"], 1)
-        self.assertEqual(
-            remote_delete_action_facets["delete_remote_mailbox"]["count"], 1
-        )
+        self.assertEqual(remote_delete_action_facets["delete_remote_mailbox"]["count"], 1)
 
         self.assertEqual(clear_resp.status_code, 200)
         clear_data = clear_resp.get_json()
         self.assertEqual(clear_data["filters"]["action"], "clear_messages")
-        self.assertEqual(
-            [item["email"] for item in clear_data["mailboxes"]], [temp_email]
-        )
+        self.assertEqual([item["email"] for item in clear_data["mailboxes"]], [temp_email])
 
         self.assertEqual(read_resp.status_code, 200)
         read_data = read_resp.get_json()
@@ -803,17 +689,13 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         client = self.app.test_client()
         self._login(client)
-        resp = client.get(
-            f"/api/mailboxes?kind=temp&search={unique}&provider=duckmail&page_size=10"
-        )
+        resp = client.get(f"/api/mailboxes?kind=temp&search={unique}&provider=duckmail&page_size=10")
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertTrue(data["success"])
         self.assertEqual(data["filters"]["provider"], "duckmail")
-        self.assertEqual(
-            [item["email"] for item in data["mailboxes"]], [duckmail_email]
-        )
+        self.assertEqual([item["email"] for item in data["mailboxes"]], [duckmail_email])
         self.assertEqual(data["summary"]["total"], 1)
         kind_facets = self._facet_map(data, "kinds", "kind")
         self.assertEqual(kind_facets["account"]["count"], 0)
@@ -821,9 +703,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         status_facets = self._facet_map(data, "statuses", "status")
         self.assertEqual(status_facets["active"]["count"], 1)
         self.assertEqual(status_facets["inactive"]["count"], 0)
-        read_capability_facets = self._facet_map(
-            data, "read_capabilities", "read_capability"
-        )
+        read_capability_facets = self._facet_map(data, "read_capabilities", "read_capability")
         self.assertEqual(read_capability_facets["graph"]["count"], 0)
         self.assertEqual(read_capability_facets["imap"]["count"], 0)
         self.assertEqual(read_capability_facets["temp_provider"]["count"], 1)
@@ -837,9 +717,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(facets["mail_tm"]["label"], "Mail.tm")
         self.assertEqual(facets["mail_tm"]["count"], 1)
 
-        unknown_resp = client.get(
-            f"/api/mailboxes?kind=temp&search={unique}&provider=not_real&page_size=10"
-        )
+        unknown_resp = client.get(f"/api/mailboxes?kind=temp&search={unique}&provider=not_real&page_size=10")
         self.assertEqual(unknown_resp.status_code, 200)
         unknown_data = unknown_resp.get_json()
         self.assertTrue(unknown_data["success"])
@@ -895,12 +773,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         client = self.app.test_client()
         self._login(client)
-        updated_resp = client.get(
-            f"/api/mailboxes?search={unique}&sort=updated_desc&page_size=10"
-        )
-        email_resp = client.get(
-            f"/api/mailboxes?search={unique}&sort=email_asc&page_size=10"
-        )
+        updated_resp = client.get(f"/api/mailboxes?search={unique}&sort=updated_desc&page_size=10")
+        email_resp = client.get(f"/api/mailboxes?search={unique}&sort=email_asc&page_size=10")
 
         self.assertEqual(updated_resp.status_code, 200)
         updated_data = updated_resp.get_json()
@@ -944,9 +818,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                     int(group_cursor.lastrowid),
                 ),
             )
-            tag_cursor = db.execute(
-                "INSERT INTO tags (name, color) VALUES (?, ?)", (tag_name, "#123456")
-            )
+            tag_cursor = db.execute("INSERT INTO tags (name, color) VALUES (?, ?)", (tag_name, "#123456"))
             db.execute(
                 "INSERT INTO account_tags (account_id, tag_id) VALUES (?, ?)",
                 (int(account_cursor.lastrowid), int(tag_cursor.lastrowid)),
@@ -960,17 +832,11 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         domain_resp = client.get("/api/mailboxes?search=unified-mailbox.test")
 
         self.assertEqual(tag_resp.status_code, 200)
-        self.assertIn(
-            email, [item["email"] for item in tag_resp.get_json()["mailboxes"]]
-        )
+        self.assertIn(email, [item["email"] for item in tag_resp.get_json()["mailboxes"]])
         self.assertEqual(group_resp.status_code, 200)
-        self.assertIn(
-            email, [item["email"] for item in group_resp.get_json()["mailboxes"]]
-        )
+        self.assertIn(email, [item["email"] for item in group_resp.get_json()["mailboxes"]])
         self.assertEqual(domain_resp.status_code, 200)
-        self.assertIn(
-            email, [item["email"] for item in domain_resp.get_json()["mailboxes"]]
-        )
+        self.assertIn(email, [item["email"] for item in domain_resp.get_json()["mailboxes"]])
 
     def test_api_mailboxes_rejects_invalid_filters(self):
         client = self.app.test_client()
@@ -982,9 +848,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         status_resp = client.get("/api/mailboxes?status=not-real")
         self.assertEqual(status_resp.status_code, 400)
-        self.assertEqual(
-            status_resp.get_json()["error"]["code"], "MAILBOX_STATUS_INVALID"
-        )
+        self.assertEqual(status_resp.get_json()["error"]["code"], "MAILBOX_STATUS_INVALID")
 
         read_capability_resp = client.get("/api/mailboxes?read_capability=not-real")
         self.assertEqual(read_capability_resp.status_code, 400)
@@ -995,9 +859,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         action_resp = client.get("/api/mailboxes?action=not-real")
         self.assertEqual(action_resp.status_code, 400)
-        self.assertEqual(
-            action_resp.get_json()["error"]["code"], "MAILBOX_ACTION_INVALID"
-        )
+        self.assertEqual(action_resp.get_json()["error"]["code"], "MAILBOX_ACTION_INVALID")
 
         sort_resp = client.get("/api/mailboxes?sort=not-real")
         self.assertEqual(sort_resp.status_code, 400)
@@ -1067,9 +929,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         client = self.app.test_client()
         self._login(client)
-        with patch(
-            "outlook_web.services.external_api.list_messages_for_external"
-        ) as list_mock:
+        with patch("outlook_web.services.external_api.list_messages_for_external") as list_mock:
             list_mock.return_value = (
                 [
                     {
@@ -1084,9 +944,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                 ],
                 "Graph",
             )
-            resp = client.get(
-                f"/api/mailboxes/account/{account_id}/messages?folder=inbox&top=10"
-            )
+            resp = client.get(f"/api/mailboxes/account/{account_id}/messages?folder=inbox&top=10")
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
@@ -1098,9 +956,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(data["messages"][0]["subject"], "Account subject")
         self.assertNotIn("refresh-secret", str(data))
         self.assertNotIn("must-not-leak", str(data))
-        list_mock.assert_called_once_with(
-            email_addr=email, folder="inbox", skip=0, top=10
-        )
+        list_mock.assert_called_once_with(email_addr=email, folder="inbox", skip=0, top=10)
 
     def test_unified_mailbox_message_preview_reads_temp_messages_without_external_api(
         self,
@@ -1127,11 +983,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                 )
             )
             db = get_db()
-            temp_id = int(
-                db.execute(
-                    "SELECT id FROM temp_emails WHERE email = ?", (email,)
-                ).fetchone()["id"]
-            )
+            temp_id = int(db.execute("SELECT id FROM temp_emails WHERE email = ?", (email,)).fetchone()["id"])
 
         class FakeTempMailService:
             def list_messages(self, target, *, sync_remote=True):
@@ -1153,9 +1005,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with (
-            patch(
-                "outlook_web.services.external_api.list_messages_for_external"
-            ) as external_mock,
+            patch("outlook_web.services.external_api.list_messages_for_external") as external_mock,
             patch(
                 "outlook_web.services.temp_mail_service.get_temp_mail_service",
                 return_value=fake_service,
@@ -1194,11 +1044,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                 )
             )
             db = get_db()
-            temp_id = int(
-                db.execute(
-                    "SELECT id FROM temp_emails WHERE email = ?", (email,)
-                ).fetchone()["id"]
-            )
+            temp_id = int(db.execute("SELECT id FROM temp_emails WHERE email = ?", (email,)).fetchone()["id"])
 
         class CachedFallbackTempMailService:
             def list_messages(self, target, *, sync_remote=True):
@@ -1230,9 +1076,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                     status=502,
                 )
 
-            def get_message_detail(
-                self, target, message_id, *, refresh_if_missing=True
-            ):
+            def get_message_detail(self, target, message_id, *, refresh_if_missing=True):
                 self.refresh_if_missing = refresh_if_missing
                 return {
                     "id": message_id,
@@ -1250,9 +1094,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             return_value=fake_service,
         ):
             list_resp = client.get(f"/api/mailboxes/temp/{temp_id}/messages")
-            detail_resp = client.get(
-                f"/api/mailboxes/temp/{temp_id}/messages/cached-msg-1"
-            )
+            detail_resp = client.get(f"/api/mailboxes/temp/{temp_id}/messages/cached-msg-1")
 
         self.assertEqual(list_resp.status_code, 200)
         list_data = list_resp.get_json()
@@ -1292,12 +1134,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with (
-            patch(
-                "outlook_web.services.external_api.get_message_detail_for_external"
-            ) as detail_mock,
-            patch(
-                "outlook_web.services.external_api.get_verification_result"
-            ) as verification_mock,
+            patch("outlook_web.services.external_api.get_message_detail_for_external") as detail_mock,
+            patch("outlook_web.services.external_api.get_verification_result") as verification_mock,
         ):
             detail_mock.return_value = {
                 "id": "detail-1",
@@ -1317,12 +1155,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                 "claim_token": "must-not-leak-verification",
             }
 
-            detail_resp = client.get(
-                f"/api/mailboxes/account/{account_id}/messages/detail-1"
-            )
-            verification_resp = client.get(
-                f"/api/mailboxes/account/{account_id}/verification"
-            )
+            detail_resp = client.get(f"/api/mailboxes/account/{account_id}/messages/detail-1")
+            verification_resp = client.get(f"/api/mailboxes/account/{account_id}/verification")
 
         self.assertEqual(detail_resp.status_code, 200)
         detail_data = detail_resp.get_json()
@@ -1334,18 +1168,14 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(verification_resp.status_code, 200)
         verification_data = verification_resp.get_json()
         self.assertTrue(verification_data["success"])
-        self.assertEqual(
-            verification_data["verification"]["verification_code"], "123456"
-        )
+        self.assertEqual(verification_data["verification"]["verification_code"], "123456")
         self.assertNotIn("must-not-leak", str(verification_data))
 
     def test_api_mailboxes_coerces_invalid_pagination_and_allows_empty_results(self):
         client = self.app.test_client()
         self._login(client)
 
-        resp = client.get(
-            "/api/mailboxes?search=no-such-unified-mailbox&page=bad&page_size=also-bad"
-        )
+        resp = client.get("/api/mailboxes?search=no-such-unified-mailbox&page=bad&page_size=also-bad")
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
@@ -1371,9 +1201,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             get_mailbox_catalog_contract,
         )
 
-        self.assertEqual(
-            get_mailbox_source_loader_kinds(), get_mailbox_catalog_contract()["kinds"]
-        )
+        self.assertEqual(get_mailbox_source_loader_kinds(), get_mailbox_catalog_contract()["kinds"])
 
     def test_mailbox_catalog_contract_exposes_provider_agnostic_quick_view_presets(
         self,
@@ -1455,18 +1283,14 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             }
             original_loaders = mailbox_catalog.MAILBOX_SOURCE_LOADERS
             mailbox_catalog.MAILBOX_SOURCE_LOADERS = (
-                mailbox_catalog.MailboxSourceLoader(
-                    kind="account", load=lambda: [registry_item]
-                ),
+                mailbox_catalog.MailboxSourceLoader(kind="account", load=lambda: [registry_item]),
             )
             try:
                 data = mailbox_catalog.list_unified_mailboxes(search="registry-source")
             finally:
                 mailbox_catalog.MAILBOX_SOURCE_LOADERS = original_loaders
 
-        self.assertEqual(
-            [item["email"] for item in data["mailboxes"]], [registry_email]
-        )
+        self.assertEqual([item["email"] for item in data["mailboxes"]], [registry_email])
         self.assertEqual(data["summary"]["total"], 1)
         self.assertEqual(data["summary"]["account"], 1)
         kind_facets = self._facet_map(data, "kinds", "kind")
@@ -1474,15 +1298,11 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(kind_facets["temp"]["count"], 0)
         status_facets = self._facet_map(data, "statuses", "status")
         self.assertEqual(status_facets["active"]["count"], 1)
-        read_capability_facets = self._facet_map(
-            data, "read_capabilities", "read_capability"
-        )
+        read_capability_facets = self._facet_map(data, "read_capabilities", "read_capability")
         self.assertEqual(read_capability_facets["imap"]["count"], 1)
         self.assertEqual(read_capability_facets["graph"]["count"], 0)
         self.assertEqual(read_capability_facets["temp_provider"]["count"], 0)
-        self.assertEqual(
-            data["facets"]["providers"][0]["provider"], "registry_provider"
-        )
+        self.assertEqual(data["facets"]["providers"][0]["provider"], "registry_provider")
         action_facets = {item["action"]: item for item in data["facets"]["actions"]}
         self.assertEqual(action_facets["read_messages"]["count"], 1)
         self.assertEqual(action_facets["refresh_auth"]["count"], 0)
@@ -1517,9 +1337,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             },
         ]
 
-        self.assertEqual(
-            _canonical_inventory_provider("custom_domain_temp_mail"), "legacy_bridge"
-        )
+        self.assertEqual(_canonical_inventory_provider("custom_domain_temp_mail"), "legacy_bridge")
         self.assertEqual(_canonical_inventory_provider("gptmail"), "legacy_bridge")
 
         facets = {row["provider"]: row for row in _provider_facets(items)}
@@ -1585,11 +1403,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(operator_default, "legacy_bridge")
 
         guide = get_provider_integration_guide()
-        guide_temp = {
-            item.get("provider")
-            for item in (guide.get("providers") or [])
-            if item.get("kind") == "temp"
-        }
+        guide_temp = {item.get("provider") for item in (guide.get("providers") or []) if item.get("kind") == "temp"}
         self.assertIn(operator_default, guide_temp)
         self.assertNotIn("custom_domain_temp_mail", guide_temp)
 
@@ -1598,9 +1412,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             (capabilities.get("defaults") or {}).get("temp_mail_provider"),
             "legacy_bridge",
         )
-        defaults = ((capabilities.get("provider_diagnostics") or {}).get("defaults") or {}).get(
-            "temp_mail_provider"
-        ) or {}
+        defaults = ((capabilities.get("provider_diagnostics") or {}).get("defaults") or {}).get("temp_mail_provider") or {}
         self.assertEqual(defaults.get("provider"), "legacy_bridge")
         self.assertEqual(defaults.get("raw_provider"), "custom_domain_temp_mail")
 
@@ -1618,28 +1430,18 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertIn("legacy_bridge", catalog_temp)
 
         diagnostics = get_mailbox_provider_diagnostics(include_inactive=True)
-        diag_providers = {
-            item.get("provider")
-            for item in (diagnostics.get("providers") or [])
-            if item.get("kind") == "temp"
-        }
+        diag_providers = {item.get("provider") for item in (diagnostics.get("providers") or []) if item.get("kind") == "temp"}
         self.assertIn("legacy_bridge", diag_providers)
         self.assertNotIn("custom_domain_temp_mail", diag_providers)
         self.assertEqual(diagnostics.get("summary", {}).get("total"), len(diagnostics.get("providers") or []))
         self.assertEqual(diagnostics.get("summary", {}).get("temp"), len(diag_providers))
 
         guide = get_provider_integration_guide()
-        guide_providers = {
-            item.get("provider")
-            for item in (guide.get("providers") or [])
-            if item.get("kind") == "temp"
-        }
+        guide_providers = {item.get("provider") for item in (guide.get("providers") or []) if item.get("kind") == "temp"}
         self.assertIn("legacy_bridge", guide_providers)
         self.assertNotIn("custom_domain_temp_mail", guide_providers)
         bridge_labels = [
-            item.get("label")
-            for item in (guide.get("providers") or [])
-            if item.get("label") == "Compatible Temp Mail Bridge"
+            item.get("label") for item in (guide.get("providers") or []) if item.get("label") == "Compatible Temp Mail Bridge"
         ]
         self.assertEqual(len(bridge_labels), 1)
 

@@ -12,7 +12,6 @@ from unittest.mock import patch
 from outlook_web import __version__ as APP_VERSION
 from scripts import check_release_version as gate
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STABLE_VERSION_RE = re.compile(r"(?:当前稳定版本：|Current stable version:)\s*`(?P<version>v[^`]+)`")
 

@@ -81,7 +81,7 @@ def _capabilities_payload() -> dict:
                         "label": "OpenAPI",
                         "type": "api_contract",
                         "endpoint": CANONICAL_OPENAPI,
-                    }
+                    },
                 },
             },
             "integration_bundle": {
@@ -131,7 +131,10 @@ def _routing_matrix() -> dict:
                 "status": "ready" if value != "duckmail" else "needs_config",
                 "reason": "local_config_ready" if value != "duckmail" else "missing_config",
                 "aliases": [],
-                "endpoints": {"request": endpoint, "health": f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health"},
+                "endpoints": {
+                    "request": endpoint,
+                    "health": f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health",
+                },
             }
             for value in allowed_values
         ]
@@ -406,16 +409,25 @@ def _integration_bundle_payload() -> dict:
                 "schema_count": len(_openapi_payload()["components"]["schemas"]),
                 "operation_count": 4,
             },
-            "workflows": [{"key": "start_mailbox_session", "label": "Start mailbox session", "description": "", "step_count": 3}],
+            "workflows": [
+                {"key": "start_mailbox_session", "label": "Start mailbox session", "description": "", "step_count": 3}
+            ],
             "smoke_checks": [
                 {"key": "health", "method": "GET", "endpoint": f"{CANONICAL_EXTERNAL_PREFIX}/health", "purpose": "health"},
-                {"key": "capabilities", "method": "GET", "endpoint": f"{CANONICAL_EXTERNAL_PREFIX}/capabilities", "purpose": "capabilities"},
+                {
+                    "key": "capabilities",
+                    "method": "GET",
+                    "endpoint": f"{CANONICAL_EXTERNAL_PREFIX}/capabilities",
+                    "purpose": "capabilities",
+                },
                 {"key": "integration_bundle", "method": "GET", "endpoint": CANONICAL_INTEGRATION_BUNDLE, "purpose": "bundle"},
                 {"key": "providers", "method": "GET", "endpoint": CANONICAL_PROVIDERS, "purpose": "providers"},
                 {"key": "mailboxes", "method": "GET", "endpoint": CANONICAL_MAILBOXES, "purpose": "mailboxes"},
                 {"key": "openapi", "method": "GET", "endpoint": CANONICAL_OPENAPI, "purpose": "openapi"},
             ],
-            "recommendations": [{"key": "generate_client", "priority": "low", "label": "Generate client", "endpoint": CANONICAL_OPENAPI}],
+            "recommendations": [
+                {"key": "generate_client", "priority": "low", "label": "Generate client", "endpoint": CANONICAL_OPENAPI}
+            ],
             "action_plan": {
                 "version": 1,
                 "status": "ready",
@@ -477,9 +489,7 @@ class ExternalApiSmokeScriptTests(unittest.TestCase):
 
         with patch.object(external_api_smoke, "run_smoke", return_value=results) as run_smoke:
             with redirect_stdout(stdout), redirect_stderr(stderr):
-                exit_code = external_api_smoke.main(
-                    ["--base-url", "https://mailbox.example.test", "--api-key", "test-key"]
-                )
+                exit_code = external_api_smoke.main(["--base-url", "https://mailbox.example.test", "--api-key", "test-key"])
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(stderr.getvalue(), "")
@@ -751,9 +761,9 @@ class ExternalApiSmokeScriptTests(unittest.TestCase):
 
     def test_run_smoke_scans_integration_bundle_action_plan_for_secret_values(self):
         bundle = _integration_bundle_payload()
-        bundle["data"]["action_plan"]["items"][0]["command"] = (
-            "OUTLOOK_EMAIL_PLUS_API_KEY=sk-secret-secret-secret-1234567890 python scripts/external_api_smoke.py --base-url https://example.test"
-        )
+        bundle["data"]["action_plan"]["items"][0][
+            "command"
+        ] = "OUTLOOK_EMAIL_PLUS_API_KEY=sk-secret-secret-secret-1234567890 python scripts/external_api_smoke.py --base-url https://example.test"
         payloads = {
             f"{CANONICAL_EXTERNAL_PREFIX}/health": _health_payload(),
             f"{CANONICAL_EXTERNAL_PREFIX}/capabilities": _capabilities_payload(),
@@ -775,13 +785,13 @@ class ExternalApiSmokeScriptTests(unittest.TestCase):
 
     def test_run_smoke_scans_provider_and_mailbox_discovery_for_secret_values(self):
         providers = _providers_payload()
-        providers["data"]["readiness_summary"]["routing_matrix"][
-            "leaked"
-        ] = "dk_" + "1234567890abcdef1234567890abcdef1234567890abcdef"
+        providers["data"]["readiness_summary"]["routing_matrix"]["leaked"] = (
+            "dk_" + "1234567890abcdef1234567890abcdef1234567890abcdef"
+        )
         mailboxes = _mailboxes_payload()
-        mailboxes["data"]["provider_context"]["readiness_summary"]["routing_matrix"][
-            "auth"
-        ] = "Bearer " + "secret-token-value-" + "1234567890"
+        mailboxes["data"]["provider_context"]["readiness_summary"]["routing_matrix"]["auth"] = (
+            "Bearer " + "secret-token-value-" + "1234567890"
+        )
         payloads = {
             f"{CANONICAL_EXTERNAL_PREFIX}/health": _health_payload(),
             f"{CANONICAL_EXTERNAL_PREFIX}/capabilities": _capabilities_payload(),

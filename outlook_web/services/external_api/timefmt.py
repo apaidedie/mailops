@@ -37,8 +37,10 @@ from outlook_web.services.verification_extractor import (
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
 
 def _parse_datetime(value: str) -> Optional[datetime]:
     if not value:
@@ -67,6 +69,7 @@ def _parse_datetime(value: str) -> Optional[datetime]:
     except Exception:
         return None
 
+
 def _format_datetime(dt: Optional[datetime], fallback: str = "") -> tuple[str, int]:
     if not dt:
         return (fallback or "", 0)
@@ -76,6 +79,7 @@ def _format_datetime(dt: Optional[datetime], fallback: str = "") -> tuple[str, i
     except Exception:
         return (fallback or "", 0)
 
+
 def _extract_email_address(value: str) -> str:
     """从 `Name <addr>` 中提取 addr；解析失败则原样返回。"""
     try:
@@ -83,6 +87,7 @@ def _extract_email_address(value: str) -> str:
         return addr or str(value or "")
     except Exception:
         return str(value or "")
+
 
 def claimed_at_to_timestamp(claimed_at: str) -> Optional[int]:
     """将 claimed_at ISO string 转为 Unix timestamp（整数），解析失败返回 None。"""

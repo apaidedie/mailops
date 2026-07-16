@@ -64,7 +64,9 @@ def _add_check(checks: list[dict[str, Any]], key: str, ok: bool, *, detail: str 
     checks.append(check)
 
 
-def _safe_config_schema_fields(schema: Any, issues: list[dict[str, Any]], checks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _safe_config_schema_fields(
+    schema: Any, issues: list[dict[str, Any]], checks: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     if schema in (None, ""):
         _add_check(checks, "config_schema", True, detail="empty")
         return []
@@ -97,7 +99,13 @@ def _safe_config_schema_fields(schema: Any, issues: list[dict[str, Any]], checks
 
         field_type = str(raw_field.get("type") or "text").strip().lower() or "text"
         if field_type not in _KNOWN_CONFIG_FIELD_TYPES:
-            _add_issue(issues, "CONFIG_FIELD_TYPE_UNKNOWN", "warning", f"{path}.type", "config field type is not recognized by the plugin UI")
+            _add_issue(
+                issues,
+                "CONFIG_FIELD_TYPE_UNKNOWN",
+                "warning",
+                f"{path}.type",
+                "config field type is not recognized by the plugin UI",
+            )
 
         safe_field: dict[str, Any] = {
             "key": key,
@@ -148,7 +156,9 @@ def _instantiate_provider(provider_name: str, provider_cls: type[Any]) -> Any:
         return provider_cls()
 
 
-def _probe_options(provider_name: str, provider_cls: type[Any], issues: list[dict[str, Any]], checks: list[dict[str, Any]]) -> dict[str, Any]:
+def _probe_options(
+    provider_name: str, provider_cls: type[Any], issues: list[dict[str, Any]], checks: list[dict[str, Any]]
+) -> dict[str, Any]:
     if not callable(getattr(provider_cls, "get_options", None)):
         return {"requested": True, "ok": False, "return_type": "missing"}
     try:
@@ -201,7 +211,9 @@ def validate_temp_mail_provider_class(
     explicit_provider_name = "provider_name" in getattr(provider_cls, "__dict__", {})
     raw_provider_name = getattr(provider_cls, "provider_name", "")
     declared_provider_name = str(raw_provider_name or "").strip() if isinstance(raw_provider_name, str) else ""
-    resolved_provider_name = declared_provider_name or (registry_name if not explicit_provider_name else "") or _derive_provider_name(provider_cls)
+    resolved_provider_name = (
+        declared_provider_name or (registry_name if not explicit_provider_name else "") or _derive_provider_name(provider_cls)
+    )
 
     checks: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
@@ -225,7 +237,9 @@ def validate_temp_mail_provider_class(
     if not resolved_provider_name:
         _add_issue(issues, "PROVIDER_NAME_MISSING", "error", "provider_name", "provider_name is required")
     elif resolved_provider_name != registry_name:
-        _add_issue(issues, "PROVIDER_NAME_MISMATCH", "error", "provider_name", "provider_name must match the registered provider key")
+        _add_issue(
+            issues, "PROVIDER_NAME_MISMATCH", "error", "provider_name", "provider_name must match the registered provider key"
+        )
     elif not declared_provider_name and not explicit_provider_name:
         _add_issue(issues, "PROVIDER_NAME_DERIVED", "warning", "provider_name", "provider_name is derived from the class name")
     _add_check(checks, "provider_name", bool(registry_name and resolved_provider_name == registry_name))

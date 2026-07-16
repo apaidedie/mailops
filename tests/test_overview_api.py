@@ -48,8 +48,8 @@ class OverviewApiBaseTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
             from outlook_web.controllers import overview as overview_controller
+            from outlook_web.db import get_db
 
             overview_controller._OVERVIEW_SUMMARY_CACHE = None
             overview_controller._OVERVIEW_SUMMARY_CACHE_AT = 0.0

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import shutil
 import subprocess
 import unittest
 from pathlib import Path
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class FrontendAccountTypeContractTests(unittest.TestCase):
@@ -28,7 +28,7 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
 
     def test_dashboard_refresh_health_uses_overview_summary_feed(self):
         client = self.app.test_client()
-        overview_js = load_feature_package_js('static/js/features/overview')
+        overview_js = load_feature_package_js("static/js/features/overview")
         main_js = load_frontend_app_js()
 
         self.assertIn("function initOverview()", overview_js)
@@ -40,7 +40,7 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
 
     def test_group_cards_split_outlook_and_imap_status_rendering(self):
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
 
         self.assertIn("const supportsTokenRefresh = isRefreshableOutlookAccount(acc);", groups_js)
         self.assertIn(
@@ -61,7 +61,7 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
     def test_account_list_provider_labels_are_catalog_driven(self):
         """账号卡片 provider tag 应从 catalog 解析，而不是硬编码 map。"""
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
         main_js = load_frontend_app_js()
 
         self.assertIn("function getProviderLabel(provider)", groups_js)
@@ -75,7 +75,7 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
 
     def test_group_refresh_error_button_passes_account_type_and_provider(self):
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
 
         self.assertIn("showRefreshError(${acc.id}", groups_js)
         self.assertIn("${escapeJs(acc.account_type || 'outlook')}", groups_js)
@@ -137,7 +137,7 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
         i18n_js = self._get_text(client, "/static/js/i18n.js")
         index_html = self._get_text(client, "/")
         compact_js = self._get_text(client, "/static/js/features/mailbox_compact.js")
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
 
         self.assertIn("'编辑备注': 'Edit Remark'", i18n_js)
         self.assertIn("'单独编辑备注': 'Edit Remark Only'", i18n_js)

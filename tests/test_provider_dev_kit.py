@@ -16,9 +16,7 @@ class ProviderDevKitTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="provider-dev-kit-") as tmpdir:
             buffer = io.StringIO()
             with redirect_stdout(buffer):
-                exit_code = provider_dev_kit.main(
-                    ["scaffold", "sample_bridge", "--output-dir", tmpdir, "--format", "json"]
-                )
+                exit_code = provider_dev_kit.main(["scaffold", "sample_bridge", "--output-dir", tmpdir, "--format", "json"])
 
             payload = json.loads(buffer.getvalue())
             target = Path(payload["file_path"])
@@ -34,14 +32,14 @@ class ProviderDevKitTests(unittest.TestCase):
         self.assertIn("provider_dev_kit.py validate sample_bridge", "\n".join(payload["next_steps"]))
 
     def test_validate_command_is_offline_by_default_and_outputs_contract_json(self):
-        from scripts import provider_dev_kit
         from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from scripts import provider_dev_kit
 
         provider_key = "offline_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
 
-        plugin_source = '''from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = """from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class OfflineContractProvider(TempMailProviderBase):
@@ -56,7 +54,7 @@ class OfflineContractProvider(TempMailProviderBase):
     def get_message_detail(self, mailbox, message_id): return None
     def delete_message(self, mailbox, message_id): return True
     def clear_messages(self, mailbox): return True
-'''
+"""
 
         with tempfile.TemporaryDirectory(prefix="provider-dev-kit-") as tmpdir:
             target = Path(tmpdir) / "offline_contract.py"
@@ -64,9 +62,7 @@ class OfflineContractProvider(TempMailProviderBase):
             buffer = io.StringIO()
             try:
                 with redirect_stdout(buffer):
-                    exit_code = provider_dev_kit.main(
-                        ["validate", provider_key, "--file", str(target), "--format", "json"]
-                    )
+                    exit_code = provider_dev_kit.main(["validate", provider_key, "--file", str(target), "--format", "json"])
             finally:
                 _REGISTRY.pop(provider_key, None)
                 if previous_provider is not None:
@@ -82,14 +78,14 @@ class OfflineContractProvider(TempMailProviderBase):
         self.assertEqual(payload["secret_scan"], {"ok": True, "hits": []})
 
     def test_validate_command_fails_on_secret_scan_without_leaking_value(self):
-        from scripts import provider_dev_kit
         from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from scripts import provider_dev_kit
 
         provider_key = "secret_scan_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
         secret_value = "dk_" + "a" * 64
-        plugin_source = f'''from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = f"""from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 TOKEN_EXAMPLE = "{secret_value}"
 
@@ -105,7 +101,7 @@ class SecretScanContractProvider(TempMailProviderBase):
     def get_message_detail(self, mailbox, message_id): return None
     def delete_message(self, mailbox, message_id): return True
     def clear_messages(self, mailbox): return True
-'''
+"""
 
         with tempfile.TemporaryDirectory(prefix="provider-dev-kit-") as tmpdir:
             target = Path(tmpdir) / "secret_scan_contract.py"
@@ -113,9 +109,7 @@ class SecretScanContractProvider(TempMailProviderBase):
             buffer = io.StringIO()
             try:
                 with redirect_stdout(buffer):
-                    exit_code = provider_dev_kit.main(
-                        ["validate", provider_key, "--file", str(target), "--format", "json"]
-                    )
+                    exit_code = provider_dev_kit.main(["validate", provider_key, "--file", str(target), "--format", "json"])
             finally:
                 _REGISTRY.pop(provider_key, None)
                 if previous_provider is not None:
@@ -132,13 +126,13 @@ class SecretScanContractProvider(TempMailProviderBase):
         self.assertNotIn(secret_value, output)
 
     def test_probe_options_is_explicit(self):
-        from scripts import provider_dev_kit
         from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from scripts import provider_dev_kit
 
         provider_key = "probe_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
-        plugin_source = '''from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = """from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class ProbeContractProvider(TempMailProviderBase):
@@ -153,7 +147,7 @@ class ProbeContractProvider(TempMailProviderBase):
     def get_message_detail(self, mailbox, message_id): return None
     def delete_message(self, mailbox, message_id): return True
     def clear_messages(self, mailbox): return True
-'''
+"""
 
         with tempfile.TemporaryDirectory(prefix="provider-dev-kit-") as tmpdir:
             target = Path(tmpdir) / "probe_contract.py"

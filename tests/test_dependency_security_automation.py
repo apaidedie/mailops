@@ -6,6 +6,8 @@ from pathlib import Path
 DEPENDABOT_CONFIG = Path(".github/dependabot.yml")
 DEPENDENCY_SECURITY_WORKFLOW = Path(".github/workflows/dependency-security.yml")
 DOCKER_WORKFLOW = Path(".github/workflows/docker-build-push.yml")
+
+
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 

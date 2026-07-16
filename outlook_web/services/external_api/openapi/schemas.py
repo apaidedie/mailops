@@ -14,22 +14,33 @@ from outlook_web.services.external_request_limits import (
     TASK_MAILBOX_PREFIX_MAX_LEN,
 )
 from outlook_web.services.mailbox_directory_contract import get_mailbox_catalog_contract
-from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 from outlook_web.services.pool import VALID_RESULTS
+from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 
 from .builders import _json_value_schema, _nullable_string_enum_schema, _string_array_schema
+
 
 def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
     contract = get_mailbox_catalog_contract()
     endpoints = capabilities.get("endpoints") if isinstance(capabilities.get("endpoints"), dict) else {}
-    mailbox_directory = capabilities.get("mailbox_directory") if isinstance(capabilities.get("mailbox_directory"), dict) else {}
+    mailbox_directory = (
+        capabilities.get("mailbox_directory") if isinstance(capabilities.get("mailbox_directory"), dict) else {}
+    )
     selection_policy = capabilities.get("selection_policy") if isinstance(capabilities.get("selection_policy"), dict) else {}
     selection_scopes = selection_policy.get("scopes") if isinstance(selection_policy.get("scopes"), dict) else {}
-    pool_claim_scope = selection_scopes.get("explicit_pool_claim") if isinstance(selection_scopes.get("explicit_pool_claim"), dict) else {}
-    task_temp_apply_scope = selection_scopes.get("task_temp_apply") if isinstance(selection_scopes.get("task_temp_apply"), dict) else {}
-    integration_manifest = capabilities.get("integration_manifest") if isinstance(capabilities.get("integration_manifest"), dict) else {}
+    pool_claim_scope = (
+        selection_scopes.get("explicit_pool_claim") if isinstance(selection_scopes.get("explicit_pool_claim"), dict) else {}
+    )
+    task_temp_apply_scope = (
+        selection_scopes.get("task_temp_apply") if isinstance(selection_scopes.get("task_temp_apply"), dict) else {}
+    )
+    integration_manifest = (
+        capabilities.get("integration_manifest") if isinstance(capabilities.get("integration_manifest"), dict) else {}
+    )
     pool = capabilities.get("pool") if isinstance(capabilities.get("pool"), dict) else {}
-    task_temp_mailbox = capabilities.get("task_temp_mailbox") if isinstance(capabilities.get("task_temp_mailbox"), dict) else {}
+    task_temp_mailbox = (
+        capabilities.get("task_temp_mailbox") if isinstance(capabilities.get("task_temp_mailbox"), dict) else {}
+    )
     mailbox_session = capabilities.get("mailbox_session") if isinstance(capabilities.get("mailbox_session"), dict) else {}
     return {
         "ExternalEnvelope": {
@@ -59,7 +70,17 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "ExternalReadinessSummary": {
             "type": "object",
-            "required": ["status", "database", "upstream_probe", "discovery", "providers", "mailbox_directory", "pool", "task_temp_mailbox", "warnings"],
+            "required": [
+                "status",
+                "database",
+                "upstream_probe",
+                "discovery",
+                "providers",
+                "mailbox_directory",
+                "pool",
+                "task_temp_mailbox",
+                "warnings",
+            ],
             "properties": {
                 "status": {"type": "string", "enum": ["ready", "degraded"]},
                 "database": {"type": "string", "enum": ["ok", "error"]},
@@ -188,7 +209,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
             "type": "object",
             "required": ["endpoint", "response_contract"],
             "properties": {
-                "endpoint": {"type": "string", "example": endpoints.get("integration_bundle") or f"{EXTERNAL_API_V1_PREFIX}/integration-bundle"},
+                "endpoint": {
+                    "type": "string",
+                    "example": endpoints.get("integration_bundle") or f"{EXTERNAL_API_V1_PREFIX}/integration-bundle",
+                },
                 "response_contract": {"type": "string", "enum": ["integration_bundle"]},
                 "recommended_for": _string_array_schema(),
             },
@@ -228,7 +252,15 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "ProviderSelectionPolicy": {
             "type": "object",
-            "required": ["version", "source_priority", "config_file", "scopes", "templates", "selection_recipes", "selection_recipe_index"],
+            "required": [
+                "version",
+                "source_priority",
+                "config_file",
+                "scopes",
+                "templates",
+                "selection_recipes",
+                "selection_recipe_index",
+            ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
                 "source_priority": _string_array_schema(selection_policy.get("source_priority") or []),
@@ -244,7 +276,17 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "ProviderDeploymentProfile": {
             "type": "object",
-            "required": ["version", "env", "config_file", "templates", "provider_values", "aliases", "provider_examples", "selection_recipes", "selection_recipe_index"],
+            "required": [
+                "version",
+                "env",
+                "config_file",
+                "templates",
+                "provider_values",
+                "aliases",
+                "provider_examples",
+                "selection_recipes",
+                "selection_recipe_index",
+            ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
                 "env": {"type": "object", "additionalProperties": {"type": "string"}},
@@ -254,7 +296,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "config_env": {"type": "object", "additionalProperties": True},
                 "config_settings": {"type": "object", "additionalProperties": True},
                 "aliases": {"type": "object", "additionalProperties": True},
-                "provider_examples": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": True}},
+                "provider_examples": {
+                    "type": "object",
+                    "additionalProperties": {"type": "object", "additionalProperties": True},
+                },
                 "selection_recipes": {"type": "array", "items": {"$ref": "#/components/schemas/ProviderSelectionRecipe"}},
                 "selection_recipe_index": {
                     "type": "object",
@@ -402,12 +447,28 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "ProviderSelectionRecipe": {
             "type": "object",
-            "required": ["key", "scope", "provider", "label", "kind", "active", "source_priority", "provider_env", "description"],
+            "required": [
+                "key",
+                "scope",
+                "provider",
+                "label",
+                "kind",
+                "active",
+                "source_priority",
+                "provider_env",
+                "description",
+            ],
             "properties": {
                 "key": {"type": "string", "example": "explicit_pool_claim:duckmail"},
                 "scope": {
                     "type": "string",
-                    "enum": ["active_allowlist", "temp_runtime_default", "pool_claim_default", "explicit_pool_claim", "task_temp_apply"],
+                    "enum": [
+                        "active_allowlist",
+                        "temp_runtime_default",
+                        "pool_claim_default",
+                        "explicit_pool_claim",
+                        "task_temp_apply",
+                    ],
                 },
                 "provider": {"type": "string"},
                 "label": {"type": "string"},
@@ -503,7 +564,15 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "IntegrationQuickstart": {
             "type": "object",
-            "required": ["version", "auth", "recommended_sequence", "provider_selector_fields", "endpoints", "requests", "workflow_keys"],
+            "required": [
+                "version",
+                "auth",
+                "recommended_sequence",
+                "provider_selector_fields",
+                "endpoints",
+                "requests",
+                "workflow_keys",
+            ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
                 "auth": {"$ref": "#/components/schemas/IntegrationQuickstartAuth"},
@@ -609,7 +678,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "openapi": {"$ref": "#/components/schemas/IntegrationBundleOpenApi"},
                 "workflows": {"type": "array", "items": {"$ref": "#/components/schemas/IntegrationBundleWorkflow"}},
                 "smoke_checks": {"type": "array", "items": {"$ref": "#/components/schemas/IntegrationBundleSmokeCheck"}},
-                "recommendations": {"type": "array", "items": {"$ref": "#/components/schemas/IntegrationBundleRecommendation"}},
+                "recommendations": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/IntegrationBundleRecommendation"},
+                },
                 "action_plan": {"$ref": "#/components/schemas/IntegrationBundleActionPlan"},
             },
             "additionalProperties": True,
@@ -639,7 +711,15 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "IntegrationBundleProviderSelection": {
             "type": "object",
-            "required": ["source_priority", "selector_fields", "provider_values", "defaults", "config_file", "selection_recipes_count", "routing_matrix"],
+            "required": [
+                "source_priority",
+                "selector_fields",
+                "provider_values",
+                "defaults",
+                "config_file",
+                "selection_recipes_count",
+                "routing_matrix",
+            ],
             "properties": {
                 "source_priority": _string_array_schema(),
                 "selector_fields": {"type": "object", "additionalProperties": {"type": "string"}},
@@ -655,7 +735,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
             "type": "object",
             "required": ["endpoint", "version", "path_count", "schema_count", "operation_count"],
             "properties": {
-                "endpoint": {"type": "string", "example": endpoints.get("openapi") or f"{EXTERNAL_API_V1_PREFIX}/openapi.json"},
+                "endpoint": {
+                    "type": "string",
+                    "example": endpoints.get("openapi") or f"{EXTERNAL_API_V1_PREFIX}/openapi.json",
+                },
                 "version": {"type": "string", "example": "3.1.0"},
                 "path_count": {"type": "integer", "minimum": 0},
                 "schema_count": {"type": "integer", "minimum": 0},
@@ -737,7 +820,17 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "IntegrationManifestSelection": {
             "type": "object",
-            "required": ["source_priority", "active_allowlist", "temp_runtime_default", "pool_claim_default", "task_temp_apply", "explicit_pool_claim", "aliases", "recipes", "recipe_index"],
+            "required": [
+                "source_priority",
+                "active_allowlist",
+                "temp_runtime_default",
+                "pool_claim_default",
+                "task_temp_apply",
+                "explicit_pool_claim",
+                "aliases",
+                "recipes",
+                "recipe_index",
+            ],
             "properties": {
                 "source_priority": _string_array_schema(selection_policy.get("source_priority") or []),
                 "active_allowlist": {"type": "object", "additionalProperties": True},
@@ -774,7 +867,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
             "type": "object",
             "required": ["recommended_sequence", "endpoints"],
             "properties": {
-                "recommended_sequence": {"type": "array", "items": {"$ref": "#/components/schemas/IntegrationManifestDiscoveryStep"}},
+                "recommended_sequence": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/IntegrationManifestDiscoveryStep"},
+                },
                 "endpoints": {"type": "object", "additionalProperties": {"type": "string"}},
             },
             "additionalProperties": True,
@@ -900,7 +996,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "account_scope",
             ],
             "properties": {
-                "endpoint": {"type": "string", "example": mailbox_directory.get("endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailboxes"},
+                "endpoint": {
+                    "type": "string",
+                    "example": mailbox_directory.get("endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailboxes",
+                },
                 "query_fields": _string_array_schema(mailbox_directory.get("query_fields") or []),
                 "response_contract": {"type": "string", "enum": ["unified_mailbox_directory"]},
                 "contract": {"type": "object", "additionalProperties": True, "example": contract},
@@ -971,13 +1070,25 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "default_provider_env": {"type": "string"},
                 "restrictions": _string_array_schema(),
                 "features": _string_array_schema(),
-                "claim_endpoint": {"type": "string", "example": pool.get("claim_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-random"},
+                "claim_endpoint": {
+                    "type": "string",
+                    "example": pool.get("claim_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-random",
+                },
                 "claim_fields": _string_array_schema(pool.get("claim_fields") or []),
-                "release_endpoint": {"type": "string", "example": pool.get("release_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-release"},
+                "release_endpoint": {
+                    "type": "string",
+                    "example": pool.get("release_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-release",
+                },
                 "release_fields": _string_array_schema(pool.get("release_fields") or []),
-                "complete_endpoint": {"type": "string", "example": pool.get("complete_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-complete"},
+                "complete_endpoint": {
+                    "type": "string",
+                    "example": pool.get("complete_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/claim-complete",
+                },
                 "complete_fields": _string_array_schema(pool.get("complete_fields") or []),
-                "stats_endpoint": {"type": "string", "example": pool.get("stats_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/stats"},
+                "stats_endpoint": {
+                    "type": "string",
+                    "example": pool.get("stats_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/pool/stats",
+                },
                 "read_contract": {"type": "object", "additionalProperties": True},
             },
         },
@@ -985,20 +1096,46 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
             "type": "object",
             "required": ["apply_endpoint", "apply_fields", "finish_endpoint", "finish_fields", "read_contract"],
             "properties": {
-                "apply_endpoint": {"type": "string", "example": task_temp_mailbox.get("apply_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/temp-emails/apply"},
+                "apply_endpoint": {
+                    "type": "string",
+                    "example": task_temp_mailbox.get("apply_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/temp-emails/apply",
+                },
                 "apply_fields": _string_array_schema(task_temp_mailbox.get("apply_fields") or []),
-                "finish_endpoint": {"type": "string", "example": task_temp_mailbox.get("finish_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/temp-emails/{{task_token}}/finish"},
+                "finish_endpoint": {
+                    "type": "string",
+                    "example": task_temp_mailbox.get("finish_endpoint")
+                    or f"{EXTERNAL_API_V1_PREFIX}/temp-emails/{{task_token}}/finish",
+                },
                 "finish_fields": _string_array_schema(task_temp_mailbox.get("finish_fields") or []),
                 "read_contract": {"type": "object", "additionalProperties": True},
             },
         },
         "MailboxSessionDiscovery": {
             "type": "object",
-            "required": ["start_endpoint", "read_endpoint", "close_endpoint", "start_fields", "read_fields", "close_fields", "read_action_values", "source_strategy_values", "read_contract"],
+            "required": [
+                "start_endpoint",
+                "read_endpoint",
+                "close_endpoint",
+                "start_fields",
+                "read_fields",
+                "close_fields",
+                "read_action_values",
+                "source_strategy_values",
+                "read_contract",
+            ],
             "properties": {
-                "start_endpoint": {"type": "string", "example": mailbox_session.get("start_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/start"},
-                "read_endpoint": {"type": "string", "example": mailbox_session.get("read_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/read"},
-                "close_endpoint": {"type": "string", "example": mailbox_session.get("close_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/close"},
+                "start_endpoint": {
+                    "type": "string",
+                    "example": mailbox_session.get("start_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/start",
+                },
+                "read_endpoint": {
+                    "type": "string",
+                    "example": mailbox_session.get("read_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/read",
+                },
+                "close_endpoint": {
+                    "type": "string",
+                    "example": mailbox_session.get("close_endpoint") or f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/close",
+                },
                 "start_fields": _string_array_schema(mailbox_session.get("start_fields") or []),
                 "read_fields": _string_array_schema(mailbox_session.get("read_fields") or []),
                 "close_fields": _string_array_schema(mailbox_session.get("close_fields") or []),
@@ -1009,7 +1146,18 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "ProviderCatalogData": {
             "type": "object",
-            "required": ["mailbox_providers", "provider_diagnostics", "provider_filter", "deployment_profile", "selection_policy", "provider_integration_guide", "readiness_summary", "integration_manifest", "quickstart", "documentation"],
+            "required": [
+                "mailbox_providers",
+                "provider_diagnostics",
+                "provider_filter",
+                "deployment_profile",
+                "selection_policy",
+                "provider_integration_guide",
+                "readiness_summary",
+                "integration_manifest",
+                "quickstart",
+                "documentation",
+            ],
             "properties": {
                 "mailbox_providers": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
                 "provider_diagnostics": {"type": "object", "additionalProperties": True},
@@ -1044,7 +1192,19 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "MailboxProviderContext": {
             "type": "object",
-            "required": ["version", "defaults", "provider_filter", "provider_diagnostics", "documentation", "deployment_env", "deployment_profile", "selection_policy", "provider_integration_guide", "readiness_summary", "discovery"],
+            "required": [
+                "version",
+                "defaults",
+                "provider_filter",
+                "provider_diagnostics",
+                "documentation",
+                "deployment_env",
+                "deployment_profile",
+                "selection_policy",
+                "provider_integration_guide",
+                "readiness_summary",
+                "discovery",
+            ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
                 "defaults": {"type": "object", "additionalProperties": True},
@@ -1061,7 +1221,18 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "MailboxProviderReadinessSummary": {
             "type": "object",
-            "required": ["version", "overall_status", "totals", "issues", "source_priority", "provider_selector_fields", "routing_matrix", "capability_matrix", "endpoints", "providers"],
+            "required": [
+                "version",
+                "overall_status",
+                "totals",
+                "issues",
+                "source_priority",
+                "provider_selector_fields",
+                "routing_matrix",
+                "capability_matrix",
+                "endpoints",
+                "providers",
+            ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
                 "overall_status": {"type": "string", "enum": ["ready", "needs_config", "degraded"]},
@@ -1170,7 +1341,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "read": {"$ref": "#/components/schemas/MailboxProviderCapabilityRead"},
                 "lifecycle_actions": {"type": "array", "items": {"type": "string"}},
                 "workflow_support": {"type": "object", "additionalProperties": {"type": "boolean"}},
-                "selection_fields": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": True}},
+                "selection_fields": {
+                    "type": "object",
+                    "additionalProperties": {"type": "object", "additionalProperties": True},
+                },
                 "configuration": {"type": "object", "additionalProperties": True},
                 "inventory": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
                 "endpoints": {"type": "object", "additionalProperties": {"type": "string"}},
@@ -1202,7 +1376,17 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "MailboxProviderRoutingScope": {
             "type": "object",
-            "required": ["scope", "label", "request_field", "settings_key", "env", "endpoint", "allowed_values", "counts", "providers"],
+            "required": [
+                "scope",
+                "label",
+                "request_field",
+                "settings_key",
+                "env",
+                "endpoint",
+                "allowed_values",
+                "counts",
+                "providers",
+            ],
             "properties": {
                 "scope": {"type": "string"},
                 "label": {"type": "string"},
@@ -1218,7 +1402,19 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "MailboxProviderRoutingProvider": {
             "type": "object",
-            "required": ["provider", "canonical_provider", "label", "kind", "active", "configured", "usable", "status", "reason", "aliases", "endpoints"],
+            "required": [
+                "provider",
+                "canonical_provider",
+                "label",
+                "kind",
+                "active",
+                "configured",
+                "usable",
+                "status",
+                "reason",
+                "aliases",
+                "endpoints",
+            ],
             "properties": {
                 "provider": {"type": "string"},
                 "canonical_provider": {"type": "string"},
@@ -1236,7 +1432,22 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
         },
         "MailboxProviderReadinessProvider": {
             "type": "object",
-            "required": ["kind", "provider", "label", "active", "configured", "readiness_status", "mailbox_count", "account_count", "temp_count", "can_dynamic_create", "requires_pool_inventory", "read_capability", "missing_config_count", "endpoints"],
+            "required": [
+                "kind",
+                "provider",
+                "label",
+                "active",
+                "configured",
+                "readiness_status",
+                "mailbox_count",
+                "account_count",
+                "temp_count",
+                "can_dynamic_create",
+                "requires_pool_inventory",
+                "read_capability",
+                "missing_config_count",
+                "endpoints",
+            ],
             "properties": {
                 "kind": {"type": "string"},
                 "provider": {"type": "string"},
@@ -1597,7 +1808,10 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "complete_endpoint": {"type": "string", "example": f"{EXTERNAL_API_V1_PREFIX}/pool/claim-complete"},
                 "release_endpoint": {"type": "string", "example": f"{EXTERNAL_API_V1_PREFIX}/pool/claim-release"},
                 "task_token": {"type": "string"},
-                "finish_endpoint": {"type": "string", "example": f"{EXTERNAL_API_V1_PREFIX}/temp-emails/{{task_token}}/finish"},
+                "finish_endpoint": {
+                    "type": "string",
+                    "example": f"{EXTERNAL_API_V1_PREFIX}/temp-emails/{{task_token}}/finish",
+                },
                 "visible_in_ui": {"type": "boolean"},
                 "status": {"type": "string"},
             },
@@ -1624,7 +1838,15 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "session_type": {"type": "string", "enum": ["pool_claim", "task_temp_mailbox"]},
                 "read_action": {
                     "type": "string",
-                    "enum": ["messages", "latest_message", "message_detail", "message_raw", "verification_code", "verification_link", "wait_message"],
+                    "enum": [
+                        "messages",
+                        "latest_message",
+                        "message_detail",
+                        "message_raw",
+                        "verification_code",
+                        "verification_link",
+                        "wait_message",
+                    ],
                 },
                 "email": {"type": "string"},
                 "status": {"type": "string", "enum": ["ok", "pending"]},
@@ -1771,7 +1993,15 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "session_type": {"type": "string", "enum": ["pool_claim", "task_temp_mailbox"]},
                 "read_action": {
                     "type": "string",
-                    "enum": ["messages", "latest_message", "message_detail", "message_raw", "verification_code", "verification_link", "wait_message"],
+                    "enum": [
+                        "messages",
+                        "latest_message",
+                        "message_detail",
+                        "message_raw",
+                        "verification_code",
+                        "verification_link",
+                        "wait_message",
+                    ],
                 },
                 "caller_id": {"type": "string", "minLength": 1, "maxLength": CALLER_ID_MAX_LEN},
                 "task_id": {"type": "string", "minLength": 1, "maxLength": TASK_ID_MAX_LEN},

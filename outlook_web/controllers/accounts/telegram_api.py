@@ -33,6 +33,7 @@ from outlook_web.security.crypto import decrypt_data
 from outlook_web.services import graph as graph_service
 from outlook_web.services import refresh as refresh_service
 
+
 @login_required
 def api_telegram_toggle(account_id: int) -> Any:
     """切换账号通知参与开关。兼容旧 Telegram 专用接口路径。"""

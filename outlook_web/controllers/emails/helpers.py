@@ -27,6 +27,7 @@ from outlook_web.services.mailbox_resolver import normalize_alias_email
 
 from .constants import _EXTERNAL_NESTED_UPSTREAM_CODES
 
+
 def _build_response_from_error_payload(error_payload: dict[str, Any]):
     return build_error_response(
         str(error_payload.get("code") or "INTERNAL_ERROR"),
@@ -37,6 +38,7 @@ def _build_response_from_error_payload(error_payload: dict[str, Any]):
         details=error_payload.get("details") or "",
         trace_id=error_payload.get("trace_id"),
     )
+
 
 def _build_account_credential_decrypt_failed_response(account: dict[str, Any]):
     credential_errors = account.get("_credential_errors") or []
@@ -58,12 +60,14 @@ def _build_account_credential_decrypt_failed_response(account: dict[str, Any]):
         extra={"details": details},
     )
 
+
 def _persist_refresh_token(account: Dict[str, Any], new_refresh_token: str) -> None:
     token = str(new_refresh_token or "").strip()
     if not token:
         return
     if accounts_repo.update_refresh_token_if_changed(int(account["id"]), token):
         account["refresh_token"] = token
+
 
 def _update_account_summary_from_verification(account: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
     return compact_summary_service.update_summary_from_verification(
@@ -82,6 +86,7 @@ def _update_account_summary_from_verification(account: Dict[str, Any], data: Dic
 
 
 # ==================== 邮件 API ====================
+
 
 def _parse_external_common_args(*, default_since_minutes: int | None = None) -> dict:
     """解析 external API 通用 query 参数（按 TDD-00008 做基础校验）。
@@ -141,6 +146,7 @@ def _parse_external_common_args(*, default_since_minutes: int | None = None) -> 
         "baseline_timestamp": baseline_timestamp,
     }
 
+
 def _resolve_external_error(
     exc: external_api_service.ExternalApiError, *, allow_nested_upstream: bool = False
 ) -> dict[str, Any]:
@@ -166,9 +172,11 @@ def _resolve_external_error(
         "data": exc.data,
     }
 
+
 def _external_error_response(exc: external_api_service.ExternalApiError, *, allow_nested_upstream: bool = False):
     resolved = _resolve_external_error(exc, allow_nested_upstream=allow_nested_upstream)
     return jsonify(external_api_service.fail(resolved["code"], resolved["message"], data=resolved["data"])), resolved["status"]
+
 
 def _should_return_email_not_found_for_web_extract(exc: external_api_service.ExternalApiError) -> bool:
     # Web 端提取时：只有当所有渠道都是"无邮件"（非鉴权失败/非连接错误）才返回 EMAIL_NOT_FOUND

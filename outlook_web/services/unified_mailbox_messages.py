@@ -55,13 +55,9 @@ def _coerce_source_id(source_id: Any) -> int:
     try:
         value = int(source_id)
     except (TypeError, ValueError) as exc:
-        raise UnifiedMailboxMessageError(
-            "INVALID_PARAM", "source_id 参数无效", status=400
-        ) from exc
+        raise UnifiedMailboxMessageError("INVALID_PARAM", "source_id 参数无效", status=400) from exc
     if value <= 0:
-        raise UnifiedMailboxMessageError(
-            "INVALID_PARAM", "source_id 参数无效", status=400
-        )
+        raise UnifiedMailboxMessageError("INVALID_PARAM", "source_id 参数无效", status=400)
     return value
 
 
@@ -100,18 +96,8 @@ def _public_mailbox_identity(mailbox: dict[str, Any]) -> dict[str, Any]:
 
 def _mailbox_from_account(account: dict[str, Any]) -> dict[str, Any]:
     email = _safe_string(account.get("email")).strip()
-    provider = (
-        _safe_string(
-            account.get("provider") or account.get("account_type") or "outlook"
-        )
-        .strip()
-        .lower()
-        or "outlook"
-    )
-    account_type = (
-        _safe_string(account.get("account_type") or "outlook").strip().lower()
-        or "outlook"
-    )
+    provider = _safe_string(account.get("provider") or account.get("account_type") or "outlook").strip().lower() or "outlook"
+    account_type = _safe_string(account.get("account_type") or "outlook").strip().lower() or "outlook"
     if provider == "cloudflare_temp_mail":
         from outlook_web.services import mailbox_resolver
 
@@ -139,12 +125,7 @@ def _mailbox_from_account(account: dict[str, Any]) -> dict[str, Any]:
 def _mailbox_from_temp(mailbox: dict[str, Any]) -> dict[str, Any]:
     record = mailbox.get("record") if isinstance(mailbox.get("record"), dict) else {}
     provider = (
-        _safe_string(
-            mailbox.get("provider_name") or mailbox.get("source") or "temp_mail"
-        )
-        .strip()
-        .lower()
-        or "temp_mail"
+        _safe_string(mailbox.get("provider_name") or mailbox.get("source") or "temp_mail").strip().lower() or "temp_mail"
     )
     return {
         "kind": "temp",
@@ -152,9 +133,7 @@ def _mailbox_from_temp(mailbox: dict[str, Any]) -> dict[str, Any]:
         "email": _safe_string(mailbox.get("email")).strip(),
         "provider": provider,
         "provider_label": _safe_string(mailbox.get("provider_label") or provider),
-        "read_capability": _safe_string(
-            mailbox.get("read_capability") or "temp_provider"
-        ),
+        "read_capability": _safe_string(mailbox.get("read_capability") or "temp_provider"),
         "source": _safe_string(mailbox.get("source") or provider),
         "mailbox": mailbox,
     }
@@ -192,11 +171,7 @@ def _is_secret_key(key: str) -> bool:
 
 def _strip_secret_fields(value: Any) -> Any:
     if isinstance(value, dict):
-        return {
-            str(k): _strip_secret_fields(v)
-            for k, v in value.items()
-            if not _is_secret_key(str(k))
-        }
+        return {str(k): _strip_secret_fields(v) for k, v in value.items() if not _is_secret_key(str(k))}
     if isinstance(value, list):
         return [_strip_secret_fields(item) for item in value]
     return value
@@ -213,30 +188,20 @@ def _normalize_message_summary(
         "provider": mailbox["provider"],
         "provider_label": mailbox.get("provider_label") or mailbox["provider"],
         "folder": folder,
-        "from_address": _safe_string(
-            message.get("from_address") or message.get("from")
-        ),
+        "from_address": _safe_string(message.get("from_address") or message.get("from")),
         "subject": _safe_string(message.get("subject") or "无主题"),
-        "body_preview": _safe_string(
-            message.get("body_preview") or message.get("content_preview")
-        ),
+        "body_preview": _safe_string(message.get("body_preview") or message.get("content_preview")),
         "created_at": _safe_string(message.get("created_at") or message.get("date")),
-        "timestamp": _bounded_int(
-            message.get("timestamp"), default=0, minimum=0, maximum=4102444800
-        ),
+        "timestamp": _bounded_int(message.get("timestamp"), default=0, minimum=0, maximum=4102444800),
         "has_html": bool(message.get("has_html")),
         "is_read": bool(message.get("is_read")),
         "method": _safe_string(message.get("method") or method),
     }
 
 
-def _normalize_message_detail(
-    detail: dict[str, Any], *, mailbox: dict[str, Any], folder: str
-) -> dict[str, Any]:
+def _normalize_message_detail(detail: dict[str, Any], *, mailbox: dict[str, Any], folder: str) -> dict[str, Any]:
     html_content = _safe_string(detail.get("html_content") or detail.get("body_html"))
-    content = _safe_string(
-        detail.get("content") or detail.get("body") or detail.get("body_text")
-    )
+    content = _safe_string(detail.get("content") or detail.get("body") or detail.get("body_text"))
     body_type = "html" if bool(detail.get("has_html") or html_content) else "text"
     return _strip_secret_fields(
         {
@@ -247,9 +212,7 @@ def _normalize_message_detail(
             "provider": mailbox["provider"],
             "provider_label": mailbox.get("provider_label") or mailbox["provider"],
             "folder": folder,
-            "from_address": _safe_string(
-                detail.get("from_address") or detail.get("from")
-            ),
+            "from_address": _safe_string(detail.get("from_address") or detail.get("from")),
             "to_address": _safe_string(detail.get("to_address") or detail.get("to")),
             "subject": _safe_string(detail.get("subject") or "无主题"),
             "body": html_content if body_type == "html" else content,
@@ -257,9 +220,7 @@ def _normalize_message_detail(
             "body_html": html_content,
             "body_type": body_type,
             "created_at": _safe_string(detail.get("created_at") or detail.get("date")),
-            "timestamp": _bounded_int(
-                detail.get("timestamp"), default=0, minimum=0, maximum=4102444800
-            ),
+            "timestamp": _bounded_int(detail.get("timestamp"), default=0, minimum=0, maximum=4102444800),
             "has_html": body_type == "html",
             "method": _safe_string(detail.get("method") or ""),
         }
@@ -290,12 +251,8 @@ def _is_temp_provider_mailbox(mailbox: dict[str, Any]) -> bool:
     return str(mailbox.get("read_capability") or "").strip().lower() == "temp_provider"
 
 
-def _read_temp_messages(
-    mailbox: dict[str, Any], *, skip: int, top: int
-) -> tuple[list[dict[str, Any]], str]:
-    descriptor = (
-        mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
-    )
+def _read_temp_messages(mailbox: dict[str, Any], *, skip: int, top: int) -> tuple[list[dict[str, Any]], str]:
+    descriptor = mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
     target = descriptor or mailbox.get("email")
     from outlook_web.services.temp_mail_service import get_temp_mail_service
 
@@ -311,12 +268,8 @@ def _read_temp_messages(
     return sliced, method
 
 
-def _read_temp_message_detail(
-    mailbox: dict[str, Any], message_id: str
-) -> dict[str, Any]:
-    descriptor = (
-        mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
-    )
+def _read_temp_message_detail(mailbox: dict[str, Any], message_id: str) -> dict[str, Any]:
+    descriptor = mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
     target = descriptor or mailbox.get("email")
     from outlook_web.services.temp_mail_service import get_temp_mail_service
 
@@ -336,9 +289,7 @@ def _read_temp_verification(
     code_length: str | None,
     code_source: str,
 ) -> dict[str, Any]:
-    descriptor = (
-        mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
-    )
+    descriptor = mailbox.get("mailbox") if isinstance(mailbox.get("mailbox"), dict) else None
     target = descriptor or mailbox.get("email")
     from outlook_web.services.temp_mail_service import get_temp_mail_service
 
@@ -365,9 +316,7 @@ def list_unified_mailbox_messages(
     normalized_top = _bounded_int(top, default=20, minimum=1, maximum=50)
     try:
         if _is_temp_provider_mailbox(mailbox):
-            messages, method = _read_temp_messages(
-                mailbox, skip=normalized_skip, top=normalized_top
-            )
+            messages, method = _read_temp_messages(mailbox, skip=normalized_skip, top=normalized_top)
         else:
             messages, method = external_api_service.list_messages_for_external(
                 email_addr=mailbox["email"],
@@ -380,9 +329,7 @@ def list_unified_mailbox_messages(
     except TempMailError as exc:
         raise _map_temp_mail_error(exc) from exc
     normalized = [
-        _normalize_message_summary(
-            message, mailbox=mailbox, folder=normalized_folder, method=method
-        )
+        _normalize_message_summary(message, mailbox=mailbox, folder=normalized_folder, method=method)
         for message in (messages or [])
         if _safe_string((message or {}).get("id"))
     ]
@@ -417,9 +364,7 @@ def get_unified_mailbox_message_detail(
     normalized_folder = _safe_string(folder or "inbox").strip().lower() or "inbox"
     normalized_message_id = _safe_string(message_id).strip()
     if not normalized_message_id:
-        raise UnifiedMailboxMessageError(
-            "INVALID_PARAM", "message_id 不能为空", status=400
-        )
+        raise UnifiedMailboxMessageError("INVALID_PARAM", "message_id 不能为空", status=400)
     try:
         if _is_temp_provider_mailbox(mailbox):
             detail = _read_temp_message_detail(mailbox, normalized_message_id)
@@ -436,9 +381,7 @@ def get_unified_mailbox_message_detail(
     return {
         "success": True,
         "mailbox": _public_mailbox_identity(mailbox),
-        "message": _normalize_message_detail(
-            detail or {}, mailbox=mailbox, folder=normalized_folder
-        ),
+        "message": _normalize_message_detail(detail or {}, mailbox=mailbox, folder=normalized_folder),
         "folder": normalized_folder,
         "contract": {"version": 1, "body_type_values": ["text", "html"]},
     }

@@ -1,8 +1,8 @@
 import json
-import unittest
 import tempfile
-from pathlib import Path
+import unittest
 import uuid
+from pathlib import Path
 from unittest.mock import patch
 
 from tests._import_app import clear_login_attempts, import_web_app_module
@@ -171,14 +171,23 @@ class MultiMailboxSupportTests(unittest.TestCase):
         )
         guide = data.get("provider_integration_guide") or {}
         self.assertEqual(guide.get("version"), 1)
-        self.assertEqual((data.get("documentation") or {}).get("entries", {}).get("provider_onboarding", {}).get("path"), "docs/provider-onboarding.md")
+        self.assertEqual(
+            (data.get("documentation") or {}).get("entries", {}).get("provider_onboarding", {}).get("path"),
+            "docs/provider-onboarding.md",
+        )
         self.assertEqual(guide.get("documentation"), data.get("documentation"))
         self.assertEqual(guide.get("source_priority"), selection_policy.get("source_priority"))
         self.assertEqual((guide.get("endpoints") or {}).get("providers"), f"{CANONICAL_EXTERNAL_PREFIX}/providers")
         self.assertEqual((guide.get("workflow") or {}).get("claim_pool_mailbox", {}).get("request_field"), "provider")
-        self.assertEqual((guide.get("workflow") or {}).get("create_task_temp_mailbox", {}).get("request_field"), "provider_name")
-        self.assertEqual((guide.get("aliases") or {}).get("runtime_temp_mail_provider_aliases", {}).get("gptmail"), "legacy_bridge")
-        self.assertEqual((guide.get("aliases") or {}).get("pool_claim_provider_aliases", {}).get("imap", {}).get("kind"), "account")
+        self.assertEqual(
+            (guide.get("workflow") or {}).get("create_task_temp_mailbox", {}).get("request_field"), "provider_name"
+        )
+        self.assertEqual(
+            (guide.get("aliases") or {}).get("runtime_temp_mail_provider_aliases", {}).get("gptmail"), "legacy_bridge"
+        )
+        self.assertEqual(
+            (guide.get("aliases") or {}).get("pool_claim_provider_aliases", {}).get("imap", {}).get("kind"), "account"
+        )
         guide_providers = {item.get("provider"): item for item in guide.get("providers") or []}
         # Operator/API guide collapses Compatible Temp Mail Bridge dual-register keys.
         self.assertIn("legacy_bridge", guide_providers)
@@ -186,7 +195,10 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertEqual(guide_providers.get("duckmail", {}).get("required_env"), ["DUCKMAIL_BEARER_TOKEN"])
         self.assertEqual(guide_providers.get("duckmail", {}).get("pool_claim_request", {}).get("value"), "duckmail")
         self.assertEqual(guide_providers.get("duckmail", {}).get("task_temp_apply_request", {}).get("field"), "provider_name")
-        self.assertEqual(guide_providers.get("mail_tm", {}).get("configuration", {}).get("env_defaults"), {"MAILTM_API_BASE": "https://api.mail.tm"})
+        self.assertEqual(
+            guide_providers.get("mail_tm", {}).get("configuration", {}).get("env_defaults"),
+            {"MAILTM_API_BASE": "https://api.mail.tm"},
+        )
         self.assertFalse((guide.get("secret_policy") or {}).get("exposes_secret_values"))
         manifest = data.get("integration_manifest") or {}
         self.assertEqual(manifest.get("version"), 1)
@@ -195,25 +207,44 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertEqual((manifest.get("selection") or {}).get("source_priority"), selection_policy.get("source_priority"))
         self.assertEqual((manifest.get("selection") or {}).get("explicit_pool_claim", {}).get("request_field"), "provider")
         self.assertEqual((manifest.get("selection") or {}).get("task_temp_apply", {}).get("request_field"), "provider_name")
-        self.assertEqual((manifest.get("discovery") or {}).get("endpoints", {}).get("providers"), f"{CANONICAL_EXTERNAL_PREFIX}/providers")
+        self.assertEqual(
+            (manifest.get("discovery") or {}).get("endpoints", {}).get("providers"), f"{CANONICAL_EXTERNAL_PREFIX}/providers"
+        )
         workflows = {item.get("key"): item for item in manifest.get("workflows") or []}
         self.assertIn("claim_pool_mailbox", workflows)
         self.assertIn("create_task_temp_mailbox", workflows)
         claim_steps = {item.get("key"): item for item in workflows.get("claim_pool_mailbox", {}).get("steps") or []}
-        self.assertEqual(claim_steps.get("claim_random", {}).get("request", {}).get("provider_selector", {}).get("field"), "provider")
+        self.assertEqual(
+            claim_steps.get("claim_random", {}).get("request", {}).get("provider_selector", {}).get("field"), "provider"
+        )
         self.assertEqual(claim_steps.get("read_messages", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/messages")
-        self.assertEqual(claim_steps.get("complete_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete")
+        self.assertEqual(
+            claim_steps.get("complete_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete"
+        )
         task_steps = {item.get("key"): item for item in workflows.get("create_task_temp_mailbox", {}).get("steps") or []}
-        self.assertEqual(task_steps.get("apply_task_mailbox", {}).get("request", {}).get("provider_selector", {}).get("field"), "provider_name")
-        self.assertEqual(task_steps.get("finish_task_mailbox", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/{{task_token}}/finish")
+        self.assertEqual(
+            task_steps.get("apply_task_mailbox", {}).get("request", {}).get("provider_selector", {}).get("field"),
+            "provider_name",
+        )
+        self.assertEqual(
+            task_steps.get("finish_task_mailbox", {}).get("endpoint"),
+            f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/{{task_token}}/finish",
+        )
         self.assertEqual(data.get("quickstart"), manifest.get("quickstart"))
         quickstart = data.get("quickstart") or {}
         self.assertEqual(quickstart.get("version"), 1)
         self.assertEqual((quickstart.get("auth") or {}).get("headers"), {"X-API-Key": "<your-api-key>"})
         self.assertEqual((quickstart.get("provider_selector_fields") or {}).get("pool_claim", {}).get("field"), "provider")
-        self.assertEqual((quickstart.get("provider_selector_fields") or {}).get("task_temp_apply", {}).get("field"), "provider_name")
-        self.assertEqual((quickstart.get("requests") or {}).get("pool_claim", {}).get("body", {}).get("provider"), "<provider-or-auto>")
-        self.assertEqual((quickstart.get("requests") or {}).get("task_temp_apply", {}).get("body", {}).get("provider_name"), "<provider-name>")
+        self.assertEqual(
+            (quickstart.get("provider_selector_fields") or {}).get("task_temp_apply", {}).get("field"), "provider_name"
+        )
+        self.assertEqual(
+            (quickstart.get("requests") or {}).get("pool_claim", {}).get("body", {}).get("provider"), "<provider-or-auto>"
+        )
+        self.assertEqual(
+            (quickstart.get("requests") or {}).get("task_temp_apply", {}).get("body", {}).get("provider_name"),
+            "<provider-name>",
+        )
         self.assertNotIn("DUCKMAIL_BEARER_TOKEN", json.dumps(quickstart, ensure_ascii=False))
         manifest_providers = {item.get("provider"): item for item in manifest.get("providers") or []}
         duckmail_manifest = manifest_providers.get("duckmail") or {}
@@ -221,7 +252,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertEqual(duckmail_env.get("DUCKMAIL_BEARER_TOKEN", {}).get("value"), "")
         self.assertTrue(duckmail_env.get("DUCKMAIL_BEARER_TOKEN", {}).get("secret"))
         self.assertEqual(duckmail_env.get("DUCKMAIL_API_BASE", {}).get("default"), "https://api.duckmail.sbs")
-        self.assertEqual((duckmail_manifest.get("request_fields") or {}).get("task_temp_apply", {}).get("request_field"), "provider_name")
+        self.assertEqual(
+            (duckmail_manifest.get("request_fields") or {}).get("task_temp_apply", {}).get("request_field"), "provider_name"
+        )
         self.assertNotRegex(json.dumps(manifest, ensure_ascii=False), r"dk_[0-9a-fA-F]{20,}")
         provider_values = deployment_profile.get("provider_values") or {}
         self.assertIn("duckmail", provider_values.get("all") or [])
@@ -256,8 +289,13 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertIn('"pool_default_provider": "auto"', templates.get("provider_config_json", {}).get("content") or "")
         self.assertIn('pool_default_provider = "auto"', templates.get("provider_config_toml", {}).get("content") or "")
         read_contract = data.get("external_mailbox_read_contract") or {}
-        self.assertEqual(read_contract.get("read_endpoints", {}).get("latest_message"), f"{CANONICAL_EXTERNAL_PREFIX}/messages/latest")
-        self.assertEqual(read_contract.get("next_actions", {}).get("read_verification_code", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/verification-code")
+        self.assertEqual(
+            read_contract.get("read_endpoints", {}).get("latest_message"), f"{CANONICAL_EXTERNAL_PREFIX}/messages/latest"
+        )
+        self.assertEqual(
+            read_contract.get("next_actions", {}).get("read_verification_code", {}).get("endpoint"),
+            f"{CANONICAL_EXTERNAL_PREFIX}/verification-code",
+        )
 
         by_key = {(item.get("kind"), item.get("provider")): item for item in catalog}
         # Account import selector reuses mailbox_providers notes from get_provider_list().
@@ -276,14 +314,21 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertTrue(by_key[("temp", "mail_tm")]["configured"])
         self.assertEqual(by_key[("temp", "mail_tm")]["selection"]["runtime_env"], {"TEMP_MAIL_PROVIDER": "mail_tm"})
         self.assertEqual(by_key[("temp", "mail_tm")]["deployment"]["runtime_default"]["value"], "mail_tm")
-        self.assertEqual(by_key[("temp", "mail_tm")]["deployment"]["pool_claim_request"], {"field": "provider", "value": "mail_tm"})
+        self.assertEqual(
+            by_key[("temp", "mail_tm")]["deployment"]["pool_claim_request"], {"field": "provider", "value": "mail_tm"}
+        )
         self.assertEqual(by_key[("temp", "mail_tm")]["deployment"]["config_env"]["optional"], ["MAILTM_API_BASE"])
         self.assertEqual(by_key[("temp", "mail_tm")]["configuration"]["optional_env"], ["MAILTM_API_BASE"])
-        self.assertEqual(by_key[("temp", "mail_tm")]["configuration"]["env_defaults"], {"MAILTM_API_BASE": "https://api.mail.tm"})
+        self.assertEqual(
+            by_key[("temp", "mail_tm")]["configuration"]["env_defaults"], {"MAILTM_API_BASE": "https://api.mail.tm"}
+        )
         self.assertFalse(by_key[("temp", "duckmail")]["configured"])
         self.assertEqual(by_key[("temp", "duckmail")]["missing_config"], ["duckmail_bearer_token"])
         self.assertEqual(by_key[("temp", "duckmail")]["configuration"]["required_env"], ["DUCKMAIL_BEARER_TOKEN"])
-        self.assertEqual(by_key[("temp", "duckmail")]["configuration"]["settings_defaults"], {"duckmail_api_base": "https://api.duckmail.sbs"})
+        self.assertEqual(
+            by_key[("temp", "duckmail")]["configuration"]["settings_defaults"],
+            {"duckmail_api_base": "https://api.duckmail.sbs"},
+        )
         self.assertEqual(by_key[("temp", "duckmail")]["configuration"]["secret_settings"], ["duckmail_bearer_token"])
         duckmail_schema_fields = by_key[("temp", "duckmail")]["configuration"]["config_schema"]["fields"]
         self.assertEqual([field["key"] for field in duckmail_schema_fields], ["duckmail_api_base", "duckmail_bearer_token"])
@@ -292,9 +337,14 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertFalse(by_key[("temp", "emailnator")]["configured"])
         self.assertEqual(by_key[("temp", "emailnator")]["missing_config"], ["emailnator_api_key"])
         self.assertEqual(by_key[("temp", "emailnator")]["configuration"]["required_env"], ["EMAILNATOR_API_KEY"])
-        self.assertEqual(by_key[("temp", "emailnator")]["configuration"]["settings_defaults"], {"emailnator_email_types": ["public_gmail_plus"]})
+        self.assertEqual(
+            by_key[("temp", "emailnator")]["configuration"]["settings_defaults"],
+            {"emailnator_email_types": ["public_gmail_plus"]},
+        )
         emailnator_schema_fields = by_key[("temp", "emailnator")]["configuration"]["config_schema"]["fields"]
-        self.assertEqual([field["key"] for field in emailnator_schema_fields], ["emailnator_api_key", "emailnator_email_types"])
+        self.assertEqual(
+            [field["key"] for field in emailnator_schema_fields], ["emailnator_api_key", "emailnator_email_types"]
+        )
         self.assertEqual(emailnator_schema_fields[0]["type"], "password")
         self.assertEqual(by_key[("account", "gmail")]["configuration"]["account_import_fields"], ["email", "password"])
         self.assertEqual(by_key[("account", "gmail")]["configuration"]["secret_fields"], ["password"])
@@ -302,7 +352,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
             by_key[("account", "custom")]["selection"]["pool_claim_temp_fallback_provider_names"],
             ["custom_domain_temp_mail", "legacy_bridge"],
         )
-        self.assertEqual(by_key[("temp", "legacy_bridge")]["selection"]["accepted_aliases"], ["gptmail", "legacy_gptmail", "temp_mail"])
+        self.assertEqual(
+            by_key[("temp", "legacy_bridge")]["selection"]["accepted_aliases"], ["gptmail", "legacy_gptmail", "temp_mail"]
+        )
         diagnostics = data.get("provider_diagnostics") or {}
         self.assertEqual(diagnostics.get("scope", {}).get("type"), "local_config")
         self.assertFalse(diagnostics.get("scope", {}).get("network_probe"))
@@ -336,16 +388,10 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertFalse(task_rows["duckmail"]["usable"])
         self.assertEqual(task_rows["duckmail"]["status"], "needs_config")
         self.assertEqual(task_rows["duckmail"]["endpoints"]["request"], f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/apply")
-        runtime_rows = {
-            item.get("provider"): item
-            for item in routing_scopes["temp_runtime_default"].get("providers") or []
-        }
+        runtime_rows = {item.get("provider"): item for item in routing_scopes["temp_runtime_default"].get("providers") or []}
         self.assertEqual(runtime_rows["gptmail"]["canonical_provider"], "legacy_bridge")
         self.assertEqual(runtime_rows["gptmail"]["kind"], "temp")
-        pool_rows = {
-            item.get("provider"): item
-            for item in routing_scopes["explicit_pool_claim"].get("providers") or []
-        }
+        pool_rows = {item.get("provider"): item for item in routing_scopes["explicit_pool_claim"].get("providers") or []}
         self.assertTrue(pool_rows["auto"]["usable"])
         self.assertEqual(pool_rows["imap"]["kind"], "account")
         self.assertEqual(pool_rows["imap"]["reason"], "alias_pool_claim_provider")
@@ -399,11 +445,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             guide_providers = [item.get("provider") for item in guide.get("providers") or []]
             self.assertIn("legacy_bridge", guide_providers)
             self.assertNotIn("custom_domain_temp_mail", guide_providers)
-            bridge_row = next(
-                item
-                for item in guide.get("providers") or []
-                if item.get("provider") == "legacy_bridge"
-            )
+            bridge_row = next(item for item in guide.get("providers") or [] if item.get("provider") == "legacy_bridge")
             self.assertEqual(bridge_row.get("label"), "Compatible Temp Mail Bridge")
 
     def test_providers_api_reflects_active_mailbox_provider_filter(self):
@@ -500,7 +542,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             resp = client.get("/api/providers")
 
         self.assertEqual(resp.status_code, 200)
-        diagnostics = (resp.get_json().get("provider_diagnostics") or {})
+        diagnostics = resp.get_json().get("provider_diagnostics") or {}
         defaults = diagnostics.get("defaults") or {}
 
         self.assertTrue(defaults.get("temp_mail_provider", {}).get("valid"))
@@ -652,7 +694,10 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_unified_mailbox_catalog_uses_plugin_label(self):
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import get_mailbox_provider_catalog, get_mailbox_provider_deployment_profile
+            from outlook_web.services.provider_catalog import (
+                get_mailbox_provider_catalog,
+                get_mailbox_provider_deployment_profile,
+            )
             from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
 
             @register_provider
@@ -664,8 +709,20 @@ class MultiMailboxSupportTests(unittest.TestCase):
                 provider_capabilities = {"delete_mailbox": True, "delete_message": False, "clear_messages": False}
                 config_schema = {
                     "fields": [
-                        {"key": "base_url", "label": "Base URL", "type": "text", "required": True, "default": "https://fancy.test"},
-                        {"key": "api_key", "label": "API Key", "type": "password", "required": True, "default": "secret-default"},
+                        {
+                            "key": "base_url",
+                            "label": "Base URL",
+                            "type": "text",
+                            "required": True,
+                            "default": "https://fancy.test",
+                        },
+                        {
+                            "key": "api_key",
+                            "label": "API Key",
+                            "type": "password",
+                            "required": True,
+                            "default": "secret-default",
+                        },
                     ]
                 }
 
@@ -685,11 +742,21 @@ class MultiMailboxSupportTests(unittest.TestCase):
             self.assertEqual(plugin["missing_config"], ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"])
             self.assertEqual(plugin["selection"]["runtime_env"], {"TEMP_MAIL_PROVIDER": "fancy_temp_mail"})
             self.assertEqual(plugin["deployment"]["runtime_default"]["value"], "fancy_temp_mail")
-            self.assertEqual(plugin["deployment"]["config_settings"]["keys"], ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"])
+            self.assertEqual(
+                plugin["deployment"]["config_settings"]["keys"],
+                ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"],
+            )
             self.assertEqual(plugin["configuration"]["required_env"], [])
-            self.assertEqual(plugin["configuration"]["settings_keys"], ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"])
-            self.assertEqual(plugin["configuration"]["required_settings"], ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"])
-            self.assertEqual(plugin["configuration"]["settings_defaults"], {"plugin.fancy_temp_mail.base_url": "https://fancy.test"})
+            self.assertEqual(
+                plugin["configuration"]["settings_keys"], ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"]
+            )
+            self.assertEqual(
+                plugin["configuration"]["required_settings"],
+                ["plugin.fancy_temp_mail.base_url", "plugin.fancy_temp_mail.api_key"],
+            )
+            self.assertEqual(
+                plugin["configuration"]["settings_defaults"], {"plugin.fancy_temp_mail.base_url": "https://fancy.test"}
+            )
             self.assertNotIn("secret-default", str(plugin["deployment"]["config_settings"]["defaults"]))
             self.assertEqual(plugin["configuration"]["secret_settings"], ["plugin.fancy_temp_mail.api_key"])
             self.assertEqual(plugin["configuration"]["config_schema"]["fields"][0]["key"], "base_url")
@@ -746,7 +813,13 @@ class MultiMailboxSupportTests(unittest.TestCase):
             self.assertIn("cf_worker_base_url", cf_field_keys)
             self.assertIn("cf_worker_admin_key", cf_field_keys)
             self.assertIn("cf_worker_domains", cf_field_keys)
-            self.assertTrue(any(field.get("readonly") for field in cloudflare["settings_ui"]["fields"] if field.get("key") == "cf_worker_domains"))
+            self.assertTrue(
+                any(
+                    field.get("readonly")
+                    for field in cloudflare["settings_ui"]["fields"]
+                    if field.get("key") == "cf_worker_domains"
+                )
+            )
             actions = cloudflare["settings_ui"].get("actions") or []
             self.assertTrue(any(action.get("key") == "sync_domains" for action in actions))
             sync_action = next(action for action in actions if action.get("key") == "sync_domains")
@@ -761,7 +834,6 @@ class MultiMailboxSupportTests(unittest.TestCase):
             duckmail = by_provider["duckmail"]
             self.assertEqual(duckmail["settings_ui"]["panel"], "schema")
             self.assertTrue(any(field.get("key") == "duckmail_bearer_token" for field in duckmail["settings_ui"]["fields"]))
-
 
     def test_plugin_schema_settings_round_trip_through_generic_settings_api(self):
         with self.app.app_context():
@@ -808,7 +880,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
                 get_mailbox_provider_selection_policy,
                 get_provider_integration_guide,
             )
-            from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, _REGISTRY, register_provider
+            from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
             from outlook_web.services.temp_mail_provider_factory import get_available_providers
 
             @register_provider
@@ -873,7 +945,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
     def test_plugin_provider_default_health_check_does_not_claim_network_probe(self):
         with self.app.app_context():
             from outlook_web.services.provider_catalog import get_mailbox_provider_health
-            from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, _REGISTRY, register_provider
+            from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
 
             @register_provider
             class HealthyOptionsTempMail(TempMailProviderBase):
@@ -1028,8 +1100,13 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertTrue(data.get("success"))
         preflight = data.get("provider_preflight") or {}
         self.assertEqual(preflight.get("version"), 1)
-        self.assertEqual(preflight.get("endpoints", {}).get("provider_preflight"), f"{CANONICAL_EXTERNAL_PREFIX}/providers/preflight")
-        self.assertEqual(preflight.get("endpoints", {}).get("provider_health"), f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health")
+        self.assertEqual(
+            preflight.get("endpoints", {}).get("provider_preflight"), f"{CANONICAL_EXTERNAL_PREFIX}/providers/preflight"
+        )
+        self.assertEqual(
+            preflight.get("endpoints", {}).get("provider_health"),
+            f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health",
+        )
         self.assertFalse(preflight.get("scope", {}).get("network_probe"))
         rows = {(item.get("kind"), item.get("provider")): item for item in preflight.get("providers") or []}
         duckmail = rows[("temp", "duckmail")]
@@ -1086,9 +1163,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             settings_repo.set_setting("external_api_disable_pool_claim_random", "true")
             expected_contract = get_mailbox_catalog_contract()
 
-            contract = get_external_api_capabilities_contract(
-                consumer={"is_legacy": False, "pool_access": False}
-            )
+            contract = get_external_api_capabilities_contract(consumer={"is_legacy": False, "pool_access": False})
 
         self.assertTrue(contract["public_mode"])
         self.assertFalse(contract["pool"]["current_consumer_has_access"])
@@ -1098,7 +1173,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertIn("mailbox_directory", contract["features"])
         self.assertEqual(contract["endpoints"]["mailboxes"], f"{CANONICAL_EXTERNAL_PREFIX}/mailboxes")
         self.assertEqual(contract["endpoints"]["providers"], f"{CANONICAL_EXTERNAL_PREFIX}/providers")
-        self.assertEqual(contract["endpoints"]["provider_health"], f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health")
+        self.assertEqual(
+            contract["endpoints"]["provider_health"], f"{CANONICAL_EXTERNAL_PREFIX}/providers/{{kind}}/{{provider}}/health"
+        )
         self.assertEqual(contract["mailbox_directory"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailboxes")
         self.assertEqual(contract["mailbox_directory"]["response_contract"], "unified_mailbox_directory")
         self.assertEqual(contract["mailbox_directory"]["contract"]["filters"]["kind"], expected_contract["filters"]["kind"])
@@ -1119,7 +1196,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
             },
         )
         self.assertEqual(contract["deployment_profile"]["env"], contract["deployment_env"])
-        self.assertEqual(contract["selection_policy"]["source_priority"], ["env", "provider_config_file", "settings", "default"])
+        self.assertEqual(
+            contract["selection_policy"]["source_priority"], ["env", "provider_config_file", "settings", "default"]
+        )
         self.assertEqual(
             contract["selection_policy"]["scopes"]["explicit_pool_claim"]["endpoint"],
             f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-random",

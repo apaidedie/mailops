@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from outlook_web.repositories import settings as settings_repo
-from outlook_web.services.temp_mail_provider_contract import sanitize_config_schema, validate_temp_mail_provider_class
 from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, normalize_provider_capabilities
+from outlook_web.services.temp_mail_provider_contract import sanitize_config_schema, validate_temp_mail_provider_class
 
 logger = logging.getLogger(__name__)
 

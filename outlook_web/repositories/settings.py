@@ -234,15 +234,9 @@ def get_mailtm_api_base() -> str:
 
 def get_tempmail_lol_api_key() -> str:
     """获取 TempMail.lol API Key，兼容历史设置名与环境变量别名。"""
-    value = (
-        get_setting("tempmail_lol_api_key", "").strip()
-        or get_setting("temp_mail_lol_api_key", "").strip()
-    )
+    value = get_setting("tempmail_lol_api_key", "").strip() or get_setting("temp_mail_lol_api_key", "").strip()
     if not value:
-        return (
-            os.environ.get("TEMPMAIL_LOL_API_KEY", "").strip()
-            or os.environ.get("TEMP_MAIL_LOL_API_KEY", "").strip()
-        )
+        return os.environ.get("TEMPMAIL_LOL_API_KEY", "").strip() or os.environ.get("TEMP_MAIL_LOL_API_KEY", "").strip()
     try:
         return decrypt_data(value)
     except Exception:

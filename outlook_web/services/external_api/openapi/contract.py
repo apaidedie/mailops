@@ -14,11 +14,12 @@ from outlook_web.services.external_request_limits import (
     TASK_MAILBOX_PREFIX_MAX_LEN,
 )
 from outlook_web.services.mailbox_directory_contract import get_mailbox_catalog_contract
-from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 from outlook_web.services.pool import VALID_RESULTS
+from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 
 from .paths import _paths
 from .schemas import _schemas
+
 
 def get_external_api_openapi_contract(*, consumer: dict[str, Any] | None = None) -> dict[str, Any]:
     capabilities = get_external_api_capabilities_contract(consumer=consumer)

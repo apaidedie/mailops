@@ -8,18 +8,18 @@ from outlook_web.repositories import settings as settings_repo
 from outlook_web.security.auth import api_key_required, get_external_api_consumer
 from outlook_web.security.external_api_guard import external_api_guards
 from outlook_web.services import external_api as external_api_service
-from outlook_web.services.provider_catalog import (
-    account_provider_label,
-    get_external_mailbox_read_contract,
-    get_provider_catalog_item,
-    temp_mail_provider_label,
-)
 from outlook_web.services.pool import (
     PoolServiceError,
     claim_random,
     complete_claim,
     get_pool_stats,
     release_claim,
+)
+from outlook_web.services.provider_catalog import (
+    account_provider_label,
+    get_external_mailbox_read_contract,
+    get_provider_catalog_item,
+    temp_mail_provider_label,
 )
 
 
@@ -52,10 +52,7 @@ def _claim_provider_metadata(account: dict[str, Any]) -> dict[str, str]:
     return {
         "provider": provider,
         "provider_label": str(catalog_item.get("label") or account_provider_label(provider) or provider),
-        "read_capability": str(
-            catalog_item.get("read_capability")
-            or ("imap" if account_type == "imap" else "graph")
-        ),
+        "read_capability": str(catalog_item.get("read_capability") or ("imap" if account_type == "imap" else "graph")),
     }
 
 

@@ -139,7 +139,9 @@ def _content_to_html(value: Any) -> str:
 class _PublicTempMailProviderMixin:
     provider_name: str
 
-    def _read_error(self, code: str, message: str, *, operation: str, mailbox: dict[str, Any] | str, message_id: str | None = None) -> TempMailProviderReadError:
+    def _read_error(
+        self, code: str, message: str, *, operation: str, mailbox: dict[str, Any] | str, message_id: str | None = None
+    ) -> TempMailProviderReadError:
         return TempMailProviderReadError(
             code,
             message,
@@ -259,7 +261,9 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
         token, _ = self._login(address, password)
         return token
 
-    def _request_with_auth_retry(self, method: str, path: str, mailbox: dict[str, Any] | str, **kwargs: Any) -> requests.Response | None:
+    def _request_with_auth_retry(
+        self, method: str, path: str, mailbox: dict[str, Any] | str, **kwargs: Any
+    ) -> requests.Response | None:
         token = self._resolve_token(mailbox)
         if not token:
             return None
@@ -358,7 +362,11 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
             return {"success": False, "error": f"Mail.tm domain request failed: {exc}", "error_code": "UPSTREAM_BAD_PAYLOAD"}
 
         if not target_domain:
-            return {"success": False, "error": "Mail.tm returned no available domain", "error_code": "TEMP_MAIL_PROVIDER_NOT_CONFIGURED"}
+            return {
+                "success": False,
+                "error": "Mail.tm returned no available domain",
+                "error_code": "TEMP_MAIL_PROVIDER_NOT_CONFIGURED",
+            }
 
         local_part = str(prefix or "").strip() or _random_local_part()
         address = f"{local_part}@{target_domain}"
@@ -378,14 +386,22 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
             return {"success": False, "error": f"Mail.tm create account failed: {exc}", "error_code": "UPSTREAM_SERVER_ERROR"}
 
         if not resp.ok:
-            return {"success": False, "error": _extract_error_message(resp), "error_code": _error_code_by_status(resp.status_code)}
+            return {
+                "success": False,
+                "error": _extract_error_message(resp),
+                "error_code": _error_code_by_status(resp.status_code),
+            }
 
         try:
             account_payload = resp.json()
         except Exception:
             return {"success": False, "error": "Mail.tm account response is not JSON", "error_code": "UPSTREAM_BAD_PAYLOAD"}
         if not isinstance(account_payload, dict):
-            return {"success": False, "error": "Mail.tm account response has invalid shape", "error_code": "UPSTREAM_BAD_PAYLOAD"}
+            return {
+                "success": False,
+                "error": "Mail.tm account response has invalid shape",
+                "error_code": "UPSTREAM_BAD_PAYLOAD",
+            }
 
         account_id = str(account_payload.get("id") or "").strip()
         returned_address = str(account_payload.get("address") or address).strip()
@@ -433,22 +449,37 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
     def list_messages(self, mailbox: dict[str, Any]) -> list[dict[str, Any]] | None:
         token = self._resolve_token(mailbox)
         if not token:
-            raise self._read_error("UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="list_messages", mailbox=mailbox
+            )
         try:
             resp = self._request_with_auth_retry("get", "/messages", mailbox)
         except requests.Timeout as exc:
-            raise self._read_error("UPSTREAM_TIMEOUT", "Mail.tm list messages timed out", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_TIMEOUT", "Mail.tm list messages timed out", operation="list_messages", mailbox=mailbox
+            ) from exc
         except requests.RequestException as exc:
-            raise self._read_error("UPSTREAM_SERVER_ERROR", f"Mail.tm list messages failed: {exc}", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_SERVER_ERROR", f"Mail.tm list messages failed: {exc}", operation="list_messages", mailbox=mailbox
+            ) from exc
 
         if resp is None:
-            raise self._read_error("UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="list_messages", mailbox=mailbox
+            )
         if not resp.ok:
-            raise self._read_error(_error_code_by_status(resp.status_code), _extract_error_message(resp), operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                _error_code_by_status(resp.status_code),
+                _extract_error_message(resp),
+                operation="list_messages",
+                mailbox=mailbox,
+            )
         try:
             payload = resp.json()
         except Exception as exc:
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Mail.tm messages response is not JSON", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD", "Mail.tm messages response is not JSON", operation="list_messages", mailbox=mailbox
+            ) from exc
 
         messages: list[dict[str, Any]] = []
         for item in _extract_hydra_items(payload):
@@ -461,26 +492,62 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
     def get_message_detail(self, mailbox: dict[str, Any], message_id: str) -> dict[str, Any] | None:
         token = self._resolve_token(mailbox)
         if not token:
-            raise self._read_error("UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="get_message_detail", mailbox=mailbox, message_id=message_id)
+            raise self._read_error(
+                "UNAUTHORIZED",
+                "Mail.tm mailbox token is missing",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            )
         raw_id = self._to_raw_message_id(message_id)
         if not raw_id:
             return None
         try:
             resp = self._request_with_auth_retry("get", f"/messages/{raw_id}", mailbox)
         except requests.Timeout as exc:
-            raise self._read_error("UPSTREAM_TIMEOUT", "Mail.tm message detail timed out", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_TIMEOUT",
+                "Mail.tm message detail timed out",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         except requests.RequestException as exc:
-            raise self._read_error("UPSTREAM_SERVER_ERROR", f"Mail.tm message detail failed: {exc}", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_SERVER_ERROR",
+                f"Mail.tm message detail failed: {exc}",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         if resp is None:
-            raise self._read_error("UNAUTHORIZED", "Mail.tm mailbox token is missing", operation="get_message_detail", mailbox=mailbox, message_id=message_id)
+            raise self._read_error(
+                "UNAUTHORIZED",
+                "Mail.tm mailbox token is missing",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            )
         if resp.status_code == 404:
             return None
         if not resp.ok:
-            raise self._read_error(_error_code_by_status(resp.status_code), _extract_error_message(resp), operation="get_message_detail", mailbox=mailbox, message_id=message_id)
+            raise self._read_error(
+                _error_code_by_status(resp.status_code),
+                _extract_error_message(resp),
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            )
         try:
             payload = resp.json()
         except Exception as exc:
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Mail.tm message detail response is not JSON", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD",
+                "Mail.tm message detail response is not JSON",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         if not isinstance(payload, dict):
             return None
         return self._normalize_message(payload)
@@ -580,7 +647,11 @@ class DuckMailTempMailProvider(MailTmTempMailProvider):
 
     def create_mailbox(self, *, prefix: str | None = None, domain: str | None = None) -> dict[str, Any]:
         if not self._service_bearer_token():
-            return {"success": False, "error": "请先配置 DuckMail Bearer Token", "error_code": "TEMP_MAIL_PROVIDER_NOT_CONFIGURED"}
+            return {
+                "success": False,
+                "error": "请先配置 DuckMail Bearer Token",
+                "error_code": "TEMP_MAIL_PROVIDER_NOT_CONFIGURED",
+            }
         result = super().create_mailbox(prefix=prefix, domain=domain)
         if result.get("success"):
             result["provider_name"] = self.provider_name
@@ -635,7 +706,9 @@ class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
 
         normalized_id = f"tempmail_lol_{raw_id}"
         html_content = str(message.get("html") or message.get("html_content") or "")
-        content = str(message.get("body") or message.get("text") or message.get("content") or "") or _html_to_text_fallback(html_content)
+        content = str(message.get("body") or message.get("text") or message.get("content") or "") or _html_to_text_fallback(
+            html_content
+        )
         timestamp = _normalize_timestamp(message.get("date") or message.get("timestamp") or message.get("created_at"))
         return {
             "id": normalized_id,
@@ -673,24 +746,46 @@ class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
         if str(domain or "").strip():
             payload["domain"] = str(domain or "").strip()
         try:
-            resp = requests.post(f"{self._base_url}/inbox/create", headers=self._headers(), json=payload, timeout=_REQUEST_TIMEOUT)
+            resp = requests.post(
+                f"{self._base_url}/inbox/create", headers=self._headers(), json=payload, timeout=_REQUEST_TIMEOUT
+            )
         except requests.Timeout:
             return {"success": False, "error": "TempMail.lol create inbox timed out", "error_code": "UPSTREAM_TIMEOUT"}
         except requests.RequestException as exc:
-            return {"success": False, "error": f"TempMail.lol create inbox failed: {exc}", "error_code": "UPSTREAM_SERVER_ERROR"}
+            return {
+                "success": False,
+                "error": f"TempMail.lol create inbox failed: {exc}",
+                "error_code": "UPSTREAM_SERVER_ERROR",
+            }
 
         if not resp.ok:
-            return {"success": False, "error": _extract_error_message(resp), "error_code": _error_code_by_status(resp.status_code)}
+            return {
+                "success": False,
+                "error": _extract_error_message(resp),
+                "error_code": _error_code_by_status(resp.status_code),
+            }
         try:
             data = resp.json()
         except Exception:
-            return {"success": False, "error": "TempMail.lol create response is not JSON", "error_code": "UPSTREAM_BAD_PAYLOAD"}
+            return {
+                "success": False,
+                "error": "TempMail.lol create response is not JSON",
+                "error_code": "UPSTREAM_BAD_PAYLOAD",
+            }
         if not isinstance(data, dict):
-            return {"success": False, "error": "TempMail.lol create response has invalid shape", "error_code": "UPSTREAM_BAD_PAYLOAD"}
+            return {
+                "success": False,
+                "error": "TempMail.lol create response has invalid shape",
+                "error_code": "UPSTREAM_BAD_PAYLOAD",
+            }
         address = str(data.get("address") or data.get("email") or "").strip()
         token = str(data.get("token") or "").strip()
         if not address or not token:
-            return {"success": False, "error": "TempMail.lol response missing address or token", "error_code": "UPSTREAM_BAD_PAYLOAD"}
+            return {
+                "success": False,
+                "error": "TempMail.lol response missing address or token",
+                "error_code": "UPSTREAM_BAD_PAYLOAD",
+            }
         return {
             "success": True,
             "email": address,
@@ -713,24 +808,49 @@ class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
     def list_messages(self, mailbox: dict[str, Any]) -> list[dict[str, Any]] | None:
         token = self._extract_token(mailbox)
         if not token:
-            raise self._read_error("UNAUTHORIZED", "TempMail.lol inbox token is missing", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UNAUTHORIZED", "TempMail.lol inbox token is missing", operation="list_messages", mailbox=mailbox
+            )
         try:
-            resp = requests.get(f"{self._base_url}/inbox", headers=self._headers(), params={"token": token}, timeout=_REQUEST_TIMEOUT)
+            resp = requests.get(
+                f"{self._base_url}/inbox", headers=self._headers(), params={"token": token}, timeout=_REQUEST_TIMEOUT
+            )
         except requests.Timeout as exc:
-            raise self._read_error("UPSTREAM_TIMEOUT", "TempMail.lol list messages timed out", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_TIMEOUT", "TempMail.lol list messages timed out", operation="list_messages", mailbox=mailbox
+            ) from exc
         except requests.RequestException as exc:
-            raise self._read_error("UPSTREAM_SERVER_ERROR", f"TempMail.lol list messages failed: {exc}", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_SERVER_ERROR",
+                f"TempMail.lol list messages failed: {exc}",
+                operation="list_messages",
+                mailbox=mailbox,
+            ) from exc
         if not resp.ok:
-            raise self._read_error(_error_code_by_status(resp.status_code), _extract_error_message(resp), operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                _error_code_by_status(resp.status_code),
+                _extract_error_message(resp),
+                operation="list_messages",
+                mailbox=mailbox,
+            )
         try:
             payload = resp.json()
         except Exception as exc:
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "TempMail.lol inbox response is not JSON", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD", "TempMail.lol inbox response is not JSON", operation="list_messages", mailbox=mailbox
+            ) from exc
         if not isinstance(payload, dict):
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "TempMail.lol inbox response has invalid shape", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD",
+                "TempMail.lol inbox response has invalid shape",
+                operation="list_messages",
+                mailbox=mailbox,
+            )
         raw_messages = payload.get("emails") or payload.get("messages") or []
         if not isinstance(raw_messages, list):
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "TempMail.lol emails field is not a list", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD", "TempMail.lol emails field is not a list", operation="list_messages", mailbox=mailbox
+            )
         messages: list[dict[str, Any]] = []
         for index, item in enumerate(raw_messages):
             if isinstance(item, dict):
@@ -854,13 +974,21 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
             return {"success": False, "error": f"Emailnator create email failed: {exc}", "error_code": "UPSTREAM_SERVER_ERROR"}
 
         if not resp.ok:
-            return {"success": False, "error": _extract_error_message(resp), "error_code": _error_code_by_status(resp.status_code)}
+            return {
+                "success": False,
+                "error": _extract_error_message(resp),
+                "error_code": _error_code_by_status(resp.status_code),
+            }
         try:
             data = resp.json()
         except Exception:
             return {"success": False, "error": "Emailnator create response is not JSON", "error_code": "UPSTREAM_BAD_PAYLOAD"}
         if not isinstance(data, dict):
-            return {"success": False, "error": "Emailnator create response has invalid shape", "error_code": "UPSTREAM_BAD_PAYLOAD"}
+            return {
+                "success": False,
+                "error": "Emailnator create response has invalid shape",
+                "error_code": "UPSTREAM_BAD_PAYLOAD",
+            }
         address = str(data.get("email") or data.get("address") or "").strip()
         if not address:
             return {"success": False, "error": "Emailnator response missing email", "error_code": "UPSTREAM_BAD_PAYLOAD"}
@@ -887,10 +1015,14 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
         try:
             self._ensure_configured()
         except RuntimeError as exc:
-            raise self._read_error("TEMP_MAIL_PROVIDER_NOT_CONFIGURED", str(exc), operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "TEMP_MAIL_PROVIDER_NOT_CONFIGURED", str(exc), operation="list_messages", mailbox=mailbox
+            ) from exc
         email_addr = _coerce_email(mailbox)
         if not email_addr:
-            raise self._read_error("TEMP_EMAIL_NOT_FOUND", "Emailnator mailbox email is missing", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "TEMP_EMAIL_NOT_FOUND", "Emailnator mailbox email is missing", operation="list_messages", mailbox=mailbox
+            )
         try:
             resp = requests.post(
                 f"{self._base_url}/inbox",
@@ -899,20 +1031,38 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
                 timeout=_REQUEST_TIMEOUT,
             )
         except requests.Timeout as exc:
-            raise self._read_error("UPSTREAM_TIMEOUT", "Emailnator list messages timed out", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_TIMEOUT", "Emailnator list messages timed out", operation="list_messages", mailbox=mailbox
+            ) from exc
         except requests.RequestException as exc:
-            raise self._read_error("UPSTREAM_SERVER_ERROR", f"Emailnator list messages failed: {exc}", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_SERVER_ERROR", f"Emailnator list messages failed: {exc}", operation="list_messages", mailbox=mailbox
+            ) from exc
         if not resp.ok:
-            raise self._read_error(_error_code_by_status(resp.status_code), _extract_error_message(resp), operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                _error_code_by_status(resp.status_code),
+                _extract_error_message(resp),
+                operation="list_messages",
+                mailbox=mailbox,
+            )
         try:
             payload = resp.json()
         except Exception as exc:
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Emailnator inbox response is not JSON", operation="list_messages", mailbox=mailbox) from exc
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD", "Emailnator inbox response is not JSON", operation="list_messages", mailbox=mailbox
+            ) from exc
         if not isinstance(payload, dict):
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Emailnator inbox response has invalid shape", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD",
+                "Emailnator inbox response has invalid shape",
+                operation="list_messages",
+                mailbox=mailbox,
+            )
         raw_messages = payload.get("messages") or []
         if not isinstance(raw_messages, list):
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Emailnator messages field is not a list", operation="list_messages", mailbox=mailbox)
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD", "Emailnator messages field is not a list", operation="list_messages", mailbox=mailbox
+            )
         messages: list[dict[str, Any]] = []
         for item in raw_messages:
             if isinstance(item, dict):
@@ -925,7 +1075,13 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
         try:
             self._ensure_configured()
         except RuntimeError as exc:
-            raise self._read_error("TEMP_MAIL_PROVIDER_NOT_CONFIGURED", str(exc), operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "TEMP_MAIL_PROVIDER_NOT_CONFIGURED",
+                str(exc),
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         raw_id = self._to_raw_message_id(message_id)
         if not raw_id:
             return None
@@ -936,17 +1092,41 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
                 timeout=_REQUEST_TIMEOUT,
             )
         except requests.Timeout as exc:
-            raise self._read_error("UPSTREAM_TIMEOUT", "Emailnator message detail timed out", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_TIMEOUT",
+                "Emailnator message detail timed out",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         except requests.RequestException as exc:
-            raise self._read_error("UPSTREAM_SERVER_ERROR", f"Emailnator message detail failed: {exc}", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_SERVER_ERROR",
+                f"Emailnator message detail failed: {exc}",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         if resp.status_code == 404:
             return None
         if not resp.ok:
-            raise self._read_error(_error_code_by_status(resp.status_code), _extract_error_message(resp), operation="get_message_detail", mailbox=mailbox, message_id=message_id)
+            raise self._read_error(
+                _error_code_by_status(resp.status_code),
+                _extract_error_message(resp),
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            )
         try:
             payload = resp.json()
         except Exception as exc:
-            raise self._read_error("UPSTREAM_BAD_PAYLOAD", "Emailnator message detail response is not JSON", operation="get_message_detail", mailbox=mailbox, message_id=message_id) from exc
+            raise self._read_error(
+                "UPSTREAM_BAD_PAYLOAD",
+                "Emailnator message detail response is not JSON",
+                operation="get_message_detail",
+                mailbox=mailbox,
+                message_id=message_id,
+            ) from exc
         if not isinstance(payload, dict):
             return None
         return self._normalize_message(payload, raw_id_override=raw_id)

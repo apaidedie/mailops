@@ -1,115 +1,108 @@
 """Package facade — re-exports public symbols for stable imports."""
+
 from __future__ import annotations
 
+from .access import (
+    _account_can_read,
+    _can_check_external_access,
+    _get_proxy_url,
+    _preferred_probe_method,
+    audit_external_api_access,
+    can_account_read,
+    ensure_account_can_read,
+    ensure_external_email_access,
+    ensure_external_email_scope,
+    get_current_external_api_consumer,
+    record_claim_read_context,
+    require_account,
+    resolve_external_mail_scope,
+)
 from .constants import (
     IMAP_SERVER_NEW,
     IMAP_SERVER_OLD,
     MAX_TIMEOUT_SECONDS,
 )
-
 from .errors import (
-    ExternalApiError,
-    InvalidParamError,
-    AccountNotFoundError,
-    MailNotFoundError,
-    VerificationCodeNotFoundError,
-    VerificationLinkNotFoundError,
-    ProxyError,
-    UpstreamReadFailedError,
-    EmailScopeForbiddenError,
     AccountAccessForbiddenError,
+    AccountNotFoundError,
+    EmailScopeForbiddenError,
+    ExternalApiError,
+    FeatureDisabledError,
+    InvalidParamError,
+    MailboxConflictError,
+    MailNotFoundError,
+    ProbeCancelledError,
+    ProxyError,
     TaskFinishedError,
     TaskTokenInvalidError,
-    FeatureDisabledError,
-    ProbeCancelledError,
-    MailboxConflictError,
+    UpstreamReadFailedError,
     VerificationAiConfigIncompleteError,
-    ok,
+    VerificationCodeNotFoundError,
+    VerificationLinkNotFoundError,
     fail,
+    ok,
 )
-
-from .timefmt import (
-    _utcnow,
-    _parse_datetime,
-    _format_datetime,
-    _extract_email_address,
-    claimed_at_to_timestamp,
-)
-
-from .access import (
-    _can_check_external_access,
-    get_current_external_api_consumer,
-    ensure_external_email_access,
-    ensure_external_email_scope,
-    _get_proxy_url,
-    require_account,
-    _preferred_probe_method,
-    _account_can_read,
-    can_account_read,
-    ensure_account_can_read,
-    resolve_external_mail_scope,
-    record_claim_read_context,
-    audit_external_api_access,
-)
-
 from .messages import (
+    _build_email_obj_from_detail,
     _build_message_summary,
-    list_messages_for_external,
+    _extract_sender_address_from_message_item,
     filter_messages,
     get_latest_message_for_external,
     get_message_detail_for_external,
-    _extract_sender_address_from_message_item,
-    _build_email_obj_from_detail,
+    list_messages_for_external,
 )
-
+from .openapi import get_external_api_openapi_contract
+from .probes import (
+    _get_probe_baseline_timestamp,
+    _load_pending_probe_rows,
+    _mark_expired_pending_probes,
+    _mark_probe_error,
+    _mark_probe_matched,
+    _poll_single_probe,
+    _validate_probe_params,
+    cancel_pending_probes_for_email,
+    cleanup_expired_probes,
+    create_probe,
+    get_probe_status,
+    poll_pending_probes,
+    wait_for_message,
+)
+from .timefmt import (
+    _extract_email_address,
+    _format_datetime,
+    _parse_datetime,
+    _utcnow,
+    claimed_at_to_timestamp,
+)
 from .upstream import (
+    _is_probe_summary_fresh,
+    _pick_instance_probe_account,
+    _probe_error_message,
     _probe_now_iso,
     _probe_summary_from_row,
     get_upstream_probe_summary,
-    _is_probe_summary_fresh,
-    record_upstream_probe_summary,
-    _probe_error_message,
     probe_account_upstream,
-    _pick_instance_probe_account,
     probe_instance_upstream,
+    record_upstream_probe_summary,
 )
-
 from .verification import (
-    _shape_verification_result_by_expected_field,
     _classify_extract_error,
-    _resolve_extract_log_channel,
-    _strip_extract_log_fields,
-    _get_db_for_log,
-    _write_extract_log,
+    _ensure_verification_ai_ready,
     _extract_verification_with_memory_for_outlook,
+    _finalize_verification_extract_log,
+    _get_db_for_log,
+    _resolve_extract_log_channel,
     _resolve_verification_extract_context,
     _resolve_verification_policy_for_request,
-    _ensure_verification_ai_ready,
-    _should_use_outlook_memory_extract,
-    _finalize_verification_extract_log,
+    _run_generic_verification_extract,
     _run_logged_verification_extract,
     _run_outlook_memory_verification_extract,
-    _run_generic_verification_extract,
+    _shape_verification_result_by_expected_field,
+    _should_use_outlook_memory_extract,
+    _strip_extract_log_fields,
+    _write_extract_log,
     get_verification_result,
 )
-
-from .probes import (
-    wait_for_message,
-    _validate_probe_params,
-    create_probe,
-    get_probe_status,
-    cancel_pending_probes_for_email,
-    _mark_expired_pending_probes,
-    _load_pending_probe_rows,
-    _get_probe_baseline_timestamp,
-    _mark_probe_matched,
-    _mark_probe_error,
-    _poll_single_probe,
-    poll_pending_probes,
-    cleanup_expired_probes,
-)
-
-from .openapi import get_external_api_openapi_contract
 
 __all__ = [
     "IMAP_SERVER_NEW",

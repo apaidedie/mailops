@@ -61,7 +61,9 @@ class GunicornStartupConfigTests(unittest.TestCase):
     def test_dockerfile_uses_shared_healthcheck_script(self):
         dockerfile = _read("Dockerfile")
 
-        self.assertIn('HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD ["python", "scripts/healthcheck.py"]', dockerfile)
+        self.assertIn(
+            'HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD ["python", "scripts/healthcheck.py"]', dockerfile
+        )
         self.assertNotIn("urllib.request", dockerfile)
         self.assertNotIn('"-c"', dockerfile)
 

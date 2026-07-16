@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import importlib
 import os
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 
 class SecurityHeadersTests(unittest.TestCase):

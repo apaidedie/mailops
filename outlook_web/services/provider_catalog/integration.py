@@ -15,39 +15,24 @@ from outlook_web.services.providers import MAIL_PROVIDERS, get_provider_list
 from outlook_web.services.temp_mail_provider_base import normalize_provider_capabilities
 from outlook_web.services.temp_mail_provider_factory import TempMailProviderFactoryError, get_available_providers
 
-
 from .bridge import (
     _canonical_bridge_operator_provider,
     _collapse_bridge_operator_provider_rows,
     _merge_unique_str_list,
     get_operator_temp_mail_default_provider,
 )
-from .constants import (
-    ACTIVE_MAILBOX_PROVIDER_ENV,
-    DEPLOYMENT_ENV_CONTRACT,
-    EXTERNAL_POOL_DEFAULT_PROVIDER_ENV,
-    GPTMAIL_POOL_TEMP_PROVIDER_NAMES,
-    GPTMAIL_RUNTIME_ALIASES,
-    PROVIDER_SELECTION_SOURCE_PRIORITY,
-    TEMP_MAIL_PROVIDER_ENV,
-    _BRIDGE_OPERATOR_CANONICAL,
-    _BRIDGE_OPERATOR_FAMILY,
-)
-from .endpoints import (
-    PROVIDER_HEALTH_ENDPOINT,
-    PROVIDER_PREFLIGHT_ENDPOINT,
-    _CANONICAL_EXTERNAL_ENDPOINTS,
-    _EXTERNAL_MAILBOX_SESSION_CLOSE_ACTION,
-    _EXTERNAL_MAILBOX_SESSION_READ_ACTION,
-    get_external_api_endpoint_map,
-    get_external_mailbox_read_contract,
-    get_provider_documentation_contract,
-    _action_contract_next_actions_for_endpoint_map,
-)
-from .selection import get_mailbox_provider_selection_policy
 from .catalog import (
     _PROVIDER_CAPABILITY_READ_ACTIONS,
     _PROVIDER_CAPABILITY_WORKFLOWS,
+    _append_unique,
+    _normalize_provider_name,
+    _provider_readiness_reason,
+    _provider_readiness_status,
+    _provider_recipe_active,
+    _provider_recipe_alias_canonical,
+    _provider_recipe_kind,
+    _provider_recipe_label,
+    _provider_selection_recipe_bundle,
     account_provider_label,
     get_active_account_provider_names,
     get_active_mailbox_provider_filter_contract,
@@ -63,16 +48,31 @@ from .catalog import (
     temp_mail_provider_config_status,
     temp_mail_provider_display_label,
     temp_mail_provider_label,
-    _append_unique,
-    _normalize_provider_name,
-    _provider_readiness_reason,
-    _provider_readiness_status,
-    _provider_recipe_active,
-    _provider_recipe_alias_canonical,
-    _provider_recipe_kind,
-    _provider_recipe_label,
-    _provider_selection_recipe_bundle,
 )
+from .constants import (
+    _BRIDGE_OPERATOR_CANONICAL,
+    _BRIDGE_OPERATOR_FAMILY,
+    ACTIVE_MAILBOX_PROVIDER_ENV,
+    DEPLOYMENT_ENV_CONTRACT,
+    EXTERNAL_POOL_DEFAULT_PROVIDER_ENV,
+    GPTMAIL_POOL_TEMP_PROVIDER_NAMES,
+    GPTMAIL_RUNTIME_ALIASES,
+    PROVIDER_SELECTION_SOURCE_PRIORITY,
+    TEMP_MAIL_PROVIDER_ENV,
+)
+from .endpoints import (
+    _CANONICAL_EXTERNAL_ENDPOINTS,
+    _EXTERNAL_MAILBOX_SESSION_CLOSE_ACTION,
+    _EXTERNAL_MAILBOX_SESSION_READ_ACTION,
+    PROVIDER_HEALTH_ENDPOINT,
+    PROVIDER_PREFLIGHT_ENDPOINT,
+    _action_contract_next_actions_for_endpoint_map,
+    get_external_api_endpoint_map,
+    get_external_mailbox_read_contract,
+    get_provider_documentation_contract,
+)
+from .selection import get_mailbox_provider_selection_policy
+
 
 def _provider_integration_endpoint_map(endpoints: dict[str, Any] | None = None) -> dict[str, str]:
     source = endpoints if isinstance(endpoints, dict) else {}
@@ -307,9 +307,11 @@ def get_provider_integration_guide(
             diagnostic=diagnostics_by_provider.get(
                 (
                     str(item.get("kind") or "").strip().lower(),
-                    _canonical_bridge_operator_provider(item.get("provider"))
-                    if str(item.get("kind") or "").strip().lower() == "temp"
-                    else _normalize_provider_name(item.get("provider")),
+                    (
+                        _canonical_bridge_operator_provider(item.get("provider"))
+                        if str(item.get("kind") or "").strip().lower() == "temp"
+                        else _normalize_provider_name(item.get("provider"))
+                    ),
                 ),
                 {},
             ),
@@ -1895,6 +1897,3 @@ def get_mailbox_directory_provider_context(*, mailbox_inventory: dict[str, Any] 
         "readiness_summary": readiness_summary,
         "discovery": discovery,
     }
-
-
-

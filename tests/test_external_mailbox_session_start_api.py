@@ -114,8 +114,12 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(payload["read_capability"], "graph")
         self.assertIn("claim_token", payload["lifecycle"])
         self.assertIn("account_id", payload["lifecycle"])
-        self.assertEqual(payload["next_actions"]["read_verification_code"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/verification-code")
-        self.assertEqual(payload["next_actions"]["complete_claim"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete")
+        self.assertEqual(
+            payload["next_actions"]["read_verification_code"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/verification-code"
+        )
+        self.assertEqual(
+            payload["next_actions"]["complete_claim"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete"
+        )
         self.assertNotIn("password", json.dumps(payload).lower())
         self.assertNotIn("refresh_token", json.dumps(payload).lower())
 
@@ -150,7 +154,10 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(payload["provider"], "custom_domain_temp_mail")
         self.assertEqual(payload["read_capability"], "temp_provider")
         self.assertIn("task_token", payload["lifecycle"])
-        self.assertEqual(payload["next_actions"]["finish_task_mailbox"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/{{task_token}}/finish")
+        self.assertEqual(
+            payload["next_actions"]["finish_task_mailbox"]["endpoint"],
+            f"{CANONICAL_EXTERNAL_PREFIX}/temp-emails/{{task_token}}/finish",
+        )
 
     def test_mailbox_session_start_task_temp_only_allows_multi_key_without_pool_access(self):
         self._create_external_api_key("task-only", "task-only-key", pool_access=False)
@@ -434,10 +441,14 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         with self.app.app_context():
             from outlook_web.db import get_db
 
-            row = get_db().execute(
-                "SELECT pool_status FROM accounts WHERE id = ?",
-                (lifecycle["account_id"],),
-            ).fetchone()
+            row = (
+                get_db()
+                .execute(
+                    "SELECT pool_status FROM accounts WHERE id = ?",
+                    (lifecycle["account_id"],),
+                )
+                .fetchone()
+            )
         self.assertEqual(row["pool_status"], "claimed")
 
     def test_mailbox_session_close_rejects_other_consumer_task_token(self):
@@ -524,10 +535,14 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         with self.app.app_context():
             from outlook_web.db import get_db
 
-            row = get_db().execute(
-                "SELECT caller_id, task_id, action, detail FROM account_claim_logs WHERE claim_token = ? AND action = 'read' ORDER BY id DESC LIMIT 1",
-                (lifecycle["claim_token"],),
-            ).fetchone()
+            row = (
+                get_db()
+                .execute(
+                    "SELECT caller_id, task_id, action, detail FROM account_claim_logs WHERE claim_token = ? AND action = 'read' ORDER BY id DESC LIMIT 1",
+                    (lifecycle["claim_token"],),
+                )
+                .fetchone()
+            )
         self.assertIsNotNone(row)
         self.assertEqual(row["caller_id"], "worker-1")
         self.assertEqual(row["task_id"], "job-read-pool")
@@ -672,25 +687,46 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         capabilities_resp = client.get("/api/v1/external/capabilities", headers=self._auth_headers())
         self.assertEqual(capabilities_resp.status_code, 200)
         capabilities = capabilities_resp.get_json()["data"]
-        self.assertEqual(capabilities["endpoints"]["mailbox_session_start"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start")
-        self.assertEqual(capabilities["endpoints"]["mailbox_session_read"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read")
-        self.assertEqual(capabilities["endpoints"]["mailbox_session_close"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close")
+        self.assertEqual(
+            capabilities["endpoints"]["mailbox_session_start"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start"
+        )
+        self.assertEqual(
+            capabilities["endpoints"]["mailbox_session_read"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read"
+        )
+        self.assertEqual(
+            capabilities["endpoints"]["mailbox_session_close"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close"
+        )
         self.assertEqual(capabilities["legacy_endpoints"], {})
         self.assertFalse(capabilities["compatibility"]["legacy_supported"])
         self.assertIn("mailbox_session_start", capabilities["features"])
         self.assertIn("mailbox_session_read", capabilities["features"])
         self.assertIn("mailbox_session_close", capabilities["features"])
-        self.assertEqual(capabilities["quickstart"]["endpoints"]["mailbox_session_start"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start")
-        self.assertEqual(capabilities["quickstart"]["endpoints"]["mailbox_session_read"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read")
-        self.assertEqual(capabilities["quickstart"]["endpoints"]["mailbox_session_close"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close")
-        self.assertEqual(capabilities["mailbox_session"]["read_endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read")
-        self.assertEqual(capabilities["mailbox_session"]["close_endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close")
+        self.assertEqual(
+            capabilities["quickstart"]["endpoints"]["mailbox_session_start"],
+            f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start",
+        )
+        self.assertEqual(
+            capabilities["quickstart"]["endpoints"]["mailbox_session_read"],
+            f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read",
+        )
+        self.assertEqual(
+            capabilities["quickstart"]["endpoints"]["mailbox_session_close"],
+            f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close",
+        )
+        self.assertEqual(
+            capabilities["mailbox_session"]["read_endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read"
+        )
+        self.assertEqual(
+            capabilities["mailbox_session"]["close_endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close"
+        )
         self.assertIn("read_action", capabilities["mailbox_session"]["read_fields"])
         self.assertIn("verification_code", capabilities["mailbox_session"]["read_action_values"])
         self.assertIn("session_type", capabilities["mailbox_session"]["close_fields"])
         workflow_keys = {item["key"] for item in capabilities["integration_manifest"]["workflows"]}
         self.assertIn("start_mailbox_session", workflow_keys)
-        start_workflow = next(item for item in capabilities["integration_manifest"]["workflows"] if item["key"] == "start_mailbox_session")
+        start_workflow = next(
+            item for item in capabilities["integration_manifest"]["workflows"] if item["key"] == "start_mailbox_session"
+        )
         start_steps = {item["key"]: item for item in start_workflow["steps"]}
         self.assertEqual(start_steps["start_session"]["next"]["success"], "read_session")
         self.assertEqual(start_steps["read_session"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read")
@@ -711,7 +747,10 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
             "#/components/schemas/MailboxSessionStartRequest",
         )
         schemas = openapi["components"]["schemas"]
-        self.assertEqual(schemas["MailboxSessionStartRequest"]["properties"]["source_strategy"]["enum"], ["pool_first", "task_temp_first", "pool_only", "task_temp_only"])
+        self.assertEqual(
+            schemas["MailboxSessionStartRequest"]["properties"]["source_strategy"]["enum"],
+            ["pool_first", "task_temp_first", "pool_only", "task_temp_only"],
+        )
         self.assertIn("MailboxSessionData", schemas)
         read_operation = openapi["paths"][f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read"]["post"]
         self.assertEqual(read_operation["operationId"], "externalMailboxSessionRead")
@@ -722,7 +761,18 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertIn("MailboxSessionReadRequest", schemas)
         self.assertIn("MailboxSessionReadData", schemas)
         self.assertIn("ProbeCreateData", schemas)
-        self.assertEqual(schemas["MailboxSessionReadRequest"]["properties"]["read_action"]["enum"], ["messages", "latest_message", "message_detail", "message_raw", "verification_code", "verification_link", "wait_message"])
+        self.assertEqual(
+            schemas["MailboxSessionReadRequest"]["properties"]["read_action"]["enum"],
+            [
+                "messages",
+                "latest_message",
+                "message_detail",
+                "message_raw",
+                "verification_code",
+                "verification_link",
+                "wait_message",
+            ],
+        )
         close_operation = openapi["paths"][f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close"]["post"]
         self.assertEqual(close_operation["operationId"], "externalMailboxSessionClose")
         self.assertEqual(
@@ -731,7 +781,9 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         )
         self.assertIn("MailboxSessionCloseRequest", schemas)
         self.assertIn("MailboxSessionCloseData", schemas)
-        self.assertEqual(schemas["MailboxSessionCloseRequest"]["properties"]["session_type"]["enum"], ["pool_claim", "task_temp_mailbox"])
+        self.assertEqual(
+            schemas["MailboxSessionCloseRequest"]["properties"]["session_type"]["enum"], ["pool_claim", "task_temp_mailbox"]
+        )
         self.assertEqual(schemas["MailboxSessionCloseData"]["properties"]["status"]["enum"], ["closed"])
         schema_text = json.dumps(schemas["MailboxSessionData"], ensure_ascii=False).lower()
         schema_text += json.dumps(schemas["MailboxSessionReadData"], ensure_ascii=False).lower()

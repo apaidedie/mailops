@@ -29,14 +29,15 @@ from outlook_web.services.external_api_openapi import get_external_api_openapi_c
 from outlook_web.services.provider_catalog import (
     get_external_api_capabilities_contract,
     get_external_api_integration_bundle,
-    get_external_mailbox_read_contract,
     get_external_api_readiness_summary,
+    get_external_mailbox_read_contract,
     temp_mail_provider_label,
 )
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME
 
 from .constants import _HEALTHZ_BOOT_ID
 from .helpers import _safe_demo_workspace_metadata, utcnow
+
 
 @login_required
 def api_bootstrap() -> Any:
@@ -83,6 +84,7 @@ def api_bootstrap() -> Any:
         }
     )
 
+
 @login_required
 def api_reload_plugins() -> Any:
     from outlook_web.services.temp_mail_provider_factory import reload_plugins
@@ -99,6 +101,7 @@ def api_reload_plugins() -> Any:
 
 # ==================== 系统 API ====================
 
+
 def healthz() -> Any:
     """基础健康检查（用于容器/反代探活）"""
     return (
@@ -111,6 +114,7 @@ def healthz() -> Any:
         ),
         200,
     )
+
 
 @login_required
 def api_system_health() -> Any:
@@ -184,6 +188,7 @@ def api_system_health() -> Any:
         )
     finally:
         conn.close()
+
 
 @login_required
 def api_system_diagnostics() -> Any:
@@ -271,6 +276,7 @@ def api_system_diagnostics() -> Any:
     finally:
         conn.close()
 
+
 @login_required
 def api_system_upgrade_status() -> Any:
     """数据库升级状态（用于验收"升级过程可验证/失败可定位"）"""
@@ -331,6 +337,7 @@ def api_system_upgrade_status() -> Any:
 
 
 # ==================== External System API ====================
+
 
 @api_key_required
 @external_api_guards()

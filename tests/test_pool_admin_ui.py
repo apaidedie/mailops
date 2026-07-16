@@ -1,4 +1,5 @@
 """Playwright full functional test for Pool Admin UI — simulate real user interactions."""
+
 import json
 import os
 import sys

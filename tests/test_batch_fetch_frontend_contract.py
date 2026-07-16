@@ -11,11 +11,11 @@
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import re
 import unittest
 
 from tests._import_app import clear_login_attempts, import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class BatchFetchFrontendContractTests(unittest.TestCase):
@@ -129,7 +129,7 @@ class BatchFetchFrontendContractTests(unittest.TestCase):
     def test_load_emails_still_uses_single_account_model(self):
         """TDD D-03：单账号邮件区仍按 currentAccount/currentFolder 语义工作。"""
         client = self.app.test_client()
-        emails_js = load_feature_package_js('static/js/features/emails')
+        emails_js = load_feature_package_js("static/js/features/emails")
 
         self.assertIn("async function loadEmails(email, forceRefresh = false)", emails_js)
         self.assertIn("const cacheKey = `${targetEmail}_${targetFolder}`;", emails_js)

@@ -15,32 +15,12 @@ from outlook_web.services.providers import MAIL_PROVIDERS, get_provider_list
 from outlook_web.services.temp_mail_provider_base import normalize_provider_capabilities
 from outlook_web.services.temp_mail_provider_factory import TempMailProviderFactoryError, get_available_providers
 
-
 from .bridge import (
     _canonical_bridge_operator_provider,
     _collapse_bridge_operator_provider_rows,
     _merge_unique_str_list,
     get_operator_temp_mail_default_provider,
 )
-from .constants import (
-    ACTIVE_MAILBOX_PROVIDER_ENV,
-    DEPLOYMENT_ENV_CONTRACT,
-    EXTERNAL_POOL_DEFAULT_PROVIDER_ENV,
-    PROVIDER_SELECTION_SOURCE_PRIORITY,
-    TEMP_MAIL_PROVIDER_ENV,
-)
-from .endpoints import (
-    PROVIDER_HEALTH_ENDPOINT,
-    PROVIDER_PREFLIGHT_ENDPOINT,
-    _CANONICAL_EXTERNAL_ENDPOINTS,
-    get_external_api_compatibility_contract,
-    get_external_api_endpoint_map,
-    get_external_api_legacy_endpoint_map,
-    get_external_mailbox_read_contract,
-    get_provider_documentation_contract,
-    _action_contract_next_actions_for_endpoint_map,
-)
-from .selection import get_mailbox_provider_selection_policy
 from .catalog import (
     get_active_mailbox_provider_filter_contract,
     get_mailbox_provider_catalog,
@@ -50,13 +30,33 @@ from .catalog import (
     get_provider_alias_contract,
     get_provider_catalog_item,
 )
+from .constants import (
+    ACTIVE_MAILBOX_PROVIDER_ENV,
+    DEPLOYMENT_ENV_CONTRACT,
+    EXTERNAL_POOL_DEFAULT_PROVIDER_ENV,
+    PROVIDER_SELECTION_SOURCE_PRIORITY,
+    TEMP_MAIL_PROVIDER_ENV,
+)
+from .endpoints import (
+    _CANONICAL_EXTERNAL_ENDPOINTS,
+    PROVIDER_HEALTH_ENDPOINT,
+    PROVIDER_PREFLIGHT_ENDPOINT,
+    _action_contract_next_actions_for_endpoint_map,
+    get_external_api_compatibility_contract,
+    get_external_api_endpoint_map,
+    get_external_api_legacy_endpoint_map,
+    get_external_mailbox_read_contract,
+    get_provider_documentation_contract,
+)
+from .health import _sanitize_health_text
 from .integration import (
     get_external_integration_manifest,
     get_mailbox_directory_provider_context,
     get_mailbox_provider_readiness_summary,
     get_provider_integration_guide,
 )
-from .health import _sanitize_health_text
+from .selection import get_mailbox_provider_selection_policy
+
 
 def get_external_api_capabilities_contract(*, consumer: dict[str, Any] | None = None) -> dict[str, Any]:
     """Return the machine-readable discovery contract for the external API."""

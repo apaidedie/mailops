@@ -14,8 +14,9 @@ from outlook_web.services.external_request_limits import (
     TASK_MAILBOX_PREFIX_MAX_LEN,
 )
 from outlook_web.services.mailbox_directory_contract import get_mailbox_catalog_contract
-from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 from outlook_web.services.pool import VALID_RESULTS
+from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
+
 
 def _envelope_ref(schema_ref: str) -> dict[str, Any]:
     return {
@@ -30,6 +31,7 @@ def _envelope_ref(schema_ref: str) -> dict[str, Any]:
         ],
     }
 
+
 def _json_response(schema: dict[str, Any]) -> dict[str, Any]:
     return {
         "200": {
@@ -38,15 +40,35 @@ def _json_response(schema: dict[str, Any]) -> dict[str, Any]:
         },
     }
 
+
 def _error_responses() -> dict[str, Any]:
     return {
-        "400": {"description": "Invalid request", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
-        "401": {"description": "Missing or invalid API key", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
-        "403": {"description": "Forbidden", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
-        "404": {"description": "Not found", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
-        "429": {"description": "Rate limited", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
-        "500": {"description": "Server error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}}},
+        "400": {
+            "description": "Invalid request",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
+        "401": {
+            "description": "Missing or invalid API key",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
+        "403": {
+            "description": "Forbidden",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
+        "404": {
+            "description": "Not found",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
+        "429": {
+            "description": "Rate limited",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
+        "500": {
+            "description": "Server error",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ExternalEnvelope"}}},
+        },
     }
+
 
 def _query_param(name: str, schema: dict[str, Any], *, required: bool = False, description: str = "") -> dict[str, Any]:
     payload: dict[str, Any] = {
@@ -59,6 +81,7 @@ def _query_param(name: str, schema: dict[str, Any], *, required: bool = False, d
         payload["description"] = description
     return payload
 
+
 def _path_param(name: str, description: str = "") -> dict[str, Any]:
     return {
         "name": name,
@@ -68,11 +91,13 @@ def _path_param(name: str, description: str = "") -> dict[str, Any]:
         "description": description or name,
     }
 
+
 def _string_array_schema(values: list[Any] | None = None) -> dict[str, Any]:
     item_schema: dict[str, Any] = {"type": "string"}
     if values is not None:
         item_schema["enum"] = [str(item) for item in values]
     return {"type": "array", "items": item_schema}
+
 
 def _nullable_string_enum_schema(values: list[Any], *, description: str = "") -> dict[str, Any]:
     enum_values: list[Any] = [None]
@@ -88,8 +113,10 @@ def _nullable_string_enum_schema(values: list[Any], *, description: str = "") ->
         schema["description"] = description
     return schema
 
+
 def _json_value_schema() -> dict[str, Any]:
     return {"type": ["string", "number", "boolean", "array", "object", "null"]}
+
 
 def _operation(
     *,

@@ -12,11 +12,11 @@ UI 重设计 BUG 修复验证测试
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import re
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class TestUIRedesignBugFixes(unittest.TestCase):
@@ -66,7 +66,7 @@ class TestUIRedesignBugFixes(unittest.TestCase):
     def test_bug002_accounts_js_shows_account_bar(self):
         """BUG-002: accounts.js 中 selectAccount 应操作 currentAccountBar 而非 currentAccount"""
         client = self._get_client()
-        _, js = load_feature_package_js('static/js/features/accounts')
+        _, js = load_feature_package_js("static/js/features/accounts")
         self.assertIn("currentAccountBar", js, "selectAccount() 应操作 #currentAccountBar 元素")
 
     # ==================== BUG-003: 设置页面 ====================
@@ -128,7 +128,7 @@ class TestUIRedesignBugFixes(unittest.TestCase):
     def test_bug005_copy_verification_function_exists(self):
         """BUG-005: JS 中存在 copyVerificationInfo 函数"""
         client = self._get_client()
-        _, js = load_feature_package_js('static/js/features/groups')
+        _, js = load_feature_package_js("static/js/features/groups")
         self.assertIn("function copyVerificationInfo", js)
 
     # ==================== BUG-006: 卡片颜色 ====================
@@ -136,7 +136,7 @@ class TestUIRedesignBugFixes(unittest.TestCase):
     def test_bug006_card_color_array_exists(self):
         """BUG-006: 临时邮箱渲染应有多种颜色"""
         client = self._get_client()
-        _, js = load_feature_package_js('static/js/features/temp_emails')
+        _, js = load_feature_package_js("static/js/features/temp_emails")
         self.assertIn("renderTempEmailList", js)
 
     # ==================== BUG-010: 仪表盘 ====================
@@ -163,7 +163,7 @@ class TestUIRedesignBugFixes(unittest.TestCase):
         """BUG-010: Dashboard 当前通过 overview.js 入口加载，而非旧 loadDashboard 逻辑"""
         client = self._get_client()
         main_js = load_frontend_app_js()
-        _, overview_js = load_feature_package_js('static/js/features/overview')
+        _, overview_js = load_feature_package_js("static/js/features/overview")
         self.assertIn("if (page === 'dashboard' && typeof initOverview === 'function') initOverview();", main_js)
         self.assertNotIn("function loadDashboard", main_js)
         self.assertIn("function initOverview()", overview_js)

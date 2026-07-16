@@ -1,4 +1,5 @@
 """Helpers for reading the frontend app JS bundle (split core + feature packages)."""
+
 from __future__ import annotations
 
 import json

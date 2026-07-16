@@ -35,6 +35,7 @@ from outlook_web.services import refresh as refresh_service
 
 REFRESH_LOCK_NAME = "refresh_all_tokens"
 
+
 @login_required
 def api_refresh_account(account_id: int) -> Any:
     """刷新单个账号的 token"""
@@ -120,6 +121,7 @@ def api_refresh_account(account_id: int) -> Any:
     )
     return jsonify({"success": False, "error": error_payload})
 
+
 @login_required
 def api_refresh_all_accounts() -> Any:
     """刷新所有账号的 token（流式响应，实时返回进度）"""
@@ -150,10 +152,12 @@ def api_refresh_all_accounts() -> Any:
         },
     )
 
+
 @login_required
 def api_retry_refresh_account(account_id: int) -> Any:
     """重试单个失败账号的刷新"""
     return api_refresh_account(account_id)
+
 
 @login_required
 def api_refresh_failed_accounts() -> Any:
@@ -176,6 +180,7 @@ def api_refresh_failed_accounts() -> Any:
         test_refresh_token=graph_service.test_refresh_token_with_rotation,
     )
     return jsonify(response_data), status_code
+
 
 @login_required
 def api_trigger_scheduled_refresh() -> Any:
@@ -219,6 +224,7 @@ def api_trigger_scheduled_refresh() -> Any:
 
 # ==================== 刷新日志 API ====================
 
+
 @login_required
 def api_get_refresh_logs() -> Any:
     """获取所有账号的刷新历史（近半年）"""
@@ -255,6 +261,7 @@ def api_get_refresh_logs() -> Any:
 
     return jsonify({"success": True, "logs": logs})
 
+
 @login_required
 def api_get_account_refresh_logs(account_id: int) -> Any:
     """获取单个账号的刷新历史"""
@@ -287,6 +294,7 @@ def api_get_account_refresh_logs(account_id: int) -> Any:
         )
 
     return jsonify({"success": True, "logs": logs})
+
 
 @login_required
 def api_get_failed_refresh_logs() -> Any:
@@ -323,6 +331,7 @@ def api_get_failed_refresh_logs() -> Any:
         )
 
     return jsonify({"success": True, "logs": logs})
+
 
 @login_required
 def api_get_invalid_token_candidates() -> Any:
@@ -400,6 +409,7 @@ def api_get_invalid_token_candidates() -> Any:
         }
     )
 
+
 @login_required
 def api_get_refresh_stats() -> Any:
     """获取刷新统计信息（统计当前失败状态的邮箱数量）"""
@@ -447,6 +457,7 @@ def api_get_refresh_stats() -> Any:
 
 
 # ==================== 通知参与 API（兼容旧 Telegram 路径） ====================
+
 
 @login_required
 def api_refresh_selected_accounts() -> Any:

@@ -180,7 +180,7 @@ class TestPluginFactory(unittest.TestCase):
             _REGISTRY.pop("string_capability_provider", None)
 
     def test_get_available_providers_includes_contract_validation(self):
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, _REGISTRY, register_provider
+        from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
         from outlook_web.services.temp_mail_provider_factory import get_available_providers
 
         @register_provider

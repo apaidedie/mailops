@@ -10,9 +10,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
 import logging
+from dataclasses import dataclass
 from typing import Optional
 
 from outlook_web.db import create_sqlite_connection

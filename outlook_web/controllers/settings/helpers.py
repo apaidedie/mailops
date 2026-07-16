@@ -27,6 +27,7 @@ from outlook_web.services.verification_extractor import probe_verification_ai_ru
 
 # ==================== 设置 API ====================
 
+
 def _mask_secret_value(value: str, head: int = 4, tail: int = 4) -> str:
     if not value:
         return ""
@@ -34,6 +35,7 @@ def _mask_secret_value(value: str, head: int = 4, tail: int = 4) -> str:
     if len(safe_value) <= head + tail:
         return "*" * len(safe_value)
     return safe_value[:head] + ("*" * (len(safe_value) - head - tail)) + safe_value[-tail:]
+
 
 def _plugin_settings_contract() -> dict[str, dict[str, Any]]:
     fields: dict[str, dict[str, Any]] = {}
@@ -47,6 +49,7 @@ def _plugin_settings_contract() -> dict[str, dict[str, Any]]:
             if key.startswith("plugin."):
                 fields[key] = {"secret": key in secret_keys}
     return fields
+
 
 def _parse_allowed_emails_input(raw: Any) -> list[str]:
     if raw in (None, "", []):
@@ -73,6 +76,7 @@ def _parse_allowed_emails_input(raw: Any) -> list[str]:
         result.append(email_addr)
     return result
 
+
 def _parse_bool_input(raw: Any, *, default: bool = False) -> bool:
     if raw is None:
         return default
@@ -87,12 +91,14 @@ def _parse_bool_input(raw: Any, *, default: bool = False) -> bool:
         return False
     return default
 
+
 def _coerce_int_range(raw: Any, default: int, *, minimum: int, maximum: int) -> int:
     try:
         value = int(raw)
     except (TypeError, ValueError):
         return default
     return max(minimum, min(maximum, value))
+
 
 def _parse_temp_mail_domains_input(raw: Any) -> list[dict[str, Any]]:
     if raw in (None, "", []):
@@ -126,6 +132,7 @@ def _parse_temp_mail_domains_input(raw: Any) -> list[dict[str, Any]]:
         result.append({"name": name, "enabled": enabled})
     return result
 
+
 def _parse_temp_mail_prefix_rules_input(raw: Any) -> dict[str, Any]:
     if raw in (None, "", {}):
         return {
@@ -156,14 +163,18 @@ def _parse_temp_mail_prefix_rules_input(raw: Any) -> dict[str, Any]:
         "pattern": pattern,
     }
 
+
 def _parse_emailnator_email_types_input(raw: Any) -> list[str]:
     return settings_repo.normalize_emailnator_email_types(raw, strict=True)
+
 
 def _parse_mailbox_provider_list_input(raw: Any) -> list[str]:
     return settings_repo.normalize_mailbox_provider_list(raw)
 
+
 def _is_valid_notification_email(value: str) -> bool:
     return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", value or ""))
+
 
 def _json_error(
     code: str,
@@ -187,6 +198,7 @@ def _json_error(
     if extra:
         body.update(extra)
     return jsonify(body), (http_status if http_status is not None else status)
+
 
 def _ensure_email_service_available() -> None:
     from outlook_web.services import email_push

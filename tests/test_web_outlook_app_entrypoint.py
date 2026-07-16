@@ -92,8 +92,16 @@ class StartScriptSecretOutputTests(unittest.TestCase):
             with (
                 patch("os.getcwd", return_value=str(temp_path)),
                 patch("os.path.exists", side_effect=lambda path: (temp_path / path).exists()),
-                patch("shutil.copy", side_effect=lambda source, dest: (temp_path / dest).write_text((temp_path / source).read_text(encoding="utf-8"), encoding="utf-8")),
-                patch("builtins.open", side_effect=lambda file, mode="r", *args, **kwargs: (temp_path / file).open(mode, *args, **kwargs)),
+                patch(
+                    "shutil.copy",
+                    side_effect=lambda source, dest: (temp_path / dest).write_text(
+                        (temp_path / source).read_text(encoding="utf-8"), encoding="utf-8"
+                    ),
+                ),
+                patch(
+                    "builtins.open",
+                    side_effect=lambda file, mode="r", *args, **kwargs: (temp_path / file).open(mode, *args, **kwargs),
+                ),
                 patch("secrets.token_hex", return_value="fixed-generated-secret"),
                 patch("sys.stdout", output),
             ):

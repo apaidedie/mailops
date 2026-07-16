@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_frontend_app_js
 import json
 import os
 import re
@@ -24,6 +23,7 @@ from unittest.mock import MagicMock, patch
 
 from outlook_web import __version__ as APP_VERSION
 from tests._import_app import clear_login_attempts, import_web_app_module
+from tests.frontend_js_bundle import load_frontend_app_js
 
 # urllib 在被测函数内部 import，需要 patch 标准库路径
 URLOPEN_PATH = "urllib.request.urlopen"
@@ -660,7 +660,7 @@ class JSContractTests(unittest.TestCase):
 
             def get_data(self, as_text=False):
 
-                return resp_js if as_text else resp_js.encode('utf-8')
+                return resp_js if as_text else resp_js.encode("utf-8")
 
         resp = _Resp()
         return resp.get_data(as_text=True)

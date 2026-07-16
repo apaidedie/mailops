@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_frontend_app_js
 import os
 import unittest
 from pathlib import Path
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_frontend_app_js
 
 
 class DemoWorkspaceBootstrapTests(unittest.TestCase):
@@ -112,10 +112,12 @@ class DemoWorkspaceFrontendContractTests(unittest.TestCase):
         ]:
             self.assertIn(expected, js)
 
-        init_slice = js[js.index("document.addEventListener('DOMContentLoaded'"):js.index("setTimeout(checkVersionUpdate")]
+        init_slice = js[js.index("document.addEventListener('DOMContentLoaded'") : js.index("setTimeout(checkVersionUpdate")]
         self.assertLess(init_slice.index("await initLayoutState();"), init_slice.index("renderDemoWorkspaceStrip();"))
 
-        helper_slice = js[js.index("function getDemoWorkspaceBootstrap()"):js.index("function applyAccountPanelDensityClasses")]
+        helper_slice = js[
+            js.index("function getDemoWorkspaceBootstrap()") : js.index("function applyAccountPanelDensityClasses")
+        ]
         for forbidden in [
             "settingsExternalApiKey",
             "settingsExternalApiKeysJson",

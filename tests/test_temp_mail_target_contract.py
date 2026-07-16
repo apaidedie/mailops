@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import re
 import shutil
 import subprocess
@@ -9,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tests._import_app import clear_login_attempts, import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class TempMailTargetContractTests(unittest.TestCase):
@@ -373,7 +373,7 @@ class TempMailTargetContractTests(unittest.TestCase):
     def test_temp_email_frontend_references_options_endpoint(self):
         client = self.app.test_client()
         self._login(client)
-        js = load_feature_package_js('static/js/features/temp_emails')
+        js = load_feature_package_js("static/js/features/temp_emails")
         self.assertIn("/api/temp-emails/options", js)
         self.assertIn("tempEmailOptionsStatus", self._get_text(client, "/"))
         self.assertIn("域名配置加载失败", js)
@@ -384,7 +384,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self._login(client)
         index_html = self._get_text(client, "/")
         main_js = load_frontend_app_js()
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
 
         self.assertIn('id="tempEmailProviderStatus"', index_html)
         self.assertIn("getMailboxProviderCatalogItem", main_js)
@@ -397,13 +397,17 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertNotIn('id="tempEmailProviderSelect" onchange=', index_html)
         # Status badge paint only on temp-emails page (catalog soft re-entry safe).
         status_start = temp_js.index("function renderTempEmailProviderStatus")
-        status_end = temp_js.index("function getTempEmailProviderDisplayLabel", status_start) if "function getTempEmailProviderDisplayLabel" in temp_js[status_start:] else temp_js.index("function syncTempEmailProviderSelection", status_start)
+        status_end = (
+            temp_js.index("function getTempEmailProviderDisplayLabel", status_start)
+            if "function getTempEmailProviderDisplayLabel" in temp_js[status_start:]
+            else temp_js.index("function syncTempEmailProviderSelection", status_start)
+        )
         status_slice = temp_js[status_start:status_end]
         self.assertIn("isCurrentTempEmailsPage()", status_slice)
         self.assertIn("currentPage !== 'temp-emails'", status_slice)
         # Catalog success only paints status when already on temp-emails page.
         catalog_start = main_js.index("async function loadMailboxProviderCatalog")
-        catalog_success = main_js[catalog_start:catalog_start + 5000]
+        catalog_success = main_js[catalog_start : catalog_start + 5000]
         self.assertIn("currentPage === 'temp-emails'", catalog_success)
         self.assertIn("renderTempEmailProviderStatus()", catalog_success)
 
@@ -412,7 +416,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self._login(client)
         index_html = self._get_text(client, "/")
         main_js = load_frontend_app_js()
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
         plugins_js = self._get_text(client, "/static/js/features/plugins.js")
 
         self.assertIn('id="tempEmailProviderSelect"', index_html)
@@ -470,7 +474,11 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertLess(warm_idx, load_slice.index("content.innerHTML"))
         # Soft ensureLoaded re-paints warm list when plugin card re-opens (no second GET).
         ensure_start = plugins_js.index("async function ensureLoaded(options = {})")
-        ensure_end = plugins_js.index("// ── Public API", ensure_start) if "// ── Public API" in plugins_js[ensure_start:] else plugins_js.index("return {", ensure_start)
+        ensure_end = (
+            plugins_js.index("// ── Public API", ensure_start)
+            if "// ── Public API" in plugins_js[ensure_start:]
+            else plugins_js.index("return {", ensure_start)
+        )
         ensure_slice = plugins_js[ensure_start:ensure_end]
         self.assertIn("shouldPaintPluginList()", ensure_slice)
         self.assertIn("_renderPluginList(installedCount)", ensure_slice)
@@ -481,7 +489,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertIn("function plT(text)", plugins_js)
         self.assertIn("window.translateAppText(text)", plugins_js)
         lang_start = plugins_js.index("window.addEventListener('ui-language-changed'")
-        lang_slice = plugins_js[lang_start:lang_start + 500]
+        lang_slice = plugins_js[lang_start : lang_start + 500]
         self.assertIn("softPaintOnLanguageChange()", lang_slice)
         self.assertNotIn("loadPlugins({ force: true })", lang_slice)
         # Provider config panel chrome translates at paint time; language soft re-paints open form.
@@ -490,7 +498,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertIn("plT('测试连接')", plugins_js)
         self.assertIn("plT('保存')", plugins_js)
         self.assertIn("let _activeConfigFields = null", plugins_js)
-        soft_fn = plugins_js[plugins_js.index("function softPaintOnLanguageChange()"):plugins_js.index("// ── Public API")]
+        soft_fn = plugins_js[plugins_js.index("function softPaintOnLanguageChange()") : plugins_js.index("// ── Public API")]
         self.assertIn("_renderConfigForm(_activeConfig, _activeConfigFields, liveConfig)", soft_fn)
         self.assertNotIn("/api/plugins/", soft_fn)
         # Install/uninstall/test/apply action chrome uses live plT (not raw Chinese literals).
@@ -538,9 +546,9 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_temp_email_frontend_uses_temp_email_extract_endpoint(self):
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
-        emails_js = load_feature_package_js('static/js/features/emails')
+        groups_js = load_feature_package_js("static/js/features/groups")
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
+        emails_js = load_feature_package_js("static/js/features/emails")
         combined = groups_js + "\n" + temp_js + "\n" + emails_js
 
         self.assertIn("/api/temp-emails/", combined)
@@ -564,7 +572,7 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_temp_email_detail_handler_targets_temp_detail_panel(self):
         client = self.app.test_client()
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
 
         self.assertIn("showEmailDetailContainer({ source: 'temp' })", temp_js)
         self.assertIn("setEmailDetailToolbarVisibility(true, { source: 'temp' })", temp_js)
@@ -573,15 +581,15 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_normal_mailbox_selection_resets_method_and_temp_page_no_longer_mutates_it(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
 
         self.assertIn("currentMethod = 'graph';", accounts_js)
         self.assertNotIn("currentMethod = 'temp-mail'", temp_js)
 
     def test_temp_email_frontend_removes_gptmail_branding_from_temp_email_page(self):
         client = self.app.test_client()
-        js = load_feature_package_js('static/js/features/temp_emails')
+        js = load_feature_package_js("static/js/features/temp_emails")
         self.assertNotIn("currentMethod = 'gptmail'", js)
         self.assertNotIn("methodTag.textContent = 'GPTMail'", js)
 

@@ -262,8 +262,7 @@ def insert_claimed_temp_mailbox(
             (
                 normalized_email,
                 1 if visible_in_ui else 0,
-                str(source or temp_emails_repo.DEFAULT_TEMP_MAIL_SOURCE).strip()
-                or temp_emails_repo.DEFAULT_TEMP_MAIL_SOURCE,
+                str(source or temp_emails_repo.DEFAULT_TEMP_MAIL_SOURCE).strip() or temp_emails_repo.DEFAULT_TEMP_MAIL_SOURCE,
                 normalized_prefix,
                 normalized_domain,
                 str(caller_id or "").strip() or None,
@@ -335,9 +334,7 @@ def claim_atomic(
     params: list = []
 
     normalized_provider_names = {
-        str(item or "").strip().lower()
-        for item in (provider_names or set())
-        if str(item or "").strip()
+        str(item or "").strip().lower() for item in (provider_names or set()) if str(item or "").strip()
     }
 
     if provider:
@@ -813,9 +810,7 @@ def claim_temp_mailbox_atomic(
         params.append(email_domain.strip().lower())
 
     normalized_provider_names = {
-        str(item or "").strip().lower()
-        for item in (provider_names or set())
-        if str(item or "").strip()
+        str(item or "").strip().lower() for item in (provider_names or set()) if str(item or "").strip()
     }
     sql += " ORDER BY RANDOM()"
     if not normalized_provider_names:

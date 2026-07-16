@@ -25,8 +25,16 @@ from outlook_web.services.imap_generic import (
 )
 from outlook_web.services.mailbox_resolver import normalize_alias_email
 
-from .constants import IMAP_SERVER_NEW, IMAP_SERVER_OLD, _LOGGER
-from .helpers import _build_account_credential_decrypt_failed_response, _build_response_from_error_payload, _persist_refresh_token, _resolve_external_error, _should_return_email_not_found_for_web_extract, _update_account_summary_from_verification
+from .constants import _LOGGER, IMAP_SERVER_NEW, IMAP_SERVER_OLD
+from .helpers import (
+    _build_account_credential_decrypt_failed_response,
+    _build_response_from_error_payload,
+    _persist_refresh_token,
+    _resolve_external_error,
+    _should_return_email_not_found_for_web_extract,
+    _update_account_summary_from_verification,
+)
+
 
 @login_required
 def api_batch_get_emails() -> Any:
@@ -372,6 +380,7 @@ def api_batch_get_emails() -> Any:
         }
     )
 
+
 @login_required
 def api_get_emails(email_addr: str) -> Any:
     """获取邮件列表（支持分页，不使用缓存）"""
@@ -615,6 +624,7 @@ def api_get_emails(email_addr: str) -> Any:
         extra={"details": all_errors},
     )
 
+
 @login_required
 def api_delete_emails() -> Any:
     """批量删除邮件（永久删除）"""
@@ -678,6 +688,7 @@ def api_delete_emails() -> Any:
         log_audit("delete", "email", email_addr, f"删除邮件 {len(message_ids)} 封（IMAP Old）")
 
     return jsonify(response_data)
+
 
 @login_required
 def api_get_email_detail(email_addr: str, message_id: str) -> Any:
@@ -823,6 +834,7 @@ def api_get_email_detail(email_addr: str, message_id: str) -> Any:
         status=502,
         details=f"email={email_addr} message_id={message_id}",
     )
+
 
 @login_required
 def api_extract_verification(email_addr: str) -> Any:

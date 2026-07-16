@@ -30,7 +30,9 @@ class TestGPTMailErrorHandling(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.json.return_value = {"success": True, "data": {"email": "demo@example.com"}}
 
-        with patch("outlook_web.services.gptmail.get_temp_mail_api_base_url", return_value="https://mail.chatgpt.org.uk/zh/api"):
+        with patch(
+            "outlook_web.services.gptmail.get_temp_mail_api_base_url", return_value="https://mail.chatgpt.org.uk/zh/api"
+        ):
             with patch("outlook_web.services.gptmail.get_gptmail_api_key", return_value="test_key"):
                 with patch("requests.get", return_value=mock_response) as get_mock:
                     result = gptmail.gptmail_request("GET", "/api/generate-email")

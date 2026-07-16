@@ -19,6 +19,7 @@ from outlook_web.security.crypto import decrypt_data, encrypt_data
 from .classify import _record_invalid_token_failure, compute_refresh_lock_ttl_seconds
 from .constants import is_refreshable_outlook_account
 
+
 def stream_refresh_selected_accounts(
     *,
     account_ids: List[int],

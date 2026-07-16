@@ -70,7 +70,7 @@ class ResponsiveDetailFocusContractTests(unittest.TestCase):
         """emails.js 应包含 setMailboxDetailFocus 和 setTempDetailFocus"""
         from pathlib import Path
 
-        emails_js = load_feature_package_js('static/js/features/emails')
+        emails_js = load_feature_package_js("static/js/features/emails")
         self.assertIn("function setMailboxDetailFocus", emails_js)
         self.assertIn("function setTempDetailFocus", emails_js)
         self.assertIn("function isNarrowWorkspaceViewport", emails_js)
@@ -140,14 +140,14 @@ class ResponsiveDetailFocusContractTests(unittest.TestCase):
         """accounts.js 切换账户时应重置 detail-focus 状态"""
         from pathlib import Path
 
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         self.assertIn("setMailboxDetailFocus(false)", accounts_js)
 
     def test_temp_emails_js_handles_focus_toggle(self):
         """temp_emails.js 应在刷新时退出 detail-focus、在查看时进入"""
         from pathlib import Path
 
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
         self.assertIn("setTempDetailFocus(false)", temp_js)
         self.assertIn("setTempDetailFocus(true)", temp_js)
 
@@ -155,7 +155,7 @@ class ResponsiveDetailFocusContractTests(unittest.TestCase):
         """emails.js showEmailList 应重置 mailbox 和 temp 两种 focus"""
         from pathlib import Path
 
-        emails_js = load_feature_package_js('static/js/features/emails')
+        emails_js = load_feature_package_js("static/js/features/emails")
         show_list_section = re.search(
             r"function showEmailList\(\).*?(?=function\s)",
             emails_js,

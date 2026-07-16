@@ -11,12 +11,11 @@ from . import catalog as _catalog
 from . import integration as _integration
 from . import selection as _selection
 from .endpoints import (
+    _CANONICAL_EXTERNAL_ENDPOINTS,
     PROVIDER_HEALTH_ENDPOINT,
     PROVIDER_PREFLIGHT_ENDPOINT,
-    _CANONICAL_EXTERNAL_ENDPOINTS,
     get_provider_documentation_contract,
 )
-
 
 _SECRET_FIELD_HINTS = ("key", "token", "secret", "password", "bearer")
 
@@ -27,7 +26,6 @@ _HEALTH_DETAIL_SECRET_VALUE_PATTERNS = (
     re.compile(r"\bdk_[0-9a-f]{20,}\b", re.IGNORECASE),
     re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),
 )
-
 
 
 # Bind helpers used by health/preflight projections.
@@ -41,6 +39,7 @@ get_mailbox_provider_deployment_profile = _catalog.get_mailbox_provider_deployme
 get_mailbox_provider_readiness_summary = _integration.get_mailbox_provider_readiness_summary
 get_mailbox_provider_selection_policy = _selection.get_mailbox_provider_selection_policy
 get_provider_integration_guide = _integration.get_provider_integration_guide
+
 
 def _health_value_is_safe(key: str, value: Any) -> bool:
     lowered = str(key or "").strip().lower()
@@ -372,4 +371,3 @@ def get_mailbox_provider_health(kind: str, provider_name: str | None, *, probe_n
         },
         "probe": probe,
     }
-

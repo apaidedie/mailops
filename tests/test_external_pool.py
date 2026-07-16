@@ -289,9 +289,17 @@ class ExternalPoolApiTests(unittest.TestCase):
         self.assertIn("lease_expires_at", payload)
         contract = payload.get("external_mailbox_read_contract") or {}
         self.assertEqual(contract.get("read_by"), ["email", "claim_token"])
-        self.assertEqual(contract.get("next_actions", {}).get("read_messages", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/messages")
-        self.assertEqual(contract.get("next_actions", {}).get("release_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-release")
-        self.assertEqual(contract.get("next_actions", {}).get("complete_claim", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete")
+        self.assertEqual(
+            contract.get("next_actions", {}).get("read_messages", {}).get("endpoint"), f"{CANONICAL_EXTERNAL_PREFIX}/messages"
+        )
+        self.assertEqual(
+            contract.get("next_actions", {}).get("release_claim", {}).get("endpoint"),
+            f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-release",
+        )
+        self.assertEqual(
+            contract.get("next_actions", {}).get("complete_claim", {}).get("endpoint"),
+            f"{CANONICAL_EXTERNAL_PREFIX}/pool/claim-complete",
+        )
 
     def test_external_pool_claim_random_rejects_non_object_json_body(self):
         client = self.app.test_client()

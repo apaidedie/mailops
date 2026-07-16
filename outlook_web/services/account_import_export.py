@@ -5,6 +5,10 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from outlook_web.services.provider_catalog import (
+    account_provider_label,
+    temp_mail_provider_display_label,
+)
 from outlook_web.services.providers import (
     KNOWN_PROVIDER_KEYS,
     MAIL_PROVIDERS,
@@ -12,10 +16,7 @@ from outlook_web.services.providers import (
     get_provider_list,
     infer_provider_from_email,
 )
-from outlook_web.services.provider_catalog import (
-    account_provider_label,
-    temp_mail_provider_display_label,
-)
+
 
 def _parse_imap_port(value: Any) -> int | None:
     try:
@@ -232,6 +233,7 @@ def _detect_line_type(
 
     return _err("无法解析的行")
 
+
 def _build_export_text(accounts: List[Dict[str, Any]], temp_emails: Optional[List[Dict]] = None) -> str:
     """构建导出文本 v2：头部元信息 + 分段 + 临时邮箱分段。"""
     outlook_lines: List[str] = []
@@ -332,4 +334,3 @@ def _build_export_text(accounts: List[Dict[str, Any]], temp_emails: Optional[Lis
             buf.write(line + "\n")
 
     return buf.getvalue()
-

@@ -15,8 +15,8 @@ from requests import RequestException, Timeout
 from outlook_web import config
 from outlook_web.db import create_sqlite_connection, get_db
 from outlook_web.repositories import settings as settings_repo
-from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
 from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
 
 logger = logging.getLogger(__name__)
 _AVAILABLE_PLUGINS_CACHE: list[dict[str, Any]] = []

@@ -36,10 +36,19 @@ from outlook_web.services.verification_extractor import (
 )
 
 from .access import _get_proxy_url, ensure_external_email_access
-from .errors import ExternalApiError, InvalidParamError, MailNotFoundError, UpstreamReadFailedError, VerificationAiConfigIncompleteError, VerificationCodeNotFoundError, VerificationLinkNotFoundError
+from .errors import (
+    ExternalApiError,
+    InvalidParamError,
+    MailNotFoundError,
+    UpstreamReadFailedError,
+    VerificationAiConfigIncompleteError,
+    VerificationCodeNotFoundError,
+    VerificationLinkNotFoundError,
+)
 from .messages import get_latest_message_for_external, get_message_detail_for_external
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
+
 
 def _shape_verification_result_by_expected_field(extracted: Dict[str, Any], expected_field: str | None) -> Dict[str, Any]:
     """按接口语义裁剪输出：code 接口只返回 code，link 接口只返回 link。"""
@@ -61,11 +70,13 @@ def _shape_verification_result_by_expected_field(extracted: Dict[str, Any], expe
     )
     return result
 
+
 def _classify_extract_error(exc: Exception) -> str:
     # 将异常分类为日志可读的 error_code：业务异常用语义 code，未知异常用类名大写
     if isinstance(exc, ExternalApiError):
         return str(exc.code or "INTERNAL_ERROR")
     return type(exc).__name__.upper()
+
 
 def _resolve_extract_log_channel(result: Optional[Dict[str, Any]], *, folder: str, method: str) -> str:
     # 确定日志渠道标签：优先使用渠道路由内置标记，回退到 method/folder 推断
@@ -81,6 +92,7 @@ def _resolve_extract_log_channel(result: Optional[Dict[str, Any]], *, folder: st
         return "temp_mail"
     return "unknown"
 
+
 def _strip_extract_log_fields(result: Dict[str, Any]) -> Dict[str, Any]:
     # 移除日志埋点专用的内部字段，避免泄露给 API 调用方
     clean = dict(result or {})
@@ -88,10 +100,12 @@ def _strip_extract_log_fields(result: Dict[str, Any]) -> Dict[str, Any]:
     clean.pop("_log_used_ai", None)
     return clean
 
+
 def _get_db_for_log():
     from outlook_web.db import get_db
 
     return get_db()
+
 
 def _write_extract_log(
     *,
@@ -122,6 +136,7 @@ def _write_extract_log(
         )
     except Exception:
         pass
+
 
 def _extract_verification_with_memory_for_outlook(  # noqa: C901
     *,
@@ -196,6 +211,7 @@ def _extract_verification_with_memory_for_outlook(  # noqa: C901
     )
     return shaped
 
+
 def _resolve_verification_extract_context(
     email_addr: str,
 ) -> Tuple[Optional[Dict[str, Any]], Optional[int], Optional[Dict[str, Any]]]:
@@ -217,6 +233,7 @@ def _resolve_verification_extract_context(
             group = groups_repo.get_group_by_id(group_id)
     return account, account_id, group
 
+
 def _resolve_verification_policy_for_request(
     *,
     code_length: str | None,
@@ -236,10 +253,12 @@ def _resolve_verification_policy_for_request(
     except groups_repo.GroupPolicyValidationError as exc:
         raise InvalidParamError("参数错误") from exc
 
+
 def _ensure_verification_ai_ready() -> None:
     ai_config = get_verification_ai_runtime_config()
     if ai_config.get("enabled") and not is_verification_ai_config_complete(ai_config):
         raise VerificationAiConfigIncompleteError("验证码 AI 已开启，请完整填写 Base URL、API Key、模型 ID")
+
 
 def _should_use_outlook_memory_extract(
     *,
@@ -252,6 +271,7 @@ def _should_use_outlook_memory_extract(
     if str(folder or "inbox").strip().lower() != "inbox":
         return False
     return verification_channel_service.is_outlook_oauth_account(account)
+
 
 def _finalize_verification_extract_log(
     *,
@@ -275,6 +295,7 @@ def _finalize_verification_extract_log(
         error_code=error_code,
         trace_id=trace_id,
     )
+
 
 def _run_logged_verification_extract(
     *,
@@ -305,6 +326,7 @@ def _run_logged_verification_extract(
             trace_id=trace_id,
         )
 
+
 def _run_outlook_memory_verification_extract(
     *,
     account: Dict[str, Any],
@@ -329,6 +351,7 @@ def _run_outlook_memory_verification_extract(
         expected_field=expected_field,
     )
     return result, str(result.get("_log_channel") or "unknown"), bool(result.get("_log_used_ai"))
+
 
 def _run_generic_verification_extract(
     *,
@@ -393,6 +416,7 @@ def _run_generic_verification_extract(
 
     result = _shape_verification_result_by_expected_field(extracted, expected_field)
     return result, _resolve_extract_log_channel(result, folder=folder, method=method), bool(result.get("_log_used_ai"))
+
 
 def get_verification_result(
     *,

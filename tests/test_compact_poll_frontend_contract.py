@@ -11,10 +11,10 @@
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class CompactPollFrontendContractTests(unittest.TestCase):
@@ -114,7 +114,7 @@ class CompactPollFrontendContractTests(unittest.TestCase):
     def test_emails_js_dispatches_email_copied_event(self):
         """emails.js 的 copyEmail 函数中应派发 email-copied CustomEvent"""
         client = self.app.test_client()
-        js = load_feature_package_js('static/js/features/emails')
+        js = load_feature_package_js("static/js/features/emails")
 
         self.assertIn("email-copied", js)
         self.assertIn("CustomEvent", js)

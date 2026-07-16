@@ -17,7 +17,12 @@ from outlook_web.security.crypto import (
 )
 
 from .connection import create_sqlite_connection
-from .constants import DB_SCHEMA_LAST_UPGRADE_ERROR_KEY, DB_SCHEMA_LAST_UPGRADE_TRACE_ID_KEY, DB_SCHEMA_VERSION, DB_SCHEMA_VERSION_KEY
+from .constants import (
+    DB_SCHEMA_LAST_UPGRADE_ERROR_KEY,
+    DB_SCHEMA_LAST_UPGRADE_TRACE_ID_KEY,
+    DB_SCHEMA_VERSION,
+    DB_SCHEMA_VERSION_KEY,
+)
 from .sensitive import migrate_sensitive_data
 
 # 数据库 Schema 版本（用于升级可验证/可诊断）
@@ -42,6 +47,7 @@ from .sensitive import migrate_sensitive_data
 # v22：2026-04-16 邮箱池项目维度成功复用（accounts.claimed_project_key + account_project_usage.success_*）
 # v23：2026-04-19 数据概览大盘（verification_extract_logs + overview 兼容字段）
 # v24：2026-07-01 临时邮箱接入邮箱池（temp_emails 新增池生命周期字段：pool_status/claimed_by/...，可被 claim-random 领取）
+
 
 def init_db(database_path: Optional[str] = None):
     """初始化数据库（含升级记录与可验证状态）"""

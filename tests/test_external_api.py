@@ -161,7 +161,9 @@ class ExternalApiBaseTest(unittest.TestCase):
         self.assertEqual(documentation.get("recommended_machine_start"), "openapi")
         entries = documentation.get("entries") or {}
         self.assertEqual(entries.get("provider_onboarding", {}).get("path"), "docs/provider-onboarding.md")
-        self.assertEqual(entries.get("external_integration_quickstart", {}).get("path"), "docs/external-integration-quickstart.md")
+        self.assertEqual(
+            entries.get("external_integration_quickstart", {}).get("path"), "docs/external-integration-quickstart.md"
+        )
         self.assertEqual(entries.get("plugin_extension", {}).get("path"), "docs/temp-mail-provider-plugin-guide.md")
         self.assertEqual(entries.get("plugin_prompt", {}).get("path"), "docs/temp-mail-provider-plugin-prompt.md")
         self.assertEqual(entries.get("env_example", {}).get("path"), ".env.example")
@@ -237,7 +239,9 @@ class ExternalApiBaseTest(unittest.TestCase):
         self.assertEqual(sequence[:3], ["capabilities", "providers", "mailboxes"])
         self.assertEqual(quickstart["recommended_sequence"][0]["endpoint"], endpoints["capabilities"])
         self.assertEqual(quickstart["recommended_sequence"][1]["endpoint"], endpoints["providers"])
-        self.assertEqual(quickstart["recommended_sequence"][2]["query"], {"kind": "all", "provider": "all", "sort": "updated_desc"})
+        self.assertEqual(
+            quickstart["recommended_sequence"][2]["query"], {"kind": "all", "provider": "all", "sort": "updated_desc"}
+        )
         self.assertEqual(quickstart["endpoints"]["capabilities"], endpoints["capabilities"])
         self.assertEqual(quickstart["endpoints"]["openapi"], endpoints["openapi"])
         self.assertEqual(quickstart["endpoints"]["providers"], endpoints["providers"])
@@ -883,7 +887,9 @@ class ExternalApiSystemTests(ExternalApiBaseTest):
         self.assertEqual(resp.status_code, 200)
         readiness = resp.get_json().get("data", {}).get("readiness", {})
         self.assertIn(readiness.get("status"), {"ready", "degraded"})
-        self.assertEqual(readiness.get("discovery", {}).get("next_endpoints", {}).get("capabilities"), endpoints["capabilities"])
+        self.assertEqual(
+            readiness.get("discovery", {}).get("next_endpoints", {}).get("capabilities"), endpoints["capabilities"]
+        )
         self.assertEqual(readiness.get("discovery", {}).get("next_endpoints", {}).get("providers"), endpoints["providers"])
         self.assertEqual(readiness.get("providers", {}).get("filter_mode"), "allowlist")
         self.assertIn("duckmail", readiness.get("providers", {}).get("active_allowlist", []))
@@ -1344,7 +1350,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("provider_preflight", data["features"])
         self.assertEqual(data["integration_bundle"]["endpoint"], endpoints["integration_bundle"])
         self.assertEqual(data["integration_bundle"]["response_contract"], "integration_bundle")
-        self.assertEqual(data["integration_manifest"]["discovery"]["endpoints"]["integration_bundle"], endpoints["integration_bundle"])
+        self.assertEqual(
+            data["integration_manifest"]["discovery"]["endpoints"]["integration_bundle"], endpoints["integration_bundle"]
+        )
         self.assertEqual(data["endpoints"]["mailboxes"], endpoints["mailboxes"])
         self.assertEqual(data["endpoints"]["providers"], endpoints["providers"])
         self.assertEqual(data["endpoints"]["provider_preflight"], endpoints["provider_preflight"])
@@ -1356,7 +1364,10 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(data["mailbox_directory"]["response_contract"], "unified_mailbox_directory")
         self.assertEqual(data["mailbox_directory"]["contract"]["filters"]["kind"], expected_contract["filters"]["kind"])
         self.assertEqual(data["mailbox_directory"]["contract"]["filters"]["status"], expected_contract["filters"]["status"])
-        self.assertEqual(data["mailbox_directory"]["contract"]["filters"]["read_capability"], expected_contract["filters"]["read_capability"])
+        self.assertEqual(
+            data["mailbox_directory"]["contract"]["filters"]["read_capability"],
+            expected_contract["filters"]["read_capability"],
+        )
         self.assertEqual(data["mailbox_directory"]["contract"]["filters"]["action"], expected_contract["filters"]["action"])
         self.assertEqual(data["mailbox_directory"]["contract"]["filters"]["sort"], expected_contract["filters"]["sort"])
         self.assertEqual(
@@ -1415,9 +1426,13 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(guide_providers["duckmail"]["required_env"], ["DUCKMAIL_BEARER_TOKEN"])
         self.assertEqual(guide_providers["duckmail"]["pool_claim_request"]["value"], "duckmail")
         self.assertEqual(guide_providers["duckmail"]["task_temp_apply_request"]["value"], "duckmail")
-        self.assertEqual(guide_providers["mail_tm"]["configuration"]["env_defaults"], {"MAILTM_API_BASE": "https://api.mail.tm"})
+        self.assertEqual(
+            guide_providers["mail_tm"]["configuration"]["env_defaults"], {"MAILTM_API_BASE": "https://api.mail.tm"}
+        )
         self.assertEqual(guide_providers["legacy_bridge"]["label"], "Compatible Temp Mail Bridge")
-        self.assertEqual(guide_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"])
+        self.assertEqual(
+            guide_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"]
+        )
         for container in (data["deployment_profile"], data["selection_policy"], guide):
             self.assertIn("selection_recipes", container)
             self.assertIn("selection_recipe_index", container)
@@ -1434,7 +1449,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             {"providers": {"active_mailbox_providers": ["duckmail"]}},
         )
         self.assertIn('"active_mailbox_providers"', duckmail_active_recipe["configuration"]["provider_config"]["json"])
-        self.assertIn('active_mailbox_providers = ["duckmail"]', duckmail_active_recipe["configuration"]["provider_config"]["toml"])
+        self.assertIn(
+            'active_mailbox_providers = ["duckmail"]', duckmail_active_recipe["configuration"]["provider_config"]["toml"]
+        )
         duckmail_recipe_env = {item["key"]: item for item in recipe_index["explicit_pool_claim:duckmail"]["provider_env"]}
         self.assertEqual(duckmail_recipe_env["DUCKMAIL_BEARER_TOKEN"]["value"], "")
         self.assertTrue(duckmail_recipe_env["DUCKMAIL_BEARER_TOKEN"]["secret"])
@@ -1528,7 +1545,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         mailtm_env = {item["key"]: item for item in manifest_providers["mail_tm"]["env"]}
         self.assertEqual(mailtm_env["MAILTM_API_BASE"]["default"], "https://api.mail.tm")
         self.assertEqual(manifest_providers["legacy_bridge"]["label"], "Compatible Temp Mail Bridge")
-        self.assertEqual(manifest_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"])
+        self.assertEqual(
+            manifest_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"]
+        )
         self.assertNotRegex(json.dumps(manifest, ensure_ascii=False), r"dk_[0-9a-fA-F]{20,}")
         contract = data["external_mailbox_read_contract"]
         self.assertIn("claim_token", contract["read_by"])
@@ -1653,7 +1672,10 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         workflows = {item["key"]: item for item in manifest["workflows"]}
         session_steps = {item["key"]: item for item in workflows["start_mailbox_session"]["steps"]}
         self.assertEqual(session_steps["start_session"]["endpoint"], endpoints["mailbox_session_start"])
-        self.assertEqual(session_steps["start_session"]["request"]["source_strategy_values"], ["pool_first", "task_temp_first", "pool_only", "task_temp_only"])
+        self.assertEqual(
+            session_steps["start_session"]["request"]["source_strategy_values"],
+            ["pool_first", "task_temp_first", "pool_only", "task_temp_only"],
+        )
         self.assertEqual(session_steps["read_session"]["endpoint"], endpoints["mailbox_session_read"])
         self.assertEqual(session_steps["close_session"]["endpoint"], endpoints["mailbox_session_close"])
         claim_steps = {item["key"]: item for item in workflows["claim_pool_mailbox"]["steps"]}
@@ -1676,12 +1698,18 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("pool_claim_default:future_pool_provider", recipe_index)
         self.assertIn("explicit_pool_claim:future_pool_provider", recipe_index)
         self.assertIn("task_temp_apply:future_temp_provider", recipe_index)
-        future_pool_env = {item["key"]: item for item in recipe_index["explicit_pool_claim:future_pool_provider"]["provider_env"]}
+        future_pool_env = {
+            item["key"]: item for item in recipe_index["explicit_pool_claim:future_pool_provider"]["provider_env"]
+        }
         self.assertEqual(future_pool_env["FUTURE_POOL_SECRET"]["value"], "")
         self.assertTrue(future_pool_env["FUTURE_POOL_SECRET"]["secret"])
         self.assertEqual(future_pool_env["FUTURE_POOL_BASE"]["default"], "https://future.pool.test")
-        self.assertEqual(recipe_index["explicit_pool_claim:future_pool_provider"]["request"]["body"], {"provider": "future_pool_provider"})
-        self.assertEqual(recipe_index["task_temp_apply:future_temp_provider"]["request"]["body"], {"provider_name": "future_temp_provider"})
+        self.assertEqual(
+            recipe_index["explicit_pool_claim:future_pool_provider"]["request"]["body"], {"provider": "future_pool_provider"}
+        )
+        self.assertEqual(
+            recipe_index["task_temp_apply:future_temp_provider"]["request"]["body"], {"provider_name": "future_temp_provider"}
+        )
         self.assertEqual(manifest["selection"]["recipe_index"], recipe_index)
         self.assertEqual(manifest["deployment"]["selection_recipe_index"], recipe_index)
         workflow_builder_source = inspect.getsource(provider_catalog._integration_manifest_workflows)
@@ -1712,14 +1740,18 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("mailbox_session_close", data.get("features", []))
         self.assertEqual(data["mailbox_session"]["start_endpoint"], endpoints["mailbox_session_start"])
         self.assertEqual(data["mailbox_session"]["close_endpoint"], endpoints["mailbox_session_close"])
-        self.assertEqual(data["mailbox_session"]["source_strategy_values"], ["pool_first", "task_temp_first", "pool_only", "task_temp_only"])
+        self.assertEqual(
+            data["mailbox_session"]["source_strategy_values"], ["pool_first", "task_temp_first", "pool_only", "task_temp_only"]
+        )
         self.assertTrue(data["pool"]["external_enabled"])
         self.assertTrue(data["pool"]["current_consumer_has_access"])
         self.assertEqual(data["pool"]["release_endpoint"], endpoints["pool_claim_release"])
         self.assertEqual(data["pool"]["complete_endpoint"], endpoints["pool_claim_complete"])
         self.assertEqual(data["pool"]["stats_endpoint"], endpoints["pool_stats"])
         self.assertEqual(data["task_temp_mailbox"]["finish_endpoint"], endpoints["temp_mail_finish"])
-        self.assertEqual(data["pool"]["read_contract"]["next_actions"]["release_claim"]["endpoint"], endpoints["pool_claim_release"])
+        self.assertEqual(
+            data["pool"]["read_contract"]["next_actions"]["release_claim"]["endpoint"], endpoints["pool_claim_release"]
+        )
         self.assertEqual(
             data["task_temp_mailbox"]["read_contract"]["next_actions"]["finish_task_mailbox"]["endpoint"],
             endpoints["temp_mail_finish"],
@@ -1822,7 +1854,10 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(data["legacy_endpoints"], {})
         self.assertEqual(data["compatibility"]["aliases"], {})
         self.assertEqual(data["quickstart"]["endpoints"]["integration_bundle"], endpoints["integration_bundle"])
-        self.assertEqual(data["readiness"]["external_api"]["discovery"]["next_endpoints"]["integration_bundle"], endpoints["integration_bundle"])
+        self.assertEqual(
+            data["readiness"]["external_api"]["discovery"]["next_endpoints"]["integration_bundle"],
+            endpoints["integration_bundle"],
+        )
         self.assertEqual(data["readiness"]["providers"]["version"], 1)
         self._assert_provider_capability_matrix_contract(data["readiness"]["providers"]["capability_matrix"])
         self.assertEqual(data["provider_selection"]["selector_fields"]["pool_claim"], "provider")
@@ -1903,7 +1938,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             "endpoints": {"providers": endpoints["providers"]},
             "providers": [],
         }
-        with patch("outlook_web.services.provider_catalog.get_mailbox_provider_readiness_summary", return_value=needs_config_readiness):
+        with patch(
+            "outlook_web.services.provider_catalog.get_mailbox_provider_readiness_summary", return_value=needs_config_readiness
+        ):
             resp = client.get(endpoints["integration_bundle"], headers=self._auth_headers())
 
         self.assertEqual(resp.status_code, 200)
@@ -2052,13 +2089,21 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         capabilities_properties = schemas["CapabilitiesData"]["properties"]
         self.assertEqual(capabilities_properties["defaults"]["$ref"], "#/components/schemas/ExternalCapabilitiesDefaults")
         self.assertEqual(capabilities_properties["endpoints"]["$ref"], "#/components/schemas/ExternalEndpointMap")
-        self.assertEqual(capabilities_properties["mailbox_directory"]["$ref"], "#/components/schemas/MailboxDirectoryDiscovery")
+        self.assertEqual(
+            capabilities_properties["mailbox_directory"]["$ref"], "#/components/schemas/MailboxDirectoryDiscovery"
+        )
         self.assertEqual(capabilities_properties["mailbox_session"]["$ref"], "#/components/schemas/MailboxSessionDiscovery")
-        self.assertEqual(capabilities_properties["deployment_profile"]["$ref"], "#/components/schemas/ProviderDeploymentProfile")
+        self.assertEqual(
+            capabilities_properties["deployment_profile"]["$ref"], "#/components/schemas/ProviderDeploymentProfile"
+        )
         self.assertEqual(capabilities_properties["selection_policy"]["$ref"], "#/components/schemas/ProviderSelectionPolicy")
-        self.assertEqual(capabilities_properties["provider_integration_guide"]["$ref"], "#/components/schemas/ProviderIntegrationGuide")
+        self.assertEqual(
+            capabilities_properties["provider_integration_guide"]["$ref"], "#/components/schemas/ProviderIntegrationGuide"
+        )
         self.assertEqual(capabilities_properties["integration_manifest"]["$ref"], "#/components/schemas/IntegrationManifest")
-        self.assertEqual(capabilities_properties["integration_bundle"]["$ref"], "#/components/schemas/IntegrationBundleDiscovery")
+        self.assertEqual(
+            capabilities_properties["integration_bundle"]["$ref"], "#/components/schemas/IntegrationBundleDiscovery"
+        )
         self.assertEqual(capabilities_properties["quickstart"]["$ref"], "#/components/schemas/IntegrationQuickstart")
         self.assertEqual(capabilities_properties["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation")
         self.assertEqual(capabilities_properties["pool"]["$ref"], "#/components/schemas/PoolDiscovery")
@@ -2082,9 +2127,13 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("integration_bundle", schemas["ExternalEndpointMap"]["required"])
         self.assertIn("provider_preflight", schemas["ExternalEndpointMap"]["required"])
         self.assertEqual(schemas["ExternalEndpointMap"]["properties"]["docs"]["example"], endpoints["docs"])
-        self.assertEqual(schemas["ExternalEndpointMap"]["properties"]["integration_bundle"]["example"], endpoints["integration_bundle"])
+        self.assertEqual(
+            schemas["ExternalEndpointMap"]["properties"]["integration_bundle"]["example"], endpoints["integration_bundle"]
+        )
         self.assertEqual(schemas["ExternalEndpointMap"]["properties"]["mailboxes"]["example"], endpoints["mailboxes"])
-        self.assertEqual(schemas["ExternalEndpointMap"]["properties"]["provider_preflight"]["example"], endpoints["provider_preflight"])
+        self.assertEqual(
+            schemas["ExternalEndpointMap"]["properties"]["provider_preflight"]["example"], endpoints["provider_preflight"]
+        )
         self.assertEqual(
             schemas["ExternalCapabilitiesDefaults"]["required"],
             [
@@ -2151,8 +2200,12 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             recipe_schema["properties"]["scope"]["enum"],
             ["active_allowlist", "temp_runtime_default", "pool_claim_default", "explicit_pool_claim", "task_temp_apply"],
         )
-        self.assertEqual(recipe_schema["properties"]["provider_env"]["items"]["$ref"], "#/components/schemas/IntegrationManifestKeyHint")
-        self.assertEqual(recipe_schema["properties"]["configuration"]["$ref"], "#/components/schemas/ProviderSelectionRecipeConfig")
+        self.assertEqual(
+            recipe_schema["properties"]["provider_env"]["items"]["$ref"], "#/components/schemas/IntegrationManifestKeyHint"
+        )
+        self.assertEqual(
+            recipe_schema["properties"]["configuration"]["$ref"], "#/components/schemas/ProviderSelectionRecipeConfig"
+        )
         self.assertEqual(recipe_schema["properties"]["request"]["$ref"], "#/components/schemas/ProviderSelectionRecipeRequest")
         self.assertEqual(
             schemas["ProviderSelectionRecipeConfig"]["properties"]["provider_config"]["$ref"],
@@ -2166,11 +2219,22 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("documentation", integration_manifest_schema["required"])
         self.assertIn("quickstart", integration_manifest_schema["required"])
         self.assertIn("selection_recipes", integration_manifest_schema["required"])
-        self.assertEqual(integration_manifest_schema["properties"]["auth"]["$ref"], "#/components/schemas/IntegrationManifestAuth")
-        self.assertEqual(integration_manifest_schema["properties"]["quickstart"]["$ref"], "#/components/schemas/IntegrationQuickstart")
-        self.assertEqual(integration_manifest_schema["properties"]["selection"]["$ref"], "#/components/schemas/IntegrationManifestSelection")
-        self.assertEqual(integration_manifest_schema["properties"]["deployment"]["$ref"], "#/components/schemas/IntegrationManifestDeployment")
-        self.assertEqual(integration_manifest_schema["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation")
+        self.assertEqual(
+            integration_manifest_schema["properties"]["auth"]["$ref"], "#/components/schemas/IntegrationManifestAuth"
+        )
+        self.assertEqual(
+            integration_manifest_schema["properties"]["quickstart"]["$ref"], "#/components/schemas/IntegrationQuickstart"
+        )
+        self.assertEqual(
+            integration_manifest_schema["properties"]["selection"]["$ref"], "#/components/schemas/IntegrationManifestSelection"
+        )
+        self.assertEqual(
+            integration_manifest_schema["properties"]["deployment"]["$ref"],
+            "#/components/schemas/IntegrationManifestDeployment",
+        )
+        self.assertEqual(
+            integration_manifest_schema["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation"
+        )
         self.assertEqual(
             integration_manifest_schema["properties"]["workflows"]["items"]["$ref"],
             "#/components/schemas/IntegrationManifestWorkflow",
@@ -2201,15 +2265,37 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("IntegrationBundleActionPlanSummary", schemas)
         self.assertIn("IntegrationBundleActionItem", schemas)
         self.assertIn("action_plan", schemas["IntegrationBundleData"]["required"])
-        self.assertEqual(schemas["IntegrationBundleData"]["properties"]["auth"]["$ref"], "#/components/schemas/IntegrationBundleAuth")
-        self.assertEqual(schemas["IntegrationBundleData"]["properties"]["openapi"]["$ref"], "#/components/schemas/IntegrationBundleOpenApi")
-        self.assertEqual(schemas["IntegrationBundleData"]["properties"]["action_plan"]["$ref"], "#/components/schemas/IntegrationBundleActionPlan")
-        self.assertEqual(schemas["IntegrationBundleActionPlan"]["properties"]["items"]["items"]["$ref"], "#/components/schemas/IntegrationBundleActionItem")
+        self.assertEqual(
+            schemas["IntegrationBundleData"]["properties"]["auth"]["$ref"], "#/components/schemas/IntegrationBundleAuth"
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleData"]["properties"]["openapi"]["$ref"], "#/components/schemas/IntegrationBundleOpenApi"
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleData"]["properties"]["action_plan"]["$ref"],
+            "#/components/schemas/IntegrationBundleActionPlan",
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleActionPlan"]["properties"]["items"]["items"]["$ref"],
+            "#/components/schemas/IntegrationBundleActionItem",
+        )
         self.assertEqual(schemas["IntegrationBundleActionItem"]["properties"]["priority"]["enum"], ["high", "medium", "low"])
-        self.assertEqual(schemas["IntegrationBundleActionItem"]["properties"]["status"]["enum"], ["ready", "action_required", "optional", "blocked"])
-        self.assertEqual(schemas["IntegrationBundleReadiness"]["properties"]["external_api"]["$ref"], "#/components/schemas/ExternalReadinessSummary")
-        self.assertEqual(schemas["IntegrationBundleReadiness"]["properties"]["providers"]["$ref"], "#/components/schemas/MailboxProviderReadinessSummary")
-        self.assertEqual(schemas["IntegrationBundleProviderSelection"]["properties"]["routing_matrix"]["$ref"], "#/components/schemas/MailboxProviderRoutingMatrix")
+        self.assertEqual(
+            schemas["IntegrationBundleActionItem"]["properties"]["status"]["enum"],
+            ["ready", "action_required", "optional", "blocked"],
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleReadiness"]["properties"]["external_api"]["$ref"],
+            "#/components/schemas/ExternalReadinessSummary",
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleReadiness"]["properties"]["providers"]["$ref"],
+            "#/components/schemas/MailboxProviderReadinessSummary",
+        )
+        self.assertEqual(
+            schemas["IntegrationBundleProviderSelection"]["properties"]["routing_matrix"]["$ref"],
+            "#/components/schemas/MailboxProviderRoutingMatrix",
+        )
         self.assertIn("IntegrationQuickstartAuth", schemas)
         self.assertIn("IntegrationQuickstartRequest", schemas)
         self.assertIn("IntegrationQuickstartProviderSelector", schemas)
@@ -2238,19 +2324,37 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         integration_provider_schema = schemas["IntegrationManifestProvider"]
         self.assertIn("env", integration_provider_schema["required"])
         self.assertIn("settings", integration_provider_schema["required"])
-        self.assertEqual(integration_provider_schema["properties"]["env"]["items"]["$ref"], "#/components/schemas/IntegrationManifestKeyHint")
-        self.assertEqual(schemas["ProviderCatalogData"]["properties"]["deployment_profile"]["$ref"], "#/components/schemas/ProviderDeploymentProfile")
-        self.assertEqual(schemas["ProviderCatalogData"]["properties"]["integration_manifest"]["$ref"], "#/components/schemas/IntegrationManifest")
+        self.assertEqual(
+            integration_provider_schema["properties"]["env"]["items"]["$ref"],
+            "#/components/schemas/IntegrationManifestKeyHint",
+        )
+        self.assertEqual(
+            schemas["ProviderCatalogData"]["properties"]["deployment_profile"]["$ref"],
+            "#/components/schemas/ProviderDeploymentProfile",
+        )
+        self.assertEqual(
+            schemas["ProviderCatalogData"]["properties"]["integration_manifest"]["$ref"],
+            "#/components/schemas/IntegrationManifest",
+        )
         self.assertIn("quickstart", schemas["ProviderCatalogData"]["required"])
-        self.assertEqual(schemas["ProviderCatalogData"]["properties"]["quickstart"]["$ref"], "#/components/schemas/IntegrationQuickstart")
+        self.assertEqual(
+            schemas["ProviderCatalogData"]["properties"]["quickstart"]["$ref"], "#/components/schemas/IntegrationQuickstart"
+        )
         self.assertIn("documentation", schemas["ProviderCatalogData"]["required"])
-        self.assertEqual(schemas["ProviderCatalogData"]["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation")
+        self.assertEqual(
+            schemas["ProviderCatalogData"]["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation"
+        )
         provider_guide_schema = schemas["ProviderIntegrationGuide"]
         self.assertIn("providers", provider_guide_schema["required"])
         self.assertIn("selection_recipes", provider_guide_schema["required"])
         self.assertIn("documentation", provider_guide_schema["required"])
-        self.assertEqual(provider_guide_schema["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation")
-        self.assertEqual(provider_guide_schema["properties"]["providers"]["items"]["$ref"], "#/components/schemas/ProviderIntegrationGuideProvider")
+        self.assertEqual(
+            provider_guide_schema["properties"]["documentation"]["$ref"], "#/components/schemas/ProviderDocumentation"
+        )
+        self.assertEqual(
+            provider_guide_schema["properties"]["providers"]["items"]["$ref"],
+            "#/components/schemas/ProviderIntegrationGuideProvider",
+        )
         self.assertEqual(
             provider_guide_schema["properties"]["selection_recipe_index"]["additionalProperties"]["$ref"],
             "#/components/schemas/ProviderSelectionRecipe",
@@ -2336,7 +2440,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             endpoints["mailbox_session_close"],
         )
         self.assertIn("read_action", schemas["MailboxSessionDiscovery"]["properties"]["read_fields"]["items"]["enum"])
-        self.assertIn("verification_code", schemas["MailboxSessionDiscovery"]["properties"]["read_action_values"]["items"]["enum"])
+        self.assertIn(
+            "verification_code", schemas["MailboxSessionDiscovery"]["properties"]["read_action_values"]["items"]["enum"]
+        )
         self.assertEqual(
             schemas["MailboxSessionDiscovery"]["properties"]["source_strategy_values"]["items"]["enum"],
             ["pool_first", "task_temp_first", "pool_only", "task_temp_only"],
@@ -2358,17 +2464,24 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             "#/components/schemas/MailboxSessionCloseRequest",
         )
         self.assertEqual(
-            paths[endpoints["mailbox_session_close"]]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["allOf"][1]["properties"]["data"]["$ref"],
+            paths[endpoints["mailbox_session_close"]]["post"]["responses"]["200"]["content"]["application/json"]["schema"][
+                "allOf"
+            ][1]["properties"]["data"]["$ref"],
             "#/components/schemas/MailboxSessionCloseData",
         )
         session_request = schemas["MailboxSessionStartRequest"]
         self.assertEqual(session_request["required"], ["caller_id", "task_id"])
         self.assertFalse(session_request["additionalProperties"])
-        self.assertEqual(session_request["properties"]["source_strategy"]["enum"], ["pool_first", "task_temp_first", "pool_only", "task_temp_only"])
+        self.assertEqual(
+            session_request["properties"]["source_strategy"]["enum"],
+            ["pool_first", "task_temp_first", "pool_only", "task_temp_only"],
+        )
         self.assertIn("duckmail", session_request["properties"]["provider"]["enum"])
         self.assertIn("duckmail", session_request["properties"]["provider_name"]["enum"])
         self.assertEqual(
-            paths[endpoints["mailbox_session_start"]]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["allOf"][1]["properties"]["data"]["$ref"],
+            paths[endpoints["mailbox_session_start"]]["post"]["responses"]["200"]["content"]["application/json"]["schema"][
+                "allOf"
+            ][1]["properties"]["data"]["$ref"],
             "#/components/schemas/MailboxSessionData",
         )
         self.assertEqual(
@@ -2408,7 +2521,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(pool_claim_request["properties"]["provider"]["type"], ["string", "null"])
         self.assertIn("auto", pool_claim_request["properties"]["provider"]["enum"])
         self.assertIn("duckmail", pool_claim_request["properties"]["provider"]["enum"])
-        self.assertIn("selection_policy.scopes.explicit_pool_claim", pool_claim_request["properties"]["provider"]["description"])
+        self.assertIn(
+            "selection_policy.scopes.explicit_pool_claim", pool_claim_request["properties"]["provider"]["description"]
+        )
         self.assertEqual(
             paths[endpoints["pool_claim_release"]]["post"]["requestBody"]["content"]["application/json"]["schema"]["$ref"],
             "#/components/schemas/PoolReleaseRequest",
@@ -2445,7 +2560,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(task_apply_request["properties"]["domain"]["maxLength"], 128)
         self.assertEqual(task_apply_request["properties"]["provider_name"]["type"], ["string", "null"])
         self.assertIn("duckmail", task_apply_request["properties"]["provider_name"]["enum"])
-        self.assertIn("selection_policy.scopes.task_temp_apply", task_apply_request["properties"]["provider_name"]["description"])
+        self.assertIn(
+            "selection_policy.scopes.task_temp_apply", task_apply_request["properties"]["provider_name"]["description"]
+        )
         task_finish_request = schemas["TaskTempMailboxFinishRequest"]
         self.assertFalse(task_finish_request["additionalProperties"])
         self.assertEqual(task_finish_request["properties"]["result"]["type"], ["string", "null"])
@@ -2618,7 +2735,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertIn("internal", schemas["MailboxActionContract"]["required"])
         self.assertIn("MessagesData", schemas)
         self.assertEqual(schemas["MessagesData"]["required"], ["emails", "count", "has_more"])
-        self.assertEqual(schemas["MessagesData"]["properties"]["emails"]["items"]["$ref"], "#/components/schemas/MessageSummary")
+        self.assertEqual(
+            schemas["MessagesData"]["properties"]["emails"]["items"]["$ref"], "#/components/schemas/MessageSummary"
+        )
         self.assertIn("method", schemas["MessageSummary"]["required"])
         self.assertEqual(
             schemas["MessageDetail"]["required"],
@@ -2638,7 +2757,9 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             ],
         )
         self.assertEqual(
-            paths[endpoints["message_raw"]]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["allOf"][1]["properties"]["data"]["$ref"],
+            paths[endpoints["message_raw"]]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["allOf"][1][
+                "properties"
+            ]["data"]["$ref"],
             "#/components/schemas/RawMessageData",
         )
         self.assertEqual(
@@ -2681,7 +2802,14 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             schemas["ProbeStatusData"]["required"],
             ["probe_id", "status", "email", "result", "error_code", "error_message", "created_at", "updated_at"],
         )
-        for schema_name in ("MessageSummary", "MessageDetail", "RawMessageData", "VerificationResult", "AccountStatusData", "ProbeStatusData"):
+        for schema_name in (
+            "MessageSummary",
+            "MessageDetail",
+            "RawMessageData",
+            "VerificationResult",
+            "AccountStatusData",
+            "ProbeStatusData",
+        ):
             schema_text = json.dumps(schemas[schema_name], ensure_ascii=False).lower()
             for secret_field in ("password", "refresh_token", "task_token", "provider_jwt", "api_key", "bearer"):
                 self.assertNotIn(secret_field, schema_text)
@@ -2698,7 +2826,10 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             endpoints["providers"],
         )
         self.assertEqual(
-            data.get("x-capabilities", {}).get("provider_integration_guide", {}).get("endpoints", {}).get("provider_preflight"),
+            data.get("x-capabilities", {})
+            .get("provider_integration_guide", {})
+            .get("endpoints", {})
+            .get("provider_preflight"),
             endpoints["provider_preflight"],
         )
         self.assertEqual(
@@ -2715,11 +2846,19 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
             data.get("x-capabilities", {}).get("documentation"),
         )
         self.assertEqual(
-            data.get("x-capabilities", {}).get("integration_manifest", {}).get("discovery", {}).get("endpoints", {}).get("providers"),
+            data.get("x-capabilities", {})
+            .get("integration_manifest", {})
+            .get("discovery", {})
+            .get("endpoints", {})
+            .get("providers"),
             endpoints["providers"],
         )
         self.assertEqual(
-            data.get("x-capabilities", {}).get("integration_manifest", {}).get("discovery", {}).get("endpoints", {}).get("provider_preflight"),
+            data.get("x-capabilities", {})
+            .get("integration_manifest", {})
+            .get("discovery", {})
+            .get("endpoints", {})
+            .get("provider_preflight"),
             endpoints["provider_preflight"],
         )
         x_manifest_workflows = {

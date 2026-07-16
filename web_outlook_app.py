@@ -47,7 +47,6 @@ from outlook_web.services import graph as graph_service
 from outlook_web.services import scheduler as scheduler_service
 from outlook_web.services.temp_mail_plugin_cli import main as temp_mail_plugin_cli_main
 
-
 _TEMP_MAIL_PROVIDER_CLI_COMMANDS = {
     "install-provider",
     "uninstall-provider",

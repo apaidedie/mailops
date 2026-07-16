@@ -29,6 +29,7 @@ from .helpers import _coerce_int_range, _json_error, _mask_secret_value, _plugin
 
 # ==================== 设置 API ====================
 
+
 @login_required
 def api_get_settings() -> Any:
     """获取所有设置"""
@@ -206,6 +207,7 @@ def api_get_settings() -> Any:
 
     return jsonify(response)
 
+
 @login_required
 def api_get_external_api_key_plaintext() -> Any:
     api_key_value = settings_repo.get_external_api_key()
@@ -219,6 +221,7 @@ def api_get_external_api_key_plaintext() -> Any:
 
     log_audit("copy_external_api_key", "settings", None, "复制对外 API Key 明文")
     return jsonify({"success": True, "api_key": api_key_value})
+
 
 @login_required
 def api_external_api_contract_check() -> Any:

@@ -15,7 +15,6 @@ from outlook_web.services.providers import MAIL_PROVIDERS, get_provider_list
 from outlook_web.services.temp_mail_provider_base import normalize_provider_capabilities
 from outlook_web.services.temp_mail_provider_factory import TempMailProviderFactoryError, get_available_providers
 
-
 from .bridge import (
     _canonical_bridge_operator_provider,
     _collapse_bridge_operator_provider_rows,
@@ -23,6 +22,10 @@ from .bridge import (
     get_operator_temp_mail_default_provider,
 )
 from .constants import (
+    _BRIDGE_OPERATOR_CANONICAL,
+    _BRIDGE_OPERATOR_FAMILY,
+    _TEMP_PROVIDER_LABEL_OVERRIDES,
+    _TEMP_PROVIDER_ZH_LABEL_OVERRIDES,
     ACTIVE_MAILBOX_PROVIDER_ENV,
     COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
     COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
@@ -33,12 +36,12 @@ from .constants import (
     LEGACY_ACCOUNT_POOL_ALIASES,
     PROVIDER_SELECTION_SOURCE_PRIORITY,
     TEMP_MAIL_PROVIDER_ENV,
-    _BRIDGE_OPERATOR_CANONICAL,
-    _BRIDGE_OPERATOR_FAMILY,
-    _TEMP_PROVIDER_LABEL_OVERRIDES,
-    _TEMP_PROVIDER_ZH_LABEL_OVERRIDES,
 )
 from .endpoints import (
+    _CANONICAL_EXTERNAL_ENDPOINTS,
+    _LEGACY_EXTERNAL_ENDPOINTS,
+    EXTERNAL_API_LEGACY_PREFIX,
+    EXTERNAL_API_V1_PREFIX,
     EXTERNAL_READ_ENDPOINTS,
     EXTERNAL_READ_QUERY_FIELDS,
     LEGACY_PROVIDER_HEALTH_ENDPOINT,
@@ -48,18 +51,14 @@ from .endpoints import (
     MAILBOX_SESSION_START_ENDPOINT,
     PROVIDER_HEALTH_ENDPOINT,
     PROVIDER_PREFLIGHT_ENDPOINT,
-    _CANONICAL_EXTERNAL_ENDPOINTS,
-    _LEGACY_EXTERNAL_ENDPOINTS,
+    _action_contract_next_actions_for_endpoint_map,
+    _external_api_endpoint_map,
+    _external_api_path,
     get_external_api_compatibility_contract,
     get_external_api_endpoint_map,
     get_external_api_legacy_endpoint_map,
     get_external_mailbox_read_contract,
     get_provider_documentation_contract,
-    _action_contract_next_actions_for_endpoint_map,
-    _external_api_endpoint_map,
-    _external_api_path,
-    EXTERNAL_API_LEGACY_PREFIX,
-    EXTERNAL_API_V1_PREFIX,
 )
 
 _TEMP_PROVIDER_CONFIG_CONTRACTS = {
@@ -1833,7 +1832,3 @@ def get_provider_catalog_item(
         if item.get("kind") == normalized_kind and _normalize_provider_name(item.get("provider")) == normalized_provider:
             return dict(item)
     return None
-
-
-
-

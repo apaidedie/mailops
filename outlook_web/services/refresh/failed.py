@@ -19,6 +19,7 @@ from outlook_web.security.crypto import decrypt_data, encrypt_data
 from .classify import _record_invalid_token_failure, compute_refresh_lock_ttl_seconds
 from .constants import build_refreshable_outlook_account_where
 
+
 def refresh_failed_accounts(
     *,
     db,

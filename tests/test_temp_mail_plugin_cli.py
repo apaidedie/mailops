@@ -117,7 +117,7 @@ class TestPluginCLI(unittest.TestCase):
 
     def test_scaffold_provider_writes_valid_contract_plugin(self):
         from outlook_web.services.temp_mail_plugin_manager import scaffold_provider_plugin
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, _REGISTRY
+        from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase
         from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
 
         provider_key = "example_bridge"
@@ -244,7 +244,7 @@ class TestPluginCLI(unittest.TestCase):
     @patch("builtins.print")
     def test_cli_validate_provider_registered_provider_without_file(self, mock_print):
         from outlook_web.services.temp_mail_plugin_cli import _cmd_validate_provider
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, _REGISTRY, register_provider
+        from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
 
         provider_key = "registered_contract"
         previous_provider = _REGISTRY.get(provider_key)
@@ -300,7 +300,7 @@ class TestPluginCLI(unittest.TestCase):
         _REGISTRY.pop(provider_key, None)
         sys.modules.pop(module_name, None)
 
-        plugin_source = '''from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = """from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class LeakyContractProvider(TempMailProviderBase):
@@ -315,7 +315,7 @@ class LeakyContractProvider(TempMailProviderBase):
     def get_message_detail(self, mailbox, message_id): return None
     def delete_message(self, mailbox, message_id): return True
     def clear_messages(self, mailbox): return True
-'''
+"""
 
         with tempfile.TemporaryDirectory(prefix="provider-validate-") as tmpdir:
             target = Path(tmpdir) / "leaky_contract.py"

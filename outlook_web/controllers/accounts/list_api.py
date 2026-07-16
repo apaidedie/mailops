@@ -35,6 +35,7 @@ from outlook_web.services import refresh as refresh_service
 
 from .helpers import _parse_bool_flag
 
+
 @login_required
 def api_get_accounts() -> Any:
     """获取账号列表（支持分页、分组内搜索、标签筛选与排序）"""
@@ -166,6 +167,7 @@ def api_get_accounts() -> Any:
         }
     )
 
+
 @login_required
 def api_get_account(account_id: int) -> Any:
     """获取单个账号详情"""
@@ -211,10 +213,10 @@ def api_get_account(account_id: int) -> Any:
         }
     )
 
+
 @login_required
 def api_get_providers() -> Any:
     """返回邮箱提供商列表，用于前端下拉选择（PRD-00005 / TDD-00005）"""
-    from outlook_web.services.providers import get_provider_list
     from outlook_web.services.provider_catalog import (
         ACTIVE_MAILBOX_PROVIDER_ENV,
         DEPLOYMENT_ENV_CONTRACT,
@@ -223,17 +225,18 @@ def api_get_providers() -> Any:
         get_active_mailbox_provider_filter_contract,
         get_external_integration_manifest,
         get_external_mailbox_read_contract,
+        get_mailbox_provider_catalog,
         get_mailbox_provider_deployment_profile,
+        get_mailbox_provider_diagnostics,
+        get_mailbox_provider_readiness_summary,
+        get_mailbox_provider_selection_policy,
         get_operator_temp_mail_default_provider,
         get_provider_documentation_contract,
         get_provider_integration_guide,
-        get_mailbox_provider_selection_policy,
-        get_mailbox_provider_catalog,
-        get_mailbox_provider_diagnostics,
-        get_mailbox_provider_readiness_summary,
         temp_mail_provider_config_status,
         temp_mail_provider_label,
     )
+    from outlook_web.services.providers import get_provider_list
 
     provider_filter = get_active_mailbox_provider_filter_contract(strict=False)
     deployment_profile = get_mailbox_provider_deployment_profile(strict=False)
@@ -293,6 +296,7 @@ def api_get_providers() -> Any:
         }
     )
 
+
 @login_required
 def api_get_provider_preflight() -> Any:
     """返回全部邮箱来源的批量就绪预检，默认不访问上游网络。"""
@@ -301,6 +305,7 @@ def api_get_provider_preflight() -> Any:
     probe_network = _parse_bool_flag(request.args.get("probe_network"), default=False)
     payload = get_mailbox_provider_preflight(probe_network=probe_network)
     return jsonify({"success": True, "provider_preflight": payload})
+
 
 @login_required
 def api_get_provider_health(kind: str, provider: str) -> Any:
@@ -321,6 +326,7 @@ def api_get_provider_health(kind: str, provider: str) -> Any:
 
 
 # ==================== Auto 混合导入 (FD-00006) ====================
+
 
 @login_required
 def api_search_accounts() -> Any:

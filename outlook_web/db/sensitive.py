@@ -39,6 +39,7 @@ from outlook_web.security.crypto import (
 # v23：2026-04-19 数据概览大盘（verification_extract_logs + overview 兼容字段）
 # v24：2026-07-01 临时邮箱接入邮箱池（temp_emails 新增池生命周期字段：pool_status/claimed_by/...，可被 claim-random 领取）
 
+
 def migrate_sensitive_data(conn: sqlite3.Connection):
     """迁移现有明文敏感数据为加密数据。
 

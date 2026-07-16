@@ -29,8 +29,8 @@ from outlook_web.services.external_api_openapi import get_external_api_openapi_c
 from outlook_web.services.provider_catalog import (
     get_external_api_capabilities_contract,
     get_external_api_integration_bundle,
-    get_external_mailbox_read_contract,
     get_external_api_readiness_summary,
+    get_external_mailbox_read_contract,
     temp_mail_provider_label,
 )
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME
@@ -38,6 +38,7 @@ from outlook_web.services.scheduler import REFRESH_LOCK_NAME
 from . import constants as _system_constants
 from .constants import _VERSION_CACHE_TTL
 from .helpers import _trigger_docker_api_update, _trigger_watchtower_update, _version_gt
+
 
 @login_required
 def api_version_check() -> Any:
@@ -59,10 +60,7 @@ def api_version_check() -> Any:
         )
 
     now = time.time()
-    if (
-        _system_constants._version_cache is not None
-        and (now - _system_constants._version_cache_at) < _VERSION_CACHE_TTL
-    ):
+    if _system_constants._version_cache is not None and (now - _system_constants._version_cache_at) < _VERSION_CACHE_TTL:
         return jsonify(_system_constants._version_cache)
 
     current = APP_VERSION
@@ -99,6 +97,7 @@ def api_version_check() -> Any:
     _system_constants._version_cache_at = now
     return jsonify(result)
 
+
 @login_required
 def api_trigger_update() -> Any:
     """触发容器更新
@@ -130,6 +129,7 @@ def api_trigger_update() -> Any:
             ),
             400,
         )
+
 
 @login_required
 def api_deployment_info() -> Any:  # noqa: C901
@@ -391,6 +391,7 @@ def api_deployment_info() -> Any:  # noqa: C901
     deployment_info["can_auto_update"] = can_auto_update
 
     return jsonify({"success": True, "deployment": deployment_info})
+
 
 @login_required
 def api_test_watchtower() -> Any:  # noqa: C901

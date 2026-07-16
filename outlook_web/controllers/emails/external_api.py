@@ -27,6 +27,7 @@ from outlook_web.services.mailbox_resolver import normalize_alias_email
 
 from .helpers import _external_error_response, _parse_external_common_args, _resolve_external_error
 
+
 @api_key_required
 @external_api_guards()
 def api_external_get_messages() -> Any:
@@ -78,6 +79,7 @@ def api_external_get_messages() -> Any:
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
 
+
 @api_key_required
 @external_api_guards()
 def api_external_get_latest_message() -> Any:
@@ -122,6 +124,7 @@ def api_external_get_latest_message() -> Any:
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
 
+
 @api_key_required
 @external_api_guards()
 def api_external_get_message_detail(message_id: str) -> Any:
@@ -159,6 +162,7 @@ def api_external_get_message_detail(message_id: str) -> Any:
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+
 
 @api_key_required
 @external_api_guards(feature="raw_content")
@@ -206,6 +210,7 @@ def api_external_get_message_raw(message_id: str) -> Any:
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+
 
 @api_key_required
 @external_api_guards()
@@ -273,6 +278,7 @@ def api_external_get_verification_code() -> Any:
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
 
+
 @api_key_required
 @external_api_guards()
 def api_external_get_verification_link() -> Any:
@@ -320,6 +326,7 @@ def api_external_get_verification_link() -> Any:
             details={"code": "INTERNAL_ERROR"},
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+
 
 @api_key_required
 @external_api_guards(feature="wait_message")
@@ -391,6 +398,7 @@ def api_external_wait_message() -> Any:
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
         return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+
 
 @api_key_required
 @external_api_guards()

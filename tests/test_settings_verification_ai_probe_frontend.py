@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_frontend_app_js
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_frontend_app_js
 
 
 class SettingsVerificationAiProbeFrontendTests(unittest.TestCase):

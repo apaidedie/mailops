@@ -41,6 +41,7 @@ from outlook_web.services.account_import_export import (
     _parse_imap_port,
 )
 
+
 def sanitize_input(text: str, max_length: int = 500) -> str:
     """
     净化用户输入，防止XSS攻击
@@ -62,6 +63,7 @@ def sanitize_input(text: str, max_length: int = 500) -> str:
 
     return text
 
+
 def _parse_bool_flag(value: Any, default: bool = False) -> bool:
     """解析请求中的布尔开关，兼容 bool / 数字 / 字符串。"""
     if value is None:
@@ -72,11 +74,13 @@ def _parse_bool_flag(value: Any, default: bool = False) -> bool:
         return bool(value)
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
+
 def _normalize_account_status(status: Any) -> Optional[str]:
     normalized_status = str(status or "").strip().lower()
     if normalized_status not in {"active", "inactive", "disabled"}:
         return None
     return normalized_status
+
 
 def _build_account_import_failure_response(
     message: str,
@@ -94,6 +98,7 @@ def _build_account_import_failure_response(
 
 
 # ==================== 账号基础 CRUD API ====================
+
 
 def _resolve_auto_group(
     provider: str,
@@ -129,6 +134,7 @@ def _resolve_auto_group(
     group_cache[provider] = default_id
     return default_id
 
+
 def _overwrite_account(existing: Dict, detect_result: Dict, group_id: int, add_to_pool: bool = False) -> bool:
     """覆盖更新已存在账号的凭据字段，保留 remark/tags/status。"""
     fields: Dict[str, Any] = {"group_id": group_id}
@@ -154,6 +160,7 @@ def _overwrite_account(existing: Dict, detect_result: Dict, group_id: int, add_t
         fields["pool_status"] = "available"
 
     return accounts_repo.update_account_credentials(existing["id"], **fields)
+
 
 def _handle_temp_mail_import(
     email: str,
@@ -213,6 +220,7 @@ def _handle_temp_mail_import(
         }
     )
     return False
+
 
 def _handle_auto_import(data: Dict[str, Any], *, add_to_pool: bool = False) -> Any:
     """处理 provider="auto" 的智能混合导入。"""
@@ -459,6 +467,7 @@ def _handle_auto_import(data: Dict[str, Any], *, add_to_pool: bool = False) -> A
         )
 
     return jsonify({"success": success, "message": message, "summary": summary, "errors": errors})
+
 
 def _api_update_account_status(account_id: int, status: str) -> Any:
     """只更新账号状态"""

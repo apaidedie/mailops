@@ -14,10 +14,11 @@ from outlook_web.services.external_request_limits import (
     TASK_MAILBOX_PREFIX_MAX_LEN,
 )
 from outlook_web.services.mailbox_directory_contract import get_mailbox_catalog_contract
-from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 from outlook_web.services.pool import VALID_RESULTS
+from outlook_web.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 
 from .builders import _error_responses, _operation, _path_param, _query_param
+
 
 def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
     endpoints = capabilities.get("endpoints") or {}
@@ -57,10 +58,16 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             }
         },
         endpoints.get("health", f"{EXTERNAL_API_V1_PREFIX}/health"): _operation(
-            method="GET", summary="External API health", operation_id="externalHealth", response_ref="#/components/schemas/HealthData"
+            method="GET",
+            summary="External API health",
+            operation_id="externalHealth",
+            response_ref="#/components/schemas/HealthData",
         ),
         endpoints.get("capabilities", f"{EXTERNAL_API_V1_PREFIX}/capabilities"): _operation(
-            method="GET", summary="External API capabilities", operation_id="externalCapabilities", response_ref="#/components/schemas/CapabilitiesData"
+            method="GET",
+            summary="External API capabilities",
+            operation_id="externalCapabilities",
+            response_ref="#/components/schemas/CapabilitiesData",
         ),
         endpoints.get("integration_bundle", f"{EXTERNAL_API_V1_PREFIX}/integration-bundle"): _operation(
             method="GET",
@@ -75,9 +82,16 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             response_ref="#/components/schemas/UnifiedMailboxDirectory",
             parameters=[
                 _query_param("kind", {"type": "string", "enum": list(mailbox_contract["filters"]["kind"]), "default": "all"}),
-                _query_param("status", {"type": "string", "enum": list(mailbox_contract["filters"]["status"]), "default": "all"}),
-                _query_param("read_capability", {"type": "string", "enum": list(mailbox_contract["filters"]["read_capability"]), "default": "all"}),
-                _query_param("action", {"type": "string", "enum": list(mailbox_contract["filters"]["action"]), "default": "all"}),
+                _query_param(
+                    "status", {"type": "string", "enum": list(mailbox_contract["filters"]["status"]), "default": "all"}
+                ),
+                _query_param(
+                    "read_capability",
+                    {"type": "string", "enum": list(mailbox_contract["filters"]["read_capability"]), "default": "all"},
+                ),
+                _query_param(
+                    "action", {"type": "string", "enum": list(mailbox_contract["filters"]["action"]), "default": "all"}
+                ),
                 _query_param("provider", {"type": "string", "default": "all"}),
                 _query_param("search", {"type": "string"}),
                 _query_param(
@@ -93,7 +107,10 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             ],
         ),
         endpoints.get("providers", f"{EXTERNAL_API_V1_PREFIX}/providers"): _operation(
-            method="GET", summary="Mailbox provider catalog", operation_id="externalProviders", response_ref="#/components/schemas/ProviderCatalogData"
+            method="GET",
+            summary="Mailbox provider catalog",
+            operation_id="externalProviders",
+            response_ref="#/components/schemas/ProviderCatalogData",
         ),
         endpoints.get("provider_preflight", f"{EXTERNAL_API_V1_PREFIX}/providers/preflight"): _operation(
             method="GET",
@@ -107,7 +124,11 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             summary="Mailbox provider health",
             operation_id="externalProviderHealth",
             response_ref="#/components/schemas/ProviderHealthData",
-            parameters=[_path_param("kind"), _path_param("provider"), _query_param("probe_network", {"type": "boolean", "default": False})],
+            parameters=[
+                _path_param("kind"),
+                _path_param("provider"),
+                _query_param("probe_network", {"type": "boolean", "default": False}),
+            ],
         ),
         endpoints.get("mailbox_session_start", f"{EXTERNAL_API_V1_PREFIX}/mailbox-sessions/start"): _operation(
             method="POST",
@@ -142,14 +163,26 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             summary="List mailbox messages",
             operation_id="externalMessages",
             response_ref="#/components/schemas/MessagesData",
-            parameters=[email_query, claim_token_query, folder_query, _query_param("skip", {"type": "integer", "minimum": 0}), _query_param("top", {"type": "integer", "minimum": 1, "maximum": 50})],
+            parameters=[
+                email_query,
+                claim_token_query,
+                folder_query,
+                _query_param("skip", {"type": "integer", "minimum": 0}),
+                _query_param("top", {"type": "integer", "minimum": 1, "maximum": 50}),
+            ],
         ),
         endpoints.get("latest_message", f"{EXTERNAL_API_V1_PREFIX}/messages/latest"): _operation(
             method="GET",
             summary="Read latest matching message",
             operation_id="externalLatestMessage",
             response_ref="#/components/schemas/MessageSummary",
-            parameters=[email_query, claim_token_query, folder_query, _query_param("from_contains", {"type": "string"}), _query_param("subject_contains", {"type": "string"})],
+            parameters=[
+                email_query,
+                claim_token_query,
+                folder_query,
+                _query_param("from_contains", {"type": "string"}),
+                _query_param("subject_contains", {"type": "string"}),
+            ],
         ),
         endpoints.get("message_detail", f"{EXTERNAL_API_V1_PREFIX}/messages/{{message_id}}"): _operation(
             method="GET",
@@ -170,7 +203,13 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             summary="Extract verification code",
             operation_id="externalVerificationCode",
             response_ref="#/components/schemas/VerificationResult",
-            parameters=[email_query, claim_token_query, folder_query, _query_param("code_length", {"type": "string"}), _query_param("code_regex", {"type": "string"})],
+            parameters=[
+                email_query,
+                claim_token_query,
+                folder_query,
+                _query_param("code_length", {"type": "string"}),
+                _query_param("code_regex", {"type": "string"}),
+            ],
         ),
         endpoints.get("verification_link", f"{EXTERNAL_API_V1_PREFIX}/verification-link"): _operation(
             method="GET",
@@ -184,7 +223,13 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             summary="Wait for a matching message",
             operation_id="externalWaitMessage",
             response_ref="#/components/schemas/MessageSummary",
-            parameters=[email_query, claim_token_query, folder_query, _query_param("timeout_seconds", {"type": "integer", "minimum": 1, "maximum": 120}), _query_param("mode", {"type": "string", "enum": ["sync", "async"]})],
+            parameters=[
+                email_query,
+                claim_token_query,
+                folder_query,
+                _query_param("timeout_seconds", {"type": "integer", "minimum": 1, "maximum": 120}),
+                _query_param("mode", {"type": "string", "enum": ["sync", "async"]}),
+            ],
         ),
         endpoints.get("probe_status", f"{EXTERNAL_API_V1_PREFIX}/probe/{{probe_id}}"): _operation(
             method="GET",
@@ -194,19 +239,38 @@ def _paths(capabilities: dict[str, Any]) -> dict[str, Any]:
             parameters=[_path_param("probe_id")],
         ),
         endpoints.get("pool_claim_random", f"{EXTERNAL_API_V1_PREFIX}/pool/claim-random"): _operation(
-            method="POST", summary="Claim a mailbox from the pool", operation_id="externalPoolClaimRandom", response_ref="#/components/schemas/PoolClaimData", request_schema_ref="#/components/schemas/PoolClaimRequest"
+            method="POST",
+            summary="Claim a mailbox from the pool",
+            operation_id="externalPoolClaimRandom",
+            response_ref="#/components/schemas/PoolClaimData",
+            request_schema_ref="#/components/schemas/PoolClaimRequest",
         ),
         endpoints.get("pool_claim_release", f"{EXTERNAL_API_V1_PREFIX}/pool/claim-release"): _operation(
-            method="POST", summary="Release a mailbox claim", operation_id="externalPoolClaimRelease", response_ref="#/components/schemas/PoolLifecycleData", request_schema_ref="#/components/schemas/PoolReleaseRequest"
+            method="POST",
+            summary="Release a mailbox claim",
+            operation_id="externalPoolClaimRelease",
+            response_ref="#/components/schemas/PoolLifecycleData",
+            request_schema_ref="#/components/schemas/PoolReleaseRequest",
         ),
         endpoints.get("pool_claim_complete", f"{EXTERNAL_API_V1_PREFIX}/pool/claim-complete"): _operation(
-            method="POST", summary="Complete a mailbox claim", operation_id="externalPoolClaimComplete", response_ref="#/components/schemas/PoolLifecycleData", request_schema_ref="#/components/schemas/PoolCompleteRequest"
+            method="POST",
+            summary="Complete a mailbox claim",
+            operation_id="externalPoolClaimComplete",
+            response_ref="#/components/schemas/PoolLifecycleData",
+            request_schema_ref="#/components/schemas/PoolCompleteRequest",
         ),
         endpoints.get("pool_stats", f"{EXTERNAL_API_V1_PREFIX}/pool/stats"): _operation(
-            method="GET", summary="External pool stats", operation_id="externalPoolStats", response_ref="#/components/schemas/PoolStatsData"
+            method="GET",
+            summary="External pool stats",
+            operation_id="externalPoolStats",
+            response_ref="#/components/schemas/PoolStatsData",
         ),
         endpoints.get("temp_mail_apply", f"{EXTERNAL_API_V1_PREFIX}/temp-emails/apply"): _operation(
-            method="POST", summary="Create a task-scoped temp mailbox", operation_id="externalTempMailApply", response_ref="#/components/schemas/TaskTempMailboxData", request_schema_ref="#/components/schemas/TaskTempMailboxApplyRequest"
+            method="POST",
+            summary="Create a task-scoped temp mailbox",
+            operation_id="externalTempMailApply",
+            response_ref="#/components/schemas/TaskTempMailboxData",
+            request_schema_ref="#/components/schemas/TaskTempMailboxApplyRequest",
         ),
         endpoints.get("temp_mail_finish", f"{EXTERNAL_API_V1_PREFIX}/temp-emails/{{task_token}}/finish"): _operation(
             method="POST",

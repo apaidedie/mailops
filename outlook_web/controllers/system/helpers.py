@@ -29,13 +29,14 @@ from outlook_web.services.external_api_openapi import get_external_api_openapi_c
 from outlook_web.services.provider_catalog import (
     get_external_api_capabilities_contract,
     get_external_api_integration_bundle,
-    get_external_mailbox_read_contract,
     get_external_api_readiness_summary,
+    get_external_mailbox_read_contract,
     temp_mail_provider_label,
 )
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME
 
 from .constants import _LOCAL_DEMO_DB_RELATIVE_PATH, _REPO_ROOT, logger
+
 
 def _safe_demo_workspace_metadata() -> dict[str, Any]:
     """Return secret-safe metadata for the explicit local demo database."""
@@ -65,9 +66,11 @@ def _safe_demo_workspace_metadata() -> dict[str, Any]:
         ],
     }
 
+
 def utcnow() -> datetime:
     """返回 naive UTC 时间（等价于旧的 datetime.utcnow()）"""
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 def _version_gt(a: str, b: str) -> bool:
     """判断版本 a 是否严格大于版本 b（支持语义化版本 x.y.z，忽略 pre-release 后缀如 -hotupdate-test）"""
@@ -81,6 +84,7 @@ def _version_gt(a: str, b: str) -> bool:
         return _parse(a) > _parse(b)
     except Exception:
         return False
+
 
 def _trigger_watchtower_update() -> Any:  # noqa: C901
     """通过 Watchtower HTTP API 触发更新"""
@@ -196,6 +200,7 @@ def _trigger_watchtower_update() -> Any:  # noqa: C901
         )
     except Exception as e:
         return jsonify({"success": False, "message": f"触发更新失败: {type(e).__name__}: {str(e)}"}), 500
+
 
 def _trigger_docker_api_update() -> Any:  # noqa: C901
     """通过 Docker API 触发容器自更新

@@ -96,11 +96,11 @@ def _discovery_responses() -> dict[tuple[str, str], dict]:
                         },
                         "provider_config_json": {
                             "format": "json",
-                            "content": "{\n  \"providers\": {\n    \"temp_mail_provider\": \"mail_tm\"\n  }\n}\n",
+                            "content": '{\n  "providers": {\n    "temp_mail_provider": "mail_tm"\n  }\n}\n',
                         },
                         "provider_config_toml": {
                             "format": "toml",
-                            "content": "[providers]\ntemp_mail_provider = \"mail_tm\"\n",
+                            "content": '[providers]\ntemp_mail_provider = "mail_tm"\n',
                         },
                     },
                     "config_file": {"priority_slot": "provider_config_file"},
@@ -188,7 +188,11 @@ class ExternalApiPythonClientTests(unittest.TestCase):
     def test_start_read_and_close_use_session_endpoints_and_expected_bodies(self):
         responses = _discovery_responses()
         responses[("POST", _url(f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start"))] = _ok(
-            {"session_type": "pool_claim", "email": "user@example.test", "lifecycle": {"account_id": 7, "claim_token": "claim-demo"}}
+            {
+                "session_type": "pool_claim",
+                "email": "user@example.test",
+                "lifecycle": {"account_id": 7, "claim_token": "claim-demo"},
+            }
         )
         responses[("POST", _url(f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read"))] = _ok(
             {"session_type": "pool_claim", "read_action": "verification_code", "result": {"verification_code": "123456"}}
@@ -302,7 +306,9 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         self.assertEqual(bundle["auth"], {"header": "X-API-Key", "placeholder": "<your-api-key>"})
         self.assertEqual(bundle["endpoints"]["mailbox_session_start"], f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/start")
         self.assertEqual(bundle["documentation"]["entries"]["api_docs"]["endpoint"], f"{CANONICAL_EXTERNAL_PREFIX}/docs")
-        self.assertEqual(bundle["provider_selection"]["source_priority"], ["env", "provider_config_file", "settings", "default"])
+        self.assertEqual(
+            bundle["provider_selection"]["source_priority"], ["env", "provider_config_file", "settings", "default"]
+        )
         self.assertIn("duckmail", bundle["provider_selection"]["provider_values"]["temp_apply"])
         self.assertIn("provider_config_json", bundle["templates"])
         self.assertEqual(bundle["workflows"][0]["key"], "start_mailbox_session")
@@ -319,9 +325,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
-                exit_code = main(
-                    ["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"]
-                )
+                exit_code = main(["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"])
 
         bundle = json.loads(buffer.getvalue())
         serialized = json.dumps(bundle, ensure_ascii=False)
@@ -398,9 +402,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
-                exit_code = main(
-                    ["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"]
-                )
+                exit_code = main(["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"])
 
         bundle = json.loads(buffer.getvalue())
         self.assertEqual(exit_code, 0)
@@ -501,7 +503,11 @@ class ExternalApiPythonClientTests(unittest.TestCase):
             {"session_type": "task_temp_mailbox", "email": "temp@example.test", "lifecycle": {"task_token": "task-demo"}}
         )
         responses[("POST", _url(f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read"))] = _ok(
-            {"session_type": "task_temp_mailbox", "read_action": "verification_code", "result": {"verification_code": "123456"}}
+            {
+                "session_type": "task_temp_mailbox",
+                "read_action": "verification_code",
+                "result": {"verification_code": "123456"},
+            }
         )
         responses[("POST", _url(f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/close"))] = _ok(
             {"session_type": "task_temp_mailbox", "status": "closed"}

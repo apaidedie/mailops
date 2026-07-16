@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js, load_mailboxes_js
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js, load_mailboxes_js
 
 
 class UnifiedMailboxFrontendContractTests(unittest.TestCase):
@@ -32,29 +32,29 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
 
         for expected in [
             'id="mailboxUnifiedModeBtn"',
-            '统一工作台',
-            '账号视图',
-            '紧凑视图',
+            "统一工作台",
+            "账号视图",
+            "紧凑视图",
             "switchMailboxViewMode('unified')",
             'id="mailboxUnifiedLayout"',
             'class="unified-workspace-masthead"',
             'aria-labelledby="unifiedWorkspaceTitle"',
             'class="unified-workspace-kicker"',
-            'Mailbox Fabric',
+            "Mailbox Fabric",
             'id="unifiedWorkspaceTitle"',
-            '统一邮箱聚合服务',
+            "统一邮箱聚合服务",
             'class="unified-workspace-pipeline"',
             'aria-label="统一邮箱链路"',
-            '目录库存',
-            'Provider 路由',
-            '验证码读取',
-            '外部 API',
+            "目录库存",
+            "Provider 路由",
+            "验证码读取",
+            "外部 API",
             'id="unifiedWorkspaceViewSwitch"',
             'class="unified-workspace-view-switch"',
             'data-unified-workspace-view="inbox"',
             'data-unified-workspace-view="diagnostics"',
-            '日常收件箱',
-            '高级诊断',
+            "日常收件箱",
+            "高级诊断",
             'id="unifiedInboxWorkflow"',
             'class="unified-inbox-workflow"',
             'data-view="inbox"',
@@ -67,19 +67,19 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             'class="unified-command-state loading"',
             'class="unified-command-state-copy"',
             'class="unified-command-state-grid"',
-            '正在读取统一邮箱服务…',
-            '正在同步目录库存、来源策略和推荐视图',
+            "正在读取统一邮箱服务…",
+            "正在同步目录库存、来源策略和推荐视图",
             'id="unifiedMailboxSetupGuide"',
             'class="unified-setup-guide"',
             'aria-labelledby="unifiedSetupGuideTitle"',
             'class="unified-setup-guide-head"',
             'class="unified-setup-guide-kicker"',
-            'Setup Path',
+            "Setup Path",
             'id="unifiedSetupGuideTitle"',
-            '统一邮箱启动路径',
-            '正在整理账号、临时邮箱、Provider 路由和外部 API 接入状态',
+            "统一邮箱启动路径",
+            "正在整理账号、临时邮箱、Provider 路由和外部 API 接入状态",
             'class="unified-setup-guide-status"',
-            '读取中',
+            "读取中",
             'class="unified-setup-guide-steps"',
             'class="unified-setup-step-skeleton"',
             'id="unifiedMailboxSearch"',
@@ -101,7 +101,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             'class="unified-quick-views"',
             'role="group"',
             'aria-label="聚合邮箱快速视图"',
-            'hidden',
+            "hidden",
             'id="unifiedMailboxResultBar"',
             'class="unified-result-bar"',
             'aria-live="polite"',
@@ -109,26 +109,26 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             'id="unifiedMailboxOperationalLens"',
             'class="unified-operational-lens"',
             'data-state="loading"',
-            '正在分析当前视图…',
-            '正在整理筛选、库存和 Provider 就绪度',
+            "正在分析当前视图…",
+            "正在整理筛选、库存和 Provider 就绪度",
             'id="unifiedMailboxSummary"',
             'id="unifiedMailboxProviderContext"',
             'id="unifiedProviderCapabilityMatrix"',
             'class="unified-provider-capability-matrix"',
-            '正在读取 Provider 能力…',
+            "正在读取 Provider 能力…",
             'id="unifiedMailboxList"',
             'id="unifiedMailboxPagination"',
             'id="unifiedMailboxMessagePreview"',
             'class="unified-message-preview"',
             'data-state="empty"',
             'aria-labelledby="unifiedMessagePreviewTitle"',
-            'Inbox Preview',
-            '统一收件箱预览',
-            '选择一个邮箱查看邮件',
+            "Inbox Preview",
+            "统一收件箱预览",
+            "选择一个邮箱查看邮件",
         ]:
             self.assertIn(expected, index_html)
 
-        self.assertNotIn('unified-command-center-empty', index_html)
+        self.assertNotIn("unified-command-center-empty", index_html)
 
         toolbar_pos = index_html.index('class="unified-toolbar"')
         masthead_pos = index_html.index('class="unified-workspace-masthead"')
@@ -213,8 +213,8 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
     def test_account_and_temp_force_refresh_invalidate_unified_directory_cache(self):
         """Inventory force-refresh must drop unified soft directory cache."""
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
-        temp_js = load_feature_package_js('static/js/features/temp_emails')
+        groups_js = load_feature_package_js("static/js/features/groups")
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
         mailboxes_js = load_mailboxes_js()
 
         self.assertIn("window.invalidateUnifiedMailboxDirectoryCache = invalidateUnifiedMailboxDirectoryCache", mailboxes_js)
@@ -262,9 +262,9 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             "const actions = item && item.actions && typeof item.actions === 'object' ? item.actions : {};",
             "const definitions = getUnifiedActionDefinitions(item);",
             "${renderUnifiedActionSummary(item)}",
-            "data-action=\"${escapeHtml(action)}\"",
+            'data-action="${escapeHtml(action)}"',
             "const stateLabel = translateUnifiedText(isEnabled ? '可用' : '不可用');",
-            "aria-label=\"${escapeHtml(`${displayLabel}: ${stateLabel}`)}\"",
+            'aria-label="${escapeHtml(`${displayLabel}: ${stateLabel}`)}"',
             "normalizeUnifiedFacetCount",
             "const countsByValue = buildUnifiedFacetCountMap(facets, 'kind');",
             "countsByValue: buildUnifiedFacetCountMap(facets, 'status')",
@@ -538,7 +538,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             "${renderUnifiedProviderFacetChips(providerFacets, selectedProvider)}",
             "select.value = provider;",
             "unifiedMailboxState.filters.provider = provider;",
-            "data-provider=\"${escapeHtml(item.provider)}\"",
+            'data-provider="${escapeHtml(item.provider)}"',
             "aria-pressed=\"${item.provider === selected ? 'true' : 'false'}\"",
             "facets.reduce((sum, item) => sum + normalizeUnifiedFacetCount(item && item.count), 0)",
             "providerContext.dataset.boundUnifiedProviderFacets = '1';",
@@ -633,7 +633,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
         ]:
             self.assertNotIn(forbidden, preview_js)
 
-        self.assertNotIn("onclick=\"setUnifiedProviderFilter", module_js)
+        self.assertNotIn('onclick="setUnifiedProviderFilter', module_js)
         self.assertNotIn("const UNIFIED_STATUS_FALLBACK_DEFINITIONS", module_js)
         self.assertNotIn("const UNIFIED_SORT_FALLBACK_DEFINITIONS", module_js)
         self.assertNotIn("{ status: 'cooldown'", module_js)
@@ -902,8 +902,8 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-workspace-pipeline",
             ".unified-workspace-pipeline span",
             ".unified-command-center",
-            ".unified-command-center[data-state=\"loading\"]",
-            ".unified-command-center[data-state=\"error\"]",
+            '.unified-command-center[data-state="loading"]',
+            '.unified-command-center[data-state="error"]',
             ".unified-command-state",
             ".unified-command-state-copy",
             ".unified-command-state-grid",
@@ -919,7 +919,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-inbox-main",
             ".unified-directory-pane",
             ".unified-diagnostics-workspace",
-            ".unified-diagnostics-workspace[data-active=\"false\"]",
+            '.unified-diagnostics-workspace[data-active="false"]',
             ".unified-command-route",
             ".unified-command-insights",
             ".unified-command-insight",
@@ -958,20 +958,20 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-result-bar",
             ".unified-result-chip",
             ".unified-result-chip.muted",
-            ".unified-result-bar[data-state=\"loading\"]",
-            ".unified-result-bar[data-state=\"error\"]",
+            '.unified-result-bar[data-state="loading"]',
+            '.unified-result-bar[data-state="error"]',
             ".unified-setup-guide",
-            ".unified-setup-guide[data-state=\"ready\"]",
-            ".unified-setup-guide[data-state=\"warning\"]",
-            ".unified-setup-guide[data-state=\"error\"]",
+            '.unified-setup-guide[data-state="ready"]',
+            '.unified-setup-guide[data-state="warning"]',
+            '.unified-setup-guide[data-state="error"]',
             ".unified-setup-guide-head",
             ".unified-setup-guide-kicker",
             ".unified-setup-guide-status",
             ".unified-setup-guide-steps",
             ".unified-setup-step",
-            ".unified-setup-step[data-setup-step-state=\"ready\"]",
-            ".unified-setup-step[data-setup-step-state=\"warning\"]",
-            ".unified-setup-step[data-setup-step-state=\"action\"]",
+            '.unified-setup-step[data-setup-step-state="ready"]',
+            '.unified-setup-step[data-setup-step-state="warning"]',
+            '.unified-setup-step[data-setup-step-state="action"]',
             ".unified-setup-step-index",
             ".unified-setup-step-body",
             ".unified-setup-step-topline",
@@ -980,11 +980,11 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-setup-action:focus-visible",
             ".unified-setup-step-skeleton",
             ".unified-operational-lens",
-            ".unified-operational-lens[data-state=\"ready\"]",
-            ".unified-operational-lens[data-state=\"warning\"]",
-            ".unified-operational-lens[data-state=\"empty\"]",
-            ".unified-operational-lens[data-state=\"error\"]",
-            ".unified-operational-lens[data-state=\"loading\"]",
+            '.unified-operational-lens[data-state="ready"]',
+            '.unified-operational-lens[data-state="warning"]',
+            '.unified-operational-lens[data-state="empty"]',
+            '.unified-operational-lens[data-state="error"]',
+            '.unified-operational-lens[data-state="loading"]',
             ".unified-lens-state",
             ".unified-lens-head",
             ".unified-lens-title-wrap",
@@ -999,10 +999,10 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-lens-action:focus-visible",
             ".unified-summary",
             ".unified-provider-context",
-            ".unified-provider-context[data-state=\"ok\"]",
-            ".unified-provider-context[data-state=\"warning\"]",
-            ".unified-provider-context[data-state=\"error\"]",
-            ".unified-provider-context[data-state=\"loading\"]",
+            '.unified-provider-context[data-state="ok"]',
+            '.unified-provider-context[data-state="warning"]',
+            '.unified-provider-context[data-state="error"]',
+            '.unified-provider-context[data-state="loading"]',
             ".unified-provider-context-title-wrap",
             ".unified-provider-context-status",
             ".unified-provider-context-alert",
@@ -1015,8 +1015,8 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             ".unified-provider-facet-label",
             ".unified-provider-facet-meta",
             ".unified-provider-capability-matrix",
-            ".unified-provider-capability-matrix[data-state=\"loading\"]",
-            ".unified-provider-capability-matrix[data-state=\"error\"]",
+            '.unified-provider-capability-matrix[data-state="loading"]',
+            '.unified-provider-capability-matrix[data-state="error"]',
             ".unified-provider-capability-head",
             ".unified-provider-capability-title-wrap",
             ".unified-provider-capability-workflows",

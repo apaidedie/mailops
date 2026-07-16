@@ -1,11 +1,11 @@
 from __future__ import annotations
-from tests.frontend_js_bundle import load_feature_package_js
 
 import json
 import unittest
 from unittest.mock import patch
 
 from tests._import_app import clear_login_attempts, import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js
 
 
 class TempEmailImageSupportTests(unittest.TestCase):
@@ -422,7 +422,7 @@ class TempEmailImageFrontendContractTests(unittest.TestCase):
 
     def test_email_renderer_supports_cid_rewrite_and_safe_data_images(self):
         client = self.app.test_client()
-        js = load_feature_package_js('static/js/features/emails')
+        js = load_feature_package_js("static/js/features/emails")
 
         self.assertIn("function rewriteEmailInlineImages(html, email)", js)
         self.assertIn("ADD_DATA_URI_TAGS: ['img']", js)

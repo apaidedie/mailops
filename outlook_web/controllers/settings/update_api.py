@@ -25,9 +25,22 @@ from outlook_web.services.external_api_contract_check import get_external_api_co
 from outlook_web.services.provider_catalog import get_mailbox_provider_catalog, temp_mail_provider_label
 from outlook_web.services.verification_extractor import probe_verification_ai_runtime
 
-from .helpers import _ensure_email_service_available, _is_valid_notification_email, _json_error, _mask_secret_value, _parse_allowed_emails_input, _parse_bool_input, _parse_emailnator_email_types_input, _parse_mailbox_provider_list_input, _parse_temp_mail_domains_input, _parse_temp_mail_prefix_rules_input, _plugin_settings_contract
+from .helpers import (
+    _ensure_email_service_available,
+    _is_valid_notification_email,
+    _json_error,
+    _mask_secret_value,
+    _parse_allowed_emails_input,
+    _parse_bool_input,
+    _parse_emailnator_email_types_input,
+    _parse_mailbox_provider_list_input,
+    _parse_temp_mail_domains_input,
+    _parse_temp_mail_prefix_rules_input,
+    _plugin_settings_contract,
+)
 
 # ==================== 设置 API ====================
+
 
 @login_required
 def api_update_settings() -> Any:

@@ -5,7 +5,6 @@ from typing import Callable, Iterable, Optional
 
 from flask import Blueprint
 
-
 # Historical prefix removed in W2; kept only for migration messaging / documentation.
 REMOVED_LEGACY_EXTERNAL_API_PREFIX = "/api/external"
 VERSIONED_EXTERNAL_API_PREFIX = "/api/v1/external"

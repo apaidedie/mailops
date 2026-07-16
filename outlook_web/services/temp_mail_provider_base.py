@@ -6,7 +6,6 @@ from typing import Any
 
 from outlook_web.temp_mail_registry import _REGISTRY, get_registry_snapshot
 
-
 DEFAULT_PROVIDER_CAPABILITIES = {
     "delete_mailbox": False,
     "delete_message": True,

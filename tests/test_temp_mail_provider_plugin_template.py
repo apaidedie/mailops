@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
-
 PROVIDER_KEY = "template_temp_mail"
 MODULE_NAME = "_example_temp_mail_provider_plugin_template_test"
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "examples" / "temp_mail_provider_plugin_template.py"

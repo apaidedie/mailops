@@ -29,6 +29,7 @@ from .helpers import _json_error
 
 # ==================== 设置 API ====================
 
+
 @login_required
 def api_validate_cron() -> Any:
     """验证 Cron 表达式"""
@@ -83,6 +84,7 @@ def api_validate_cron() -> Any:
             extra={"valid": False},
         )
 
+
 @login_required
 def api_test_email() -> Any:
     """发送邮件通知测试消息。按“先保存，再测试”规则，仅使用已保存的接收邮箱。"""
@@ -108,6 +110,7 @@ def api_test_email() -> Any:
             "recipient": recipient,
         }
     )
+
 
 @login_required
 def api_test_webhook() -> Any:
@@ -140,6 +143,7 @@ def api_test_webhook() -> Any:
             "url": safe_url,
         }
     )
+
 
 @login_required
 def api_test_verification_ai() -> Any:
@@ -198,6 +202,7 @@ def api_test_verification_ai() -> Any:
             "probe": probe,
         }
     )
+
 
 @login_required
 def api_sync_cf_worker_domains() -> Any:
@@ -298,6 +303,7 @@ def api_sync_cf_worker_domains() -> Any:
         }
     )
 
+
 @login_required
 def api_test_telegram() -> Any:
     """发送 Telegram 测试消息，验证 bot_token + chat_id 配置是否正确"""
@@ -330,6 +336,7 @@ def api_test_telegram() -> Any:
         "发送失败，请检查 Bot Token 和 Chat ID 是否正确",
         message_en="Failed to send test message. Please check whether the Bot Token and Chat ID are correct",
     )
+
 
 @login_required
 def api_test_telegram_proxy() -> Any:

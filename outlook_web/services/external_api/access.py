@@ -40,6 +40,7 @@ from .timefmt import claimed_at_to_timestamp
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 def _can_check_external_access() -> bool:
     try:
         from outlook_web.db import get_db
@@ -49,8 +50,10 @@ def _can_check_external_access() -> bool:
     except Exception:
         return False
 
+
 def get_current_external_api_consumer() -> Dict[str, Any]:
     return get_external_api_consumer() or {}
+
 
 def ensure_external_email_access(email_addr: str, *, allow_finished: bool = False) -> None:
     ensure_external_email_scope(email_addr, allow_finished=allow_finished)
@@ -60,6 +63,7 @@ def ensure_external_email_access(email_addr: str, *, allow_finished: bool = Fals
         consumer=get_current_external_api_consumer(),
         allow_finished=allow_finished,
     )
+
 
 def ensure_external_email_scope(email_addr: str, *, allow_finished: bool = False) -> None:
     mailbox = mailbox_resolver.resolve_mailbox(email_addr)
@@ -80,6 +84,7 @@ def ensure_external_email_scope(email_addr: str, *, allow_finished: bool = False
 
     mailbox_resolver.ensure_mailbox_can_read(mailbox, consumer=consumer, allow_finished=allow_finished)
 
+
 def _get_proxy_url(account: Dict[str, Any]) -> str:
     proxy_url = ""
     group_id = account.get("group_id")
@@ -89,6 +94,7 @@ def _get_proxy_url(account: Dict[str, Any]) -> str:
     if group:
         proxy_url = group.get("proxy_url", "") or ""
     return proxy_url
+
 
 def require_account(email_addr: str) -> Dict[str, Any]:
     email_addr = (email_addr or "").strip()
@@ -101,9 +107,11 @@ def require_account(email_addr: str) -> Dict[str, Any]:
         raise AccountNotFoundError("账号不存在", data={"email": email_addr})
     return account
 
+
 def _preferred_probe_method(account: Dict[str, Any]) -> str:
     account_type = (account.get("account_type") or "outlook").strip().lower()
     return "imap_generic" if account_type == "imap" else "graph"
+
 
 def _account_can_read(account: Dict[str, Any]) -> bool:
     status = (account.get("status") or "active").strip().lower()
@@ -114,8 +122,10 @@ def _account_can_read(account: Dict[str, Any]) -> bool:
         return bool((account.get("imap_host") or "").strip()) and bool((account.get("imap_password") or "").strip())
     return bool((account.get("client_id") or "").strip()) and bool((account.get("refresh_token") or "").strip())
 
+
 def can_account_read(account: Dict[str, Any]) -> bool:
     return _account_can_read(account)
+
 
 def ensure_account_can_read(account: Dict[str, Any]) -> Dict[str, Any]:
     if _account_can_read(account):
@@ -128,6 +138,7 @@ def ensure_account_can_read(account: Dict[str, Any]) -> Dict[str, Any]:
             "account_type": account.get("account_type") or "",
         },
     )
+
 
 def resolve_external_mail_scope(
     email_addr: Optional[str],
@@ -169,6 +180,7 @@ def resolve_external_mail_scope(
     ensure_external_email_access(email_addr, allow_finished=allow_finished)
     return email_addr, baseline
 
+
 def record_claim_read_context(
     *,
     claim_token: Optional[str],
@@ -204,6 +216,7 @@ def record_claim_read_context(
         )
     except Exception:
         pass
+
 
 def audit_external_api_access(
     *,

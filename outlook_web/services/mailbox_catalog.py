@@ -252,7 +252,9 @@ def _account_mailbox_from_row(row: Any) -> dict[str, Any]:
     status = str(account.get("status") or "active").strip().lower() or "active"
     pool_status = str(account.get("pool_status") or "").strip().lower()
     temp_meta = _load_json_object(account.get("temp_mail_meta"))
-    provider_label = temp_mail_provider_label(provider) if provider == "cloudflare_temp_mail" else account_provider_label(provider)
+    provider_label = (
+        temp_mail_provider_label(provider) if provider == "cloudflare_temp_mail" else account_provider_label(provider)
+    )
     source_id = int(account.get("id") or 0)
     group_id = account.get("group_id")
     read_capability = _account_read_capability(account_type, provider)
@@ -389,8 +391,7 @@ def _load_tags_by_account_ids(account_ids: list[int]) -> dict[int, list[dict[str
 
 def _load_account_mailboxes() -> list[dict[str, Any]]:
     db = get_db()
-    rows = db.execute(
-        """
+    rows = db.execute("""
         SELECT
             a.id, a.email, a.account_type, a.provider, a.group_id, a.remark, a.status,
             a.created_at, a.updated_at, a.last_refresh_at, a.telegram_push_enabled,
@@ -401,8 +402,7 @@ def _load_account_mailboxes() -> list[dict[str, Any]]:
         FROM accounts a
         LEFT JOIN groups g ON a.group_id = g.id
         ORDER BY a.created_at DESC, a.id DESC
-        """
-    ).fetchall()
+        """).fetchall()
     accounts = [dict(row) for row in rows]
     account_ids = [int(account["id"]) for account in accounts if account.get("id") is not None]
     tags_by_account = _load_tags_by_account_ids(account_ids)
@@ -493,8 +493,7 @@ def _apply_account_email_scope(items: list[dict[str, Any]], allowed_account_emai
     return [
         item
         for item in items
-        if str(item.get("kind") or "").strip().lower() != "account"
-        or str(item.get("email") or "").strip().lower() in allowed
+        if str(item.get("kind") or "").strip().lower() != "account" or str(item.get("email") or "").strip().lower() in allowed
     ]
 
 
@@ -725,9 +724,7 @@ def _summary(items: list[dict[str, Any]]) -> dict[str, int]:
         if field.get("source") == "status"
     ]
     pool_summary_fields = [
-        str(field.get("key") or "")
-        for field in MAILBOX_SUMMARY_FIELDS
-        if field.get("source") == "pool_status"
+        str(field.get("key") or "") for field in MAILBOX_SUMMARY_FIELDS if field.get("source") == "pool_status"
     ]
     for item in items:
         kind = str(item.get("kind") or "").strip().lower()

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from outlook_web import __version__ as APP_VERSION
+from outlook_web.repositories import settings as settings_repo
 from outlook_web.services.external_api_openapi import get_external_api_openapi_contract
 from outlook_web.services.mailbox_catalog import list_unified_mailboxes
 from outlook_web.services.provider_catalog import (
@@ -23,15 +24,13 @@ from outlook_web.services.provider_catalog import (
     get_mailbox_provider_diagnostics,
     get_mailbox_provider_readiness_summary,
     get_mailbox_provider_selection_policy,
+    get_operator_temp_mail_default_provider,
     get_provider_alias_contract,
     get_provider_documentation_contract,
     get_provider_integration_guide,
-    get_operator_temp_mail_default_provider,
     temp_mail_provider_config_status,
 )
-from outlook_web.repositories import settings as settings_repo
-from scripts.external_api_smoke import CheckResult, SECRET_PATTERNS, validate_contracts
-
+from scripts.external_api_smoke import SECRET_PATTERNS, CheckResult, validate_contracts
 
 GROUP_LABELS = {
     "health": "Health readiness",
@@ -192,7 +191,9 @@ def _local_safety_checks(payloads: dict[str, dict[str, Any]]) -> list[CheckResul
         CheckResult(True, "local_safety.local_only", "contract check runs in-process without HTTP calls"),
         CheckResult(True, "local_safety.network_probes", "contract check does not probe upstream providers"),
         CheckResult(True, "local_safety.mutation_safe", "contract check does not create, claim, read, or mutate mailboxes"),
-        CheckResult(not secret_hits, "local_safety.secret_patterns", "contract check payloads do not contain obvious secret values"),
+        CheckResult(
+            not secret_hits, "local_safety.secret_patterns", "contract check payloads do not contain obvious secret values"
+        ),
     ]
 
 
@@ -304,10 +305,31 @@ def _next_actions(failed: list[dict[str, Any]]) -> list[dict[str, str]]:
     actions = []
     group_keys = {str(item.get("group") or "") for item in failed}
     if "providers" in group_keys or "mailboxes" in group_keys:
-        actions.append({"key": "inspect_provider_preflight", "priority": "high", "label": "Inspect provider preflight", "target": "/api/providers/preflight"})
+        actions.append(
+            {
+                "key": "inspect_provider_preflight",
+                "priority": "high",
+                "label": "Inspect provider preflight",
+                "target": "/api/providers/preflight",
+            }
+        )
     if "openapi" in group_keys or "endpoints" in group_keys or "compatibility" in group_keys:
-        actions.append({"key": "inspect_openapi", "priority": "high", "label": "Inspect OpenAPI and endpoint maps", "target": "/api/v1/external/openapi.json"})
-    actions.append({"key": "inspect_integration_bundle", "priority": "medium", "label": "Inspect the integration bundle action plan", "target": "/api/v1/external/integration-bundle"})
+        actions.append(
+            {
+                "key": "inspect_openapi",
+                "priority": "high",
+                "label": "Inspect OpenAPI and endpoint maps",
+                "target": "/api/v1/external/openapi.json",
+            }
+        )
+    actions.append(
+        {
+            "key": "inspect_integration_bundle",
+            "priority": "medium",
+            "label": "Inspect the integration bundle action plan",
+            "target": "/api/v1/external/integration-bundle",
+        }
+    )
     return actions[:4]
 
 

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 import re
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class V191CompactModeFrontendContractTests(unittest.TestCase):
@@ -78,7 +78,10 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
         client = self.app.test_client()
         main_js = load_frontend_app_js()
 
-        self.assertIn("let mailboxViewMode = ['standard', 'compact', 'unified'].includes(localStorage.getItem('ol_mailbox_view_mode'))", main_js)
+        self.assertIn(
+            "let mailboxViewMode = ['standard', 'compact', 'unified'].includes(localStorage.getItem('ol_mailbox_view_mode'))",
+            main_js,
+        )
         self.assertIn(": 'unified';", main_js)
         self.assertIn("let batchTagContext = { scopedAccountIds: null };", main_js)
         self.assertIn("let batchMoveGroupContext = { scopedAccountIds: null };", main_js)
@@ -151,7 +154,7 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
 
     def test_accounts_import_uses_refresh_mailbox_after_import(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
 
         self.assertIn("function resolveImportGroupId(rawGroupId)", accounts_js)
         self.assertIn("async function refreshMailboxAfterImport(provider, importedGroupId)", accounts_js)
@@ -161,7 +164,7 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
 
     def test_groups_module_uses_per_account_verification_lock_and_summary_sync(self):
         client = self.app.test_client()
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
 
         self.assertIn("const verificationCopyInFlight = new Set();", groups_js)
         self.assertIn("verificationCopyInFlight.has(requestKey)", groups_js)

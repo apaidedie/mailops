@@ -42,6 +42,7 @@ from .timefmt import _extract_email_address, _format_datetime, _parse_datetime, 
 
 # Outlook IMAP 回退服务器（保持与内部接口一致）
 
+
 def _build_message_summary(email_addr: str, item: Dict[str, Any], *, method: str) -> Dict[str, Any]:
     raw_from = item.get("from")
     if isinstance(raw_from, dict):
@@ -76,6 +77,7 @@ def _build_message_summary(email_addr: str, item: Dict[str, Any], *, method: str
         "is_read": is_read,
         "method": method,
     }
+
 
 def list_messages_for_external(
     *,
@@ -183,6 +185,7 @@ def list_messages_for_external(
         },
     )
 
+
 def filter_messages(  # noqa: C901
     emails: List[Dict[str, Any]],
     *,
@@ -225,6 +228,7 @@ def filter_messages(  # noqa: C901
         filtered.append(e)
     return filtered
 
+
 def get_latest_message_for_external(
     *,
     email_addr: str,
@@ -247,6 +251,7 @@ def get_latest_message_for_external(
     # 保险起见按 timestamp 再排序一次（不同读取链路可能不严格有序）
     filtered.sort(key=lambda x: int(x.get("timestamp") or 0), reverse=True)
     return filtered[0]
+
 
 def get_message_detail_for_external(  # noqa: C901
     *,
@@ -397,11 +402,13 @@ def get_message_detail_for_external(  # noqa: C901
         "method": method_label,
     }
 
+
 def _extract_sender_address_from_message_item(item: Dict[str, Any]) -> str:
     raw_from = item.get("from")
     if isinstance(raw_from, dict):
         raw_from = (raw_from.get("emailAddress") or {}).get("address") or raw_from.get("address")
     return _extract_email_address(str(raw_from or item.get("from_address") or ""))
+
 
 def _build_email_obj_from_detail(detail: Dict[str, Any], latest_summary: Dict[str, Any]) -> Dict[str, Any]:
     email_obj = {

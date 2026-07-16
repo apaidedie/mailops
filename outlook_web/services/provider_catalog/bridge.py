@@ -2,18 +2,21 @@ from __future__ import annotations
 
 from typing import Any
 
+from outlook_web.repositories import settings as settings_repo
+
 from .constants import (
-    COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
     _BRIDGE_OPERATOR_CANONICAL,
     _BRIDGE_OPERATOR_FAMILY,
+    COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
 )
-from outlook_web.repositories import settings as settings_repo
+
 
 # Late-bound normalize to avoid circular import with catalog.
 def _normalize_provider_name(value: Any) -> str:
     from . import catalog as _catalog
 
     return _catalog._normalize_provider_name(value)
+
 
 def _canonical_bridge_operator_provider(provider_name: str | None) -> str:
     """Map Compatible Temp Mail Bridge dual-register keys to the operator canonical key."""
@@ -31,9 +34,7 @@ def get_operator_temp_mail_default_provider(*, strict: bool = False) -> str:
     ``legacy_bridge`` row, discovery defaults must project the same canonical key
     so external clients never see a default missing from guide.providers.
     """
-    return _canonical_bridge_operator_provider(
-        settings_repo.get_temp_mail_runtime_provider_name(strict=strict)
-    )
+    return _canonical_bridge_operator_provider(settings_repo.get_temp_mail_runtime_provider_name(strict=strict))
 
 
 def _merge_unique_str_list(*groups: Any) -> list[str]:
@@ -78,9 +79,10 @@ def _collapse_bridge_operator_provider_rows(
                 collapsed.append(item)
                 continue
             existing = collapsed[bridge_index]
-            prefer_incoming = provider == _BRIDGE_OPERATOR_CANONICAL and _normalize_provider_name(
-                existing.get(provider_key)
-            ) != _BRIDGE_OPERATOR_CANONICAL
+            prefer_incoming = (
+                provider == _BRIDGE_OPERATOR_CANONICAL
+                and _normalize_provider_name(existing.get(provider_key)) != _BRIDGE_OPERATOR_CANONICAL
+            )
             base = item if prefer_incoming else existing
             other = existing if prefer_incoming else item
             merged = {
@@ -116,5 +118,3 @@ def _collapse_bridge_operator_provider_rows(
             continue
         collapsed.append(item)
     return collapsed
-
-

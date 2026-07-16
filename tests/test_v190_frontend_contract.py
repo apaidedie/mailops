@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_feature_package_js,  load_frontend_app_js
 import re
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class V190FrontendContractTests(unittest.TestCase):
@@ -74,7 +74,7 @@ class V190FrontendContractTests(unittest.TestCase):
     def test_frontend_no_longer_uses_raw_error_object_toasts_on_key_paths(self):
         client = self.app.test_client()
         main_js = load_frontend_app_js()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         self.assertNotIn("showToast(data.error || '创建失败'", main_js)
         self.assertNotIn("showToast(data.error || '删除失败'", main_js)
         self.assertNotIn("showToast(data.error || '操作失败'", main_js)
@@ -192,8 +192,8 @@ class V190FrontendContractTests(unittest.TestCase):
 
     def test_frontend_success_toasts_use_pick_api_message_on_key_paths(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
-        groups_js = load_feature_package_js('static/js/features/groups')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
+        groups_js = load_feature_package_js("static/js/features/groups")
         main_js = load_frontend_app_js()
         self.assertIn("pickApiMessage(result, result.message", accounts_js)
         self.assertIn("pickApiMessage(data, data.message", groups_js)
@@ -201,11 +201,11 @@ class V190FrontendContractTests(unittest.TestCase):
 
     def test_frontend_dynamic_options_and_placeholders_use_i18n_helpers(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         main_js = load_frontend_app_js()
-        groups_js = load_feature_package_js('static/js/features/groups')
-        emails_js = load_feature_package_js('static/js/features/emails')
-        temp_emails_js = load_feature_package_js('static/js/features/temp_emails')
+        groups_js = load_feature_package_js("static/js/features/groups")
+        emails_js = load_feature_package_js("static/js/features/emails")
+        temp_emails_js = load_feature_package_js("static/js/features/temp_emails")
         self.assertIn("translateAppTextLocal('自动按类型分组')", accounts_js)
         self.assertIn("translateAppTextLocal('支持混合格式，每行一个账号", accounts_js)
         self.assertIn("translateAppTextLocal('请选择标签...')", main_js)
@@ -221,14 +221,16 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertIn("translateAppTextLocal('垃圾邮件为空')", emails_js)
         self.assertIn("getEmailListEmptyMessage()", emails_js)
         # Empty message must be folder-aware (junk must not always say inbox empty).
-        empty_fn = emails_js[emails_js.index("function getEmailListEmptyMessage()"):emails_js.index("function renderEmailList")]
+        empty_fn = emails_js[
+            emails_js.index("function getEmailListEmptyMessage()") : emails_js.index("function renderEmailList")
+        ]
         self.assertIn("junkemail", empty_fn)
         self.assertIn("translateAppTextLocal('暂无邮件')", empty_fn)
         self.assertIn("translateAppTextLocal('暂无邮件')", temp_emails_js)
 
     def test_frontend_email_list_sorting_fallback_is_present_on_all_key_paths(self):
         client = self.app.test_client()
-        emails_js = load_feature_package_js('static/js/features/emails')
+        emails_js = load_feature_package_js("static/js/features/emails")
         main_js = load_frontend_app_js()
 
         # helper contract: timestamp fallback chain + stable newest-first sort
@@ -257,14 +259,14 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertIn("? sortEmailsByNewestFirst(cache.emails || [])", main_js)
 
         # selectAccount() in accounts.js: cache recovery must also sort
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         self.assertIn("? sortEmailsByNewestFirst(cache.emails || [])", accounts_js)
 
     def test_notification_copy_matches_channel_vs_account_model(self):
         client = self.app.test_client()
         self._login(client)
         index_html = self._get_text(client, "/")
-        groups_js = load_feature_package_js('static/js/features/groups')
+        groups_js = load_feature_package_js("static/js/features/groups")
 
         # Structural chrome uses plain titles (vector icons elsewhere); keep channel copy precise.
         self.assertIn("Email 通知", index_html)
@@ -300,7 +302,7 @@ class V190FrontendContractTests(unittest.TestCase):
 
     def test_frontend_import_and_export_error_contract_helpers_are_consumed(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         main_js = load_frontend_app_js()
         self.assertIn("buildImportFailureToastMessage", accounts_js)
         self.assertIn("data.summary || Array.isArray(data.errors)", accounts_js)
@@ -342,8 +344,8 @@ class V190FrontendContractTests(unittest.TestCase):
         """Phase 2: 轮询触发从'选中账号自动启动'改为'复制邮箱启动'，由统一引擎处理"""
         client = self.app.test_client()
         main_js = load_frontend_app_js()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
-        emails_js = load_feature_package_js('static/js/features/emails')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
+        emails_js = load_feature_package_js("static/js/features/emails")
         poll_engine_js = self._get_text(client, "/static/js/features/poll-engine.js")
         compact_js = self._get_text(client, "/static/js/features/mailbox_compact.js")
 
@@ -420,7 +422,7 @@ class V190FrontendContractTests(unittest.TestCase):
 
     def test_account_edit_uses_conditional_outlook_credential_validation(self):
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         self.assertIn("clientIdInput.dataset.originalValue = acc.client_id || '';", accounts_js)
         self.assertIn(
             "const wantsToUpdateOutlookCredentials = !isImap && (hasClientIdChanged || !!refreshToken);",
@@ -437,7 +439,7 @@ class V190FrontendContractTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         html = self._get_text(client, "/")
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
 
         self.assertIn('id="accountProvider"', html)
         self.assertIn('id="accountProviderNote"', html)
@@ -492,7 +494,7 @@ class V190FrontendContractTests(unittest.TestCase):
     def test_import_result_provider_labels_are_catalog_driven(self):
         """Auto 导入结果统计的 provider 名称应来自 catalog，而非硬编码 map。"""
         client = self.app.test_client()
-        accounts_js = load_feature_package_js('static/js/features/accounts')
+        accounts_js = load_feature_package_js("static/js/features/accounts")
         main_js = load_frontend_app_js()
 
         self.assertIn("function getImportResultProviderLabel", accounts_js)

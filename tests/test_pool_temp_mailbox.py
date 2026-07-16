@@ -238,7 +238,9 @@ class TempMailboxPoolTests(unittest.TestCase):
         _, _, domain = self._make_temp_email(provider_name="duckmail")
 
         with self.assertRaises(self.pool_service.PoolServiceError) as ctx:
-            self.pool_service.claim_random(caller_id="reg_bot", task_id="t_custom_strict", provider="custom", email_domain=domain)
+            self.pool_service.claim_random(
+                caller_id="reg_bot", task_id="t_custom_strict", provider="custom", email_domain=domain
+            )
 
         self.assertEqual(ctx.exception.error_code, "no_available_account")
 
@@ -336,7 +338,9 @@ class TempMailboxPoolTests(unittest.TestCase):
         finally:
             conn.close()
 
-        result = self.pool_service.claim_random(caller_id="reg_bot", task_id="t_active_auto", provider="auto", email_domain=domain)
+        result = self.pool_service.claim_random(
+            caller_id="reg_bot", task_id="t_active_auto", provider="auto", email_domain=domain
+        )
 
         self.assertEqual(result["email"], duck_email)
         self.assertEqual(result["provider"], "duckmail")
@@ -360,12 +364,10 @@ class TempMailboxPoolTests(unittest.TestCase):
     def test_claim_random_imap_alias_claims_imap_account_family(self):
         conn = self.create_conn()
         try:
-            conn.execute(
-                """
+            conn.execute("""
                 INSERT INTO accounts (email, password, client_id, refresh_token, account_type, provider, status, pool_status)
                 VALUES ('gmail-imap@test.local', 'pw', '', '', 'imap', 'gmail', 'active', 'available')
-                """
-            )
+                """)
             conn.commit()
         finally:
             conn.close()

@@ -13,7 +13,11 @@ from outlook_web.services.external_request_limits import (
     TASK_ID_MAX_LEN,
     TASK_MAILBOX_PREFIX_MAX_LEN,
 )
-from outlook_web.services.provider_catalog import get_provider_catalog_item, is_mailbox_provider_active, temp_mail_provider_label
+from outlook_web.services.provider_catalog import (
+    get_provider_catalog_item,
+    is_mailbox_provider_active,
+    temp_mail_provider_label,
+)
 from outlook_web.services.temp_mail_provider_custom import TempMailProviderReadError
 from outlook_web.services.temp_mail_provider_factory import (
     TempMailProviderFactoryError,

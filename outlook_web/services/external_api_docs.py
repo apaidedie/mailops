@@ -18,8 +18,12 @@ def render_external_api_docs_html(*, consumer: dict[str, Any] | None = None) -> 
     defaults = capabilities.get("defaults") if isinstance(capabilities.get("defaults"), dict) else {}
     paths = contract.get("paths") if isinstance(contract.get("paths"), dict) else {}
     path_groups = _group_operations(paths)
-    provider_diagnostics = capabilities.get("provider_diagnostics") if isinstance(capabilities.get("provider_diagnostics"), dict) else {}
-    integration_bundle = capabilities.get("integration_bundle") if isinstance(capabilities.get("integration_bundle"), dict) else {}
+    provider_diagnostics = (
+        capabilities.get("provider_diagnostics") if isinstance(capabilities.get("provider_diagnostics"), dict) else {}
+    )
+    integration_bundle = (
+        capabilities.get("integration_bundle") if isinstance(capabilities.get("integration_bundle"), dict) else {}
+    )
 
     service_title = _text((contract.get("info") or {}).get("title"), "Outlook Email Plus External API")
     app_version = _text((contract.get("info") or {}).get("version"), "")
@@ -28,13 +32,18 @@ def render_external_api_docs_html(*, consumer: dict[str, Any] | None = None) -> 
 
     return "".join(
         [
-            "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">",
-            "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">",
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+            '<meta name="viewport" content="width=device-width,initial-scale=1">',
             f"<title>{escape(service_title)} Docs</title>",
             _style_block(),
             "</head><body>",
-            "<main class=\"page-shell\">",
-            _hero(service_title=service_title, app_version=app_version, external_version=external_version, path_count=operation_count),
+            '<main class="page-shell">',
+            _hero(
+                service_title=service_title,
+                app_version=app_version,
+                external_version=external_version,
+                path_count=operation_count,
+            ),
             _surface_metrics(
                 app_version=app_version,
                 external_version=external_version,
@@ -261,9 +270,14 @@ def _quick_links(endpoints: dict[str, Any]) -> str:
 
 
 def _integration_bundle_section(*, integration_bundle: dict[str, Any], endpoints: dict[str, Any]) -> str:
-    bundle_endpoint = _text(integration_bundle.get("endpoint") or endpoints.get("integration_bundle"), f"{EXTERNAL_API_V1_PREFIX}/integration-bundle")
+    bundle_endpoint = _text(
+        integration_bundle.get("endpoint") or endpoints.get("integration_bundle"),
+        f"{EXTERNAL_API_V1_PREFIX}/integration-bundle",
+    )
     contract = _text(integration_bundle.get("response_contract"), "integration_bundle")
-    recommended = integration_bundle.get("recommended_for") if isinstance(integration_bundle.get("recommended_for"), list) else []
+    recommended = (
+        integration_bundle.get("recommended_for") if isinstance(integration_bundle.get("recommended_for"), list) else []
+    )
     chips = "".join(f'<span class="pill">{escape(str(item))}</span>' for item in recommended[:4])
     return f"""
 <section class="grid">
@@ -307,7 +321,7 @@ def _workflow_section(quickstart: dict[str, Any]) -> str:
         step = _text(item.get("step"), "step")
         rows.append(
             f'<li class="workflow-row"><span><span class="workflow-number">{index}</span>{_method_badge(method)} <strong>{escape(step)}</strong></span>'
-            f'<code>{escape(endpoint)}</code></li>'
+            f"<code>{escape(endpoint)}</code></li>"
         )
     requests = quickstart.get("requests") if isinstance(quickstart.get("requests"), dict) else {}
     session_start = requests.get("mailbox_session_start") if isinstance(requests.get("mailbox_session_start"), dict) else {}
@@ -339,13 +353,15 @@ def _request_rows(items: list[tuple[str, dict[str, Any]]]) -> str:
             continue
         rows.append(
             f'<li class="workflow-row"><span><span class="workflow-number">{index}</span>{_method_badge(method)} <strong>{escape(label)}</strong></span>'
-            f'<code>{escape(endpoint)}</code></li>'
+            f"<code>{escape(endpoint)}</code></li>"
         )
     return "".join(rows)
 
 
 def _provider_section(*, selection_policy: dict[str, Any], defaults: dict[str, Any]) -> str:
-    source_priority = selection_policy.get("source_priority") if isinstance(selection_policy.get("source_priority"), list) else []
+    source_priority = (
+        selection_policy.get("source_priority") if isinstance(selection_policy.get("source_priority"), list) else []
+    )
     scopes = selection_policy.get("scopes") if isinstance(selection_policy.get("scopes"), dict) else {}
     explicit_pool = scopes.get("explicit_pool_claim") if isinstance(scopes.get("explicit_pool_claim"), dict) else {}
     task_temp = scopes.get("task_temp_apply") if isinstance(scopes.get("task_temp_apply"), dict) else {}
@@ -353,7 +369,10 @@ def _provider_section(*, selection_policy: dict[str, Any], defaults: dict[str, A
         ("Source priority", " -> ".join(str(item) for item in source_priority)),
         ("Runtime temp provider", _text(defaults.get("temp_mail_provider"), "default")),
         ("Pool default provider", _text(defaults.get("pool_claim_provider"), "auto")),
-        ("Active provider allowlist", ", ".join(str(item) for item in (defaults.get("active_mailbox_providers") or [])) or "all providers"),
+        (
+            "Active provider allowlist",
+            ", ".join(str(item) for item in (defaults.get("active_mailbox_providers") or [])) or "all providers",
+        ),
         ("Pool request field", _text(explicit_pool.get("request_field"), "provider")),
         ("Task temp request field", _text(task_temp.get("request_field"), "provider_name")),
     ]
@@ -385,8 +404,7 @@ def _endpoint_catalog(path_groups: list[dict[str, Any]]) -> str:
                 f'<td data-label="Schemas"><div class="schema-stack">{_schema_lines(op)}</div></td>'
                 "</tr>"
             )
-        sections.append(
-            f"""
+        sections.append(f"""
 <div class="panel span-12">
   <div class="section-title"><h2>{escape(group['label'])}</h2><span class="section-count">{len(group['operations'])} endpoints</span></div>
   <table class="endpoint-table">
@@ -394,8 +412,7 @@ def _endpoint_catalog(path_groups: list[dict[str, Any]]) -> str:
     <tbody>{''.join(rows)}</tbody>
   </table>
 </div>
-"""
-        )
+""")
     return f"""
 <section class="grid endpoint-catalog" aria-label="Endpoint Catalog">
   <div class="panel span-12">
@@ -413,7 +430,7 @@ def _schema_lines(op: dict[str, str]) -> str:
         lines.append(f'<span>request: <code>{escape(op["request_schema"])}</code></span>')
     if op.get("response_schema"):
         lines.append(f'<span>response: <code>{escape(op["response_schema"])}</code></span>')
-    return "".join(lines) or '<span>contract metadata</span>'
+    return "".join(lines) or "<span>contract metadata</span>"
 
 
 def _group_operations(paths: dict[str, Any]) -> list[dict[str, Any]]:

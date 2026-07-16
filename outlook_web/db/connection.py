@@ -39,6 +39,7 @@ from outlook_web.security.crypto import (
 # v23：2026-04-19 数据概览大盘（verification_extract_logs + overview 兼容字段）
 # v24：2026-07-01 临时邮箱接入邮箱池（temp_emails 新增池生命周期字段：pool_status/claimed_by/...，可被 claim-random 领取）
 
+
 def create_sqlite_connection(database_path: Optional[str] = None) -> sqlite3.Connection:
     """创建 SQLite 连接（带基础一致性/并发配置）"""
     path = database_path or config.get_database_path()
@@ -54,6 +55,7 @@ def create_sqlite_connection(database_path: Optional[str] = None) -> sqlite3.Con
         pass
     return conn
 
+
 def get_db() -> sqlite3.Connection:
     """获取数据库连接（绑定到 flask.g 生命周期）"""
     db = getattr(g, "_database", None)
@@ -61,11 +63,13 @@ def get_db() -> sqlite3.Connection:
         db = g._database = create_sqlite_connection()
     return db
 
+
 def close_db(_exception=None):
     """关闭数据库连接"""
     db = getattr(g, "_database", None)
     if db is not None:
         db.close()
+
 
 def register_db(app):
     """向 Flask app 注册 teardown，保证请求结束释放连接"""

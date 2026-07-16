@@ -29,8 +29,8 @@ from outlook_web.services.external_api_openapi import get_external_api_openapi_c
 from outlook_web.services.provider_catalog import (
     get_external_api_capabilities_contract,
     get_external_api_integration_bundle,
-    get_external_mailbox_read_contract,
     get_external_api_readiness_summary,
+    get_external_mailbox_read_contract,
     temp_mail_provider_label,
 )
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME

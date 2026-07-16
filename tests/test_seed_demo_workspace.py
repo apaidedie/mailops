@@ -8,8 +8,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 
-from scripts import project_readiness_check
-from scripts import seed_demo_workspace
+from scripts import project_readiness_check, seed_demo_workspace
 
 
 class SeedDemoWorkspaceTests(unittest.TestCase):

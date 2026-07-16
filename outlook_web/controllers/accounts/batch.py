@@ -35,6 +35,7 @@ from outlook_web.services import refresh as refresh_service
 
 from .helpers import _normalize_account_status
 
+
 @login_required
 def api_batch_update_status() -> Any:
     """批量更新账号状态（用于失效账号治理主动作）。"""
@@ -125,6 +126,7 @@ def api_batch_update_status() -> Any:
             details=str(e),
         )
 
+
 @login_required
 def api_batch_notification_toggle() -> Any:
     """批量切换账号通知参与开关。"""
@@ -188,6 +190,7 @@ def api_batch_notification_toggle() -> Any:
         }
     )
 
+
 @login_required
 def api_batch_delete_accounts() -> Any:
     """
@@ -248,6 +251,7 @@ def api_batch_delete_accounts() -> Any:
 
 # ==================== 批量操作 API ====================
 
+
 @login_required
 def api_batch_manage_tags() -> Any:
     """批量管理账号标签"""
@@ -282,6 +286,7 @@ def api_batch_manage_tags() -> Any:
         details = f"action={action} tag_id={tag_id} accounts={len(account_ids)} affected={count}"
     log_audit("update", "account_tags", str(tag_id), details)
     return jsonify({"success": True, "message": f"成功处理 {count} 个账号"})
+
 
 @login_required
 def api_batch_update_account_group() -> Any:

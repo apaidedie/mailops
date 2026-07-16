@@ -440,9 +440,13 @@ class PublicTempMailProviderTests(unittest.TestCase):
         with patch("requests.post", return_value=list_resp) as list_mock:
             messages = provider.list_messages({"email": created["email"], "meta": created["meta"]})
         with patch("requests.get", return_value=detail_resp) as get_mock:
-            detail = provider.get_message_detail({"email": created["email"], "meta": created["meta"]}, "emailnator_encrypted/id+1=")
+            detail = provider.get_message_detail(
+                {"email": created["email"], "meta": created["meta"]}, "emailnator_encrypted/id+1="
+            )
         with patch("requests.delete", return_value=delete_resp) as delete_mock:
-            deleted = provider.delete_message({"email": created["email"], "meta": created["meta"]}, "emailnator_encrypted/id+1=")
+            deleted = provider.delete_message(
+                {"email": created["email"], "meta": created["meta"]}, "emailnator_encrypted/id+1="
+            )
 
         self.assertTrue(created["success"])
         self.assertEqual(created["provider_name"], "emailnator")
@@ -603,7 +607,9 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
             service = TempMailService(provider_factory=fail_provider_factory)
             service.delete_message("local-delete@public-provider.test", "msg-local")
-            remaining = temp_emails_repo.get_temp_email_message_by_id("msg-local", email_addr="local-delete@public-provider.test")
+            remaining = temp_emails_repo.get_temp_email_message_by_id(
+                "msg-local", email_addr="local-delete@public-provider.test"
+            )
 
         self.assertIsNone(remaining)
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-
 MAILBOX_KIND_DEFINITIONS = [
     {"kind": "account", "label": "普通账号", "label_en": "Accounts", "summary_key": "account"},
     {"kind": "temp", "label": "临时邮箱", "label_en": "Temp mailboxes", "summary_key": "temp"},

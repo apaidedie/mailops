@@ -18,6 +18,7 @@ from outlook_web.security.crypto import decrypt_data, encrypt_data
 
 from .constants import INVALID_TOKEN_ERROR_KEYWORDS, INVALID_TOKEN_FAILED_LIST_LIMIT, REFRESH_LOCK_TTL_SECONDS
 
+
 def _classify_refresh_failure(error_message: Optional[str]) -> Dict[str, Any]:
     """统一判定刷新失败是否属于失效 token（方案 C 首版口径）。"""
     normalized = str(error_message or "").strip().lower()
@@ -34,6 +35,7 @@ def _classify_refresh_failure(error_message: Optional[str]) -> Dict[str, Any]:
         "reason_code": "INVALID_GRANT_OR_AADSTS70000",
         "reason_label": "refresh_token_invalid_or_expired",
     }
+
 
 def _record_invalid_token_failure(
     *,
@@ -58,9 +60,11 @@ def _record_invalid_token_failure(
         )
     return True
 
+
 def utcnow() -> datetime:
     """返回 naive UTC 时间（等价于旧的 datetime.utcnow()）"""
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 def compute_refresh_lock_ttl_seconds(total: int, delay_seconds: int) -> int:
     try:

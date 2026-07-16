@@ -5,7 +5,6 @@ from typing import Any
 from outlook_web.services.mailbox_catalog import list_unified_mailboxes
 from outlook_web.services.provider_catalog import get_external_api_readiness_summary
 
-
 INTEGRATION_BUNDLE_ENDPOINT = "/api/v1/external/integration-bundle"
 
 
@@ -178,8 +177,12 @@ def get_overview_command_center() -> dict[str, Any]:
         summary = mailbox_payload.get("summary") if isinstance(mailbox_payload.get("summary"), dict) else {}
         pagination = mailbox_payload.get("pagination") if isinstance(mailbox_payload.get("pagination"), dict) else {}
         facets = mailbox_payload.get("facets") if isinstance(mailbox_payload.get("facets"), dict) else {}
-        provider_context = mailbox_payload.get("provider_context") if isinstance(mailbox_payload.get("provider_context"), dict) else {}
-        readiness = provider_context.get("readiness_summary") if isinstance(provider_context.get("readiness_summary"), dict) else {}
+        provider_context = (
+            mailbox_payload.get("provider_context") if isinstance(mailbox_payload.get("provider_context"), dict) else {}
+        )
+        readiness = (
+            provider_context.get("readiness_summary") if isinstance(provider_context.get("readiness_summary"), dict) else {}
+        )
         totals = readiness.get("totals") if isinstance(readiness.get("totals"), dict) else {}
 
         provider_facets = facets.get("providers") if isinstance(facets.get("providers"), list) else []
@@ -203,13 +206,19 @@ def get_overview_command_center() -> dict[str, Any]:
 
         readiness_payload = get_external_api_readiness_summary(consumer=None, database_ok=True, upstream_probe_ok=None)
         discovery = readiness_payload.get("discovery") if isinstance(readiness_payload.get("discovery"), dict) else {}
-        mailbox_directory = readiness_payload.get("mailbox_directory") if isinstance(readiness_payload.get("mailbox_directory"), dict) else {}
-        task_temp_mailbox = readiness_payload.get("task_temp_mailbox") if isinstance(readiness_payload.get("task_temp_mailbox"), dict) else {}
+        mailbox_directory = (
+            readiness_payload.get("mailbox_directory") if isinstance(readiness_payload.get("mailbox_directory"), dict) else {}
+        )
+        task_temp_mailbox = (
+            readiness_payload.get("task_temp_mailbox") if isinstance(readiness_payload.get("task_temp_mailbox"), dict) else {}
+        )
         pool = readiness_payload.get("pool") if isinstance(readiness_payload.get("pool"), dict) else {}
         next_endpoints = discovery.get("next_endpoints") if isinstance(discovery.get("next_endpoints"), dict) else {}
         external = {
             "status": _external_status(str(readiness_payload.get("status") or "")),
-            "discovery_status": "available" if _status(discovery.get("status")) == "ready" else _status(discovery.get("status")),
+            "discovery_status": (
+                "available" if _status(discovery.get("status")) == "ready" else _status(discovery.get("status"))
+            ),
             "mailbox_directory_status": _status(mailbox_directory.get("status")),
             "task_temp_mailbox_status": _status(task_temp_mailbox.get("status")),
             "pool_status": _status(pool.get("status")),

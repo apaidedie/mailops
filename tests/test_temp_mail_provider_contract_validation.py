@@ -83,7 +83,10 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
         self.assertIn("PROVIDER_BASE_CLASS_INVALID", codes)
 
     def test_non_base_provider_with_matching_methods_is_invalid(self):
-        from outlook_web.services.temp_mail_provider_contract import contract_validation_summary, validate_temp_mail_provider_class
+        from outlook_web.services.temp_mail_provider_contract import (
+            contract_validation_summary,
+            validate_temp_mail_provider_class,
+        )
 
         class MethodOnlyProvider:
             provider_name = "method_only"
@@ -138,7 +141,13 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
             provider_version = "1.0.0"
             config_schema = {
                 "fields": [
-                    {"key": "api_key", "label": "API Key", "type": "password", "required": True, "default": "sk-should-not-leak"},
+                    {
+                        "key": "api_key",
+                        "label": "API Key",
+                        "type": "password",
+                        "required": True,
+                        "default": "sk-should-not-leak",
+                    },
                 ]
             }
 

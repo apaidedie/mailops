@@ -1,4 +1,5 @@
 """Package facade — re-exports public symbols for stable imports."""
+
 from __future__ import annotations
 
 import sys
@@ -9,11 +10,12 @@ from outlook_web.services import graph as graph_service
 from outlook_web.services import imap as imap_service
 from outlook_web.services.imap_generic import get_emails_imap_generic
 
+from . import constants, external_api, helpers, mailbox_api
 from .constants import (
-    IMAP_SERVER_NEW,
-    IMAP_SERVER_OLD,
     _EXTERNAL_NESTED_UPSTREAM_CODES,
     _LOGGER,
+    IMAP_SERVER_NEW,
+    IMAP_SERVER_OLD,
 )
 from .external_api import (
     api_external_get_latest_message,
@@ -42,7 +44,6 @@ from .mailbox_api import (
     api_get_email_detail,
     api_get_emails,
 )
-from . import constants, external_api, helpers, mailbox_api
 
 
 class _EmailsModule(types.ModuleType):

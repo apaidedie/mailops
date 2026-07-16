@@ -10,6 +10,7 @@ import shutil
 import sys
 
 from dotenv import load_dotenv
+
 from outlook_web.runtime_output import configure_process_output
 
 configure_process_output()
