@@ -62,7 +62,7 @@
             } catch (e) {
                 showToast(`${translateAppTextLocal('请求失败')}: ${e.message}`, 'error');
             } finally {
-                if (btn) { btn.disabled = false; btn.textContent = translateAppTextLocal('📨 发送测试消息'); }
+                if (btn) { btn.disabled = false; btn.textContent = translateAppTextLocal('发送测试消息'); }
             }
         }
 
@@ -146,7 +146,7 @@
             } catch (e) {
                 showToast(`${translateAppTextLocal('请求失败')}: ${e.message}`, 'error');
             } finally {
-                if (btn) { btn.disabled = false; btn.textContent = translateAppTextLocal('📨 发送测试邮件'); }
+                if (btn) { btn.disabled = false; btn.textContent = translateAppTextLocal('发送测试邮件'); }
             }
         }
 

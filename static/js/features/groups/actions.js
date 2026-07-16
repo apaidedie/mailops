@@ -123,7 +123,7 @@
             document.getElementById('groupModalTitle').textContent = translateAppTextLocal('添加分组');
             document.getElementById('groupName').value = '';
             document.getElementById('groupDescription').value = '';
-            selectedColor = '#B85C38';
+            selectedColor = '#2563EB';
             document.querySelectorAll('.color-option').forEach(o => {
                 o.classList.toggle('selected', o.dataset.color === selectedColor);
             });
@@ -150,7 +150,7 @@
             document.getElementById('groupModalTitle').textContent = translateAppTextLocal('编辑分组');
             document.getElementById('groupName').value = group.name || '';
             document.getElementById('groupDescription').value = group.description || '';
-            selectedColor = group.color || '#B85C38';
+            selectedColor = group.color || '#2563EB';
 
             // 检查是否是预设颜色
             document.querySelectorAll('.color-option').forEach(o => {

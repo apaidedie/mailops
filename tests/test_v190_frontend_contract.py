@@ -105,10 +105,15 @@ class V190FrontendContractTests(unittest.TestCase):
             "接收通知邮箱",
             "发送测试邮件",
             "📤 导出",
+            "导出",
             "🔄 全量刷新 Token",
+            "全量刷新 Token",
             "＋ 添加账号",
+            "添加账号",
             "＋ 创建邮箱",
+            "创建邮箱",
             "🔑 验证码",
+            "验证码",
             "审计日志",
             "📋 审计日志",
             "暂无审计记录",
@@ -117,7 +122,9 @@ class V190FrontendContractTests(unittest.TestCase):
             "定时",
             "✉️ 邮件通知",
             "✉️ Email 通知",
+            "Email 通知",
             "📬 Telegram 通知",
+            "Telegram 通知",
             "📬 Telegram 推送",
             "这里只配置 Email 通知通道。普通邮箱需在账号列表开启通知后才会通过 Email 发送；临时邮箱按当前通知规则处理。启用后仅从新到达的邮件开始通知。",
             "这里只配置 Email 渠道的接收邮箱，不会让所有普通邮箱自动发送。",
@@ -155,7 +162,9 @@ class V190FrontendContractTests(unittest.TestCase):
             "⚠️ 警告：启用信任模式将直接显示邮件原始内容，不进行任何安全过滤。",
             "Cron 表达式",
             "📨 收件箱",
+            "收件箱",
             "⚠️ 垃圾邮件",
+            "垃圾邮件",
             "🔔 推送",
             "QQ邮箱",
             "163邮箱",
@@ -257,8 +266,11 @@ class V190FrontendContractTests(unittest.TestCase):
         index_html = self._get_text(client, "/")
         groups_js = load_feature_package_js('static/js/features/groups')
 
-        self.assertIn("✉️ Email 通知", index_html)
-        self.assertIn("📬 Telegram 通知", index_html)
+        # Structural chrome uses plain titles (vector icons elsewhere); keep channel copy precise.
+        self.assertIn("Email 通知", index_html)
+        self.assertIn("Telegram 通知", index_html)
+        self.assertNotIn("✉️ Email 通知", index_html)
+        self.assertNotIn("📬 Telegram 通知", index_html)
         self.assertIn(
             "这里只配置 Email 通知通道。普通邮箱需在账号列表开启通知后才会通过 Email 发送；临时邮箱按当前通知规则处理。启用后仅从新到达的邮件开始通知。",
             index_html,
@@ -439,6 +451,8 @@ class V190FrontendContractTests(unittest.TestCase):
 
         self.assertIn("function loadProviders", accounts_js)
         self.assertIn("function getImportAccountProviderOptionsFromPayload", accounts_js)
+        self.assertIn("function ensureImportProviderSelectOptions", accounts_js)
+        self.assertIn("function ensureAutoImportProviderOption", accounts_js)
         self.assertIn("function updateAccountProviderNote", accounts_js)
         self.assertIn("mailbox_providers", accounts_js)
         self.assertIn("toLowerCase() === 'account'", accounts_js)

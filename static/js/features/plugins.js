@@ -64,7 +64,7 @@ const PluginManager = (() => {
     function _resetProviderConfigPanel() {
         const { panel, title, body } = _getProviderConfigElements();
         if (panel) panel.style.display = 'none';
-        if (title) title.textContent = '🧩 ' + plT('插件 Provider 配置');
+        if (title) title.textContent = plT('插件 Provider 配置');
         if (body) {
             body.innerHTML = '<div class="form-hint">' + plT('请选择一个已安装插件 Provider。') + '</div>';
         }
@@ -182,7 +182,7 @@ const PluginManager = (() => {
                     updateProviderContractStateFromPlugins([]);
                 }
                 if (content && shouldPaintPluginList()) {
-                    content.innerHTML = `<div style="color:var(--clr-danger);padding:0.5rem 0;font-size:0.85rem;">${escapeHtml(plT('加载插件列表失败'))}：${escapeHtml(String(err.message || err))}</div>`;
+                    content.innerHTML = `<div class="plugin-load-error">${escapeHtml(plT('加载插件列表失败'))}：${escapeHtml(String(err.message || err))}</div>`;
                 }
                 throw err;
             } finally {
@@ -219,23 +219,23 @@ const PluginManager = (() => {
         const available = _plugins.filter(p => p.status === 'available');
 
         let html = `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;margin-bottom:1rem;flex-wrap:wrap;">
-                <button class="btn btn-sm" onclick="PluginManager.loadPlugins({ force: true })">🔄 ${plT('刷新')}</button>
-                <button class="btn btn-sm" onclick="PluginManager.openCustomInstallModal()">➕ ${plT('自定义安装')}</button>
+            <div class="plugin-toolbar">
+                <button class="btn btn-sm btn-secondary" onclick="PluginManager.loadPlugins({ force: true })">${plT('刷新')}</button>
+                <button class="btn btn-sm btn-secondary" onclick="PluginManager.openCustomInstallModal()">${plT('自定义安装')}</button>
             </div>`;
 
         if (_plugins.length === 0) {
-            html += '<div style="text-align:center;padding:1.5rem 0;color:var(--text-muted);font-size:0.85rem;">' + plT('暂无可用插件') + '</div>';
+            html += '<div class="plugin-empty">' + plT('暂无可用插件') + '</div>';
         } else {
-            html += '<div style="display:flex;flex-direction:column;gap:0.6rem;">';
+            html += '<div class="plugin-list">';
             [...installed, ...failed, ...available].forEach(p => { html += _renderPluginItem(p); });
             html += '</div>';
         }
 
         html += `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1rem;margin-top:1rem;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border-light);">
-                <span style="font-size:0.78rem;color:var(--text-muted);">${plT('安装、卸载或更新插件文件后，点击应用使插件生效')}</span>
-                <button class="btn btn-sm btn-primary" onclick="PluginManager.applyChanges()">🔄 ${plT('应用变更')}</button>
+            <div class="plugin-apply-bar">
+                <span class="plugin-apply-hint">${plT('安装、卸载或更新插件文件后，点击应用使插件生效')}</span>
+                <button class="btn btn-sm btn-primary" onclick="PluginManager.applyChanges()">${plT('应用变更')}</button>
             </div>`;
 
         content.innerHTML = html;
@@ -252,42 +252,41 @@ const PluginManager = (() => {
 
         let badge = '';
         let actions = '';
-        let borderStyle = '';
+        let statusClass = '';
 
         if (status === 'installed') {
-            badge   = '<span style="background:rgba(58,125,68,0.1);color:var(--clr-jade);padding:0.15rem 0.55rem;border-radius:20px;font-size:0.65rem;font-weight:500;">' + plT('已安装') + '</span>';
-            actions = `<button class="btn btn-sm" onclick="PluginManager.toggleConfig('${name}')">${plT('打开设置')}</button>
+            badge   = '<span class="plugin-status plugin-status--ok">' + plT('已安装') + '</span>';
+            actions = `<button class="btn btn-sm btn-secondary" onclick="PluginManager.toggleConfig('${name}')">${plT('打开设置')}</button>
                        <button class="btn btn-sm btn-outline-danger" onclick="PluginManager.confirmUninstall('${name}','${displayName}')">${plT('卸载')}</button>`;
         } else if (status === 'load_failed') {
-            badge       = '<span style="background:rgba(192,57,43,0.1);color:var(--clr-danger);padding:0.15rem 0.55rem;border-radius:20px;font-size:0.65rem;font-weight:500;">' + plT('加载失败') + '</span>';
-            borderStyle = 'border-color:rgba(192,57,43,0.3);';
+            badge       = '<span class="plugin-status plugin-status--fail">' + plT('加载失败') + '</span>';
+            statusClass = 'plugin-item--fail';
             actions     = `<button class="btn btn-sm btn-outline-danger" onclick="PluginManager.confirmUninstall('${name}','${displayName}')">${plT('卸载')}</button>`;
         } else {
-            badge   = '<span style="background:rgba(200,150,62,0.1);color:var(--clr-accent);padding:0.15rem 0.55rem;border-radius:20px;font-size:0.65rem;font-weight:500;">' + plT('可安装') + '</span>';
+            badge   = '<span class="plugin-status plugin-status--avail">' + plT('可安装') + '</span>';
             actions = `<button class="btn btn-sm btn-primary" onclick="PluginManager.install('${name}')">${plT('安装')}</button>`;
         }
 
         const errorBlock = (status === 'load_failed' && p.error)
-            ? `<div style="border-top:1px solid rgba(192,57,43,0.15);padding:0.6rem 0.85rem;margin-top:0.7rem;background:rgba(192,57,43,0.04);border-radius:6px;font-size:0.78rem;color:var(--clr-danger);">
-                   ⚠️ ${escapeHtml(plT('加载失败'))}：${escapeHtml(String(p.error))}
+            ? `<div class="plugin-item-error">
+                   ${escapeHtml(plT('加载失败'))}：${escapeHtml(String(p.error))}
                </div>` : '';
 
         return `
-            <div class="plugin-item" id="plugin-item-${name}"
-                 style="border:1px solid var(--border-light);border-radius:6px;padding:0.9rem 1rem;transition:border-color 0.2s,background 0.2s;${borderStyle}">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
-                    <div style="flex:1;">
-                        <div style="font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:0.5rem;">
+            <div class="plugin-item ${statusClass}" id="plugin-item-${name}">
+                <div class="plugin-item-main">
+                    <div class="plugin-item-body">
+                        <div class="plugin-item-title">
                             ${displayName} ${badge}
                         </div>
-                        ${desc ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;">${desc}</div>` : ''}
-                        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;display:flex;gap:0.8rem;">
-                            ${author  ? `<span>👤 ${author}</span>`  : ''}
-                            ${version ? `<span>📦 ${version}</span>` : ''}
-                            ${minVer  ? `<span>📋 ${minVer}+</span>` : ''}
+                        ${desc ? `<div class="plugin-item-desc">${desc}</div>` : ''}
+                        <div class="plugin-item-meta">
+                            ${author  ? `<span>${author}</span>`  : ''}
+                            ${version ? `<span>v${version}</span>` : ''}
+                            ${minVer  ? `<span>${minVer}+</span>` : ''}
                         </div>
                     </div>
-                    <div style="display:flex;gap:0.4rem;flex-shrink:0;">${actions}</div>
+                    <div class="plugin-item-actions">${actions}</div>
                 </div>
                 ${errorBlock}
             </div>`;
@@ -317,7 +316,7 @@ const PluginManager = (() => {
 
         panel.style.display = 'block';
         if (!plugin) {
-            title.textContent = '🧩 ' + plT('插件 Provider 配置');
+            title.textContent = plT('插件 Provider 配置');
             body.innerHTML = `<div class="form-hint">${escapeHtml(plT('未找到已安装的插件 Provider'))}：${escapeHtml(String(name || ''))}</div>`;
             _activeConfig = null;
             _activeConfigFields = null;
@@ -326,8 +325,8 @@ const PluginManager = (() => {
         }
 
         _activeConfig = name;
-        title.textContent = '🧩 ' + (plugin.display_name || plugin.name) + ' ' + plT('配置');
-        body.innerHTML = '<div style="text-align:center;padding:0.8rem 0;color:var(--text-muted);font-size:0.83rem;">' + plT('加载配置…') + '</div>';
+        title.textContent = (plugin.display_name || plugin.name) + ' ' + plT('配置');
+        body.innerHTML = '<div class="plugin-config-loading">' + plT('加载配置…') + '</div>';
 
         try {
             const [schemaRes, configRes] = await Promise.all([
@@ -347,7 +346,7 @@ const PluginManager = (() => {
             if (_activeConfig !== name) return;
             _activeConfigFields = null;
             _activeConfigValues = null;
-            body.innerHTML = `<div style="color:var(--clr-danger);font-size:0.83rem;">${escapeHtml(plT('加载失败'))}：${escapeHtml(String(err.message || err))}</div>`;
+            body.innerHTML = `<div class="plugin-load-error">${escapeHtml(plT('加载失败'))}：${escapeHtml(String(err.message || err))}</div>`;
         }
     }
 
@@ -357,7 +356,7 @@ const PluginManager = (() => {
             const key         = field.key || '';
             const label       = escapeHtml(field.label || key);
             const type        = field.type || 'text';
-            const required    = field.required ? '<span style="color:var(--clr-danger);margin-left:0.15rem;">*</span>' : '';
+            const required    = field.required ? '<span class="form-req">*</span>' : '';
             const hint        = escapeHtml(field.hint || field.description || '');
             const placeholder = escapeHtml(field.placeholder || '');
             const rawVal      = currentConfig[key] !== undefined ? currentConfig[key] : (field.default !== undefined ? field.default : '');
@@ -366,7 +365,7 @@ const PluginManager = (() => {
 
             let inputHtml = '';
             if (type === 'textarea') {
-                inputHtml = `<textarea class="form-input" id="${inputId}" placeholder="${placeholder}" style="min-height:70px;resize:vertical;font-family:inherit;">${currentVal}</textarea>`;
+                inputHtml = `<textarea class="form-input plugin-config-textarea" id="${inputId}" placeholder="${placeholder}">${currentVal}</textarea>`;
             } else if (type === 'select' && Array.isArray(field.options)) {
                 const opts = field.options.map(opt => {
                     const v = typeof opt === 'object' ? opt.value : opt;
@@ -376,7 +375,7 @@ const PluginManager = (() => {
                 inputHtml = `<select class="form-input" id="${inputId}">${opts}</select>`;
             } else if (type === 'toggle') {
                 const checked = (String(rawVal) === 'true' || String(rawVal) === '1') ? 'checked' : '';
-                inputHtml = `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="${inputId}" ${checked}><span>${label}</span></label>`;
+                inputHtml = `<label class="form-check-row"><input type="checkbox" id="${inputId}" ${checked}><span>${label}</span></label>`;
             } else {
                 const inputType = type === 'password' ? 'password' : type === 'number' ? 'number' : type === 'url' ? 'url' : 'text';
                 inputHtml = `<input type="${inputType}" class="form-input" id="${inputId}" placeholder="${placeholder}" value="${currentVal}" autocomplete="off">`;
@@ -384,28 +383,30 @@ const PluginManager = (() => {
 
             if (type !== 'toggle') {
                 fieldsHtml += `
-                    <div class="form-group" style="margin-bottom:0.9rem;">
+                    <div class="form-group plugin-config-field">
                         <label class="form-label" for="${inputId}">${label}${required}</label>
                         ${inputHtml}
-                        ${hint ? `<div class="form-hint" style="font-size:0.72rem;color:var(--text-muted);margin-top:0.25rem;">${hint}</div>` : ''}
+                        ${hint ? `<div class="form-hint">${hint}</div>` : ''}
                     </div>`;
             } else {
                 fieldsHtml += `
-                    <div class="form-group" style="margin-bottom:0.9rem;">
+                    <div class="form-group plugin-config-field">
                         ${inputHtml}
-                        ${hint ? `<div class="form-hint" style="font-size:0.72rem;color:var(--text-muted);margin-top:0.25rem;">${hint}</div>` : ''}
+                        ${hint ? `<div class="form-hint">${hint}</div>` : ''}
                     </div>`;
             }
         }
 
         const testId = `plugin-test-${escapeHtml(name)}`;
         return `
-            ${fieldsHtml || '<div style="color:var(--text-muted);font-size:0.83rem;padding:0.4rem 0;">' + plT('该插件无可配置项。') + '</div>'}
-            <div id="${testId}" style="display:none;margin-top:0.5rem;border-radius:6px;padding:0.5rem 0.75rem;font-size:0.78rem;"></div>
-            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                <button class="btn btn-sm btn-ghost" onclick="PluginManager.testConnection('${escapeHtml(name)}','${testId}')">${plT('测试连接')}</button>
-                <div style="flex:1;"></div>
+            <div class="plugin-config-form">
+            ${fieldsHtml || '<div class="plugin-config-empty">' + plT('该插件无可配置项。') + '</div>'}
+            <div id="${testId}" class="plugin-test-result" style="display:none;"></div>
+            <div class="plugin-config-actions">
+                <button class="btn btn-sm btn-secondary" onclick="PluginManager.testConnection('${escapeHtml(name)}','${testId}')">${plT('测试连接')}</button>
+                <div class="plugin-config-actions-spacer"></div>
                 <button class="btn btn-sm btn-primary" onclick="PluginManager.saveConfig('${escapeHtml(name)}')">${plT('保存')}</button>
+            </div>
             </div>`;
     }
 
@@ -555,7 +556,10 @@ const PluginManager = (() => {
 
     function openCustomInstallModal() {
         const modal = document.getElementById('pluginCustomInstallModal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
         const nameEl = document.getElementById('customPluginName');
         const urlEl  = document.getElementById('customPluginUrl');
         if (nameEl) nameEl.value = '';
@@ -564,7 +568,10 @@ const PluginManager = (() => {
 
     function closeCustomInstallModal() {
         const modal = document.getElementById('pluginCustomInstallModal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
     }
 
     async function customInstall() {
@@ -605,7 +612,7 @@ const PluginManager = (() => {
             label.innerHTML = `
                 <input type="radio" name="tempMailProvider" value="${escapeHtml(p.name)}">
                 <span class="provider-radio-label">
-                    <span class="provider-name">🧩 ${escapeHtml(p.display_name || p.name)}</span>
+                    <span class="provider-name">${escapeHtml(p.display_name || p.name)}</span>
                     <span class="provider-desc">第三方插件 Provider</span>
                  </span>`;
             group.appendChild(label);
@@ -644,7 +651,7 @@ const PluginManager = (() => {
             const opt = document.createElement('option');
             opt.value = p.name;
             opt.setAttribute('data-plugin', p.name);
-            opt.textContent = `🧩 ${p.display_name || p.name}`;
+            opt.textContent = `${p.display_name || p.name}`;
             sel.appendChild(opt);
         });
 
@@ -691,7 +698,7 @@ const PluginManager = (() => {
         if (!panel || panel.style.display === 'none' || !title || !body) return;
         if (_activeConfig && Array.isArray(_activeConfigFields)) {
             const plugin = _getInstalledPluginByName(_activeConfig);
-            title.textContent = '🧩 ' + ((plugin && (plugin.display_name || plugin.name)) || _activeConfig) + ' ' + plT('配置');
+            title.textContent = ((plugin && (plugin.display_name || plugin.name)) || _activeConfig) + ' ' + plT('配置');
             // Preserve in-progress field edits by reading current DOM values when possible.
             const liveConfig = { ...(_activeConfigValues || {}) };
             (_activeConfigFields || []).forEach(field => {
@@ -709,7 +716,7 @@ const PluginManager = (() => {
             _activeConfigValues = liveConfig;
             body.innerHTML = _renderConfigForm(_activeConfig, _activeConfigFields, liveConfig);
         } else if (!_activeConfig) {
-            title.textContent = '🧩 ' + plT('插件 Provider 配置');
+            title.textContent = plT('插件 Provider 配置');
             body.innerHTML = '<div class="form-hint">' + plT('请选择一个已安装插件 Provider。') + '</div>';
         }
     }

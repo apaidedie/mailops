@@ -148,16 +148,16 @@
                     <div class="account-card-top">
                         <div class="account-avatar" style="background:${color};">${initial}</div>
                         <div class="account-info">
-                            <div class="account-email" onclick="event.stopPropagation(); copyEmail('${escapeJs(email.email)}')" style="cursor:pointer;" title="${translateAppTextLocal('点击复制')}">${escapeHtml(email.email)}</div>
-                            <div style="font-size:0.72rem;color:var(--text-muted);">${translateAppTextLocal('⚡ 临时邮箱')}</div>
+                            <div class="account-email" onclick="event.stopPropagation(); copyEmail('${escapeJs(email.email)}')" title="${translateAppTextLocal('点击复制')}">${escapeHtml(email.email)}</div>
+                            <div class="account-kind-label">${translateAppTextLocal('临时邮箱')}</div>
                         </div>
                     </div>
                     <div class="account-card-bottom">
                         <div class="account-actions">
-                            <button class="btn btn-sm btn-accent" onclick="event.stopPropagation(); copyVerificationInfo('${escapeJs(email.email)}', this, { source: 'temp' })" title="${translateAppTextLocal('提取验证码')}" style="font-size:0.72rem;padding:2px 8px;">🔑 ${translateAppTextLocal('验证码')}</button>
-                            <button class="btn-icon" onclick="event.stopPropagation(); copyEmail('${escapeJs(email.email)}')" title="${translateAppTextLocal('复制')}">📋</button>
-                            <button class="btn-icon" onclick="event.stopPropagation(); clearTempEmailMessages('${escapeJs(email.email)}')" title="${translateAppTextLocal('清空')}">🧹</button>
-                            <button class="btn-icon" onclick="event.stopPropagation(); deleteTempEmail('${escapeJs(email.email)}')" title="${translateAppTextLocal('删除')}" style="color:var(--clr-danger);">🗑️</button>
+                            <button class="btn btn-sm btn-accent account-code-btn" onclick="event.stopPropagation(); copyVerificationInfo('${escapeJs(email.email)}', this, { source: 'temp' })" title="${translateAppTextLocal('提取验证码')}">${translateAppTextLocal('验证码')}</button>
+                            <button class="btn-icon" onclick="event.stopPropagation(); copyEmail('${escapeJs(email.email)}')" title="${translateAppTextLocal('复制')}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="1.5"/><path d="M6 16V5.5A1.5 1.5 0 0 1 7.5 4H15"/></svg></button>
+                            <button class="btn-icon" onclick="event.stopPropagation(); clearTempEmailMessages('${escapeJs(email.email)}')" title="${translateAppTextLocal('清空')}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7l.8 12h4.4L15 7M10 7V5h4v2"/></svg></button>
+                            <button class="btn-icon is-danger" onclick="event.stopPropagation(); deleteTempEmail('${escapeJs(email.email)}')" title="${translateAppTextLocal('删除')}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M8 7l1 12h6l1-12"/></svg></button>
                         </div>
                     </div>
                 </div>

@@ -52,8 +52,9 @@
             } else {
                 document.getElementById('emailList').innerHTML = `
                     <div class="empty-state">
-                        <span class="empty-icon">📬</span>
-                        <p>${translateAppTextLocal('点击"获取邮件"按钮获取邮件')}</p>
+                        <span class="empty-icon" aria-hidden="true"></span>
+                        <p class="ui-empty-title">${translateAppTextLocal('尚未加载邮件')}</p>
+                        <p class="ui-empty-desc">${translateAppTextLocal('点击右上角获取邮件开始拉取')}</p>
                     </div>
                 `;
                 document.getElementById('emailCount').textContent = '';
@@ -63,8 +64,9 @@
 
             document.getElementById('emailDetail').innerHTML = `
                 <div class="empty-state">
-                    <span class="empty-icon">📄</span>
-                    <p>${translateAppTextLocal('选择一封邮件查看详情')}</p>
+                    <span class="empty-icon" aria-hidden="true"></span>
+                    <p class="ui-empty-title">${translateAppTextLocal('邮件详情')}</p>
+                    <p class="ui-empty-desc">${translateAppTextLocal('选择一封邮件以查看正文与验证码')}</p>
                 </div>
             `;
             document.getElementById('emailDetailToolbar').style.display = 'none';
@@ -167,9 +169,12 @@
             loadProviders().finally(() => {
                 const sel = document.getElementById('accountProvider');
                 if (sel) {
+                    // Catalog may hang/fail; never leave the loading placeholder as the only option.
+                    ensureImportProviderSelectOptions(sel);
                     const preferred = ['auto', 'outlook']
                         .find(item => sel.querySelector(`option[value="${item}"]`));
                     if (preferred) sel.value = preferred;
+                    // Keep select.value and onProviderChange() in sync (empty value must not imply auto UI).
                     onProviderChange(sel.value || preferred || 'auto');
                 } else {
                     onProviderChange('auto');
@@ -198,9 +203,24 @@
 
         async function addAccount() {
             const input = document.getElementById('accountInput').value.trim();
-            const groupId = parseInt(document.getElementById('importGroupSelect').value);
+            const importGroupSelect = document.getElementById('importGroupSelect');
             const providerEl = document.getElementById('accountProvider');
-            const provider = providerEl ? (providerEl.value || 'outlook') : 'outlook';
+            // Recover if catalog paint never replaced the loading placeholder.
+            ensureImportProviderSelectOptions(providerEl);
+
+            let provider = providerEl ? String(providerEl.value || '').trim() : '';
+            // UI may already be in auto-group mode while select is still empty after failed paint.
+            if (!provider && importGroupSelect && importGroupSelect.disabled) {
+                provider = 'auto';
+                if (providerEl && providerEl.querySelector('option[value="auto"]')) {
+                    providerEl.value = 'auto';
+                }
+            }
+            if (!provider) provider = 'outlook';
+
+            const rawGroupValue = importGroupSelect ? String(importGroupSelect.value || '').trim() : '';
+            const parsedGroupId = rawGroupValue === '' ? NaN : parseInt(rawGroupValue, 10);
+            const groupId = Number.isFinite(parsedGroupId) ? parsedGroupId : NaN;
             const addToPool = Boolean(document.getElementById('addToPoolCheckbox')?.checked);
             const importedGroupId = resolveImportGroupId(groupId);
 
@@ -210,7 +230,7 @@
             }
 
             try {
-                const payload = { account_string: input, group_id: groupId, add_to_pool: addToPool };
+                const payload = { account_string: input, add_to_pool: addToPool };
 
                 if (provider === 'auto') {
                     payload.provider = 'auto';
@@ -223,8 +243,16 @@
                         payload.imap_host = fbHost;
                         payload.imap_port = fbPort || 993;
                     }
-                } else if (provider && provider !== 'outlook') {
-                    payload.provider = provider;
+                } else {
+                    // outlook / explicit IMAP providers require a real group id
+                    if (!importedGroupId) {
+                        showToast(translateAppTextLocal('请选择有效分组，或切换到智能识别自动分组'), 'error');
+                        return;
+                    }
+                    payload.group_id = importedGroupId;
+                    if (provider && provider !== 'outlook') {
+                        payload.provider = provider;
+                    }
                     if (provider === 'custom') {
                         const host = (document.getElementById('imapHost')?.value || '').trim();
                         const portRaw = (document.getElementById('imapPort')?.value || '').trim();

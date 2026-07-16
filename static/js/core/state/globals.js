@@ -14,7 +14,7 @@
         let groups = [];
         let accountsCache = {};
         let editingGroupId = null;
-        let selectedColor = '#B85C38';
+        let selectedColor = '#2563EB';
         let isTempEmailGroup = false;
         let tempEmailGroupId = null;
         let isLoadingMore = false;

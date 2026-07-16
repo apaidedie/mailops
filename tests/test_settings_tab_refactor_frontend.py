@@ -1165,24 +1165,26 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         command_center_text = js_text[command_center_start:command_center_end]
         self.assertLess(
             command_center_text.index("renderExternalApiOnboardingChecklist(onboardingSteps)"),
-            command_center_text.index("renderExternalApiSmokeCheckPanel()"),
-        )
-        self.assertLess(
-            command_center_text.index("renderExternalApiSmokeCheckPanel()"),
-            command_center_text.index("renderExternalApiContractCheckPanel()"),
-        )
-        self.assertLess(
-            command_center_text.index("renderExternalApiContractCheckPanel()"),
-            command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
-        )
-        self.assertLess(
-            command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
-            command_center_text.index("renderExternalApiHandoffKit(safeSettings, renderState, providerSummary)"),
-        )
-        self.assertLess(
-            command_center_text.index("renderExternalApiHandoffKit(safeSettings, renderState, providerSummary)"),
             command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
         )
+        self.assertLess(
+            command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
+            command_center_text.index("renderExternalApiSmokeCheckPanel()"),
+        )
+        self.assertLess(
+            command_center_text.index("renderExternalApiSmokeCheckPanel()"),
+            command_center_text.index("renderExternalApiContractCheckPanel()"),
+        )
+        self.assertLess(
+            command_center_text.index("renderExternalApiContractCheckPanel()"),
+            command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
+        )
+        self.assertLess(
+            command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
+            command_center_text.index("renderExternalApiHandoffKit(safeSettings, renderState, providerSummary)"),
+        )
+        self.assertIn("external-api-advanced-tools", command_center_text)
+        self.assertIn("external-api-contract-details", js_text)
         self.assertIn("mailboxProviderDiagnosticsCache", workbench_text)
         self.assertIn("mailboxProviderDeploymentProfileCache", workbench_text)
         self.assertIn("mailboxProviderIntegrationGuideCache", workbench_text)
@@ -1462,8 +1464,17 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         command_center_start = js_text.index("function renderExternalApiCommandCenter")
         command_center_end = js_text.index("async function copyExternalApiQuickstart", command_center_start)
         command_center_text = js_text[command_center_start:command_center_end]
+        # Primary band first (metrics), then checks; advanced tools stay later (collapsed).
+        self.assertLess(
+            command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
+            command_center_text.index("renderExternalApiSmokeCheckPanel()"),
+        )
         self.assertLess(
             command_center_text.index("renderExternalApiSmokeCheckPanel()"),
+            command_center_text.index("renderExternalApiContractCheckPanel()"),
+        )
+        self.assertLess(
+            command_center_text.index("renderExternalApiContractCheckPanel()"),
             command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
         )
         self.assertLess(
@@ -1473,15 +1484,12 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertLess(
             command_center_text.index("renderExternalApiHandoffKit(safeSettings, renderState, providerSummary)"),
             command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
-        )
-        self.assertLess(
-            command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
-            command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
         )
         self.assertLess(
             command_center_text.index("renderExternalApiBundleLaunchpad(safeSettings, renderState, providerSummary)"),
             command_center_text.index("renderOperationalReadinessConsole(safeSettings, renderState)"),
         )
+        self.assertIn("external-api-advanced-tools", command_center_text)
 
         bundle_start = js_text.index("function getExternalApiBundleEndpointDescriptor")
         bundle_end = js_text.index("function getOperationalReadinessMailboxSnapshot", bundle_start)
@@ -1618,13 +1626,14 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
             command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
         )
         self.assertLess(
-            command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
             command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
+            command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
         )
         self.assertLess(
             command_center_text.index("renderExternalApiConsumerUsageConsole(safeSettings)"),
             command_center_text.index("renderOperationalReadinessConsole(safeSettings, renderState)"),
         )
+        self.assertIn("external-api-advanced-tools", command_center_text)
 
     def test_provider_preflight_console_contract_is_secret_safe_and_provider_agnostic(self):
         """Provider 批量预检 UI 应只读 authenticated preflight payload 且不读取密钥输入。"""

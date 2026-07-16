@@ -4,8 +4,9 @@
             if (!listEl) return;
             listEl.innerHTML = `
                 <div class="empty-state">
-                    <span class="empty-icon">📬</span>
-                    <p>${getEmailListColdFetchPrompt(folder)}</p>
+                    <span class="empty-icon" aria-hidden="true"></span>
+                    <p class="ui-empty-title">${getEmailListColdFetchPrompt(folder)}</p>
+                    <p class="ui-empty-desc">${translateAppTextLocal('点击右上角获取邮件开始拉取')}</p>
                 </div>
             `;
         }
@@ -21,8 +22,9 @@
             if (emails.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <span class="empty-icon">📭</span>
-                        <p>${getEmailListEmptyMessage()}</p>
+                        <span class="empty-icon" aria-hidden="true"></span>
+                        <p class="ui-empty-title">${getEmailListEmptyMessage()}</p>
+                        <p class="ui-empty-desc">${translateAppTextLocal('可切换文件夹或稍后重新获取')}</p>
                     </div>
                 `;
                 selectedEmailIds.clear();
@@ -151,7 +153,7 @@
                                     background-color: transparent;
                                 }
                                 img { max-width: 100%; height: auto; }
-                                a { color: var(--clr-primary, #B85C38); }
+                                a { color: var(--clr-primary, #2563EB); }
                             </style>
                         </head>
                         <body>${sanitizedBody}</body>

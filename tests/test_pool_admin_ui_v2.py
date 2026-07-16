@@ -344,6 +344,7 @@ class PoolAdminDomStructureTests(PoolAdminUIv2Base):
 
     def test_flex_spacer_exists(self):
         """工具栏应有弹性空白区域分隔筛选和批量操作"""
+        self.assertIn("pool-admin-toolbar-spacer", self.html)
         self.assertIn("flex:1", self.html)
 
     def test_provider_filter_has_no_hardcoded_provider_options(self):

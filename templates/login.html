@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="/img/ico.png">
     <link rel="stylesheet" href="/static/css/core/tokens.css">
     <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/core/ui-modern.css?v=ui233">
     <style>
         body { margin: 0; }
     </style>
@@ -15,22 +16,27 @@
     <div id="auth-page">
         <div class="auth-card">
             <div class="auth-logo">
-                <div class="logo-icon">📬</div>
+                <div class="logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z"/>
+                        <path d="m5 8 6.15 4.25a1.5 1.5 0 0 0 1.7 0L19 8"/>
+                    </svg>
+                </div>
                 <h1>MailOps</h1>
                 <p>统一邮箱工作台 · 安全登录</p>
             </div>
 
-            <div id="errorMessage" class="form-error" style="display:none; margin-bottom:1rem; padding:0.7rem 1rem; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:var(--radius-sm);"></div>
+            <div id="errorMessage" class="form-error" style="display:none;" role="alert"></div>
 
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label class="form-label" for="password">登录密码</label>
-                    <input type="password" class="form-input" id="password" placeholder="请输入密码" autofocus required>
+                    <input type="password" class="form-input" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" autofocus required>
                 </div>
-                <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%; padding:0.7rem; font-size:0.95rem;">登 录</button>
+                <button type="submit" class="btn btn-primary" id="loginBtn">登 录</button>
             </form>
 
-            <p style="text-align:center; font-size:0.72rem; color:var(--text-muted); margin-top:1.5rem;">
+            <p class="auth-foot">
                 MailOps · 注册与验证场景邮箱运维
             </p>
         </div>

@@ -34,8 +34,8 @@
                         <span class="group-name">${escapeHtml(group.name)}</span>
                         <span class="badge-count">${group.account_count || 0}</span>
                         <div class="group-actions">
-                            ${!isSystem ? `<button class="btn-icon" onclick="event.stopPropagation(); editGroup(${group.id})" title="${translateAppTextLocal('编辑')}">✏️</button>` : ''}
-                            ${!isDefault && !isSystem ? `<button class="btn-icon" onclick="event.stopPropagation(); deleteGroup(${group.id})" title="${translateAppTextLocal('删除')}">🗑️</button>` : ''}
+                            ${!isSystem ? `<button class="btn-icon" onclick="event.stopPropagation(); editGroup(${group.id})" title="${translateAppTextLocal('编辑')}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"/></svg></button>` : ''}
+                            ${!isDefault && !isSystem ? `<button class="btn-icon is-danger" onclick="event.stopPropagation(); deleteGroup(${group.id})" title="${translateAppTextLocal('删除')}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M8 7l1 12h6l1-12"/></svg></button>` : ''}
                         </div>
                     </div>
                 `;
@@ -63,8 +63,9 @@
             if (accounts.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <span class="empty-icon">📭</span>
-                        <p>${translateAppTextLocal('该分组暂无邮箱')}</p>
+                        <span class="empty-icon" aria-hidden="true"></span>
+                        <p class="ui-empty-title">${translateAppTextLocal('该分组暂无邮箱')}</p>
+                        <p class="ui-empty-desc">${translateAppTextLocal('可导入账号或切换其他分组')}</p>
                     </div>
                 `;
                 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
@@ -82,7 +83,7 @@
             currentAccountPage = Number(pagination.page || 1);
             const pageAccounts = Array.isArray(accounts) ? accounts : [];
             const avatarGradients = [
-                ['#B85C38', '#E8734A'],  // 砖红→珊瑚
+                ['#2563EB', '#60A5FA'],  // tech blue
                 ['#3A7D44', '#5BAF6A'],  // 翠绿→嫩绿
                 ['#2E6B8A', '#4BA3CC'],  // 海蓝→天蓝
                 ['#8B5E3C', '#C8963E'],  // 棕→琥珀金
@@ -129,37 +130,36 @@
                                onchange="event.stopPropagation(); handleAccountSelectionChange(${acc.id}, this.checked)">
                         <div class="account-avatar" style="background: linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})">${initial}</div>
                         <div class="account-info">
-                            <div class="account-email"
+                            <div class="account-email ${isFailed ? 'is-failed' : ''}"
                                  onclick="event.stopPropagation(); copyEmail('${escapeJs(acc.email)}')"
-                                 title="${escapeHtml(translateAppTextLocal('点击复制邮箱地址'))}"
-                                 style="${isFailed ? 'color:var(--clr-danger);' : ''}cursor:pointer;">
+                                 title="${escapeHtml(translateAppTextLocal('点击复制邮箱地址'))}">
                                 ${escapeHtml(acc.email)}
                             </div>
-                            ${acc.remark && acc.remark.trim() ? `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">📝 ${escapeHtml(translateAppTextLocal('备注'))}: ${escapeHtml(acc.remark)}</div>` : ''}
-                            <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">
+                            ${acc.remark && acc.remark.trim() ? `<div class="account-remark">${escapeHtml(translateAppTextLocal('备注'))}: ${escapeHtml(acc.remark)}</div>` : ''}
+                            <div class="account-tag-row">
                                 ${providerTagHtml}
                                 ${(acc.tags || []).map(tag => `<span class="tag" style="background-color:${tag.color};color:white;">${escapeHtml(tag.name)}</span>`).join('')}
-                                ${notificationEnabled ? `<span class="tag tg-push-tag" onclick="event.stopPropagation(); toggleTelegramPush(${acc.id}, false)" title="${escapeHtml(translateAppTextLocal('点击关闭该邮箱通知参与'))}">🔔 ${escapeHtml(translateAppTextLocal('通知'))}</span>` : ''}
+                                ${notificationEnabled ? `<span class="tag tg-push-tag" onclick="event.stopPropagation(); toggleTelegramPush(${acc.id}, false)" title="${escapeHtml(translateAppTextLocal('点击关闭该邮箱通知参与'))}">${escapeHtml(translateAppTextLocal('通知'))}</span>` : ''}
                             </div>
                         </div>
                     </div>
                     <div class="account-card-bottom">
                         <div class="account-meta">
                             <span class="account-api-tag">${acc.method || defaultMethodLabel}</span>
-                            <span>🕐 ${formatRelativeTime(acc.last_refresh_at)}</span>
-                            ${isFailed ? `<button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); showRefreshError(${acc.id}, '${escapeJs(acc.last_refresh_error || '未知错误')}', '${escapeJs(acc.email)}', '${escapeJs(acc.account_type || 'outlook')}', '${escapeJs(acc.provider || 'outlook')}')" style="padding:1px 6px;font-size:0.65rem;">${escapeHtml(translateAppTextLocal('查看错误'))}</button>` : ''}
+                            <span class="account-refresh-time">${formatRelativeTime(acc.last_refresh_at)}</span>
+                            ${isFailed ? `<button class="btn btn-sm btn-danger account-error-btn" onclick="event.stopPropagation(); showRefreshError(${acc.id}, '${escapeJs(acc.last_refresh_error || '未知错误')}', '${escapeJs(acc.email)}', '${escapeJs(acc.account_type || 'outlook')}', '${escapeJs(acc.provider || 'outlook')}')">${escapeHtml(translateAppTextLocal('查看错误'))}</button>` : ''}
                         </div>
                         <div class="account-actions">
-                            <button class="btn-icon ${notificationEnabled ? 'tg-push-active' : ''}" onclick="event.stopPropagation(); toggleTelegramPush(${acc.id}, ${!notificationEnabled})" title="${escapeHtml(translateAppTextLocal(notificationEnabled ? '该邮箱通知参与（已开启）' : '开启该邮箱通知参与'))}">🔔</button>
-                            <button class="btn btn-sm btn-accent" onclick="event.stopPropagation(); copyVerificationInfo('${escapeJs(acc.email)}', this)" title="${escapeHtml(translateAppTextLocal('验证码'))}" style="font-size:0.72rem;padding:2px 8px;">🔑 ${escapeHtml(translateAppTextLocal('验证码'))}</button>
-                            <button class="btn-icon" onclick="event.stopPropagation(); copyEmail('${escapeJs(acc.email)}')" title="${escapeHtml(translateAppTextLocal('复制'))}">📋</button>
+                            <button class="btn-icon ${notificationEnabled ? 'tg-push-active' : ''}" onclick="event.stopPropagation(); toggleTelegramPush(${acc.id}, ${!notificationEnabled})" title="${escapeHtml(translateAppTextLocal(notificationEnabled ? '该邮箱通知参与（已开启）' : '开启该邮箱通知参与'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                            <button class="btn btn-sm btn-accent account-code-btn" onclick="event.stopPropagation(); copyVerificationInfo('${escapeJs(acc.email)}', this)" title="${escapeHtml(translateAppTextLocal('验证码'))}">${escapeHtml(translateAppTextLocal('验证码'))}</button>
+                            <button class="btn-icon" onclick="event.stopPropagation(); copyEmail('${escapeJs(acc.email)}')" title="${escapeHtml(translateAppTextLocal('复制'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="1.5"/><path d="M6 16V5.5A1.5 1.5 0 0 1 7.5 4H15"/></svg></button>
                             ${isCfPoolAccount
-                                ? `<button class="btn-icon" disabled title="${escapeHtml(translateAppTextLocal('邮箱池管理的账号不支持编辑'))}" style="opacity:0.3;cursor:not-allowed;">✏️</button>`
-                                : `<button class="btn-icon" onclick="event.stopPropagation(); showEditAccountModal(${acc.id})" title="${escapeHtml(translateAppTextLocal('编辑'))}">✏️</button>`
+                                ? `<button class="btn-icon is-disabled" disabled title="${escapeHtml(translateAppTextLocal('邮箱池管理的账号不支持编辑'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"/></svg></button>`
+                                : `<button class="btn-icon" onclick="event.stopPropagation(); showEditAccountModal(${acc.id})" title="${escapeHtml(translateAppTextLocal('编辑'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"/></svg></button>`
                             }
                             ${isCfPoolAccount
-                                ? `<button class="btn-icon" disabled title="${escapeHtml(translateAppTextLocal('邮箱池管理的账号不支持手动删除'))}" style="opacity:0.3;cursor:not-allowed;color:var(--clr-danger);">🗑️</button>`
-                                : `<button class="btn-icon" onclick="event.stopPropagation(); deleteAccount(${acc.id}, '${escapeJs(acc.email)}')" title="${escapeHtml(translateAppTextLocal('删除'))}" style="color:var(--clr-danger);">🗑️</button>`
+                                ? `<button class="btn-icon is-disabled is-danger" disabled title="${escapeHtml(translateAppTextLocal('邮箱池管理的账号不支持手动删除'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M8 7l1 12h6l1-12"/></svg></button>`
+                                : `<button class="btn-icon is-danger" onclick="event.stopPropagation(); deleteAccount(${acc.id}, '${escapeJs(acc.email)}')" title="${escapeHtml(translateAppTextLocal('删除'))}"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M8 7l1 12h6l1-12"/></svg></button>`
                             }
                         </div>
                     </div>

@@ -6,9 +6,12 @@
             localStorage.setItem('ol_theme', theme);
             const btn = document.getElementById('themeToggleBtn');
             if (btn) {
-                btn.textContent = theme === 'dark'
-                    ? translateAppTextLocal('☀ 浅色模式')
-                    : translateAppTextLocal('☾ 深色模式');
+                const label = btn.querySelector('.theme-toggle-label');
+                const text = theme === 'dark'
+                    ? translateAppTextLocal('浅色模式')
+                    : translateAppTextLocal('深色模式');
+                if (label) label.textContent = text;
+                else btn.textContent = text;
             }
         }
 
@@ -122,7 +125,7 @@
                     if (typeof currentSettingsTab === 'undefined' || !currentSettingsTab) {
                         currentSettingsTab = 'basic';
                     }
-                    loadSettings(false);
+                    loadSettings();
                 }
                 if (page === 'refresh-log') loadRefreshLogPage();
                 if (page === 'pool-admin' && typeof loadPoolAdmin === 'function') loadPoolAdmin(false);
@@ -142,13 +145,13 @@
             const actionsEl = document.getElementById('topbar-actions');
             const mailboxViewModeTemplate = document.getElementById('mailboxViewModeSwitcherTemplate');
             const titles = {
-                'dashboard': ['数据概览', '统一邮箱服务运营看板'],
+                'dashboard': ['数据概览', '一眼看清库存、健康与接入状态'],
                 'mailbox': ['统一邮箱工作台', '聚合账号库存、Provider 路由与外部会话入口'],
-                'temp-emails': ['临时邮箱', '创建和管理临时邮箱'],
-                'refresh-log': ['刷新日志', 'Token 刷新历史记录'],
-                'settings': ['系统设置', '配置系统参数'],
-                'pool-admin': ['号池管理', '邮箱池状态维护与调度'],
-                'audit': ['审计日志', '系统操作记录']
+                'temp-emails': ['临时邮箱', '创建、查看与管理临时邮箱'],
+                'refresh-log': ['刷新日志', '查看 Token 刷新历史'],
+                'settings': ['系统设置', '密码、临时邮箱、API 安全与自动化'],
+                'pool-admin': ['号池管理', '维护池内状态、领取与调度'],
+                'audit': ['审计日志', '查看设置与接口操作轨迹']
             };
             const t = titles[page] || [page, ''];
             if (titleEl) titleEl.textContent = translateAppTextLocal(t[0]);
@@ -164,9 +167,9 @@
                         ${switcherHtml}
                     ` : `
                         ${switcherHtml}
-                        <button class="btn-inline primary" onclick="showAddAccountModal()">＋ 添加账号</button>
-                        <button class="btn-inline ghost" onclick="showExportModal()">📤 导出</button>
-                        <button class="btn-inline ghost" onclick="showRefreshModal()">🔄 全量刷新 Token</button>
+                        <button class="btn-inline primary" type="button" onclick="showAddAccountModal()">添加账号</button>
+                        <button class="btn-inline ghost" type="button" onclick="showExportModal()">导出</button>
+                        <button class="btn-inline ghost" type="button" onclick="showRefreshModal()">全量刷新 Token</button>
                     `;
                     actionsEl.classList.toggle('topbar-actions-compact', isCompactMode || isUnifiedMode);
                     if (subtitleEl) {
@@ -188,7 +191,7 @@
                     }
                 } else if (page === 'temp-emails') {
                     actionsEl.innerHTML = `
-                        <button class="btn btn-sm btn-primary" onclick="generateTempEmail()">＋ 创建邮箱</button>
+                        <button class="btn btn-sm btn-primary" type="button" onclick="generateTempEmail()">创建邮箱</button>
                     `;
                 } else {
                     actionsEl.innerHTML = '';

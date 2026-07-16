@@ -586,26 +586,29 @@
             const logs = data && Array.isArray(data.logs) ? data.logs : [];
             if (logs.length > 0) {
                 container.innerHTML = `
-                    <div style="padding:0.6rem 1rem;font-size:0.78rem;color:var(--text-muted);border-bottom:1px solid var(--border-light);">
+                    <div class="ops-log-meta">
                         ${translateAppTextLocal(`共 ${logs.length} 条记录`)}
                     </div>
-                    <div class="dashboard-list-wrap">
+                    <div class="ops-log-list dashboard-list-wrap">
                         ${logs.map(log => {
                             const isSuccess = log.status === 'success';
                             const statusBadge = isSuccess
-                                ? `<span class="badge" style="background:var(--clr-jade);color:white;">${translateAppTextLocal('成功')}</span>`
-                                : `<span class="badge" style="background:var(--clr-danger);color:white;">${translateAppTextLocal('失败')}</span>`;
+                                ? `<span class="badge ops-log-badge ops-log-badge--ok">${translateAppTextLocal('成功')}</span>`
+                                : `<span class="badge ops-log-badge ops-log-badge--fail">${translateAppTextLocal('失败')}</span>`;
                             const typeText = translateAppTextLocal(
                                 log.refresh_type === 'manual' ? '手动' : (log.refresh_type === 'scheduled' ? '定时' : (log.refresh_type || '-'))
                             );
                             return `
-                                <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:0.8rem;">
-                                    <div style="flex:1;min-width:0;">
-                                        <div style="font-weight:600;font-size:0.85rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(log.account_email || '-')}</div>
-                                        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${formatDateTime(log.created_at)} · ${escapeHtml(typeText)}</div>
-                                        ${log.error_message ? `<div style="font-size:0.72rem;color:var(--clr-danger);margin-top:4px;padding:4px 8px;background:rgba(185,28,28,0.06);border-radius:4px;">${escapeHtml(log.error_message)}</div>` : ''}
+                                <div class="ops-log-row refresh-log-item" data-status="${isSuccess ? 'success' : 'fail'}">
+                                    <div class="ops-log-main">
+                                        <div class="ops-log-head">
+                                            ${statusBadge}
+                                            <span class="ops-log-kind">${escapeHtml(typeText)}</span>
+                                            <span class="ops-log-time">${formatDateTime(log.created_at)}</span>
+                                        </div>
+                                        <div class="ops-log-title">${escapeHtml(log.account_email || '-')}</div>
+                                        ${log.error_message ? `<div class="ops-log-error">${escapeHtml(log.error_message)}</div>` : ''}
                                     </div>
-                                    ${statusBadge}
                                 </div>
                             `;
                         }).join('')}

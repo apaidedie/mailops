@@ -23,10 +23,13 @@
                 .filter(item => String(item?.kind || '').trim().toLowerCase() === 'account')
                 .map(normalizeImportAccountProviderOption)
                 .filter(Boolean);
-            if (catalogAccountOptions.length) return catalogAccountOptions;
+            if (catalogAccountOptions.length) {
+                return ensureAutoImportProviderOption(catalogAccountOptions);
+            }
 
             const legacy = Array.isArray(payload.providers) ? payload.providers : [];
-            return legacy.map(normalizeImportAccountProviderOption).filter(Boolean);
+            const legacyOptions = legacy.map(normalizeImportAccountProviderOption).filter(Boolean);
+            return ensureAutoImportProviderOption(legacyOptions);
         }
 
         async function loadProviders(forceRefresh = false) {
@@ -35,11 +38,12 @@
             if (!select) return providerOptions;
 
             const applyImportProviderOptions = (options) => {
-                if (!Array.isArray(options) || !options.length) throw new Error('providers_empty');
+                const normalized = ensureAutoImportProviderOption(options);
+                if (!Array.isArray(normalized) || !normalized.length) throw new Error('providers_empty');
 
                 // Keep auto first when present for operator ergonomics.
-                const autoOptions = options.filter(item => item.key === 'auto');
-                const otherOptions = options.filter(item => item.key !== 'auto');
+                const autoOptions = normalized.filter(item => item.key === 'auto');
+                const otherOptions = normalized.filter(item => item.key !== 'auto');
                 providerOptions = [...autoOptions, ...otherOptions];
                 providersLoaded = true;
 
@@ -139,25 +143,11 @@
                     if (providersLoadPromise !== request) return providerOptions;
                     // Keep a minimal fallback so import remains usable offline.
                     // Paint fallback options only while the add-account modal is open.
-                    if (isAddAccountModalOpen()) {
-                        if (!select.options.length || !select.querySelector('option[value="outlook"]')) {
-                            select.innerHTML = [
-                                `<option value="auto">${escapeHtml(translateAppTextLocal('🔍 智能识别（混合导入）'))}</option>`,
-                                `<option value="outlook">${escapeHtml(translateAppTextLocal('Outlook'))}</option>`,
-                            ].join('');
-                        }
-                        providerOptions = Array.from(select.options).map(option => ({
-                            key: option.value,
-                            label: option.textContent || option.value,
-                            note: '',
-                            account_type: option.value === 'auto' ? 'mixed' : 'outlook',
-                        }));
-                        updateAccountProviderNote(select.value);
-                    } else if (!providerOptions.length) {
-                        providerOptions = [
-                            { key: 'auto', label: '🔍 智能识别（混合导入）', note: '', account_type: 'mixed' },
-                            { key: 'outlook', label: 'Outlook', note: '', account_type: 'outlook' },
-                        ];
+                    // Always recover from stuck "加载 Provider 目录…" placeholder.
+                    ensureImportProviderSelectOptions(select);
+                    if (!providerOptions.length) {
+                        providerOptions = getDefaultImportAccountProviderOptions();
+                        providersLoaded = true;
                     }
                 }
                 return providerOptions;

@@ -332,17 +332,17 @@ function debouncePoolAdminSearch() {
 // 设计决策 (FD/1.2.1): 空值不渲染原始 "NULL"/"-" 文本，而是用 CSS 弱化
 function renderCell(text, fallback) {
     if (text === null || text === undefined || text === '' || text === 'NULL' || text === fallback) {
-        return `<span style="color:var(--text-muted);opacity:0.5;font-style:italic;">${fallback || '-'}</span>`;
+        return `<span class="pa-cell-empty">${fallback || '-'}</span>`;
     }
     return escapeHtml(String(text));
 }
 
 // actionLink — 行内操作渲染为文字链接而非实体按钮
 // 设计权衡 (PRD/用户反馈): 实体 btn 权重过高喧宾夺主，改为 <a> + hover 背景效果
-// 颜色语义: 主操作蓝色(var(--clr-primary))、危险红色(var(--clr-danger))、常规灰色
+// 颜色语义: 主操作 primary、危险 danger、常规 muted
 function actionLink(label, onclick, color) {
-    const c = color || 'var(--clr-primary)';
-    return `<a href="javascript:void(0)" onclick="${onclick}" style="color:${c};font-size:0.78rem;text-decoration:none;white-space:nowrap;padding:2px 6px;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background='rgba(0,0,0,0.04)'" onmouseout="this.style.background='transparent'">${paT(label)}</a>`;
+    const tone = color === 'var(--clr-danger)' ? 'danger' : (color === 'var(--text-muted)' ? 'muted' : 'primary');
+    return `<a href="javascript:void(0)" class="pa-action-link pa-action-link--${tone}" onclick="${onclick}">${paT(label)}</a>`;
 }
 
 // buildPagination — 省略号折叠分页器
@@ -363,10 +363,10 @@ function buildPagination(current, total) {
     if (total > 1) range.push(total);
 
     return range.map(p => {
-        if (p === '...') return `<span style="color:var(--text-muted);padding:0 4px;">…</span>`;
+        if (p === '...') return `<span class="pa-page-ellipsis pager-ellipsis">…</span>`;
         const active = p === current;
-        const cls = active ? 'btn-primary' : 'btn-ghost';
-        return `<button class="btn btn-sm ${cls}" onclick="goPoolAdminPage(${p})" ${active ? 'disabled' : ''}>${p}</button>`;
+        const cls = active ? 'pager-btn active' : 'pager-btn';
+        return `<button type="button" class="${cls}" onclick="goPoolAdminPage(${p})" ${active ? 'aria-current="page" disabled' : ''}>${p}</button>`;
     }).join('');
 }
 
@@ -504,19 +504,19 @@ function renderPoolAdmin(data) {
         }
 
         const claimedInfo = isClaimed
-            ? `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${paT('占用方')}: ${escapeHtml(item.claimed_by || '')} · ${escapeHtml(item.claimed_at || '').slice(0, 16)}</div>`
+            ? `<div class="pa-claimed-meta">${paT('占用方')}: ${escapeHtml(item.claimed_by || '')} · ${escapeHtml(item.claimed_at || '').slice(0, 16)}</div>`
             : '';
 
         return `<tr>
-            <td style="white-space:nowrap;width:28px;"><input type="checkbox" class="pa-row-check" data-id="${item.id}" ${checked} onchange="togglePoolAdminRow(${item.id}, this.checked)"></td>
-            <td style="white-space:nowrap;font-weight:500;">${escapeHtml(item.email)}</td>
+            <td class="pa-col-check"><input type="checkbox" class="pa-row-check" data-id="${item.id}" ${checked} onchange="togglePoolAdminRow(${item.id}, this.checked)"></td>
+            <td class="pa-col-email">${escapeHtml(item.email)}</td>
             <td>${renderCell(item.group_name, '-')}</td>
             <td>${renderCell(item.provider, '-')}</td>
             <td><span class="${statusInfo.cls}">${paT(statusInfo.text)}</span></td>
             <td>${renderCell(item.last_result, '-')}</td>
-            <td style="min-width:180px;">
+            <td class="pa-col-actions">
                 ${claimedInfo}
-                <div style="display:flex;gap:2px;flex-wrap:wrap;align-items:center;">${actionsHtml}</div>
+                <div class="pa-action-row">${actionsHtml}</div>
             </td>
         </tr>`;
     }).join('');
@@ -524,11 +524,11 @@ function renderPoolAdmin(data) {
     // 全选 checkbox 状态
     const allChecked = items.length > 0 && items.every(item => __poolAdminState.selectedIds.has(item.id));
 
-    wrapper.innerHTML = `<div class="table-responsive">
-        <table class="data-table data-table--pool-admin">
+    wrapper.innerHTML = `<div class="table-responsive data-table-shell pool-admin-table-shell">
+        <table class="data-table data-table--pool-admin sticky-first-col">
             <thead>
                 <tr>
-                    <th style="width:28px;"><input type="checkbox" id="paCheckAll" ${allChecked ? 'checked' : ''} onchange="togglePoolAdminAll(this.checked)"></th>
+                    <th class="pa-col-check"><input type="checkbox" id="paCheckAll" ${allChecked ? 'checked' : ''} onchange="togglePoolAdminAll(this.checked)"></th>
                     <th>${paT('邮箱')}</th>
                     <th>${paT('分组')}</th>
                     <th>${paT('类型')}</th>
@@ -549,12 +549,12 @@ function renderPoolAdmin(data) {
         const totalPages = data.total_pages || 1;
         if (totalPages > 1) {
             const pagesHtml = buildPagination(page, totalPages);
-            paginationEl.innerHTML = `<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;">
-                <span style="color:var(--text-muted);font-size:0.78rem;margin-right:8px;">${paT('共 ' + total + ' 条 · 第 ' + page + '/' + totalPages + ' 页')}</span>
+            paginationEl.innerHTML = `<div class="pa-pagination pager">
+                <span class="pa-pagination-meta pager-meta">${paT('共 ' + total + ' 条 · 第 ' + page + '/' + totalPages + ' 页')}</span>
                 ${pagesHtml}
             </div>`;
         } else {
-            paginationEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.78rem;">${paT('共 ' + total + ' 条')}</div>`;
+            paginationEl.innerHTML = `<div class="pa-pagination-meta pa-pagination-meta--center pager-meta">${paT('共 ' + total + ' 条')}</div>`;
         }
     }
 

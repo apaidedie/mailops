@@ -216,7 +216,7 @@ def get_provider_list() -> List[Dict[str, Any]]:
     result: List[Dict[str, Any]] = [
         {
             "key": "auto",
-            "label": "🔍 智能识别（混合导入）",
+            "label": "智能识别（混合导入）",
             "account_type": "mixed",
             "note": "自动识别每行的账号类型，支持混合文件一键导入",
         }

@@ -186,7 +186,7 @@
                         // 仅当前最新请求结束时才恢复按钮状态，避免旧请求提前解锁。
                         if (requestSeq === tempEmailMessagesRequestSeq) {
                             refreshBtn.disabled = false;
-                            refreshBtn.textContent = translateAppTextLocal('🔄 获取邮件');
+                            refreshBtn.innerHTML = `<svg class="ui-icon ui-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.8-4.2L4 9h5V4L7.1 5.9M4 13a8 8 0 0 0 14.8 4.2L20 15h-5v5l1.9-1.9"/></svg>${translateAppTextLocal('获取邮件')}`;
                         }
                     }
                 }

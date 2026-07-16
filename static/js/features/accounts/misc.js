@@ -11,6 +11,52 @@
             };
         }
 
+        function getDefaultImportAccountProviderOptions() {
+            return [
+                {
+                    key: 'auto',
+                    label: '智能识别（混合导入）',
+                    note: '自动识别每行的账号类型，支持混合文件一键导入',
+                    account_type: 'mixed',
+                },
+                {
+                    key: 'outlook',
+                    label: 'Outlook',
+                    note: '',
+                    account_type: 'outlook',
+                },
+            ];
+        }
+
+        function ensureAutoImportProviderOption(options) {
+            const list = Array.isArray(options) ? options.filter(Boolean) : [];
+            if (!list.some(item => String(item.key || '').trim().toLowerCase() === 'auto')) {
+                list.unshift(getDefaultImportAccountProviderOptions()[0]);
+            }
+            return list;
+        }
+
+        /** Paint usable provider options if catalog never arrived (avoid stuck "加载 Provider 目录…"). */
+        function ensureImportProviderSelectOptions(selectEl) {
+            const select = selectEl || document.getElementById('accountProvider');
+            if (!select) return false;
+            if (select.querySelector('option[value="auto"]') || select.querySelector('option[value="outlook"]')) {
+                return true;
+            }
+            const fallback = getDefaultImportAccountProviderOptions();
+            providerOptions = fallback.slice();
+            providersLoaded = true;
+            if (typeof isAddAccountModalOpen === 'function' ? isAddAccountModalOpen() : true) {
+                select.innerHTML = fallback.map(p => (
+                    `<option value="${escapeHtml(p.key)}">${escapeHtml(translateAppTextLocal(p.label || p.key))}</option>`
+                )).join('');
+                if (typeof updateAccountProviderNote === 'function') {
+                    updateAccountProviderNote(select.value);
+                }
+            }
+            return true;
+        }
+
         function findImportAccountProviderOption(providerName) {
             const key = String(providerName || '').trim().toLowerCase();
             return providerOptions.find(item => String(item.key || '').trim().toLowerCase() === key) || null;

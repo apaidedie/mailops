@@ -176,10 +176,11 @@ function loadPackage(dir) {
   const order = JSON.parse(fs.readFileSync(path.join(dir, '_load_order.json'), 'utf8'));
   return order.map((name) => fs.readFileSync(path.join(dir, name), 'utf8')).join('\n');
 }
-const singleFiles = ['poll-ui.js', 'nav.js', 'http.js', 'utils.js', 'settings.js'];
+const singleFiles = ['poll-ui.js', 'nav.js', 'http.js', 'utils.js'];
 const code = [
   loadPackage(path.join(coreDir, 'state')),
   ...singleFiles.map((name) => fs.readFileSync(path.join(coreDir, name), 'utf8')),
+  loadPackage(path.join(coreDir, 'settings')),
   loadPackage(path.join(coreDir, 'admin')),
 ].join('\n');
 const filePath = path.join(coreDir, 'http.js');

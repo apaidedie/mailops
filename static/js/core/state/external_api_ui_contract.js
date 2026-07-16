@@ -583,7 +583,12 @@
                     '</div>',
                     `<div class="external-api-contract-safety">${safetyItems.map(item => `<span data-pass="${item.passed ? 'true' : 'false'}">${escapeHtml(translateAppTextLocal(item.label))}</span>`).join('')}</div>`,
                     visibleGroups.length
-                        ? `<div class="external-api-contract-groups">${visibleGroups.map(renderExternalApiContractCheckGroup).join('')}</div>`
+                        ? [
+                            '<details class="external-api-contract-details">',
+                            `<summary class="external-api-contract-details-summary">${escapeHtml(translateAppTextLocal('查看校验明细'))}<span class="external-api-contract-details-meta">${escapeHtml(String(summary.passed || 0))}/${escapeHtml(String(summary.total || 0))}</span></summary>`,
+                            `<div class="external-api-contract-groups">${visibleGroups.map(renderExternalApiContractCheckGroup).join('')}</div>`,
+                            '</details>',
+                        ].join('')
                         : `<div class="external-api-command-empty">${escapeHtml(translateAppTextLocal(tone.status === 'loading' ? '校验中' : '暂无契约校验结果'))}</div>`,
                     visibleActions.length
                         ? `<div class="external-api-contract-actions">${visibleActions.map(renderExternalApiContractCheckAction).join('')}</div>`

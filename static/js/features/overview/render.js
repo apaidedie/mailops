@@ -104,7 +104,7 @@ function renderOverviewCommandCenter(commandCenter) {
                     <span class="ov-card-code">MAIL</span>
                     <div>
                         <h3>${esc(ovT('统一邮箱指挥台'))}</h3>
-                        <p>${esc(ovT('聚合邮箱、Provider 与外部 API 接入状态'))}</p>
+                        <p>${esc(ovT('一眼看清邮箱库存、服务就绪与外部接入'))}</p>
                     </div>
                 </div>
                 <span class="ov-command-status" data-tone="${esc(overallTone)}">${esc(formatOverviewCommandStatus(overallStatus))}</span>

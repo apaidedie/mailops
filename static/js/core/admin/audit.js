@@ -54,25 +54,27 @@
             const logs = data && Array.isArray(data.logs) ? data.logs : [];
             if (logs.length > 0) {
                 container.innerHTML = `
-                    <div style="padding:0.6rem 1rem;font-size:0.78rem;color:var(--text-muted);border-bottom:1px solid var(--border-light);">
+                    <div class="ops-log-meta">
                         ${translateAppTextLocal(`共 ${data.total || logs.length} 条记录`)}
                     </div>
-                    <div class="dashboard-list-wrap">
+                    <div class="ops-log-list dashboard-list-wrap">
                         ${logs.map(log => {
-                            const actionColor = log.action === 'delete' ? 'var(--clr-danger)' : (log.action === 'create' ? 'var(--clr-jade)' : 'var(--clr-primary)');
+                            const actionTone = log.action === 'delete' ? 'danger' : (log.action === 'create' ? 'success' : 'primary');
                             const actionLabel = translateAppTextLocal(log.action || '-');
                             const resourceTypeLabel = translateAppTextLocal(log.resource_type || '-');
                             const detailText = formatAuditDetailText(log.details);
                             return `
-                                <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border-light);">
-                                    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:4px;">
-                                        <span class="badge" style="background:${actionColor};color:white;font-size:0.68rem;">${escapeHtml(actionLabel)}</span>
-                                        <span style="font-size:0.78rem;color:var(--text-muted);">${escapeHtml(resourceTypeLabel)}</span>
-                                        <span style="font-size:0.72rem;color:var(--text-muted);margin-left:auto;">${formatDateTime(log.created_at)}</span>
+                                <div class="ops-log-row audit-log-item" data-tone="${actionTone}">
+                                    <div class="ops-log-main">
+                                        <div class="ops-log-head">
+                                            <span class="badge ops-log-badge ops-log-badge--${actionTone === 'danger' ? 'fail' : (actionTone === 'success' ? 'ok' : 'info')}">${escapeHtml(actionLabel)}</span>
+                                            <span class="ops-log-kind">${escapeHtml(resourceTypeLabel)}</span>
+                                            <span class="ops-log-time">${formatDateTime(log.created_at)}</span>
+                                        </div>
+                                        <div class="ops-log-title">${escapeHtml(log.resource_id || '-')}</div>
+                                        ${detailText ? `<div class="ops-log-detail">${escapeHtml(detailText).substring(0, 200)}</div>` : ''}
+                                        <div class="ops-log-sub">IP: ${escapeHtml(log.user_ip || '-')} ${log.trace_id ? '· trace: ' + escapeHtml(log.trace_id) : ''}</div>
                                     </div>
-                                    <div style="font-size:0.82rem;color:var(--text);">${escapeHtml(log.resource_id || '-')}</div>
-                                    ${detailText ? `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;word-break:break-all;">${escapeHtml(detailText).substring(0, 200)}</div>` : ''}
-                                    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">IP: ${escapeHtml(log.user_ip || '-')} ${log.trace_id ? '· trace: ' + escapeHtml(log.trace_id) : ''}</div>
                                 </div>
                             `;
                         }).join('')}
