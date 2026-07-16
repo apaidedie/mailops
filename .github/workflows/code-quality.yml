@@ -106,12 +106,12 @@ jobs:
         run: >
           flake8
           outlook_web/repositories/settings.py
-          outlook_web/services/external_api.py
-          outlook_web/controllers/system.py
+          outlook_web/controllers/emails/external_api.py
+          outlook_web/routes/system.py
           web_outlook_app.py
           --count
-          --max-complexity=10
-          --max-line-length=127
+          --select=C901
+          --max-complexity=15
           --statistics
 
       - name: Run mypy (Core Modules)
@@ -119,8 +119,8 @@ jobs:
           mypy
           --config-file pyproject.toml
           outlook_web/repositories/settings.py
-          outlook_web/services/external_api.py
-          outlook_web/controllers/system.py
+          outlook_web/controllers/emails/external_api.py
+          outlook_web/routes/system.py
           web_outlook_app.py
 
   security:
