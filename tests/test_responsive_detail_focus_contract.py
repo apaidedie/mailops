@@ -1,4 +1,3 @@
-from tests.frontend_js_bundle import load_feature_package_js
 """响应式 detail-focus 机制与 groups 折叠 — 前端契约测试
 
 覆盖范围:
@@ -10,11 +9,11 @@ from tests.frontend_js_bundle import load_feature_package_js
 
 from __future__ import annotations
 
-from tests.frontend_js_bundle import load_frontend_app_js
 import re
 import unittest
 
 from tests._import_app import import_web_app_module
+from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
 class ResponsiveDetailFocusContractTests(unittest.TestCase):
