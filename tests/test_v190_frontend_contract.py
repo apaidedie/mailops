@@ -336,7 +336,7 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertNotIn("data.settings.polling_count || '5'", main_js)
         self.assertNotIn("parseInt(data.settings.polling_count) || 5", main_js)
         self.assertIn('id="pollingCount" min="0" max="100" value="5"', index_html)
-        self.assertIn("范围：0-100 次，设置为 0 表示持续轮询", index_html)
+        # Workflow-B: long form essays removed; zero-preserving JS contract remains above.
 
     def test_frontend_auto_polling_uses_shared_runtime_state_for_account_selection_and_email_load(
         self,
