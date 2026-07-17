@@ -4,6 +4,8 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ## [Unreleased]
 
+## [v2.7.1] - 2026-07-18
+
 ### 改进 / Improvements
 
 - **UI 工作流精简 A–E（方案 B 延续）**：管理台默认面向日常运维，去掉指挥台营销壳，高级能力折叠保留。
@@ -14,18 +16,23 @@ All notable changes to OutlookMail Plus are documented in this file.
   - **E 全局壳层**：导航与顶栏词表压缩（概览/邮箱/号池…）；模式切换「统一/账号/紧凑」；i18n 指挥台类用语收口；登录页文案简化。
   - CSS 缓存：`ui-modern.css` 递增至 `ui244`。
   - 设计/计划文档：`docs/superpowers/specs/2026-07-18-ui-workflow-polish-ae-design.md`、`docs/superpowers/plans/2026-07-18-ui-polish-a-mailbox.md`。
+  - 走查脚本入库：`scripts/ui_walkthrough_ae.py`、`scripts/ui_walkthrough_ae_extended.py`。
+
+### 修复 / Bug Fixes
+
+- **Issue #65 Watchtower 容器镜像过时**：`docker-compose.yml` 中固定 Watchtower 版本为 `containrrr/watchtower:1.7.1`，避免本地缓存的旧版镜像（内嵌 Docker 客户端 API 1.25）连接新版本 Docker Engine（要求 API 1.44+）时失败。README 新增故障排查指引。
+
+### 重要变更 / Important Changes
+
+- 版本号从 `2.7.0` 升级至 `2.7.1`（`outlook_web.__version__` / `package.json`）。
 
 ### 测试/验证 / Testing & Verification
 
 - 前端合同测试同步更新（v190 / v191 / unified mailbox / settings tab / overview i18n）。
 - 本地 Playwright 走查（demo 库）：
-  - 桌面浅色主路径 **21/21**（`output/playwright/ui_walkthrough_ae.py`）
-  - 暗色 + 窄屏扩展 **55/55**（desktop/tablet/mobile × light/dark，`output/playwright/ui_walkthrough_ae_extended.py`；截图同目录，gitignore）
+  - 桌面浅色主路径 **21/21**
+  - 暗色 + 窄屏扩展 **55/55**（desktop/tablet/mobile × light/dark）
 - `main` 发布链路：Code Quality + Python Tests + Docker Build/Push 绿灯（SonarCloud 仍为独立非门禁失败）。
-
-### 修复 / Bug Fixes
-
-- **Issue #65 Watchtower 容器镜像过时**：`docker-compose.yml` 中固定 Watchtower 版本为 `containrrr/watchtower:1.7.1`，避免本地缓存的旧版镜像（内嵌 Docker 客户端 API 1.25）连接新版本 Docker Engine（要求 API 1.44+）时失败。README 新增故障排查指引。
 
 ## [v2.7.0] - 2026-05-29
 

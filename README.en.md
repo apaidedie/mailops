@@ -49,7 +49,7 @@ The repository already includes some screenshots, and more can be added later.
 
 ## Version Highlights
 
-Current stable version: `v2.7.0`
+Current stable version: `v2.7.1`
 
 ### Recent Version Overview
 
