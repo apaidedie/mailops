@@ -171,3 +171,42 @@ Split state provider_catalog and external_api_ui into modules; skipped schema II
 ### Next Steps
 
 - None - task complete
+
+
+## Session 159: UI workflow polish A-E (scheme B thin pass)
+
+**Date**: 2026-07-18
+**Task**: UI workflow polish A-E (scheme B thin pass)
+**Branch**: `main`
+
+### Summary
+
+Completed sequential UI polish A-E: mailbox empty CTAs, import/group collapsible help, exclusive unified inbox/diagnostics + temp CTAs, API-key-first external settings, quiet global shell/nav/i18n. Main publish CI green; SonarCloud still independent fail. Tasks archived.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `65118786` | (see git log) |
+| `a981a184` | (see git log) |
+| `d7cd2924` | (see git log) |
+| `4f2a4da2` | (see git log) |
+| `2cca7ed8` | (see git log) |
+| `b745fec5` | (see git log) |
+| `62762a48` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
