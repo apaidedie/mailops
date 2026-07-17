@@ -364,14 +364,14 @@ class V190FrontendContractTests(unittest.TestCase):
         temp_js = load_feature_package_js("static/js/features/temp_emails")
         css = self._get_text(client, "/static/css/core/ui-modern.css")
 
-        self.assertIn("onclick=\"generateTempEmail()\"", temp_js)
+        self.assertIn('onclick="generateTempEmail()"', temp_js)
         self.assertIn("translateAppTextLocal('创建第一个临时邮箱')", temp_js)
         self.assertIn("loadTempEmailMessages(currentAccount, true)", temp_js)
         self.assertIn("translateAppTextLocal('获取邮件')", temp_js)
         self.assertNotIn("选好 Provider 与域名后，一键创建即可开始收验证码邮件。", temp_js)
         self.assertNotIn('点击"获取邮件"按钮获取邮件', temp_js)
         self.assertIn("创建第一个临时邮箱", index_html)
-        self.assertIn(".unified-inbox-workflow[data-active=\"false\"]", css)
+        self.assertIn('.unified-inbox-workflow[data-active="false"]', css)
         self.assertIn(".unified-command-kicker", css)
 
     def test_frontend_auto_polling_uses_shared_runtime_state_for_account_selection_and_email_load(
