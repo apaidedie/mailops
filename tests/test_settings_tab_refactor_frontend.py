@@ -2000,7 +2000,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("请求数", i18n_text)
         self.assertIn("Request count", i18n_text)
         self.assertIn("外部接入指挥台", i18n_text)
-        self.assertIn("External access command center", i18n_text)
+        self.assertIn("'外部接入指挥台': 'External API'", i18n_text)
         self.assertIn("接入启动包", i18n_text)
         self.assertIn("Integration starter kit", i18n_text)
         self.assertIn("Quickstart", i18n_text)

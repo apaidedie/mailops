@@ -106,13 +106,13 @@ function renderOverviewCommandCenter(commandCenter) {
     const overallTone = overviewCommandStatusTone(overallStatus);
 
     return `
-        <section class="ov-command-center" aria-live="polite" aria-label="${esc(ovT('统一邮箱指挥台'))}">
+        <section class="ov-command-center" aria-live="polite" aria-label="${esc(ovT('邮箱服务'))}">
             <div class="ov-command-center-head">
                 <div class="ov-command-center-title">
                     <span class="ov-card-code">MAIL</span>
                     <div>
-                        <h3>${esc(ovT('统一邮箱指挥台'))}</h3>
-                        <p>${esc(ovT('一眼看清邮箱库存、服务就绪与外部接入'))}</p>
+                        <h3>${esc(ovT('邮箱服务'))}</h3>
+                        <p>${esc(ovT('库存、就绪与外部接入摘要'))}</p>
                     </div>
                 </div>
                 <span class="ov-command-status" data-tone="${esc(overallTone)}">${esc(formatOverviewCommandStatus(overallStatus))}</span>

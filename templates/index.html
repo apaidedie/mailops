@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='vendor/dompurify.min.js') }}?v=3.0.8"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core/tokens.css') }}?v={{ APP_VERSION }}-resp">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ APP_VERSION }}-resp">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui243">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui244">
 </head>
 
 <body>
@@ -39,12 +39,12 @@
             <nav class="sidebar-nav">
                 <div class="nav-section">概览</div>
                 <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
-                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13h6V5H4v8Zm10 6h6V5h-6v14ZM4 19h6v-3H4v3Z"/></svg></span><span>数据概览</span>
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13h6V5H4v8Zm10 6h6V5h-6v14ZM4 19h6v-3H4v3Z"/></svg></span><span>概览</span>
                 </button>
 
-                <div class="nav-section">邮箱工作台</div>
+                <div class="nav-section">邮箱</div>
                 <button class="nav-item" data-page="mailbox" onclick="navigate('mailbox')">
-                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z"/><path d="m5 8 6.15 4.25a1.5 1.5 0 0 0 1.7 0L19 8"/></svg></span><span>统一邮箱</span>
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z"/><path d="m5 8 6.15 4.25a1.5 1.5 0 0 0 1.7 0L19 8"/></svg></span><span>邮箱</span>
                 </button>
                 <button class="nav-item" data-page="pool-admin" onclick="navigate('pool-admin')">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 8h14M7 8v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8M8.5 8V6.5A1.5 1.5 0 0 1 10 5h4a1.5 1.5 0 0 1 1.5 1.5V8"/><path d="M9 12h6M9 15h4"/></svg></span><span>号池管理</span>
@@ -72,7 +72,7 @@
                     <div class="user-avatar">管</div>
                     <div class="user-chip-info">
                         <div class="user-chip-name">管理员</div>
-                        <div class="user-chip-role">运营管理员</div>
+                        <div class="user-chip-role">管理员</div>
                     </div>
                 </div>
                 <a href="https://github.com/apaidedie/mailops" target="_blank" class="btn-github" title="访问 GitHub 仓库">
@@ -184,9 +184,9 @@
             <div class="page page-hidden page-no-padding page-workspace" id="page-mailbox">
                 <template id="mailboxViewModeSwitcherTemplate">
                     <div id="mailboxViewModeSwitcher" class="mailbox-view-switcher mode-switch">
-                        <button class="mode-pill active" id="mailboxUnifiedModeBtn" onclick="switchMailboxViewMode('unified')">统一工作台</button>
-                        <button class="mode-pill" id="mailboxStandardModeBtn" onclick="switchMailboxViewMode('standard')">账号视图</button>
-                        <button class="mode-pill" id="mailboxCompactModeBtn" onclick="switchMailboxViewMode('compact')">紧凑视图</button>
+                        <button class="mode-pill active" id="mailboxUnifiedModeBtn" onclick="switchMailboxViewMode('unified')">统一</button>
+                        <button class="mode-pill" id="mailboxStandardModeBtn" onclick="switchMailboxViewMode('standard')">账号</button>
+                        <button class="mode-pill" id="mailboxCompactModeBtn" onclick="switchMailboxViewMode('compact')">紧凑</button>
                     </div>
                 </template>
 

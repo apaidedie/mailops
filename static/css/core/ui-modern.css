@@ -14683,6 +14683,22 @@ body,
   margin-bottom: 0;
 }
 
+/* Polish E: quieter shell leftovers */
+.user-chip-role {
+  opacity: 0.75;
+  font-size: 11px;
+}
+
+.brand-tagline {
+  letter-spacing: 0;
+}
+
+/* Keep mode switcher compact labels */
+#mailboxViewModeSwitcher .mode-pill {
+  min-width: auto;
+  padding-inline: 10px;
+}
+
 /* Slightly airier main content padding on dense pages */
 .overview-tab-shell {
   gap: 12px;

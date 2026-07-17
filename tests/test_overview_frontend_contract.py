@@ -1903,7 +1903,7 @@ class OverviewFrontendContractTests(unittest.TestCase):
 
         self.assertIn("'\u8fd0\u8425\u63a7\u5236\u53f0': 'Operations console'", i18n_text)
         self.assertIn("'\u8fd0\u884c\u72b6\u6001': 'Service health'", i18n_text)
-        self.assertIn("'\u7edf\u4e00\u90ae\u7bb1\u6307\u6325\u53f0': 'Unified mailbox command center'", i18n_text)
+        self.assertIn("'\u7edf\u4e00\u90ae\u7bb1\u6307\u6325\u53f0': 'Mailbox service'", i18n_text)
         self.assertIn(
             "'\u805a\u5408\u90ae\u7bb1\u3001Provider \u4e0e\u5916\u90e8 API \u63a5\u5165\u72b6\u6001': 'Mailbox, provider, and external API readiness'",
             i18n_text,

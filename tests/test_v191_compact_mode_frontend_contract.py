@@ -31,9 +31,12 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
         self._login(client)
         index_html = self._get_text(client, "/")
 
-        self.assertIn("统一工作台", index_html)
-        self.assertIn("账号视图", index_html)
-        self.assertIn("紧凑视图", index_html)
+        self.assertIn("统一", index_html)
+        self.assertIn("账号", index_html)
+        self.assertIn("紧凑", index_html)
+        self.assertIn('id="mailboxUnifiedModeBtn"', index_html)
+        self.assertIn('id="mailboxStandardModeBtn"', index_html)
+        self.assertIn('id="mailboxCompactModeBtn"', index_html)
         self.assertNotIn("自动模式", index_html)
         self.assertIn('id="mailboxViewModeSwitcherTemplate"', index_html)
 

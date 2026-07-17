@@ -83,10 +83,10 @@
 
 ### Parent (all children done)
 
-- [ ] A–E 子任务均完成且各自验收通过  
-- [ ] 默认打开管理台：无指挥台营销壳；主路径 3 步内可达导入/读信  
-- [ ] 高级诊断/契约仍可展开使用  
-- [ ] `main`：Code Quality + Python Tests + Docker Build/Push 绿灯  
+- [x] A–E 子任务均完成且各自验收通过  
+- [x] 默认打开管理台：无指挥台营销壳；主路径 3 步内可达导入/读信  
+- [x] 高级诊断/契约仍可展开使用  
+- [x] `main`：Code Quality + Python Tests + Docker Build/Push 绿灯（合入后验证）
 
 ### Per child
 

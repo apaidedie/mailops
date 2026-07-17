@@ -145,13 +145,13 @@
             const actionsEl = document.getElementById('topbar-actions');
             const mailboxViewModeTemplate = document.getElementById('mailboxViewModeSwitcherTemplate');
             const titles = {
-                'dashboard': ['数据概览', ''],
+                'dashboard': ['概览', ''],
                 'mailbox': ['邮箱', ''],
                 'temp-emails': ['临时邮箱', ''],
                 'refresh-log': ['刷新日志', ''],
-                'settings': ['系统设置', ''],
-                'pool-admin': ['号池管理', ''],
-                'audit': ['审计日志', '']
+                'settings': ['设置', ''],
+                'pool-admin': ['号池', ''],
+                'audit': ['审计', '']
             };
             const t = titles[page] || [page, ''];
             if (titleEl) titleEl.textContent = translateAppTextLocal(t[0]);
