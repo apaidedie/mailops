@@ -669,8 +669,7 @@
             root.innerHTML = [
                 '<div class="external-api-command-head">',
                     '<div>',
-                        `<div class="external-api-command-title">${escapeHtml(translateAppTextLocal('外部接入指挥台'))}</div>`,
-                        `<div class="external-api-command-subtitle">${escapeHtml(translateAppTextLocal('管理外部调用入口：邮箱目录、服务路由、接口文档与验证码读取'))}</div>`,
+                        `<div class="external-api-command-title">${escapeHtml(translateAppTextLocal('外部 API'))}</div>`,
                     '</div>',
                     `<span class="badge ${escapeHtml(accessStatus.badgeClass)}">${escapeHtml(translateAppTextLocal(accessStatus.label))}</span>`,
                 '</div>',

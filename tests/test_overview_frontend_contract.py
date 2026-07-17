@@ -46,10 +46,12 @@ class OverviewFrontendContractTests(unittest.TestCase):
         overview_block = html[html.index('id="page-dashboard"') : html.index('id="page-mailbox"')]
 
         self.assertIn('class="overview-tab-shell ov-command-shell"', overview_block)
-        self.assertIn(f'id="ov-page-eyebrow">{OPERATIONS_CONSOLE}', overview_block)
         self.assertIn(f'id="ov-page-title">{DATA_OVERVIEW}', overview_block)
-        self.assertIn(f'id="ov-page-badge">{SERVICE_HEALTH}', overview_block)
         self.assertIn(f'id="ov-refresh-btn">{REFRESH}</button>', overview_block)
+        # Workflow-B simplify: no marketing eyebrow / badge / subtitle on dashboard header.
+        self.assertNotIn('id="ov-page-eyebrow"', overview_block)
+        self.assertNotIn('id="ov-page-badge"', overview_block)
+        self.assertNotIn('id="ov-page-subtitle"', overview_block)
         self.assertNotIn(GLASS_PANEL, overview_block)
         self.assertNotIn(REFINED_CARD_VIEW, overview_block)
         self.assertNotIn(f"{STRUCTURAL_EMOJI[0]} {DATA_OVERVIEW}", overview_block)
@@ -70,8 +72,6 @@ class OverviewFrontendContractTests(unittest.TestCase):
     def test_overview_js_does_not_emit_hover_explainers_or_emoji_icons(self):
         js_text = load_feature_package_js("static/js/features/overview")
 
-        self.assertIn(f"'ov-page-eyebrow': '{OPERATIONS_CONSOLE}'", js_text)
-        self.assertIn(f"'ov-page-badge': '{SERVICE_HEALTH}'", js_text)
         self.assertIn(f"titleEl.textContent = ovT('{DATA_OVERVIEW}');", js_text)
         self.assertIn(f"refreshBtn.textContent = ovT('{REFRESH}');", js_text)
         self.assertIn("function renderDataCard(options)", js_text)
@@ -101,28 +101,20 @@ class OverviewFrontendContractTests(unittest.TestCase):
     def test_summary_command_center_render_contract(self):
         js_text = load_feature_package_js("static/js/features/overview")
         start = js_text.index("function renderOverviewSummary(data)")
-        end = js_text.index("function renderVerificationStats(data)", start)
-        summary_slice = js_text[start:end]
+        summary_end = js_text.index("function renderOverviewSimpleNextAction", start)
+        summary_only = js_text[start:summary_end]
+        simple_next = js_text[
+            summary_end : js_text.index("function renderOverviewCommandCenter", summary_end)
+        ]
 
-        self.assertIn("function renderOverviewCommandCenter(commandCenter)", summary_slice)
-        self.assertIn("function renderOverviewCommandTile(options)", summary_slice)
-        self.assertIn("function renderOverviewCommandActions(actions)", summary_slice)
-        self.assertIn("normalizeOverviewCommandStatus", summary_slice)
-        self.assertIn("formatOverviewCommandStatus", summary_slice)
-        self.assertLess(
-            summary_slice.index("renderOverviewCommandCenter(data.command_center || {})"),
-            summary_slice.index('<div class="kpi-row">'),
-        )
-        self.assertIn("ov-command-center", summary_slice)
-        self.assertIn("ov-command-grid", summary_slice)
-        self.assertIn("ov-command-actions", summary_slice)
-        self.assertIn("统一邮箱指挥台", summary_slice)
-        self.assertIn("Provider 就绪", summary_slice)
-        self.assertIn("外部 API 接入", summary_slice)
-        # Next-actions tile uses a stable operator code, not a placeholder.
-        self.assertIn('<span class="ov-card-code">NEXT</span>', summary_slice)
-        self.assertNotIn('<span class="ov-card-code">TODO</span>', summary_slice)
-        self.assertIn("下一步动作", summary_slice)
+        # Workflow-B: summary is KPI-first; full command center is not mounted by default.
+        self.assertIn("kpi-row--simple", summary_only)
+        self.assertIn("renderOverviewSimpleNextAction", summary_only)
+        self.assertIn("今日验证码", summary_only)
+        self.assertNotIn("renderOverviewCommandCenter(data.command_center || {})", summary_only)
+        self.assertNotIn("统一邮箱指挥台", summary_only)
+        self.assertIn("ov-simple-next", simple_next)
+        self.assertIn("function renderOverviewCommandCenter(commandCenter)", js_text)
 
     def test_init_overview_soft_loads_warm_cache(self):
         """Returning to Dashboard must not force-reload a warm overview tab cache."""

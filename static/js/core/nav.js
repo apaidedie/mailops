@@ -145,17 +145,20 @@
             const actionsEl = document.getElementById('topbar-actions');
             const mailboxViewModeTemplate = document.getElementById('mailboxViewModeSwitcherTemplate');
             const titles = {
-                'dashboard': ['数据概览', '一眼看清库存、健康与接入状态'],
-                'mailbox': ['统一邮箱工作台', '聚合账号库存、Provider 路由与外部会话入口'],
-                'temp-emails': ['临时邮箱', '创建、查看与管理临时邮箱'],
-                'refresh-log': ['刷新日志', '查看 Token 刷新历史'],
-                'settings': ['系统设置', '密码、临时邮箱、API 安全与自动化'],
-                'pool-admin': ['号池管理', '维护池内状态、领取与调度'],
-                'audit': ['审计日志', '查看设置与接口操作轨迹']
+                'dashboard': ['数据概览', ''],
+                'mailbox': ['邮箱', ''],
+                'temp-emails': ['临时邮箱', ''],
+                'refresh-log': ['刷新日志', ''],
+                'settings': ['系统设置', ''],
+                'pool-admin': ['号池管理', ''],
+                'audit': ['审计日志', '']
             };
             const t = titles[page] || [page, ''];
             if (titleEl) titleEl.textContent = translateAppTextLocal(t[0]);
-            if (subtitleEl) subtitleEl.textContent = translateAppTextLocal(t[1]);
+            if (subtitleEl) {
+                subtitleEl.textContent = t[1] ? translateAppTextLocal(t[1]) : '';
+                subtitleEl.hidden = !t[1];
+            }
             // Context actions
             if (actionsEl) {
                 actionsEl.classList.remove('topbar-actions-compact');
@@ -173,9 +176,8 @@
                     `;
                     actionsEl.classList.toggle('topbar-actions-compact', isCompactMode || isUnifiedMode);
                     if (subtitleEl) {
-                        subtitleEl.textContent = translateAppTextLocal(
-                            isUnifiedMode ? '统一查看账号库存、临时邮箱、Provider 路由与外部会话入口' : (isCompactMode ? '按分组查看账号摘要与验证码' : '管理账号与邮件详情')
-                        );
+                        subtitleEl.textContent = '';
+                        subtitleEl.hidden = true;
                     }
                     const standardBtn = document.getElementById('mailboxStandardModeBtn');
                     const compactBtn = document.getElementById('mailboxCompactModeBtn');

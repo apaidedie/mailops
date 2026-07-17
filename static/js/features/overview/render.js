@@ -32,19 +32,19 @@ function renderOverviewSummary(data) {
     const refresh = data.refresh_health || {};
     const kpi = data.kpi || {};
 
+    const nextAction = renderOverviewSimpleNextAction(data.command_center || {});
     container.innerHTML = `
-        ${renderOverviewCommandCenter(data.command_center || {})}
-        <div class="kpi-row">
-            ${renderKpiCard('总账号数', formatNumber(accountStatus.total || 0), ovLabelValue('活跃', formatNumber(accountStatus.active || 0)), 'kpi-primary')}
+        <div class="kpi-row kpi-row--simple">
+            ${renderKpiCard('账号', formatNumber(accountStatus.total || 0), ovLabelValue('活跃', formatNumber(accountStatus.active || 0)), 'kpi-primary')}
+            ${renderKpiCard('今日验证码', formatNumber(kpi.verification_extracted || 0), ovLabelValue('临时邮箱', formatNumber(kpi.temp_emails_active || 0)), 'kpi-accent')}
             ${renderKpiCard('邮箱池可用', formatNumber(pool.available || 0), ovLabelValue('占用', formatNumber(pool.in_use || 0)), 'kpi-success')}
-            ${renderKpiCard('今日验证码提取', formatNumber(kpi.verification_extracted || 0), ovLabelValue('临时邮箱', formatNumber(kpi.temp_emails_active || 0)), 'kpi-accent')}
-            ${renderKpiCard('最近刷新成功率', formatPercent(refresh.success_rate_7d || 0), ovLabelValue('失败', formatNumber(refresh.last_fail_count || 0)), 'kpi-warn')}
         </div>
-        <div class="two-col">
+        ${nextAction}
+        <div class="two-col two-col--simple">
             ${renderDataCard({
-                title: '账号状态分布',
-                code: '账号',
-                badge: '实时',
+                title: '账号状态',
+                code: '',
+                badge: '',
                 body: renderProgressBlock([
                     { label: '活跃', value: accountStatus.active || 0, total: accountStatus.total || 0, tone: 'jade' },
                     { label: '过期', value: accountStatus.expired || 0, total: accountStatus.total || 0, tone: 'danger' },
@@ -53,37 +53,45 @@ function renderOverviewSummary(data) {
                 ])
             })}
             ${renderDataCard({
-                title: '邮箱池快照',
-                code: '池',
-                badge: '供给',
-                body: renderProgressBlock([
-                    { label: '可用', value: pool.available || 0, total: pool.total || 0, tone: 'jade' },
-                    { label: '占用中', value: pool.in_use || 0, total: pool.total || 0, tone: 'primary' },
-                    { label: '冷却中', value: pool.cooldown || 0, total: pool.total || 0, tone: 'warn' },
-                    { label: '已使用', value: pool.used || 0, total: pool.total || 0, tone: 'accent' }
-                ])
-            })}
-            ${renderDataCard({
-                title: '刷新健康',
-                code: '刷新',
-                badge: '任务',
+                title: 'Token 刷新',
+                code: '',
+                badge: '',
                 body: `
                     <div class="ov-kv"><span>${esc(ovT('最近启动'))}</span><strong>${formatTime(refresh.last_run_at)}</strong></div>
-                    <div class="ov-kv"><span>${esc(ovT('最近成功数'))}</span><strong>${formatNumber(refresh.last_success_count || 0)}</strong></div>
-                    <div class="ov-kv"><span>${esc(ovT('最近失败数'))}</span><strong>${formatNumber(refresh.last_fail_count || 0)}</strong></div>
-                    <div class="ov-kv"><span>${esc(ovT('最近耗时'))}</span><strong>${formatDurationSeconds(refresh.last_duration_s || 0)}</strong></div>
+                    <div class="ov-kv"><span>${esc(ovT('成功率'))}</span><strong>${formatPercent(refresh.success_rate_7d || 0)}</strong></div>
+                    <div class="ov-kv"><span>${esc(ovT('最近失败'))}</span><strong>${formatNumber(refresh.last_fail_count || 0)}</strong></div>
                 `
             })}
-            ${renderDataCard({
-                title: '今日快捷数字',
-                code: '今日',
-                badge: '当天',
-                body: `
-                    <div class="ov-kv"><span>${esc(ovT('今日收件'))}</span><strong>${formatNumber(kpi.emails_received || 0)}</strong></div>
-                    <div class="ov-kv"><span>${esc(ovT('验证码提取'))}</span><strong>${formatNumber(kpi.verification_extracted || 0)}</strong></div>
-                    <div class="ov-kv"><span>${esc(ovT('活跃临时邮箱'))}</span><strong>${formatNumber(kpi.temp_emails_active || 0)}</strong></div>
-                `
-            })}
+        </div>
+    `;
+}
+
+function renderOverviewSimpleNextAction(commandCenter) {
+    const actions = Array.isArray(commandCenter && commandCenter.actions) ? commandCenter.actions.filter(Boolean) : [];
+    if (!actions.length) return '';
+    // Prefer actionable high-priority items only (import / API key / provider config).
+    const preferred = actions.find((a) => {
+        const key = String((a && a.key) || '').toLowerCase();
+        const label = String((a && a.label) || '').toLowerCase();
+        return (
+            key.includes('api') ||
+            key.includes('import') ||
+            key.includes('account') ||
+            key.includes('provider') ||
+            label.includes('api') ||
+            label.includes('导入') ||
+            label.includes('账号') ||
+            label.includes('provider')
+        );
+    }) || actions[0];
+    if (!preferred) return '';
+    const label = preferred.label || preferred.key || '';
+    const target = preferred.target || '';
+    return `
+        <div class="ov-simple-next" role="note">
+            <span class="ov-simple-next-label">${esc(ovT('建议'))}</span>
+            <strong>${esc(ovT(label))}</strong>
+            ${target ? `<code class="ov-simple-next-target">${esc(target)}</code>` : ''}
         </div>
     `;
 }

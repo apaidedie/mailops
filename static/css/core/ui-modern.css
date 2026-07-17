@@ -14441,3 +14441,155 @@ body,
   order: 0;
 }
 
+
+/* ============================================================
+   ui240: Workflow-B simplify — less noise, more scan room
+   ============================================================ */
+
+/* Hide explanatory chrome by default (forms + marketing lines) */
+#page-settings .form-hint:not(.settings-callout):not(.form-hint--danger):not(.form-error),
+#page-settings .settings-legacy-hint,
+.topbar-subtitle:empty,
+.topbar-subtitle[hidden] {
+  display: none !important;
+}
+
+.ov-page-header--simple {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+.ov-page-header--simple .ov-page-title {
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.kpi-row--simple {
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.two-col--simple {
+  gap: 12px;
+}
+
+.ov-simple-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--bg-elevated, #fff);
+}
+
+.ov-simple-next-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: none;
+}
+
+.ov-simple-next-target {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Unified mailbox: strip hero, denser toolbar */
+.unified-workspace-masthead {
+  display: none !important;
+}
+
+.unified-workspace-view-switch--simple {
+  margin: 0 0 10px;
+  gap: 6px;
+}
+
+.unified-workspace-view-switch--simple .unified-workspace-view-button {
+  padding: 8px 14px;
+  min-width: auto;
+}
+
+.unified-workspace-view-switch--simple .unified-workspace-view-button span {
+  display: none;
+}
+
+.unified-toolbar--simple {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.unified-toolbar--simple .unified-filter-label {
+  display: none;
+}
+
+.unified-toolbar-advanced {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: var(--bg-elevated, #fff);
+}
+
+.unified-toolbar-advanced > summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  list-style: none;
+  user-select: none;
+}
+
+.unified-toolbar-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+.unified-toolbar-advanced[open] {
+  padding-bottom: 8px;
+}
+
+.unified-toolbar-advanced-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.unified-message-empty .unified-message-kicker {
+  display: none;
+}
+
+.unified-message-empty h3 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.unified-message-empty p {
+  margin: 0;
+  color: var(--text-muted, #64748b);
+  font-size: 13px;
+}
+
+/* External API command center: quieter head */
+.external-api-command-subtitle {
+  display: none !important;
+}
+
+.external-api-command-title {
+  font-size: 1rem !important;
+}
+
+/* Slightly airier main content padding on dense pages */
+.overview-tab-shell {
+  gap: 12px;
+}
+
+.unified-mailbox-shell {
+  gap: 12px;
+  padding-top: 4px;
+}

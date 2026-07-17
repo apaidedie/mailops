@@ -37,24 +37,12 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             "紧凑视图",
             "switchMailboxViewMode('unified')",
             'id="mailboxUnifiedLayout"',
-            'class="unified-workspace-masthead"',
-            'aria-labelledby="unifiedWorkspaceTitle"',
-            'class="unified-workspace-kicker"',
-            "Mailbox Fabric",
-            'id="unifiedWorkspaceTitle"',
-            "统一邮箱聚合服务",
-            'class="unified-workspace-pipeline"',
-            'aria-label="统一邮箱链路"',
-            "目录库存",
-            "Provider 路由",
-            "验证码读取",
-            "外部 API",
             'id="unifiedWorkspaceViewSwitch"',
-            'class="unified-workspace-view-switch"',
+            "unified-workspace-view-switch",
             'data-unified-workspace-view="inbox"',
             'data-unified-workspace-view="diagnostics"',
-            "日常收件箱",
-            "高级诊断",
+            'data-unified-view-label="inbox">邮箱',
+            'data-unified-view-label="diagnostics">高级',
             'id="unifiedInboxWorkflow"',
             'class="unified-inbox-workflow"',
             'data-view="inbox"',
@@ -62,29 +50,9 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             'class="unified-diagnostics-workspace"',
             'data-view="diagnostics"',
             'id="unifiedMailboxCommandCenter"',
-            'class="unified-command-center"',
-            'data-state="loading"',
-            'class="unified-command-state loading"',
-            'class="unified-command-state-copy"',
-            'class="unified-command-state-grid"',
-            "正在读取统一邮箱服务…",
-            "正在同步目录库存、来源策略和推荐视图",
             'id="unifiedMailboxSetupGuide"',
-            'class="unified-setup-guide"',
-            'aria-labelledby="unifiedSetupGuideTitle"',
-            'class="unified-setup-guide-head"',
-            'class="unified-setup-guide-kicker"',
-            "Setup Path",
-            'id="unifiedSetupGuideTitle"',
-            "统一邮箱启动路径",
-            "正在整理账号、临时邮箱、Provider 路由和外部 API 接入状态",
-            'class="unified-setup-guide-status"',
-            "读取中",
-            'class="unified-setup-guide-steps"',
-            'class="unified-setup-step-skeleton"',
             'id="unifiedMailboxSearch"',
             'class="unified-toolbar-field unified-toolbar-field-search"',
-            'class="unified-filter-label" for="unifiedMailboxSearch"',
             'id="unifiedMailboxKindFilter"',
             'id="unifiedMailboxStatusFilter"',
             'id="unifiedMailboxReadCapabilityFilter"',
@@ -97,43 +65,32 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             'aria-label="排序方式"',
             'value="updated_desc"',
             'id="unifiedMailboxRefreshBtn"',
+            "更多筛选",
+            'class="unified-toolbar-advanced"',
             'id="unifiedMailboxQuickViews"',
-            'class="unified-quick-views"',
-            'role="group"',
-            'aria-label="聚合邮箱快速视图"',
-            "hidden",
             'id="unifiedMailboxResultBar"',
-            'class="unified-result-bar"',
-            'aria-live="polite"',
-            'aria-label="当前筛选条件"',
             'id="unifiedMailboxOperationalLens"',
-            'class="unified-operational-lens"',
-            'data-state="loading"',
-            "正在分析当前视图…",
-            "正在整理筛选、库存和 Provider 就绪度",
             'id="unifiedMailboxSummary"',
             'id="unifiedMailboxProviderContext"',
             'id="unifiedProviderCapabilityMatrix"',
-            'class="unified-provider-capability-matrix"',
-            "正在读取 Provider 能力…",
             'id="unifiedMailboxList"',
             'id="unifiedMailboxPagination"',
             'id="unifiedMailboxMessagePreview"',
             'class="unified-message-preview"',
-            'data-state="empty"',
-            'aria-labelledby="unifiedMessagePreviewTitle"',
-            "Inbox Preview",
-            "统一收件箱预览",
-            "选择一个邮箱查看邮件",
+            "邮件预览",
+            "选择左侧邮箱",
         ]:
             self.assertIn(expected, index_html)
 
+        # Workflow-B: marketing masthead removed from primary surface.
+        self.assertNotIn("Mailbox Fabric", index_html)
+        self.assertNotIn("统一邮箱聚合服务", index_html)
+        self.assertNotIn("Inbox Preview", index_html)
         self.assertNotIn("unified-command-center-empty", index_html)
 
-        toolbar_pos = index_html.index('class="unified-toolbar"')
-        masthead_pos = index_html.index('class="unified-workspace-masthead"')
         view_switch_pos = index_html.index('id="unifiedWorkspaceViewSwitch"')
         inbox_workflow_pos = index_html.index('id="unifiedInboxWorkflow"')
+        toolbar_pos = index_html.index('class="unified-toolbar')
         command_center_pos = index_html.index('id="unifiedMailboxCommandCenter"')
         setup_guide_pos = index_html.index('id="unifiedMailboxSetupGuide"')
         diagnostics_pos = index_html.index('id="unifiedDiagnosticsWorkspace"')
@@ -145,7 +102,6 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
         mailbox_list_pos = index_html.index('id="unifiedMailboxList"')
         mailbox_pagination_pos = index_html.index('id="unifiedMailboxPagination"')
         message_preview_pos = index_html.index('id="unifiedMailboxMessagePreview"')
-        self.assertLess(masthead_pos, view_switch_pos)
         self.assertLess(view_switch_pos, inbox_workflow_pos)
         self.assertLess(inbox_workflow_pos, toolbar_pos)
         self.assertLess(toolbar_pos, quick_views_pos)
@@ -228,9 +184,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
         main_js = load_frontend_app_js()
 
         self.assertIn("const isUnifiedMode = mailboxViewMode === 'unified';", main_js)
-        self.assertIn("'mailbox': ['统一邮箱工作台', '聚合账号库存、Provider 路由与外部会话入口']", main_js)
-        self.assertIn("统一查看账号库存、临时邮箱、Provider 路由与外部会话入口", main_js)
-        self.assertIn("管理账号与邮件详情", main_js)
+        self.assertIn("'mailbox': ['邮箱', '']", main_js)
         self.assertIn("document.getElementById('mailboxUnifiedModeBtn')", main_js)
         self.assertIn("unifiedBtn.classList.toggle('active', mailboxViewMode === 'unified');", main_js)
 

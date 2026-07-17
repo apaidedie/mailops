@@ -13,6 +13,7 @@
   "syncOverviewStaticText",
   "getOverviewContainer",
   "renderOverviewSummary",
+  "renderOverviewSimpleNextAction",
   "renderOverviewCommandCenter",
   "renderOverviewCommandTile",
   "renderOverviewCommandActions",

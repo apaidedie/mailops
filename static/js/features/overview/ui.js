@@ -63,9 +63,6 @@ function switchOverviewTab(tabId) {
 
 function syncOverviewStaticText() {
     const textMap = {
-        'ov-page-eyebrow': '运营控制台',
-        'ov-page-badge': '运行状态',
-        'ov-page-subtitle': '账号、验证码、对外 API、邮箱池与系统活动统一看板',
         'ov-refresh-label': '最近刷新：'
     };
     Object.keys(textMap).forEach((id) => {
