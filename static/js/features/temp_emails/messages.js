@@ -199,7 +199,13 @@
         // 渲染临时邮箱邮件列表到独立页面
         function renderTempEmailMessageList(container, emails) {
             if (!emails || emails.length === 0) {
-                container.innerHTML = `<div class="empty-state"><span class="empty-icon">📭</span><p>${translateAppTextLocal('暂无邮件')}</p></div>`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon" aria-hidden="true"></span>
+                        <p class="ui-empty-title">${translateAppTextLocal('暂无邮件')}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="if(currentAccount) loadTempEmailMessages(currentAccount, true)">${translateAppTextLocal('获取邮件')}</button>
+                    </div>
+                `;
                 return;
             }
             container.innerHTML = emails.map((email, index) => {

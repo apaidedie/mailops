@@ -88,6 +88,11 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
         self.assertNotIn("Inbox Preview", index_html)
         self.assertNotIn("unified-command-center-empty", index_html)
 
+        # Polish C: diagnostics is secondary; inbox is default exclusive surface.
+        self.assertIn('data-active="true"', index_html[index_html.index('id="unifiedInboxWorkflow"') :][:200])
+        self.assertIn('data-active="false"', index_html[index_html.index('id="unifiedDiagnosticsWorkspace"') :][:220])
+        self.assertIn("ui242", index_html)
+
         view_switch_pos = index_html.index('id="unifiedWorkspaceViewSwitch"')
         inbox_workflow_pos = index_html.index('id="unifiedInboxWorkflow"')
         toolbar_pos = index_html.index('class="unified-toolbar')
@@ -248,6 +253,8 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             "document.getElementById('unifiedWorkspaceViewSwitch')",
             "document.getElementById('unifiedInboxWorkflow')",
             "document.getElementById('unifiedDiagnosticsWorkspace')",
+            "inboxWorkflow.dataset.active = activeView === 'diagnostics' ? 'false' : 'true';",
+            "diagnosticsWorkspace.dataset.active = activeView === 'diagnostics' ? 'true' : 'false';",
             "data-unified-workspace-view",
             "unifiedMailboxState.workspaceView = normalizeUnifiedWorkspaceView(view);",
             "renderUnifiedWorkspaceViewSwitch();",

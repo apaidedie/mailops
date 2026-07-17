@@ -130,7 +130,6 @@
                 pageContainer.innerHTML = `
                     <div class="ui-empty">
                         <div class="ui-empty-title">${translateAppTextLocal('还没有临时邮箱')}</div>
-                        <div class="ui-empty-desc">${translateAppTextLocal('选好 Provider 与域名后，一键创建即可开始收验证码邮件。')}</div>
                         <button type="button" class="btn btn-primary" onclick="generateTempEmail()">${translateAppTextLocal('创建第一个临时邮箱')}</button>
                     </div>
                 `;
@@ -257,7 +256,13 @@
             // Show loading in message area (prefer temp-emails page container)
             const tempMsgList = document.getElementById('tempEmailMessageList');
             const emailList = document.getElementById('emailList');
-            const loadingHTML = `<div class="empty-state"><span class="empty-icon">📬</span><p>${translateAppTextLocal('点击"获取邮件"按钮获取邮件')}</p></div>`;
+            const loadingHTML = `
+                <div class="empty-state">
+                    <span class="empty-icon" aria-hidden="true"></span>
+                    <p class="ui-empty-title">${translateAppTextLocal('尚未加载邮件')}</p>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="if(currentAccount) loadTempEmailMessages(currentAccount, true)">${translateAppTextLocal('获取邮件')}</button>
+                </div>
+            `;
 
             if (tempMsgList) tempMsgList.innerHTML = loadingHTML;
             if (emailList) {

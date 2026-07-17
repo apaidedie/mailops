@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='vendor/dompurify.min.js') }}?v=3.0.8"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core/tokens.css') }}?v={{ APP_VERSION }}-resp">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ APP_VERSION }}-resp">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui241">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui242">
 </head>
 
 <body>
@@ -519,7 +519,6 @@
                             <div class="empty-state">
                                 <span class="empty-icon" aria-hidden="true"></span>
                                 <p class="ui-empty-title">暂无临时邮箱</p>
-                                <p class="ui-empty-desc">创建后即可在右侧接收验证码邮件</p>
                                 <div class="ui-empty-actions">
                                     <button class="btn btn-primary" type="button" onclick="generateTempEmail()">创建第一个临时邮箱</button>
                                 </div>
@@ -538,7 +537,6 @@
                             <div class="empty-state">
                                 <span class="empty-icon" aria-hidden="true"></span>
                                 <p class="ui-empty-title">选择临时邮箱</p>
-                                <p class="ui-empty-desc">选择左侧邮箱后获取收件箱</p>
                             </div>
                         </div>
                     </div>

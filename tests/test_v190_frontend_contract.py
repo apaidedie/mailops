@@ -356,6 +356,24 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertNotIn("点击右上角获取邮件开始拉取", emails_js)
         self.assertNotIn("点击右上角获取邮件开始拉取", accounts_js)
 
+    def test_temp_email_empty_states_expose_next_action_ctas(self):
+        """Polish C: temp-mail empties offer create / fetch actions without essay copy."""
+        client = self.app.test_client()
+        self._login(client)
+        index_html = self._get_text(client, "/")
+        temp_js = load_feature_package_js("static/js/features/temp_emails")
+        css = self._get_text(client, "/static/css/core/ui-modern.css")
+
+        self.assertIn("onclick=\"generateTempEmail()\"", temp_js)
+        self.assertIn("translateAppTextLocal('创建第一个临时邮箱')", temp_js)
+        self.assertIn("loadTempEmailMessages(currentAccount, true)", temp_js)
+        self.assertIn("translateAppTextLocal('获取邮件')", temp_js)
+        self.assertNotIn("选好 Provider 与域名后，一键创建即可开始收验证码邮件。", temp_js)
+        self.assertNotIn('点击"获取邮件"按钮获取邮件', temp_js)
+        self.assertIn("创建第一个临时邮箱", index_html)
+        self.assertIn(".unified-inbox-workflow[data-active=\"false\"]", css)
+        self.assertIn(".unified-command-kicker", css)
+
     def test_frontend_auto_polling_uses_shared_runtime_state_for_account_selection_and_email_load(
         self,
     ):
@@ -470,7 +488,7 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertIn('id="groupProxyUrl"', html)
         self.assertIn('id="addToPoolCheckbox"', html)
         self.assertIn("ui-modern.css", html)
-        self.assertIn("ui241", html)
+        self.assertRegex(html, r"ui-modern\.css[^\"']*ui24\d+")
 
         self.assertIn("#addAccountModal .form-hint:not(.form-hint--persist)", css)
         self.assertIn(".form-help-details", css)

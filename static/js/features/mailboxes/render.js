@@ -16,13 +16,14 @@
                 const inboxDetail = switcher.querySelector('[data-unified-view-detail="inbox"]');
                 const diagnosticsLabel = switcher.querySelector('[data-unified-view-label="diagnostics"]');
                 const diagnosticsDetail = switcher.querySelector('[data-unified-view-detail="diagnostics"]');
-                if (inboxLabel) inboxLabel.textContent = translateUnifiedText('日常收件箱');
+                if (inboxLabel) inboxLabel.textContent = translateUnifiedText('邮箱');
                 if (inboxDetail) inboxDetail.textContent = translateUnifiedText('目录与预览');
-                if (diagnosticsLabel) diagnosticsLabel.textContent = translateUnifiedText('高级诊断');
+                if (diagnosticsLabel) diagnosticsLabel.textContent = translateUnifiedText('高级');
                 if (diagnosticsDetail) diagnosticsDetail.textContent = translateUnifiedText('配置与扩展');
             }
+            // Mutual exclusive surfaces: default inbox; diagnostics only when selected.
             if (inboxWorkflow) {
-                inboxWorkflow.dataset.active = 'true';
+                inboxWorkflow.dataset.active = activeView === 'diagnostics' ? 'false' : 'true';
             }
             if (diagnosticsWorkspace) {
                 diagnosticsWorkspace.dataset.active = activeView === 'diagnostics' ? 'true' : 'false';

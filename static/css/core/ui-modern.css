@@ -14590,6 +14590,28 @@ body,
   background: var(--bg-elevated, #fff);
 }
 
+/* Polish C: exclusive inbox/diagnostics surfaces */
+.unified-inbox-workflow[data-active="false"] {
+  display: none !important;
+}
+
+.unified-diagnostics-workspace[data-active="false"] {
+  display: none !important;
+}
+
+/* Diagnostics: quieter chrome (kickers stay in DOM for contracts/i18n) */
+.unified-command-kicker,
+.unified-setup-guide-kicker,
+.unified-lens-kicker,
+.unified-message-kicker {
+  display: none !important;
+}
+
+#page-temp-emails .temp-create-hint:not([hidden]) {
+  font-size: 12px;
+  color: var(--text-muted, #64748b);
+}
+
 .unified-toolbar-advanced > summary {
   cursor: pointer;
   font-size: 12px;
