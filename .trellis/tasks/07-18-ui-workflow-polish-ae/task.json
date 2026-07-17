@@ -1,0 +1,32 @@
+{
+  "id": "ui-workflow-polish-ae",
+  "name": "ui-workflow-polish-ae",
+  "title": "UI workflow polish A-E (scheme B pass)",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "apaidedie",
+  "assignee": "apaidedie",
+  "createdAt": "2026-07-18",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-18-ui-polish-a-mailbox",
+    "07-18-ui-polish-b-import-groups",
+    "07-18-ui-polish-c-unified-temp",
+    "07-18-ui-polish-d-external-api",
+    "07-18-ui-polish-e-shell"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
