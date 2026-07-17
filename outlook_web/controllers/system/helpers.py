@@ -38,12 +38,19 @@ from outlook_web.services.scheduler import REFRESH_LOCK_NAME
 from .constants import _LOCAL_DEMO_DB_RELATIVE_PATH, _REPO_ROOT, logger
 
 
+def _resolve_configured_database_path() -> Path:
+    """Resolve the configured DATABASE_PATH without requiring the file to exist."""
+    database_path = Path(config.get_database_path())
+    expanded = database_path.expanduser()
+    if expanded.is_absolute():
+        return expanded.resolve(strict=False)
+    return (Path.cwd() / expanded).resolve(strict=False)
+
+
 def _safe_demo_workspace_metadata() -> dict[str, Any]:
     """Return secret-safe metadata for the explicit local demo database."""
-    database_path = Path(config.get_database_path())
     try:
-        expanded = database_path.expanduser()
-        configured = (expanded if expanded.is_absolute() else (Path.cwd() / expanded)).resolve(strict=False)
+        configured = _resolve_configured_database_path()
         expected = (_REPO_ROOT / _LOCAL_DEMO_DB_RELATIVE_PATH).resolve(strict=False)
         enabled = configured == expected
     except OSError:

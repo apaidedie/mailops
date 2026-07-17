@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tests._import_app import import_web_app_module
 from tests.frontend_js_bundle import load_frontend_app_js
@@ -20,25 +20,26 @@ class DemoWorkspaceBootstrapTests(unittest.TestCase):
             session["logged_in"] = True
             session["user_id"] = "demo-workspace-test"
 
-    def _bootstrap_payload(self, database_path: str) -> dict:
-        previous = os.environ.get("DATABASE_PATH")
-        os.environ["DATABASE_PATH"] = database_path
-        try:
-            client = self.app.test_client()
-            self._login(client)
+    def _bootstrap_payload(self, *, configured_database_path: Path) -> dict:
+        """Load bootstrap while only overriding demo-path resolution.
+
+        Do not rewrite DATABASE_PATH env: settings still need the isolated test DB.
+        """
+        client = self.app.test_client()
+        self._login(client)
+        with patch(
+            "outlook_web.controllers.system.helpers._resolve_configured_database_path",
+            return_value=configured_database_path.resolve(strict=False),
+        ):
             resp = client.get("/api/bootstrap")
-            self.assertEqual(resp.status_code, 200)
-            data = resp.get_json() or {}
-            self.assertTrue(data.get("success"))
-            return data.get("bootstrap") or {}
-        finally:
-            if previous is None:
-                os.environ.pop("DATABASE_PATH", None)
-            else:
-                os.environ["DATABASE_PATH"] = previous
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json() or {}
+        self.assertTrue(data.get("success"))
+        return data.get("bootstrap") or {}
 
     def test_bootstrap_marks_default_local_demo_database(self):
-        bootstrap = self._bootstrap_payload("output/demo/outlook-email-plus-demo.db")
+        demo_path = self.repo_root / "output" / "demo" / "outlook-email-plus-demo.db"
+        bootstrap = self._bootstrap_payload(configured_database_path=demo_path)
         demo = bootstrap.get("demo_workspace") or {}
 
         self.assertTrue(demo.get("enabled"))
@@ -59,7 +60,7 @@ class DemoWorkspaceBootstrapTests(unittest.TestCase):
         self.assertNotIn("API_KEY", serialized.upper())
 
     def test_bootstrap_keeps_regular_database_out_of_demo_mode(self):
-        bootstrap = self._bootstrap_payload(str(self.repo_root / "data" / "outlook_accounts.db"))
+        bootstrap = self._bootstrap_payload(configured_database_path=self.repo_root / "data" / "outlook_accounts.db")
         demo = bootstrap.get("demo_workspace") or {}
 
         self.assertEqual(demo, {"enabled": False})
