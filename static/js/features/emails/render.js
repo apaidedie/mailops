@@ -6,7 +6,7 @@
                 <div class="empty-state">
                     <span class="empty-icon" aria-hidden="true"></span>
                     <p class="ui-empty-title">${getEmailListColdFetchPrompt(folder)}</p>
-                    <p class="ui-empty-desc">${translateAppTextLocal('点击右上角获取邮件开始拉取')}</p>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="refreshEmails()">${translateAppTextLocal('获取邮件')}</button>
                 </div>
             `;
         }
@@ -24,7 +24,7 @@
                     <div class="empty-state">
                         <span class="empty-icon" aria-hidden="true"></span>
                         <p class="ui-empty-title">${getEmailListEmptyMessage()}</p>
-                        <p class="ui-empty-desc">${translateAppTextLocal('可切换文件夹或稍后重新获取')}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="refreshEmails()">${translateAppTextLocal('获取邮件')}</button>
                     </div>
                 `;
                 selectedEmailIds.clear();

@@ -338,6 +338,24 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertIn('id="pollingCount" min="0" max="100" value="5"', index_html)
         # Workflow-B: long form essays removed; zero-preserving JS contract remains above.
 
+    def test_mailbox_standard_empty_states_expose_next_action_ctas(self):
+        """Polish A: standard mailbox empties offer one primary next action."""
+        groups_js = load_feature_package_js("static/js/features/groups")
+        emails_js = load_feature_package_js("static/js/features/emails")
+        accounts_js = load_feature_package_js("static/js/features/accounts")
+
+        self.assertIn('onclick="showAddGroupModal()"', groups_js)
+        self.assertIn("translateAppTextLocal('添加分组')", groups_js)
+        self.assertIn('onclick="showAddAccountModal()"', groups_js)
+        self.assertIn("translateAppTextLocal('导入账号')", groups_js)
+
+        self.assertIn('onclick="refreshEmails()"', emails_js)
+        self.assertIn("translateAppTextLocal('获取邮件')", emails_js)
+        self.assertIn('onclick="refreshEmails()"', accounts_js)
+        self.assertIn("translateAppTextLocal('获取邮件')", accounts_js)
+        self.assertNotIn("点击右上角获取邮件开始拉取", emails_js)
+        self.assertNotIn("点击右上角获取邮件开始拉取", accounts_js)
+
     def test_frontend_auto_polling_uses_shared_runtime_state_for_account_selection_and_email_load(
         self,
     ):

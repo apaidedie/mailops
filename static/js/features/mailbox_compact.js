@@ -135,7 +135,12 @@
 
             const visibleGroups = (groupItems || []).filter(group => !isTempMailboxGroup(group));
             if (visibleGroups.length === 0) {
-                container.innerHTML = `<div class="compact-empty-inline">${escapeHtml(translateCompactText('暂无分组'))}</div>`;
+                container.innerHTML = `
+                    <div class="empty-state-lite compact-state-block">
+                        <p class="ui-empty-title">${escapeHtml(translateCompactText('暂无分组'))}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddGroupModal()">${escapeHtml(translateCompactText('添加分组'))}</button>
+                    </div>
+                `;
                 if (summary) {
                     summary.textContent = translateCompactText('暂无可用分组');
                 }
@@ -290,7 +295,8 @@
             if (!accounts || accounts.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state-lite compact-state-block">
-                        ${escapeHtml(translateCompactText('当前分组暂无账号'))}
+                        <p class="ui-empty-title">${escapeHtml(translateCompactText('当前分组暂无账号'))}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddAccountModal()">${escapeHtml(translateCompactText('导入账号'))}</button>
                     </div>
                 `;
                 updateSelectAllCheckbox();

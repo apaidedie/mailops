@@ -54,7 +54,7 @@
                     <div class="empty-state">
                         <span class="empty-icon" aria-hidden="true"></span>
                         <p class="ui-empty-title">${translateAppTextLocal('尚未加载邮件')}</p>
-                        <p class="ui-empty-desc">${translateAppTextLocal('点击右上角获取邮件开始拉取')}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="refreshEmails()">${translateAppTextLocal('获取邮件')}</button>
                     </div>
                 `;
                 document.getElementById('emailCount').textContent = '';

@@ -185,6 +185,17 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
             compact_js,
         )
 
+    def test_compact_empty_states_expose_next_action_ctas(self):
+        """Polish A: compact empties offer add-group / import-account actions."""
+        client = self.app.test_client()
+        compact_js = self._get_text(client, "/static/js/features/mailbox_compact.js")
+
+        self.assertIn('onclick="showAddGroupModal()"', compact_js)
+        self.assertIn("translateCompactText('添加分组')", compact_js)
+        self.assertIn('onclick="showAddAccountModal()"', compact_js)
+        self.assertIn("translateCompactText('导入账号')", compact_js)
+        self.assertIn("translateCompactText('当前分组暂无账号')", compact_js)
+
 
 if __name__ == "__main__":
     unittest.main()

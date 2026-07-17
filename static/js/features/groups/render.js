@@ -16,7 +16,8 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <span class="empty-icon">📁</span>
-                        <p>${translateAppTextLocal('暂无分组')}</p>
+                        <p class="ui-empty-title">${translateAppTextLocal('暂无分组')}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddGroupModal()">${translateAppTextLocal('添加分组')}</button>
                     </div>
                 `;
                 return;
@@ -65,7 +66,7 @@
                     <div class="empty-state">
                         <span class="empty-icon" aria-hidden="true"></span>
                         <p class="ui-empty-title">${translateAppTextLocal('该分组暂无邮箱')}</p>
-                        <p class="ui-empty-desc">${translateAppTextLocal('可导入账号或切换其他分组')}</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddAccountModal()">${translateAppTextLocal('导入账号')}</button>
                     </div>
                 `;
                 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
