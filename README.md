@@ -217,18 +217,6 @@ python scripts/project_readiness_check.py --format json
   Web 服务监听地址
 - `SCHEDULER_AUTOSTART`
   是否自动启动后台调度器
-- `OAUTH_TOOL_ENABLED`
-  是否启用 OAuth Token 获取工具入口与相关 API，默认 `true`
-- `OAUTH_CLIENT_ID`
-  Outlook OAuth 应用 ID
-- `OAUTH_CLIENT_SECRET`
-  兼容导入模式下应保持为空；如 Azure 应用依赖 `client_secret`，则不属于当前支持范围
-- `OAUTH_REDIRECT_URI`
-  Outlook OAuth 回调地址
-- `OAUTH_SCOPE`
-  后端环境变量默认 Scope（fallback），默认 `offline_access https://outlook.office.com/IMAP.AccessAsUser.All`；前端首次展示默认 Graph 预设
-- `OAUTH_TENANT`
-  Token 工具默认 Tenant，固定兼容模式 `consumers`
 - `GPTMAIL_BASE_URL`
   兼容临时邮箱桥接沿用的服务根地址，例如 `https://mail.chatgpt.org.uk`。变量名保留 `GPTMAIL_*` 是为了兼容旧部署；如果误填 API 文档页地址如 `/zh/api`，运行时会自动归一到服务根地址
 - `GPTMAIL_API_KEY`

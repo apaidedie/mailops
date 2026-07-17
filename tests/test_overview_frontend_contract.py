@@ -1057,28 +1057,6 @@ class OverviewFrontendContractTests(unittest.TestCase):
         self.assertIn("ensurePoolAdminProviderOptions(false)", pool_lang)
         self.assertNotIn("loadPoolAdmin(true)", pool_lang)
 
-        # Token-tool soft-paints warm scope chips / account select on language change.
-        token_js = (ROOT / "static" / "js" / "features" / "token_tool.js").read_text(encoding="utf-8")
-        token_lang = token_js[token_js.index("window.addEventListener('ui-language-changed'") :]
-        self.assertIn("renderScopeChips(scopeValue)", token_lang)
-        self.assertIn("applyTokenToolAccountOptions(tokenToolAccountsCache)", token_lang)
-        self.assertNotIn("loadOAuthConfig(true)", token_lang)
-        self.assertNotIn("loadAccountOptions(true)", token_lang)
-        # Account select paint only while save dialog is open.
-        self.assertIn("function isTokenToolSaveDialogOpen()", token_js)
-        apply_acc_start = token_js.index("function applyTokenToolAccountOptions(accounts)")
-        apply_acc_end = token_js.index("function invalidateTokenToolAccountsCache", apply_acc_start)
-        apply_acc_slice = token_js[apply_acc_start:apply_acc_end]
-        self.assertIn("if (!isTokenToolSaveDialogOpen())", apply_acc_slice)
-        load_acc_start = token_js.index("async function loadAccountOptions(forceRefresh = false)")
-        load_acc_end = token_js.index("async function openSaveDialog", load_acc_start)
-        load_acc_slice = token_js[load_acc_start:load_acc_end]
-        self.assertIn("isTokenToolSaveDialogOpen()", load_acc_slice)
-        self.assertIn("// Always warm soft cache; paint only while save dialog is open.", load_acc_slice)
-        # Live translate helper (not a frozen const capture at module load).
-        self.assertIn("function t(text)", token_js)
-        self.assertIn("window.translateAppText(text)", token_js)
-
         # Plugin manager soft-paints warm list on language change without network.
         plugins_js = (ROOT / "static" / "js" / "features" / "plugins.js").read_text(encoding="utf-8")
         plugins_lang = plugins_js[plugins_js.index("window.addEventListener('ui-language-changed'") :]

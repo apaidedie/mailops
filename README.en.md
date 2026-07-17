@@ -286,18 +286,6 @@ python scripts/project_readiness_check.py --format json
   Web server bind address
 - `SCHEDULER_AUTOSTART`
   Whether background scheduler jobs start automatically
-- `OAUTH_TOOL_ENABLED`
-  Enables or disables the OAuth token tool entry and related APIs, default `true`
-- `OAUTH_CLIENT_ID`
-  Outlook OAuth application ID
-- `OAUTH_CLIENT_SECRET`
-  Must remain empty in compatibility mode; Azure apps that require a `client_secret` are outside the supported contract
-- `OAUTH_REDIRECT_URI`
-  Outlook OAuth callback URL
-- `OAUTH_SCOPE`
-  Backend environment default scope (fallback): `offline_access https://outlook.office.com/IMAP.AccessAsUser.All`; frontend first-render default uses Graph preset
-- `OAUTH_TENANT`
-  Default tenant for the token tool, fixed to compatibility-mode `consumers`
 - `GPTMAIL_BASE_URL`
   Compatible temp-mail bridge service root URL, for example `https://mail.chatgpt.org.uk`. The `GPTMAIL_*` variable names are kept for legacy deployment compatibility; if an API docs page URL such as `/zh/api` is entered, runtime requests normalize it back to the service root
 - `GPTMAIL_API_KEY`

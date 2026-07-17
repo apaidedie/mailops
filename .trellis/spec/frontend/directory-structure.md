@@ -8,14 +8,14 @@ The frontend is a Flask-rendered, static-asset application. There is no React/Vu
 templates/
   index.html              # main authenticated workspace shell
   login.html              # login page
-  token_tool.html         # optional OAuth helper page
+
   partials/scripts.html   # static JS load order (classic scripts)
   partials/modals.html    # shared modal markup
 static/
   css/core/tokens.css     # design tokens + reset (linked before main.css)
   css/main.css            # primary app styles (components/pages)
   css/layout.css          # layout-system styles where applicable
-  css/token_tool.css      # token tool page styles
+
   js/core/
     state/                # package: globals + domain modules (+ _load_order / _function_order)
     admin/                # package: refresh, invalid_token, audit, version_update, …

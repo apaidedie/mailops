@@ -1529,8 +1529,6 @@ Trigger: frontend surfaces that read provider labels, selector options, pool fil
 
 - `static/js/features/accounts.js -> loadProviders(forceRefresh)`; concurrent cold/force loads coalesce on `providersLoadPromise` after the `providersLoaded` short-circuit
 
-- `static/js/features/token_tool.js -> loadOAuthConfig(forceRefresh)` / `loadAccountOptions(forceRefresh)` soft-load warm `oauthConfigCache` / `tokenToolAccountsCache`; soft joins any in-flight and force joins only force (`oauthConfigLoadForce` / `tokenToolAccountsLoadForce`) and supersedes soft; boot calls `loadOAuthConfig(false)`; soft `loadOAuthConfig` paints form via `applyOAuthConfig` only when `isOAuthConfigFormUnhydrated()` (clientId empty) so concurrent soft reloads cannot clobber in-progress form edits; force always re-paints; save dialog soft-loads accounts; `applyTokenToolAccountOptions` / account-select error chrome paint only while `isTokenToolSaveDialogOpen()` so soft loads finishing after dialog close cannot rewrite closed dialog DOM; successful account save invalidates accounts cache (clears loadForce); `saveConfig` updates `oauthConfigCache`
-
 - `static/js/features/plugins.js -> _refreshMailboxProviderCatalogFromPlugins(forceRefresh)`
 
 - `static/js/features/plugins.js -> ensureLoaded(options)` / `loadPlugins(options)`

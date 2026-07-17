@@ -116,7 +116,6 @@ def create_app(*, autostart_scheduler: Optional[bool] = None):
         def inject_app_version():
             return {
                 "APP_VERSION": APP_VERSION,
-                "OAUTH_TOOL_ENABLED": app_config.get_oauth_tool_enabled(),
             }
 
         app.secret_key = config.require_secret_key()
@@ -186,10 +185,6 @@ def create_app(*, autostart_scheduler: Optional[bool] = None):
         app.register_blueprint(pool_admin.create_blueprint())
         app.register_blueprint(external_pool.create_blueprint(csrf_exempt=csrf_exempt))
         app.register_blueprint(external_temp_emails.create_blueprint(csrf_exempt=csrf_exempt))
-        if app_config.get_oauth_tool_enabled():
-            from outlook_web.routes import token_tool
-
-            app.register_blueprint(token_tool.create_blueprint())
 
         # 外部 API 浏览器来源策略；默认保留扩展来源，普通 Web 来源必须显式配置。
         from outlook_web.cors_config import configure_external_api_cors
