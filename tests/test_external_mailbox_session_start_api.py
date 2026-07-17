@@ -27,10 +27,10 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
             db.execute("DELETE FROM audit_logs WHERE resource_type = 'external_api'")
             db.execute("DELETE FROM external_api_keys")
             db.execute("DELETE FROM external_api_consumer_usage_daily")
-            db.execute(
-                "DELETE FROM account_claim_logs WHERE account_id IN (SELECT id FROM accounts WHERE email LIKE '%@session-start.test')"
-            )
-            db.execute("DELETE FROM accounts WHERE email LIKE '%@session-start.test'")
+            # Clear all claimable pool accounts so pool_first empty-pool fallback
+            # is not polluted by leftover available rows from other tests.
+            db.execute("DELETE FROM account_claim_logs")
+            db.execute("DELETE FROM accounts")
             db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@session-start.test'")
             db.execute("DELETE FROM temp_emails WHERE email LIKE '%@session-start.test'")
             db.commit()

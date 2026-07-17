@@ -68,20 +68,21 @@ class GunicornStartupConfigTests(unittest.TestCase):
         self.assertNotIn('"-c"', dockerfile)
 
     def test_compose_exposes_gunicorn_concurrency_knobs(self):
-        compose = _read("docker-compose.yml")
+        # Pull-based docker-compose.yml stays minimal; knobs live on the build compose.
+        compose = _read("docker-compose.build.yml")
 
         self.assertIn('GUNICORN_WORKERS: "${GUNICORN_WORKERS:-1}"', compose)
         self.assertIn('GUNICORN_THREADS: "${GUNICORN_THREADS:-8}"', compose)
         self.assertIn('GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"', compose)
 
     def test_compose_uses_shared_healthcheck_script(self):
-        compose = _read("docker-compose.yml")
+        compose = _read("docker-compose.build.yml")
 
         self.assertIn('test: ["CMD", "python", "scripts/healthcheck.py"]', compose)
         self.assertNotIn("urllib.request", compose)
 
     def test_compose_exposes_temp_mail_provider_env_knobs(self):
-        compose = _read("docker-compose.yml")
+        compose = _read("docker-compose.build.yml")
 
         expected_lines = [
             'TEMP_MAIL_PROVIDER: "${TEMP_MAIL_PROVIDER:-}"',

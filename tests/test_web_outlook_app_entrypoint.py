@@ -105,7 +105,8 @@ class StartScriptSecretOutputTests(unittest.TestCase):
                 patch("secrets.token_hex", return_value="fixed-generated-secret"),
                 patch("sys.stdout", output),
             ):
-                module_globals = runpy.run_path("start.py", run_name="start_test")
+                start_script = Path(__file__).resolve().parents[1] / "start.py"
+                module_globals = runpy.run_path(str(start_script), run_name="start_test")
                 module_globals["ensure_env_file"]()
 
             printed = output.getvalue()

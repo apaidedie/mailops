@@ -1,6 +1,6 @@
 # MailOps
 
-[中文 README](./README.md) · [Docker Deploy](./DEPLOY.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md)
+[中文 README](./README.md) · [Docker Deploy](./DEPLOY.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md) · [Support](./SUPPORT.md)
 
 **MailOps** (formerly Outlook Email Plus) is a mailbox **ops** workspace for registration and verification workflows.
 

@@ -34,9 +34,12 @@ class ExternalApiBaseTest(unittest.TestCase):
 
             db = get_db()
             db.execute("DELETE FROM audit_logs WHERE resource_type = 'external_api'")
-            db.execute("DELETE FROM accounts WHERE email LIKE '%@extapi.test'")
-            db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@extapi.test'")
-            db.execute("DELETE FROM temp_emails WHERE email LIKE '%@extapi.test'")
+            # Full wipe so mailbox-directory readiness totals stay isolation-safe
+            # when other suites leave residual accounts/temp mailboxes.
+            db.execute("DELETE FROM temp_email_messages")
+            db.execute("DELETE FROM temp_emails")
+            db.execute("DELETE FROM account_claim_logs")
+            db.execute("DELETE FROM accounts")
             db.execute("DELETE FROM external_api_keys")
             db.execute("DELETE FROM external_api_consumer_usage_daily")
             db.execute("DELETE FROM external_upstream_probes")

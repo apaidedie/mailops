@@ -1,6 +1,6 @@
 # MailOps
 
-[English](./README.en.md) · [Docker 部署](./DEPLOY.md) · [贡献指南](./CONTRIBUTING.md) · [安全策略](./SECURITY.md)
+[English](./README.en.md) · [Docker 部署](./DEPLOY.md) · [贡献指南](./CONTRIBUTING.md) · [安全策略](./SECURITY.md) · [支持](./SUPPORT.md)
 
 **MailOps**（前身 Outlook Email Plus）是一款面向个人与团队的**注册 / 验证场景**邮箱运维工作台。
 

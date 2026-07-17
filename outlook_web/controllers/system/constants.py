@@ -49,6 +49,7 @@ _VERSION_CACHE_TTL = 600  # 10 分钟
 
 _HEALTHZ_BOOT_ID = f"{int(time.time() * 1000)}-{os.getpid()}"
 
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+# constants.py lives at outlook_web/controllers/system/ → repo root is parents[3]
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 _LOCAL_DEMO_DB_RELATIVE_PATH = Path("output") / "demo" / "outlook-email-plus-demo.db"

@@ -36,7 +36,6 @@ from outlook_web.services.provider_catalog import (
 from outlook_web.services.scheduler import REFRESH_LOCK_NAME
 
 from . import constants as _system_constants
-from .constants import _VERSION_CACHE_TTL
 from .helpers import _trigger_docker_api_update, _trigger_watchtower_update, _version_gt
 
 
@@ -60,7 +59,10 @@ def api_version_check() -> Any:
         )
 
     now = time.time()
-    if _system_constants._version_cache is not None and (now - _system_constants._version_cache_at) < _VERSION_CACHE_TTL:
+    if (
+        _system_constants._version_cache is not None
+        and (now - _system_constants._version_cache_at) < _system_constants._VERSION_CACHE_TTL
+    ):
         return jsonify(_system_constants._version_cache)
 
     current = APP_VERSION

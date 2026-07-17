@@ -109,11 +109,11 @@ class VersionCheckAPITests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-        # 每次测试前清除模块级缓存
-        import outlook_web.controllers.system as sc
+        # Cache lives on constants (package split); clear the real module state.
+        import outlook_web.controllers.system.constants as system_constants
 
-        sc._version_cache = None
-        sc._version_cache_at = 0.0
+        system_constants._version_cache = None
+        system_constants._version_cache_at = 0.0
 
     def _login(self, client):
         resp = client.post("/login", json={"password": "testpass123"})
@@ -267,11 +267,11 @@ class VersionCheckAPITests(unittest.TestCase):
 
     def test_cache_expires_after_ttl(self):
         """缓存过期后重新调 GitHub API"""
-        import outlook_web.controllers.system as sc
+        import outlook_web.controllers.system.constants as system_constants
 
-        original_ttl = sc._VERSION_CACHE_TTL
+        original_ttl = system_constants._VERSION_CACHE_TTL
         try:
-            sc._VERSION_CACHE_TTL = 0  # 立即过期
+            system_constants._VERSION_CACHE_TTL = 0  # 立即过期
 
             client = self.app.test_client()
             self._login(client)
@@ -288,7 +288,7 @@ class VersionCheckAPITests(unittest.TestCase):
                 client.get("/api/system/version-check")
                 self.assertEqual(call_count, 2, "TTL=0 时每次都应调 GitHub")
         finally:
-            sc._VERSION_CACHE_TTL = original_ttl
+            system_constants._VERSION_CACHE_TTL = original_ttl
 
     def test_github_api_url_correct(self):
         """GitHub API URL 使用 ZeroPointSix/outlookEmailPlus"""
