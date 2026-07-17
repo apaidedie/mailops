@@ -452,6 +452,31 @@ class V190FrontendContractTests(unittest.TestCase):
         )
         self.assertNotIn("if (!isImap && (!data.client_id || !data.refresh_token))", accounts_js)
 
+    def test_import_and_group_modals_keep_workflow_first_help_chrome(self):
+        """Polish B: import/group modals collapse essays; format help stays available."""
+        client = self.app.test_client()
+        self._login(client)
+        html = self._get_text(client, "/")
+        css = self._get_text(client, "/static/css/core/ui-modern.css")
+        accounts_js = load_feature_package_js("static/js/features/accounts")
+
+        self.assertIn('id="addAccountModal"', html)
+        self.assertIn('id="accountFormatHint"', html)
+        self.assertIn('id="accountProviderNote"', html)
+        self.assertIn("form-hint--persist", html)
+        self.assertIn("格式说明", html)
+        self.assertIn("modal-advanced-details", html)
+        self.assertIn("高级选项", html)
+        self.assertIn('id="groupProxyUrl"', html)
+        self.assertIn('id="addToPoolCheckbox"', html)
+        self.assertIn("ui-modern.css", html)
+        self.assertIn("ui241", html)
+
+        self.assertIn("#addAccountModal .form-hint:not(.form-hint--persist)", css)
+        self.assertIn(".form-help-details", css)
+        self.assertIn("input.title = hint.textContent", accounts_js)
+        self.assertIn("providerSelect.title = noteText", accounts_js)
+
     def test_import_account_provider_selector_is_catalog_driven(self):
         """导入账号邮箱类型应来自 /api/providers account catalog，而非模板硬编码列表。"""
         client = self.app.test_client()

@@ -64,13 +64,16 @@
 
         function updateAccountProviderNote(providerName) {
             const noteEl = document.getElementById('accountProviderNote');
+            const providerSelect = document.getElementById('accountProvider');
             if (!noteEl) return;
             const option = findImportAccountProviderOption(providerName);
-            if (option && option.note) {
-                noteEl.textContent = translateAppTextLocal(option.note);
-                return;
+            const noteText = option && option.note
+                ? translateAppTextLocal(option.note)
+                : translateAppTextLocal('提示：按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）');
+            noteEl.textContent = noteText;
+            if (providerSelect) {
+                providerSelect.title = noteText;
             }
-            noteEl.textContent = translateAppTextLocal('提示：按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）');
         }
 
         function getImportResultProviderLabel(providerKey) {
@@ -154,6 +157,7 @@
                 if (fallbackGroup) fallbackGroup.style.display = '';
                 input.placeholder = translateAppTextLocal('支持混合格式，每行一个账号...\nOutlook: 邮箱----密码----client_id----refresh_token\nIMAP: 邮箱----授权码----provider\n或: 邮箱----密码（自动识别类型）\n临时邮箱: 仅邮箱地址');
                 hint.textContent = translateAppTextLocal('智能识别模式：自动按每行格式和邮箱域名判断类型，自动分组');
+                input.title = hint.textContent;
                 if (typeof getTokenBtn !== 'undefined' && getTokenBtn) getTokenBtn.style.display = 'none';
                 if (importGroupSelect) {
                     importGroupSelect.disabled = true;
@@ -175,6 +179,7 @@
                 customFields.style.display = 'none';
                 input.placeholder = translateAppTextLocal('邮箱----密码----client_id----refresh_token');
                 hint.textContent = translateAppTextLocal('格式：邮箱----密码----client_id----refresh_token，支持批量导入（每行一个）');
+                input.title = hint.textContent;
                 updateAccountProviderNote(p);
                 return;
             }
@@ -183,6 +188,7 @@
                 customFields.style.display = '';
                 input.placeholder = translateAppTextLocal('邮箱----IMAP授权码/应用密码');
                 hint.textContent = translateAppTextLocal('格式：邮箱----IMAP授权码/应用密码（每行一个）。自定义 IMAP 需填写上方服务器/端口；也支持：邮箱----授权码----imap_host----imap_port');
+                input.title = hint.textContent;
                 updateAccountProviderNote(p);
                 return;
             }
@@ -190,6 +196,7 @@
             customFields.style.display = 'none';
             input.placeholder = translateAppTextLocal('邮箱----IMAP授权码/应用密码');
             hint.textContent = translateAppTextLocal('格式：邮箱----IMAP授权码/应用密码，支持批量导入（每行一个）');
+            input.title = hint.textContent;
             updateAccountProviderNote(p);
         }
 

@@ -72,22 +72,28 @@
                             maxlength="7" onchange="selectCustomColorHex(this.value)">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">代理设置</label>
-                    <input type="text" class="form-input" id="groupProxyUrl"
-                        placeholder="http://host:port 或 socks5://user:pass@host:port">
-                    <div class="form-hint">可选，设置后该分组下所有邮箱获取邮件时走此代理（支持 HTTP/SOCKS5）</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">验证码长度范围</label>
-                    <input type="text" class="form-input" id="groupVerificationCodeLength" placeholder="例如：6-6 或 4-8">
-                    <div class="form-hint">仅作用于验证码提取，格式为 min-max。</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">验证码自定义正则</label>
-                    <input type="text" class="form-input" id="groupVerificationCodeRegex" placeholder="可选，例如：\\b[A-Z0-9]{6}\\b">
-                    <div class="form-hint">同组内 regex 优先于 length。</div>
-                </div>
+                <details class="form-help-details modal-advanced-details">
+                    <summary>高级选项</summary>
+                    <div class="form-group">
+                        <label class="form-label">代理设置</label>
+                        <input type="text" class="form-input" id="groupProxyUrl"
+                            placeholder="http://host:port 或 socks5://user:pass@host:port"
+                            title="可选，设置后该分组下所有邮箱获取邮件时走此代理（支持 HTTP/SOCKS5）">
+                        <div class="form-hint">可选，设置后该分组下所有邮箱获取邮件时走此代理（支持 HTTP/SOCKS5）</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">验证码长度范围</label>
+                        <input type="text" class="form-input" id="groupVerificationCodeLength" placeholder="例如：6-6 或 4-8"
+                            title="仅作用于验证码提取，格式为 min-max。">
+                        <div class="form-hint">仅作用于验证码提取，格式为 min-max。</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">验证码自定义正则</label>
+                        <input type="text" class="form-input" id="groupVerificationCodeRegex" placeholder="可选，例如：\\b[A-Z0-9]{6}\\b"
+                            title="同组内 regex 优先于 length。">
+                        <div class="form-hint">同组内 regex 优先于 length。</div>
+                    </div>
+                </details>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="hideAddGroupModal()">取消</button>
@@ -112,16 +118,16 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">邮箱类型</label>
-                    <select class="form-select" id="accountProvider" onchange="onProviderChange(this.value)" aria-live="polite">
+                    <select class="form-select" id="accountProvider" onchange="onProviderChange(this.value)" aria-live="polite"
+                        title="按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）">
                         <option value="">加载 Provider 目录…</option>
                     </select>
-                    <div class="form-hint" id="accountProviderNote">提示：按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）</div>
                 </div>
                 <div class="form-group" id="customImapFields" style="display:none;">
                     <label class="form-label">自定义 IMAP 配置</label>
                     <div class="form-stack">
-                        <input type="text" class="form-input" id="imapHost" placeholder="imap.example.com">
-                        <input type="number" class="form-input" id="imapPort" placeholder="993" value="993" min="1" max="65535">
+                        <input type="text" class="form-input" id="imapHost" placeholder="imap.example.com" title="仅自定义 IMAP 需要填写；端口通常为 993（SSL）">
+                        <input type="number" class="form-input" id="imapPort" placeholder="993" value="993" min="1" max="65535" title="端口通常为 993（SSL）">
                     </div>
                     <div class="form-hint">仅自定义 IMAP 需要填写；端口通常为 993（SSL）</div>
                 </div>
@@ -144,7 +150,7 @@
                     <label class="form-label">未知域名的 IMAP 设置（可选）</label>
                     <div class="form-inline-pair">
                         <input type="text" class="form-input" id="fallbackImapHost"
-                               placeholder="imap.example.com">
+                               placeholder="imap.example.com" title="当邮箱域名无法自动识别时，使用此 IMAP 服务器地址">
                         <input type="number" class="form-input form-input--port" id="fallbackImapPort"
                                placeholder="993" value="993" min="1" max="65535">
                     </div>
@@ -153,11 +159,16 @@
                 <div class="form-group">
                     <label class="form-label">账号信息</label>
                     <textarea class="form-textarea form-textarea--import" id="accountInput"
-                        placeholder="邮箱----密码----client_id----refresh_token"></textarea>
-                    <div class="form-hint" id="accountFormatHint">格式：邮箱----密码----client_id----refresh_token，支持批量导入（每行一个）</div>
+                        placeholder="邮箱----密码----client_id----refresh_token"
+                        title="格式：邮箱----密码----client_id----refresh_token，支持批量导入（每行一个）"></textarea>
+                    <details class="form-help-details">
+                        <summary>格式说明</summary>
+                        <div class="form-hint form-hint--persist" id="accountProviderNote">提示：按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）</div>
+                        <div class="form-hint form-hint--persist" id="accountFormatHint">格式：邮箱----密码----client_id----refresh_token，支持批量导入（每行一个）</div>
+                    </details>
                 </div>
                 <div class="form-group">
-                    <label class="form-check-row">
+                    <label class="form-check-row" title="勾选后，新导入的 Outlook/IMAP 账号会以 `available` 状态进入邮箱池；不勾选则保持池外。">
                         <input type="checkbox" id="addToPoolCheckbox">
                         <span class="form-label">导入后加入邮箱池</span>
                     </label>
