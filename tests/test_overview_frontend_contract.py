@@ -103,9 +103,7 @@ class OverviewFrontendContractTests(unittest.TestCase):
         start = js_text.index("function renderOverviewSummary(data)")
         summary_end = js_text.index("function renderOverviewSimpleNextAction", start)
         summary_only = js_text[start:summary_end]
-        simple_next = js_text[
-            summary_end : js_text.index("function renderOverviewCommandCenter", summary_end)
-        ]
+        simple_next = js_text[summary_end : js_text.index("function renderOverviewCommandCenter", summary_end)]
 
         # Workflow-B: summary is KPI-first; full command center is not mounted by default.
         self.assertIn("kpi-row--simple", summary_only)

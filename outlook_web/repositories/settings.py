@@ -629,6 +629,3 @@ def get_telegram_bot_token() -> str:
         except Exception:
             return ""
     return value
-
-
-

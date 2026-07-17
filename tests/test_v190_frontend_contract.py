@@ -412,7 +412,7 @@ class V190FrontendContractTests(unittest.TestCase):
         self.assertIn('id="externalApiDisablePoolClaimComplete"', index_html)
         self.assertIn('id="externalApiDisablePoolStats"', index_html)
         self.assertIn("启用 external pool 端点", index_html)
-        self.assertIn("仅设置对外 API Key 不会自动开启邮箱池对外接口", index_html)
+        # Workflow-B: long form essays removed; keep control IDs + save path as contract.
         self.assertIn("function generateExternalApiKey()", main_js)
         self.assertIn("function copyExternalApiKey()", main_js)
         self.assertIn("window.crypto.getRandomValues", main_js)

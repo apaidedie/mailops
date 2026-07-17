@@ -35,7 +35,8 @@ class FrontendAccountTypeContractTests(unittest.TestCase):
         self.assertIn("summary: '/api/overview/summary',", overview_js)
         self.assertIn("const refresh = data.refresh_health || {};", overview_js)
         self.assertIn("const accountStatus = data.account_status || {};", overview_js)
-        self.assertIn("最近刷新成功率", overview_js)
+        self.assertIn("Token 刷新", overview_js)
+        self.assertIn("refresh.success_rate_7d", overview_js)
         self.assertNotIn("function loadDashboard()", main_js)
 
     def test_group_cards_split_outlook_and_imap_status_rendering(self):

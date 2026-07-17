@@ -346,6 +346,3 @@ def get_security_hsts_max_age() -> int:
         return max(0, int(raw_value))
     except (TypeError, ValueError):
         return 31536000
-
-
-
