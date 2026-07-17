@@ -17,9 +17,9 @@
 
 ## Acceptance Criteria
 
-- [ ] 设置页外部 API：首屏可完成密钥配置  
-- [ ] 高级工具可展开  
-- [ ] 相关测试绿灯  
+- [x] 设置页外部 API：首屏 API Key 优先  
+- [x] 高级工具 / smoke / playbooks / 邮箱来源诊断默认折叠可展开  
+- [x] 相关测试绿灯
 
 ## Out of scope
 

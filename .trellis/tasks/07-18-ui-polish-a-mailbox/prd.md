@@ -19,10 +19,11 @@
 
 ## Acceptance Criteria
 
-- [ ] standard 模式：无默认 kicker/指挥台文案  
-- [ ] 从侧栏进「统一邮箱」后，在账号视图下可完成选组→账号→邮件  
-- [ ] compact 模式仍可用且无新增噪音  
-- [ ] 相关 unittest 合同绿灯  
+- [x] standard 模式：无默认 kicker/指挥台文案  
+- [x] 从侧栏进「统一邮箱」后，在账号视图下可完成选组→账号→邮件  
+- [x] compact 模式仍可用且无新增噪音  
+- [x] 相关 unittest 合同绿灯  
+- [x] 空状态 CTA：添加分组 / 导入账号 / 获取邮件（`65118786`）
 
 ## Out of scope
 
