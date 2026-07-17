@@ -103,7 +103,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
             }
 
             with patch(
-                "outlook_web.services.external_api.get_email_detail_imap_generic_result",
+                "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
                 return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
             ):
                 with self.assertRaises(external_api_service.UpstreamReadFailedError) as ctx:
@@ -128,8 +128,10 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
             "trace_id": "test-trace",
         }
 
+        # extract-verification delegates to external_api.get_verification_result →
+        # messages.list_messages_for_external (imap path uses messages-local import).
         with patch(
-            "outlook_web.controllers.emails.get_emails_imap_generic",
+            "outlook_web.services.external_api.messages.get_emails_imap_generic",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(f"/api/emails/{email_addr}/extract-verification")
@@ -157,7 +159,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.services.external_api.get_email_detail_imap_generic_result",
+            "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(
@@ -187,7 +189,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.services.external_api.get_email_detail_imap_generic_result",
+            "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(

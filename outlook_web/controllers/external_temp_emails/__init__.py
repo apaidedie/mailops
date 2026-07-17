@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# Historical unittest.patch target: controllers.external_temp_emails.external_api_service.*
+from outlook_web.services import external_api as external_api_service
+
 from .constants import (
     MAILBOX_SESSION_CLOSE_TYPES,
     MAILBOX_SESSION_READ_ACTIONS,
@@ -52,6 +55,7 @@ from .session_api import (
 )
 
 __all__ = [
+    "external_api_service",
     "temp_mail_service",
     "MAILBOX_SESSION_STRATEGIES",
     "MAILBOX_SESSION_CLOSE_TYPES",

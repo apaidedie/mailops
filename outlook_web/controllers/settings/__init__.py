@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# Historical unittest.patch target: controllers.settings.config.*
+from outlook_web import config
+
 from .helpers import (
     _coerce_int_range,
     _ensure_email_service_available,
@@ -35,6 +38,7 @@ from .update_api import (
 )
 
 __all__ = [
+    "config",
     "_mask_secret_value",
     "_plugin_settings_contract",
     "_parse_allowed_emails_input",

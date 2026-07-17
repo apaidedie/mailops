@@ -2,6 +2,13 @@
 
 from __future__ import annotations
 
+import time
+
+from outlook_web.repositories.distributed_locks import (
+    acquire_distributed_lock,
+    release_distributed_lock,
+)
+
 from .classify import (
     _classify_refresh_failure,
     _record_invalid_token_failure,
@@ -31,6 +38,10 @@ from .stream_selected import (
 )
 
 __all__ = [
+    # Module/function shims for historical unittest.patch targets after package split.
+    "time",
+    "acquire_distributed_lock",
+    "release_distributed_lock",
     "REFRESH_LOCK_TTL_SECONDS",
     "build_refreshable_outlook_account_where",
     "REFRESHABLE_OUTLOOK_ACCOUNT_WHERE",

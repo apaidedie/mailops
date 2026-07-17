@@ -256,11 +256,11 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
             patch(
-                "outlook_web.services.refresh.release_distributed_lock",
+                "outlook_web.repositories.distributed_locks.release_distributed_lock",
                 return_value=None,
             ),
             patch("outlook_web.services.refresh.time.sleep", return_value=None),
@@ -316,11 +316,11 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
             patch(
-                "outlook_web.services.refresh.release_distributed_lock",
+                "outlook_web.repositories.distributed_locks.release_distributed_lock",
                 return_value=None,
             ),
             patch("outlook_web.services.refresh.time.sleep", return_value=None),
@@ -364,11 +364,11 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
             patch(
-                "outlook_web.services.refresh.release_distributed_lock",
+                "outlook_web.repositories.distributed_locks.release_distributed_lock",
                 return_value=None,
             ),
             patch("outlook_web.services.refresh.time.sleep", return_value=None),
@@ -451,11 +451,11 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
             patch(
-                "outlook_web.services.refresh.release_distributed_lock",
+                "outlook_web.repositories.distributed_locks.release_distributed_lock",
                 return_value=None,
             ),
         ):
@@ -489,7 +489,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
         with (
             patch.object(self.graph_service, "test_refresh_token_with_rotation") as mocked_refresh,
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(
                     False,
                     {
@@ -523,7 +523,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
         with (
             patch.object(self.graph_service, "test_refresh_token_with_rotation") as mocked_refresh,
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(
                     False,
                     {
@@ -552,7 +552,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.services.refresh.acquire_distributed_lock",
+            "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
             return_value=(
                 False,
                 {

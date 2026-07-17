@@ -777,7 +777,7 @@ class ExternalApiVerificationTests(ExternalApiBaseTest):
 
     @patch("outlook_web.services.external_api.time.sleep")
     @patch("outlook_web.services.external_api.time.time")
-    @patch("outlook_web.services.external_api.get_latest_message_for_external")
+    @patch("outlook_web.services.external_api.probes.get_latest_message_for_external")
     def test_wait_for_message_only_returns_new_messages(self, mock_get_latest_message, mock_time, mock_sleep):
         from outlook_web.services import external_api as external_api_service
 
@@ -3291,7 +3291,7 @@ class ExternalApiMessageErrorTests(ExternalApiBaseTest):
         )
         self.assertEqual(details.get("code"), "PROXY_ERROR")
 
-    @patch("outlook_web.services.external_api.get_email_detail_imap_generic_result")
+    @patch("outlook_web.services.external_api.messages.get_email_detail_imap_generic_result")
     def test_imap_detail_nested_error_uses_final_public_code_in_response_and_audit(self, mock_detail_result):
         email_addr = self._insert_imap_account()
         self._set_external_api_key("abc123")
@@ -4555,7 +4555,7 @@ class ProbePollTests(ExternalApiProbeBaseTest):
         }
         with self.app.app_context():
             with patch(
-                "outlook_web.services.external_api.get_latest_message_for_external",
+                "outlook_web.services.external_api.probes.get_latest_message_for_external",
                 return_value=mock_msg,
             ):
                 from outlook_web.services.external_api import poll_pending_probes
@@ -4626,7 +4626,7 @@ class ProbePollTests(ExternalApiProbeBaseTest):
 
         with self.app.app_context():
             with patch(
-                "outlook_web.services.external_api.get_latest_message_for_external",
+                "outlook_web.services.external_api.probes.get_latest_message_for_external",
                 side_effect=RuntimeError("Network down"),
             ):
                 from outlook_web.services.external_api import poll_pending_probes

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# Historical unittest.patch target: controllers.system.external_api_service.*
+from outlook_web.services import external_api as external_api_service
+
 from .constants import (
     _HEALTHZ_BOOT_ID,
     _LOCAL_DEMO_DB_RELATIVE_PATH,
@@ -42,6 +45,7 @@ from .update_api import (
 )
 
 __all__ = [
+    "external_api_service",
     "logger",
     "_version_cache",
     "_version_cache_at",

@@ -57,15 +57,20 @@ class DependencySecurityAutomationTests(unittest.TestCase):
         self.assertIn('exit "$status"', workflow)
 
     def test_docker_publish_quality_gate_audits_dependencies_before_readiness_and_tests(self):
+        """Docker publish gate must run readiness before focused contract tests.
+
+        Dependency CVE scanning lives in the dedicated dependency-security workflow;
+        the docker quality-gate focuses on readiness + publish smoke contracts.
+        """
         workflow = _read(DOCKER_WORKFLOW)
 
-        install_index = workflow.index("python -m pip install pip-audit==2.10.1")
-        audit_index = workflow.index("pip-audit -r requirements.txt --progress-spinner off")
-        readiness_index = workflow.index("Run repository readiness gate")
-        tests_index = workflow.index("Run publish gate tests")
-        self.assertLess(install_index, audit_index)
-        self.assertLess(audit_index, readiness_index)
+        readiness_index = workflow.index("Repository readiness gate")
+        tests_index = workflow.index("Focused contract tests")
+        self.assertIn("python scripts/project_readiness_check.py", workflow[readiness_index:tests_index])
         self.assertLess(readiness_index, tests_index)
+        # Keep dependency audit ownership explicit in the security workflow.
+        security_workflow = _read(DEPENDENCY_SECURITY_WORKFLOW)
+        self.assertIn("pip-audit -r requirements.txt", security_workflow)
 
     def test_dependency_security_assets_exist_and_document_audit_tooling(self):
         self.assertTrue(DEPENDABOT_CONFIG.is_file())

@@ -156,10 +156,10 @@ class RefreshSelectedIssue45Tests(unittest.TestCase):
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.services.refresh.acquire_distributed_lock",
+                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
-            patch("outlook_web.services.refresh.release_distributed_lock"),
+            patch("outlook_web.repositories.distributed_locks.release_distributed_lock"),
             patch("outlook_web.services.refresh.time.sleep"),
         ):
             resp = client.post(

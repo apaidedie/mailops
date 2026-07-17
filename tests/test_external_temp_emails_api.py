@@ -1332,7 +1332,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
             raise AssertionError("wait-message should stop before a second upstream poll")
 
         client = self.app.test_client()
-        with patch("outlook_web.services.external_api.get_latest_message_for_external", side_effect=_finish_during_first_poll):
+        with patch("outlook_web.services.external_api.probes.get_latest_message_for_external", side_effect=_finish_during_first_poll):
             with patch("outlook_web.services.external_api.time.sleep", return_value=None):
                 resp = client.get(
                     "/api/v1/external/wait-message?email=wait@ext-temp.test&timeout_seconds=2&poll_interval=1",

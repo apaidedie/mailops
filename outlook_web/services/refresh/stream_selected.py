@@ -9,10 +9,7 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 from outlook_web.db import create_sqlite_connection
 from outlook_web.errors import build_error_payload, generate_trace_id
-from outlook_web.repositories.distributed_locks import (
-    acquire_distributed_lock,
-    release_distributed_lock,
-)
+from outlook_web.repositories import distributed_locks
 from outlook_web.repositories.refresh_runs import create_refresh_run, finish_refresh_run
 from outlook_web.security.crypto import decrypt_data, encrypt_data
 
@@ -73,7 +70,7 @@ def stream_refresh_selected_accounts(
         )
 
         ttl_seconds = compute_refresh_lock_ttl_seconds(total, delay_seconds)
-        ok, lock_info = acquire_distributed_lock(conn, lock_name, lock_owner_id, ttl_seconds)
+        ok, lock_info = distributed_locks.acquire_distributed_lock(conn, lock_name, lock_owner_id, ttl_seconds)
         if not ok:
             finish_refresh_run(conn, run_id, "skipped", total, 0, 0, "刷新任务冲突：已有刷新在执行")
             error_payload = build_error_payload(
@@ -332,7 +329,7 @@ def stream_refresh_selected_accounts(
         yield f"data: {json.dumps({'type': 'error', 'error': error_payload}, ensure_ascii=False)}\n\n"
     finally:
         if lock_acquired:
-            release_distributed_lock(conn, lock_name, lock_owner_id)
+            distributed_locks.release_distributed_lock(conn, lock_name, lock_owner_id)
         try:
             conn.close()
         except Exception:

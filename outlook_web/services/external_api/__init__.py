@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+import time
+
+from outlook_web.services import graph as graph_service
+from outlook_web.services import imap as imap_service
+from outlook_web.services.imap_generic import (
+    get_email_detail_imap_generic_result,
+    get_emails_imap_generic,
+)
+
 from .access import (
     _account_can_read,
     _can_check_external_access,
@@ -105,6 +114,12 @@ from .verification import (
 )
 
 __all__ = [
+    # Module/function shims kept for historical unittest.patch targets after package split.
+    "time",
+    "graph_service",
+    "imap_service",
+    "get_email_detail_imap_generic_result",
+    "get_emails_imap_generic",
     "IMAP_SERVER_NEW",
     "IMAP_SERVER_OLD",
     "MAX_TIMEOUT_SECONDS",
