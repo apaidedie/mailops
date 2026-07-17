@@ -156,8 +156,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         )
         self.assertIn('id="tempMailProviderOptions"', html, "Provider 卡片状态挂载点应由动态 renderer 创建")
 
-    def test_external_api_command_center_mounts_before_api_key_field(self):
-        """外部 API 指挥台应位于 API Key 表单之前。"""
+    def test_external_api_command_center_mounts_after_api_key_field(self):
+        """Polish D: API Key is first; command center / diagnostics follow."""
         client = self.app.test_client()
         self._login(client)
         html = self._get_text(client)
@@ -174,7 +174,9 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertNotEqual(preflight_index, -1)
         self.assertNotEqual(contract_index, -1)
         self.assertNotEqual(diagnostics_index, -1)
-        self.assertLess(command_center_index, api_key_index)
+        self.assertLess(api_key_index, command_center_index)
+        self.assertIn("邮箱来源与诊断", html)
+        self.assertIn("多 Key 配置（JSON）", html)
         self.assertLess(workbench_index, preflight_index)
         self.assertLess(preflight_index, contract_index)
         self.assertLess(contract_index, diagnostics_index)
@@ -1180,9 +1182,10 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         command_center_start = js_text.index("function renderExternalApiCommandCenter")
         command_center_end = js_text.index("async function copyExternalApiQuickstart", command_center_start)
         command_center_text = js_text[command_center_start:command_center_end]
+        # Polish D: KPI first; onboarding/smoke live inside collapsed advanced tools.
         self.assertLess(
-            command_center_text.index("renderExternalApiOnboardingChecklist(onboardingSteps)"),
             command_center_text.index("'<div class=\"external-api-command-metrics\">'"),
+            command_center_text.index("renderExternalApiOnboardingChecklist(onboardingSteps)"),
         )
         self.assertLess(
             command_center_text.index("'<div class=\"external-api-command-metrics\">'"),

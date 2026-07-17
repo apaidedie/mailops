@@ -91,7 +91,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
         # Polish C: diagnostics is secondary; inbox is default exclusive surface.
         self.assertIn('data-active="true"', index_html[index_html.index('id="unifiedInboxWorkflow"') :][:200])
         self.assertIn('data-active="false"', index_html[index_html.index('id="unifiedDiagnosticsWorkspace"') :][:220])
-        self.assertIn("ui242", index_html)
+        self.assertRegex(index_html, r"ui-modern\.css[^\"']*ui24\d+")
 
         view_switch_pos = index_html.index('id="unifiedWorkspaceViewSwitch"')
         inbox_workflow_pos = index_html.index('id="unifiedInboxWorkflow"')

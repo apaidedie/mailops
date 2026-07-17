@@ -14660,6 +14660,29 @@ body,
   font-size: 1rem !important;
 }
 
+/* Polish D: API key first; diagnostics subtitles quieter */
+#settings-tab-api-security .provider-workbench-subtitle,
+#settings-tab-api-security .provider-preflight-subtitle,
+#settings-tab-api-security .provider-contract-status-subtitle,
+#settings-tab-api-security .provider-config-templates-subtitle,
+#settings-tab-api-security .provider-integration-guide-subtitle,
+#settings-tab-api-security .provider-console-subtitle {
+  display: none !important;
+}
+
+#settings-tab-api-security .settings-advanced-details {
+  margin: 10px 0 14px;
+}
+
+#settings-tab-api-security .external-api-command-center {
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
+#settings-tab-api-security .external-api-command-metrics {
+  margin-bottom: 0;
+}
+
 /* Slightly airier main content padding on dense pages */
 .overview-tab-shell {
   gap: 12px;

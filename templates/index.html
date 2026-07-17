@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='vendor/dompurify.min.js') }}?v=3.0.8"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core/tokens.css') }}?v={{ APP_VERSION }}-resp">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ APP_VERSION }}-resp">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui242">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui243">
 </head>
 
 <body>
@@ -718,9 +718,6 @@
                                 <div class="card-title">API 安全设置</div>
                             </div>
                             <div class="card-body">
-                                <section class="external-api-command-center" id="externalApiCommandCenter" data-state="loading" aria-live="polite">
-                                    <div class="external-api-command-empty">正在读取外部 API 服务…</div>
-                                </section>
                                 <div class="form-group">
                                     <label class="form-label">对外开放 API Key</label>
                                     <div class="settings-field-row">
@@ -732,9 +729,11 @@
                                         用于对外开放接口鉴权（请求头：X-API-Key）。如需禁用对外开放接口，可清空后保存。
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">对外开放 API 多 Key 配置（JSON）</label>
-                                    <textarea class="form-input settings-mono-input" id="settingsExternalApiKeysJson" rows="10" placeholder='[
+                                <details class="form-help-details settings-advanced-details">
+                                    <summary>多 Key 配置（JSON）</summary>
+                                    <div class="form-group">
+                                        <label class="form-label">对外开放 API 多 Key 配置（JSON）</label>
+                                        <textarea class="form-input settings-mono-input" id="settingsExternalApiKeysJson" rows="10" placeholder='[
   {
     "name": "partner-a",
     "api_key": "your-key",
@@ -742,10 +741,14 @@
     "allowed_emails": ["user@example.com"]
   }
 ]'></textarea>
-                                    <div class="form-hint" id="externalApiKeysJsonHint">
-                                        用于按调用方维护多个 Key、邮箱范围授权和启停状态。保留已有脱敏 `api_key` 表示不修改该 Key；清空后保存表示清空全部多 Key。
+                                        <div class="form-hint" id="externalApiKeysJsonHint">
+                                            用于按调用方维护多个 Key、邮箱范围授权和启停状态。保留已有脱敏 `api_key` 表示不修改该 Key；清空后保存表示清空全部多 Key。
+                                        </div>
                                     </div>
-                                </div>
+                                </details>
+                                <section class="external-api-command-center" id="externalApiCommandCenter" data-state="loading" aria-live="polite">
+                                    <div class="external-api-command-empty">正在读取外部 API 服务…</div>
+                                </section>
 
                                 <!-- P1：对外 API 公网安全配置 -->
                                 <div id="externalApiAdvancedSettings" class="settings-nested-panel">
@@ -804,6 +807,8 @@
                                             </div>
 
                                         </div>
+                                        <details class="form-help-details settings-advanced-details" id="providerWorkbenchDetails">
+                                            <summary>邮箱来源与诊断</summary>
                                         <section class="provider-workbench" id="providerWorkbench">
                                             <div class="provider-workbench-head">
                                                 <div>
@@ -904,6 +909,7 @@
                                             </div>
                                         </div>
                                         </section>
+                                        </details>
                                         <div class="form-group">
                                             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                                                 <input type="checkbox" id="externalApiDisablePoolClaimRandom">
