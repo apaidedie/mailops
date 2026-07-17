@@ -4,6 +4,25 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ## [Unreleased]
 
+### 改进 / Improvements
+
+- **UI 工作流精简 A–E（方案 B 延续）**：管理台默认面向日常运维，去掉指挥台营销壳，高级能力折叠保留。
+  - **A 邮箱主路径**：standard/compact 空状态提供单一 CTA（添加分组 / 导入账号 / 获取邮件）。
+  - **B 导入与分组**：导入弹窗格式说明默认折叠；分组代理/验证码策略收入「高级选项」。
+  - **C 统一邮箱 + 临时邮箱**：邮箱/高级诊断互斥切换；诊断 kicker 默认隐藏；临时邮箱空状态 CTA。
+  - **D 外部 API 设置**：API Key 首屏优先；多 Key / smoke / playbooks / 邮箱来源诊断默认折叠。
+  - **E 全局壳层**：导航与顶栏词表压缩（概览/邮箱/号池…）；模式切换「统一/账号/紧凑」；i18n 指挥台类用语收口；登录页文案简化。
+  - CSS 缓存：`ui-modern.css` 递增至 `ui244`。
+  - 设计/计划文档：`docs/superpowers/specs/2026-07-18-ui-workflow-polish-ae-design.md`、`docs/superpowers/plans/2026-07-18-ui-polish-a-mailbox.md`。
+
+### 测试/验证 / Testing & Verification
+
+- 前端合同测试同步更新（v190 / v191 / unified mailbox / settings tab / overview i18n）。
+- 本地 Playwright 走查（demo 库）：
+  - 桌面浅色主路径 **21/21**（`output/playwright/ui_walkthrough_ae.py`）
+  - 暗色 + 窄屏扩展 **55/55**（desktop/tablet/mobile × light/dark，`output/playwright/ui_walkthrough_ae_extended.py`；截图同目录，gitignore）
+- `main` 发布链路：Code Quality + Python Tests + Docker Build/Push 绿灯（SonarCloud 仍为独立非门禁失败）。
+
 ### 修复 / Bug Fixes
 
 - **Issue #65 Watchtower 容器镜像过时**：`docker-compose.yml` 中固定 Watchtower 版本为 `containrrr/watchtower:1.7.1`，避免本地缓存的旧版镜像（内嵌 Docker 客户端 API 1.25）连接新版本 Docker Engine（要求 API 1.44+）时失败。README 新增故障排查指引。
