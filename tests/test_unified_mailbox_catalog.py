@@ -1440,9 +1440,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         guide_providers = {item.get("provider") for item in (guide.get("providers") or []) if item.get("kind") == "temp"}
         self.assertIn("legacy_bridge", guide_providers)
         self.assertNotIn("custom_domain_temp_mail", guide_providers)
-        bridge_labels = [
-            item.get("label") for item in (guide.get("providers") or []) if item.get("label") == "GPTMail"
-        ]
+        bridge_labels = [item.get("label") for item in (guide.get("providers") or []) if item.get("label") == "GPTMail"]
         self.assertEqual(len(bridge_labels), 1)
 
 
