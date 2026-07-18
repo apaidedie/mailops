@@ -1432,7 +1432,7 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(
             guide_providers["mail_tm"]["configuration"]["env_defaults"], {"MAILTM_API_BASE": "https://api.mail.tm"}
         )
-        self.assertEqual(guide_providers["legacy_bridge"]["label"], "Compatible Temp Mail Bridge")
+        self.assertEqual(guide_providers["legacy_bridge"]["label"], "GPTMail")
         self.assertEqual(
             guide_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"]
         )
@@ -1547,7 +1547,7 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(duckmail_manifest["request_fields"]["task_temp_apply"]["request_field"], "provider_name")
         mailtm_env = {item["key"]: item for item in manifest_providers["mail_tm"]["env"]}
         self.assertEqual(mailtm_env["MAILTM_API_BASE"]["default"], "https://api.mail.tm")
-        self.assertEqual(manifest_providers["legacy_bridge"]["label"], "Compatible Temp Mail Bridge")
+        self.assertEqual(manifest_providers["legacy_bridge"]["label"], "GPTMail")
         self.assertEqual(
             manifest_providers["legacy_bridge"]["aliases"]["pool_claim_provider"], ["gptmail", "legacy_gptmail", "temp_mail"]
         )

@@ -82,9 +82,9 @@ def _normalize_domain_entries(raw_domains: Any, default_domain: str) -> list[dic
 @register_provider
 class CustomTempMailProvider(TempMailProviderBase):
     provider_name = "custom_domain_temp_mail"
-    provider_label = "Compatible Temp Mail Bridge"
+    provider_label = "GPTMail"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": False, "delete_message": True, "clear_messages": True}
 
     def __init__(self, *, provider_name: str | None = None):
@@ -225,6 +225,6 @@ class LegacyBridgeTempMailProvider(CustomTempMailProvider):
     """兼容历史 provider 名称 legacy_bridge。"""
 
     provider_name = "legacy_bridge"
-    provider_label = "Compatible Temp Mail Bridge"
+    provider_label = "GPTMail"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"

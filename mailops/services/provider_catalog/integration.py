@@ -280,7 +280,7 @@ def get_provider_integration_guide(
     endpoints: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a secret-free, machine-readable guide for external provider integration."""
-    # Full catalog may dual-register Compatible Temp Mail Bridge keys for stored
+    # Full catalog may dual-register GPTMail keys for stored
     # source compatibility. Guide projection collapses them so external consumers
     # do not see two identical-label providers.
     raw_catalog = catalog if catalog is not None else get_mailbox_provider_catalog(include_inactive=True, strict=False)

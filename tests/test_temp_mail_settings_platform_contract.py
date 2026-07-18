@@ -48,7 +48,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         settings = resp.get_json()["settings"]
         self.assertEqual(settings["temp_mail_provider"], "custom_domain_temp_mail")
-        self.assertEqual(settings["temp_mail_provider_label"], "Compatible Temp Mail Bridge")
+        self.assertEqual(settings["temp_mail_provider_label"], "GPTMail")
         self.assertTrue(settings["temp_mail_api_key_set"])
         self.assertNotIn("gptmail_api_key_set", settings)
         self.assertEqual(settings["temp_mail_domains"][0]["name"], "settings-platform.test")

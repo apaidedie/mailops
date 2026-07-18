@@ -89,14 +89,14 @@ _TEMP_PROVIDER_CONFIG_CONTRACTS = {
             "fields": [
                 {
                     "key": "temp_mail_api_base_url",
-                    "label": "Temp mail API Base URL",
+                    "label": "GPTMail API Base URL",
                     "type": "url",
-                    "placeholder": "https://mail.example.com",
+                    "placeholder": "https://mail.chatgpt.org.uk",
                     "default": "https://mail.chatgpt.org.uk",
                 },
                 {
                     "key": "temp_mail_api_key",
-                    "label": "Temp mail API Key",
+                    "label": "GPTMail API Key",
                     "type": "password",
                     "required": True,
                 },
@@ -153,14 +153,14 @@ _TEMP_PROVIDER_CONFIG_CONTRACTS = {
             "fields": [
                 {
                     "key": "temp_mail_api_base_url",
-                    "label": "Temp mail API Base URL",
+                    "label": "GPTMail API Base URL",
                     "type": "url",
-                    "placeholder": "https://mail.example.com",
+                    "placeholder": "https://mail.chatgpt.org.uk",
                     "default": "https://mail.chatgpt.org.uk",
                 },
                 {
                     "key": "temp_mail_api_key",
-                    "label": "Temp mail API Key",
+                    "label": "GPTMail API Key",
                     "type": "password",
                     "required": True,
                 },
@@ -342,16 +342,16 @@ _TEMP_PROVIDER_CONFIG_CONTRACTS = {
 _TEMP_PROVIDER_SETTINGS_UI = {
     "legacy_bridge": {
         "panel": "schema",
-        "description": "Self-hosted or compatible temporary-mail API bridge",
-        "description_zh": "自建或兼容 API 临时邮箱服务",
+        "description": "GPTMail temporary-mail API (mail.chatgpt.org.uk compatible)",
+        "description_zh": "GPTMail 临时邮箱 API（兼容 mail.chatgpt.org.uk）",
         "sort_order": 10,
     },
     # Historical catalog key kept for inventory/source compatibility; settings UI
-    # treats it as the same generic schema panel as legacy_bridge.
+    # treats it as the same schema panel as legacy_bridge / GPTMail.
     "custom_domain_temp_mail": {
         "panel": "schema",
-        "description": "Self-hosted or compatible temporary-mail API bridge",
-        "description_zh": "自建或兼容 API 临时邮箱服务",
+        "description": "GPTMail temporary-mail API (mail.chatgpt.org.uk compatible)",
+        "description_zh": "GPTMail 临时邮箱 API（兼容 mail.chatgpt.org.uk）",
         "sort_order": 10,
     },
     "cloudflare_temp_mail": {
@@ -1221,7 +1221,7 @@ def _active_filter_enabled(*, strict: bool = True) -> bool:
 
 
 def _active_matches_gptmail_family(provider_name: str, active_names: set[str]) -> bool:
-    """Return True when a Compatible Temp Mail Bridge catalog key is allowlisted.
+    """Return True when a GPTMail catalog key is allowlisted.
 
     Dual-register keys (``custom_domain_temp_mail`` / ``legacy_bridge``) and
     runtime aliases (``gptmail`` / ``legacy_gptmail`` / ``temp_mail``) are one
@@ -1741,7 +1741,7 @@ def get_mailbox_provider_diagnostics(*, include_inactive: bool = True) -> dict[s
     active allowlist and local/env-backed configuration state used by runtime
     provider selection.
 
-    Compatible Temp Mail Bridge dual-register keys are collapsed to
+    GPTMail dual-register keys are collapsed to
     ``legacy_bridge`` so operator/API summaries do not double-count the same
     bridge implementation. Full catalog lookup still returns both registry names.
     """

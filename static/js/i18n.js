@@ -96,7 +96,7 @@
         '系统操作记录': 'System activity logs',
         '号池管理': 'Pool Admin',
         '🎱 号池管理': '🎱 Pool Admin',
-        '🔧 兼容临时邮箱桥接配置': '🔧 Compatible Temp Mail Bridge Configuration',
+        '🔧 GPTMail 配置': '🔧 GPTMail Configuration',
         '🧩 插件 Provider 配置': '🧩 Plugin Provider Configuration',
         '插件管理': 'Plugin Management',
         '🔐 API 安全设置': '🔐 API Security Settings',
@@ -1316,7 +1316,7 @@
         '支持自定义前缀和多域名创建。': 'Custom prefix and multi-domain creation supported.',
         '可用域名：': 'Available domains: ',
         '当前未配置可选域名；域名将由服务端自动分配。': 'No selectable domains configured; domain will be auto-assigned by the server.',
-        '兼容临时邮箱桥接可自动分配域名，无需手动选择。': 'The compatible temp mail bridge can auto-assign the domain, no manual selection needed.',
+        'GPTMail 可自动分配域名，无需手动选择。': 'GPTMail can auto-assign the domain; manual selection is optional.',
         '域名配置加载失败': 'Failed to load domain configuration',
         '无法读取临时邮箱域名配置。': 'Unable to read temp mailbox domain configuration.',
         // ── 设置页：临时邮箱配置区 ──
@@ -1335,7 +1335,7 @@
         '前缀规则（JSON）': 'Prefix Rules (JSON)',
         // ── 设置页：CF Worker 配置区 ──
         '☁ Cloudflare Temp Email Worker 配置': '☁ Cloudflare Temp Email Worker Configuration',
-        '与兼容临时邮箱桥接完全独立的配置。部署 dreamhunter2333/cloudflare_temp_email 后填写。': 'Completely independent from the compatible temp mail bridge. Fill in after deploying dreamhunter2333/cloudflare_temp_email.',
+        '与 GPTMail 完全独立的配置。部署 dreamhunter2333/cloudflare_temp_email 后填写。': 'Completely independent from GPTMail. Fill in after deploying dreamhunter2333/cloudflare_temp_email.',
         'CF Worker 部署地址': 'CF Worker Base URL',
         'Cloudflare Worker 的部署 URL，不含尾部斜杠。': 'Cloudflare Worker deployment URL, without trailing slash.',
         'CF Worker Admin 密码': 'CF Worker Admin Password',

@@ -210,7 +210,7 @@ def api_sync_cf_worker_domains() -> Any:
     从 CF Worker 的 /open_api/settings 接口同步域名列表到本地配置。
 
     成功后自动写入：
-    - cf_worker_domains：CF Worker 上配置的所有域名（v0.3: 独立 key，不覆盖兼容临时邮箱桥接配置）
+    - cf_worker_domains：CF Worker 上配置的所有域名（v0.3: 独立 key，不覆盖GPTMail配置）
     - cf_worker_default_domain：CF Worker 的默认域名（defaultDomains 第一个）
 
     返回：{"success": True, "domains": [...], "default_domain": "...", "message": "..."}
@@ -256,7 +256,7 @@ def api_sync_cf_worker_domains() -> Any:
         )
 
     # 构建 cf_worker_domains 格式（带 enabled/is_default 标记）
-    # v0.3: 同步到独立的 cf_worker_* key，不覆盖兼容临时邮箱桥接的 temp_mail_* key
+    # v0.3: 同步到独立的 cf_worker_* key，不覆盖GPTMail的 temp_mail_* key
     domains_payload = [
         {
             "name": d,

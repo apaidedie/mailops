@@ -3,7 +3,7 @@
 
 测试场景：
 T01 - 页面导航：能否正常进入临时邮箱页面
-T02 - Provider 切换：兼容临时邮箱桥接 <-> Cloudflare Temp Mail，域名下拉状态
+T02 - Provider 切换：GPTMail <-> Cloudflare Temp Mail，域名下拉状态
 T03 - CF 域名加载：CF provider 下是否能加载可选域名
 T04 - 生成邮箱（无前缀）：直接点创建，能否生成随机邮箱
 T05 - 生成邮箱（带前缀）：指定 prefix 生成，邮箱地址包含前缀
@@ -127,14 +127,14 @@ def run():
             f"disabled={domain_select.is_disabled()}",
         )
 
-        # 切换回兼容临时邮箱桥接
+        # 切换回GPTMail
         provider_select.select_option("legacy_bridge")
         page.wait_for_timeout(500)
         legacy_domain_disabled = domain_select.is_disabled()
         screenshot(page, "T02b_legacy_provider")
         record(
             "T02b",
-            "切换到兼容临时邮箱桥接后域名下拉变禁用",
+            "切换到GPTMail后域名下拉变禁用",
             legacy_domain_disabled,
             f"disabled={domain_select.is_disabled()}",
         )

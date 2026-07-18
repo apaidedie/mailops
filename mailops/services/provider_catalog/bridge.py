@@ -19,7 +19,7 @@ def _normalize_provider_name(value: Any) -> str:
 
 
 def _canonical_bridge_operator_provider(provider_name: str | None) -> str:
-    """Map Compatible Temp Mail Bridge dual-register keys to the operator canonical key."""
+    """Map GPTMail dual-register keys to the operator canonical key."""
     name = _normalize_provider_name(provider_name)
     if name in _BRIDGE_OPERATOR_FAMILY:
         return _BRIDGE_OPERATOR_CANONICAL
@@ -58,7 +58,7 @@ def _collapse_bridge_operator_provider_rows(
     kind_key: str = "kind",
     provider_key: str = "provider",
 ) -> list[dict[str, Any]]:
-    """Collapse dual Compatible Temp Mail Bridge rows for diagnostics/guide surfaces.
+    """Collapse dual GPTMail rows for diagnostics/guide surfaces.
 
     Full catalog/registry still dual-registers `custom_domain_temp_mail` and
     `legacy_bridge` for inventory source compatibility. Operator-facing discovery

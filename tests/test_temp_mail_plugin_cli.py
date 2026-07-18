@@ -71,7 +71,7 @@ class TestPluginCLI(unittest.TestCase):
         mock_installed.return_value = []
         mock_available.return_value = [
             {"name": "cloudflare_temp_mail", "label": "CF Worker", "version": "1.0.0"},
-            {"name": "custom_domain_temp_mail", "label": "Compatible Temp Mail Bridge", "version": "1.0.0"},
+            {"name": "custom_domain_temp_mail", "label": "GPTMail", "version": "1.0.0"},
         ]
 
         from mailops.services.temp_mail_plugin_cli import _cmd_list

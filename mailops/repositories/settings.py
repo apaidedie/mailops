@@ -281,7 +281,7 @@ def normalize_temp_mail_api_base_url(value: str | None) -> str:
 
 
 def get_cf_worker_base_url() -> str:
-    """获取 Cloudflare Temp Email Worker 独立部署地址（与兼容临时邮箱桥接设置完全隔离）。"""
+    """获取 Cloudflare Temp Email Worker 独立部署地址（与GPTMail设置完全隔离）。"""
     value = get_setting("cf_worker_base_url", "").strip()
     if value:
         return value

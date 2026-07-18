@@ -2,7 +2,7 @@
 
 目标：验证设置页面 UI 重构（Tab 化 + 临时邮箱配置区分离）的后端实现：
   - 3 个新 cf_worker_* settings key 的 GET/PUT/默认值
-  - 兼容临时邮箱桥接与 CF Worker 数据隔离（域名、前缀规则互不覆盖）
+  - GPTMail与 CF Worker 数据隔离（域名、前缀规则互不覆盖）
   - Repository getter 健壮性（损坏 JSON 时返回安全默认值）
   - temp_mail_provider 字段存在于 GET 响应
   - 认证保护
@@ -109,7 +109,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         self.assertEqual(prefix_rules.get("pattern"), "^[a-z][a-z0-9]*$")
 
     # ──────────────────────────────────────────────────────
-    # TC-A03：数据隔离 — 兼容临时邮箱桥接域名与 CF Worker 域名互不影响
+    # TC-A03：数据隔离 — GPTMail域名与 CF Worker 域名互不影响
     # ──────────────────────────────────────────────────────
 
     def test_cf_worker_domains_do_not_overwrite_temp_mail_domains(self):
@@ -117,7 +117,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
 
-        # 先设置兼容临时邮箱桥接域名
+        # 先设置GPTMail域名
         bridge_domains = [{"name": "bridge.example.com", "enabled": True}]
         client.put("/api/settings", json={"temp_mail_domains": bridge_domains})
 
@@ -135,10 +135,10 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         temp_domains = settings.get("temp_mail_domains", [])
         cf_domains_result = settings.get("cf_worker_domains", [])
 
-        # 兼容临时邮箱桥接域名未被覆盖
+        # GPTMail域名未被覆盖
         self.assertTrue(
             any(d.get("name") == "bridge.example.com" for d in temp_domains),
-            "兼容临时邮箱桥接域名应保持不变，不被 CF Worker 域名覆盖",
+            "GPTMail域名应保持不变，不被 CF Worker 域名覆盖",
         )
         # CF Worker 域名独立存在
         self.assertTrue(
@@ -148,11 +148,11 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         # 确认互不污染
         self.assertFalse(
             any(d.get("name") == "cf.example.com" for d in temp_domains),
-            "CF Worker 域名不应出现在兼容临时邮箱桥接域名列表中",
+            "CF Worker 域名不应出现在GPTMail域名列表中",
         )
         self.assertFalse(
             any(d.get("name") == "bridge.example.com" for d in cf_domains_result),
-            "兼容临时邮箱桥接域名不应出现在 CF Worker 域名列表中",
+            "GPTMail域名不应出现在 CF Worker 域名列表中",
         )
 
     # ──────────────────────────────────────────────────────
@@ -164,10 +164,10 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
 
-        # 设置兼容临时邮箱桥接前缀规则
+        # 设置GPTMail前缀规则
         bridge_rules = {"min_length": 5, "max_length": 30, "pattern": "^[a-z]+$"}
         resp1 = client.put("/api/settings", json={"temp_mail_prefix_rules": bridge_rules})
-        self.assertTrue(resp1.get_json().get("success"), "兼容临时邮箱桥接前缀规则保存失败")
+        self.assertTrue(resp1.get_json().get("success"), "GPTMail前缀规则保存失败")
 
         # 设置 CF Worker 前缀规则
         cf_rules = {"min_length": 2, "max_length": 10, "pattern": "^[a-z0-9]+$"}
@@ -181,7 +181,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         temp_rules = settings.get("temp_mail_prefix_rules", {})
         cf_rules_result = settings.get("cf_worker_prefix_rules", {})
 
-        self.assertEqual(temp_rules.get("min_length"), 5, "兼容临时邮箱桥接前缀规则的 min_length 不应被修改")
+        self.assertEqual(temp_rules.get("min_length"), 5, "GPTMail前缀规则的 min_length 不应被修改")
         self.assertEqual(
             cf_rules_result.get("min_length"),
             2,
@@ -296,7 +296,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         """
         from unittest.mock import MagicMock, patch
 
-        # 预设兼容临时邮箱桥接域名（用于验证不被覆盖）
+        # 预设GPTMail域名（用于验证不被覆盖）
         with self.app.app_context():
             from mailops.repositories import settings as settings_repo
 

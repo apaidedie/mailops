@@ -89,7 +89,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
             "prefix": prefix,
             "domain": "session-start.test",
             "provider_name": "custom_domain_temp_mail",
-            "provider_label": "Compatible Temp Mail Bridge",
+            "provider_label": "GPTMail",
             "read_capability": "temp_provider",
             "task_token": f"tmptask_{prefix}",
             "created_at": "2026-07-08T00:00:00Z",

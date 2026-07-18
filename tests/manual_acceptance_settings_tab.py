@@ -162,8 +162,8 @@ def main():
             f"可见 label 数量: {provider_labels.count()}",
         )
 
-        # === 验收 4.2.5: 选中兼容临时邮箱桥接时对应面板可见，CF Worker 面板隐藏 ===
-        print("\n=== 验收 4.2.5: 兼容临时邮箱桥接面板切换 ===")
+        # === 验收 4.2.5: 选中GPTMail时对应面板可见，CF Worker 面板隐藏 ===
+        print("\n=== 验收 4.2.5: GPTMail面板切换 ===")
         select_provider(page, "legacy_bridge")
 
         gptmail_panel = page.locator("#gptmailConfigPanel")
@@ -173,14 +173,14 @@ def main():
         cf_hidden = not cf_panel.is_visible()
 
         log_result(
-            "4.2.5 选中兼容临时邮箱桥接时面板状态正确",
+            "4.2.5 选中GPTMail时面板状态正确",
             gptmail_visible and cf_hidden,
-            f"兼容临时邮箱桥接可见: {gptmail_visible}, CF Worker 隐藏: {cf_hidden}",
+            f"GPTMail可见: {gptmail_visible}, CF Worker 隐藏: {cf_hidden}",
         )
 
         page.screenshot(path="tests/screenshots/settings_gptmail_selected.png", full_page=True)
 
-        # === 验收 4.2.6: 选中 CF Worker 时 CF Worker 面板可见，兼容临时邮箱桥接面板隐藏 ===
+        # === 验收 4.2.6: 选中 CF Worker 时 CF Worker 面板可见，GPTMail面板隐藏 ===
         print("\n=== 验收 4.2.6: CF Worker 面板切换 ===")
         select_provider(page, "cloudflare_temp_mail")
 
@@ -190,7 +190,7 @@ def main():
         log_result(
             "4.2.6 选中 CF Worker 时面板状态正确",
             gptmail_hidden and cf_visible,
-            f"兼容临时邮箱桥接隐藏: {gptmail_hidden}, CF Worker 可见: {cf_visible}",
+            f"GPTMail隐藏: {gptmail_hidden}, CF Worker 可见: {cf_visible}",
         )
 
         page.screenshot(path="tests/screenshots/settings_cfworker_selected.png", full_page=True)
@@ -207,7 +207,7 @@ def main():
         log_result(
             "4.2.7 切换 Provider 立即响应（无需保存）",
             instant_switch and instant_switch2,
-            f"兼容临时邮箱桥接→CF: {instant_switch}, CF→兼容临时邮箱桥接: 反向也通过={instant_switch2}",
+            f"GPTMail→CF: {instant_switch}, CF→GPTMail: 反向也通过={instant_switch2}",
         )
 
         # === 验收 4.2.8: CF Worker 域名字段永久只读 ===

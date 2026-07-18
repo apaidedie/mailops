@@ -46,7 +46,7 @@ Current stable version: `v2.7.2`
 
 | Version | Date | Key New Features |
 |---------|------|-----------------|
-| **v2.2.0** | 2026-04 | 🔌 **Temp Mail Provider Plugin System**: dynamic install/unload/configure/hot-reload for third-party providers; built-in Cloudflare / Compatible Temp Mail Bridge / Moemail; provider settings decoupled from domain selection; browser extension adds local personal-info generator and full Jest coverage |
+| **v2.2.0** | 2026-04 | 🔌 **Temp Mail Provider Plugin System**: dynamic install/unload/configure/hot-reload for third-party providers; built-in Cloudflare / GPTMail / Moemail; provider settings decoupled from domain selection; browser extension adds local personal-info generator and full Jest coverage |
 | **v2.1.0** | 2026-04 | 📊 **Overview Dashboard**: a 5-tab unified board (Summary / Verification / External API / Mailbox Pool / Activity), plus `verification_extract_logs` for shared observability, browser-extension API-key copy fix, and overview real-time/i18n polish |
 | **v2.0.0** | 2026-04 | 🌐 **Browser Extension** (Chrome/Edge MV3): one-click claim → auto-extract verification code/link → complete/release, no tab-switching needed; backend adds `chrome-extension://` CORS support |
 | **v1.19.0** | 2026-04 | 🔧 Structured refresh-failure hints (error code + actionable steps + trace guide); fixed Selected account refresh early-exit (Issue #45) |
@@ -278,15 +278,15 @@ python scripts/project_readiness_check.py --format json
 - `SCHEDULER_AUTOSTART`
   Whether background scheduler jobs start automatically
 - `GPTMAIL_BASE_URL`
-  Compatible temp-mail bridge service root URL, for example `https://mail.chatgpt.org.uk`. The `GPTMAIL_*` variable names are kept for legacy deployment compatibility; if an API docs page URL such as `/zh/api` is entered, runtime requests normalize it back to the service root
+  GPTMail API service root URL, for example `https://mail.chatgpt.org.uk` (not the docs page `/zh`). The `GPTMAIL_*` names are kept for legacy deploys; docs paths like `/zh/api` are normalized to the service root at runtime
 - `GPTMAIL_API_KEY`
-  API key used by the compatible temp-mail bridge. When left empty, that bridge is reported as needs-config. New deployments can also prefer `mail_tm`, `duckmail`, `tempmail_lol`, `emailnator`, `cloudflare_temp_mail`, or plugin providers
+  GPTMail API key. When empty, the GPTMail provider is reported as needs-config. You can also use `mail_tm`, `duckmail`, `tempmail_lol`, `emailnator`, `cloudflare_temp_mail`, or plugin providers
 - `TEMP_MAIL_PROVIDER`
-  Deployment-level temp-mail provider override. Supported built-ins include `legacy_bridge`, `mail_tm`, `duckmail`, `tempmail_lol`, `emailnator`, and `cloudflare_temp_mail`; leave empty to use the value saved in settings. `legacy_bridge` is for self-hosted or compatible temp-mail bridge deployments
+  Deployment-level temp-mail provider override. Built-ins include `legacy_bridge` (GPTMail), `mail_tm`, `duckmail`, `tempmail_lol`, `emailnator`, and `cloudflare_temp_mail`; leave empty to use the value saved in settings
 - `EXTERNAL_POOL_DEFAULT_PROVIDER`
   Deployment-level default provider for external pool claims. Used when `POST /api/v1/external/pool/claim-random` omits `provider`; set `auto`, an account provider, or a temp-mail provider, or leave empty for automatic claiming
 - `ACTIVE_MAILBOX_PROVIDERS`
-  Mailbox provider allowlist. Leave empty to enable all providers; when set, only these providers are exposed and used. Accepts comma- or newline-separated values such as `duckmail,mail_tm`, `imap`, or `legacy_bridge`. Compatibility aliases such as `gptmail`, `legacy_gptmail`, and `temp_mail` still normalize to the compatible bridge
+  Mailbox provider allowlist. Leave empty to enable all providers; when set, only these providers are exposed and used. Accepts comma- or newline-separated values such as `duckmail,mail_tm`, `imap`, or `legacy_bridge`. Compatibility aliases such as `gptmail`, `legacy_gptmail`, and `temp_mail` still normalize to GPTMail
 - `OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE`
   Provider selection config-file path. Supports JSON/TOML and can declare `temp_mail_provider`, `pool_default_provider`, and `active_mailbox_providers`; priority is lower than environment variables and higher than saved settings
 - `MAILTM_API_BASE`

@@ -139,7 +139,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertEqual(data["code"], "OK")
         self.assertEqual(data["data"]["email"], "demo123@ext-temp.test")
         self.assertEqual(data["data"]["provider_name"], "custom_domain_temp_mail")
-        self.assertEqual(data["data"]["provider_label"], "Compatible Temp Mail Bridge")
+        self.assertEqual(data["data"]["provider_label"], "GPTMail")
         self.assertEqual(data["data"]["read_capability"], "temp_provider")
         self.assertFalse(data["data"]["visible_in_ui"])
         self.assertTrue(data["data"]["task_token"].startswith("tmptask_"))
@@ -864,7 +864,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         diagnostics = data["provider_diagnostics"]
         self.assertEqual(diagnostics["scope"]["type"], "local_config")
         self.assertFalse(diagnostics["scope"]["network_probe"])
-        # Full catalog dual-registers Compatible Temp Mail Bridge keys; diagnostics
+        # Full catalog dual-registers GPTMail keys; diagnostics
         # collapse to a single operator-facing bridge row, so active/total can be
         # one less than len(mailbox_providers).
         self.assertEqual(diagnostics["summary"]["active"], len(diagnostics["providers"]))

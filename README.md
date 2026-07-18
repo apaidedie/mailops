@@ -46,7 +46,7 @@
 
 | 版本 | 日期 | 核心新功能 |
 |------|------|-----------|
-| **v2.2.0** | 2026-04 | 🔌 **临时邮箱 Provider 插件化**：支持第三方插件动态安装/卸载/配置，内置 Cloudflare / 兼容临时邮箱桥接 / Moemail，Provider 设置与域名选择解耦；浏览器扩展新增本地个人信息生成器与完整 Jest 测试覆盖 |
+| **v2.2.0** | 2026-04 | 🔌 **临时邮箱 Provider 插件化**：支持第三方插件动态安装/卸载/配置，内置 Cloudflare / GPTMail / Moemail，Provider 设置与域名选择解耦；浏览器扩展新增本地个人信息生成器与完整 Jest 测试覆盖 |
 | **v2.1.0** | 2026-04 | 📊 **数据概览大盘**：5 Tab 统一看板（总览 / 验证码提取 / 对外 API / 邮箱池 / 系统活动），新增 `verification_extract_logs` 统一观测链路，并修复浏览器扩展 API Key 复制与 overview i18n/实时刷新问题 |
 | **v2.0.0** | 2026-04 | 🌐 **浏览器扩展**（Chrome/Edge MV3）：一键申领邮箱 → 自动提取验证码/链接 → 完成/释放，无需切换标签页；后端新增 `chrome-extension://` CORS 跨域支持 |
 | **v1.19.0** | 2026-04 | 🔧 刷新失败提示结构化增强（错误码 + 可执行步骤 + trace 反馈指引）；Selected 账号刷新提前失败修复（Issue #45） |
@@ -205,15 +205,15 @@ python scripts/project_readiness_check.py --format json
 - `SCHEDULER_AUTOSTART`
   是否自动启动后台调度器
 - `GPTMAIL_BASE_URL`
-  兼容临时邮箱桥接沿用的服务根地址，例如 `https://mail.chatgpt.org.uk`。变量名保留 `GPTMAIL_*` 是为了兼容旧部署；如果误填 API 文档页地址如 `/zh/api`，运行时会自动归一到服务根地址
+  GPTMail API 服务根地址，例如 `https://mail.chatgpt.org.uk`（不要填文档页 `/zh`）。变量名保留 `GPTMAIL_*` 以兼容旧部署；若误填 `/zh/api` 等文档路径，运行时会归一到服务根
 - `GPTMAIL_API_KEY`
-  兼容临时邮箱桥接沿用的 API Key；留空时该桥接会显示为缺配置。新部署也可以优先使用 `mail_tm`、`duckmail`、`tempmail_lol`、`emailnator`、`cloudflare_temp_mail` 或插件 provider
+  GPTMail API Key；留空时该 Provider 显示为缺配置。也可改用 `mail_tm`、`duckmail`、`tempmail_lol`、`emailnator`、`cloudflare_temp_mail` 或插件 provider
 - `TEMP_MAIL_PROVIDER`
-  临时邮箱运行时 Provider 覆盖。可选 `legacy_bridge`、`mail_tm`、`duckmail`、`tempmail_lol`、`emailnator`、`cloudflare_temp_mail`；留空时使用设置页保存值。`legacy_bridge` 用于自建或兼容临时邮箱桥接
+  临时邮箱运行时 Provider 覆盖。可选 `legacy_bridge`（GPTMail）、`mail_tm`、`duckmail`、`tempmail_lol`、`emailnator`、`cloudflare_temp_mail`；留空时使用设置页保存值
 - `EXTERNAL_POOL_DEFAULT_PROVIDER`
   外部邮箱池默认领取来源。`POST /api/v1/external/pool/claim-random` 不传 `provider` 时使用该值；可设为 `auto`、普通账号 provider 或临时邮箱 provider，留空时保持自动领取
 - `ACTIVE_MAILBOX_PROVIDERS`
-  启用邮箱来源白名单。留空表示全部启用；填写后仅暴露并使用这些 provider，支持逗号或换行分隔，例如 `duckmail,mail_tm`、`imap`、`legacy_bridge`。兼容别名 `gptmail`、`legacy_gptmail`、`temp_mail` 仍会归一到兼容临时邮箱桥接
+  启用邮箱来源白名单。留空表示全部启用；填写后仅暴露并使用这些 provider，支持逗号或换行分隔，例如 `duckmail,mail_tm`、`imap`、`legacy_bridge`。兼容别名 `gptmail`、`legacy_gptmail`、`temp_mail` 仍会归一到 GPTMail
 - `OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE`
   Provider 选择配置文件路径，支持 JSON/TOML，可声明 `temp_mail_provider`、`pool_default_provider` 和 `active_mailbox_providers`；优先级低于环境变量，高于设置页保存值
 - `MAILTM_API_BASE`

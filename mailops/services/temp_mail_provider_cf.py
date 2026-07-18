@@ -237,7 +237,7 @@ class CloudflareTempMailProvider(TempMailProviderBase):
     # ------------------------------------------------------------------
 
     def _base_url(self) -> str:
-        """读取 CF Worker 独立部署地址（cf_worker_base_url），与兼容临时邮箱桥接设置完全隔离。"""
+        """读取 CF Worker 独立部署地址（cf_worker_base_url），与GPTMail设置完全隔离。"""
         url = settings_repo.get_cf_worker_base_url().rstrip("/")
         return url
 
@@ -292,7 +292,7 @@ class CloudflareTempMailProvider(TempMailProviderBase):
     # ------------------------------------------------------------------
 
     def get_options(self) -> dict[str, Any]:
-        # v0.3: 设置页 CF Worker 配置与兼容临时邮箱桥接配置隔离。
+        # v0.3: 设置页 CF Worker 配置与GPTMail配置隔离。
         # 优先读 cf_worker_*，为空时回退 temp_mail_*（兼容旧配置/旧数据）。
         cf_domains = settings_repo.get_cf_worker_domains()
         cf_default_domain = settings_repo.get_cf_worker_default_domain()
@@ -304,7 +304,7 @@ class CloudflareTempMailProvider(TempMailProviderBase):
         #
         # 策略：当 cf_worker_domains 为空且 base_url 已配置时，自动调用
         # GET {base_url}/open_api/settings 拉取 domains，并写回 cf_worker_domains /
-        # cf_worker_default_domain（与兼容临时邮箱桥接完全独立）。
+        # cf_worker_default_domain（与GPTMail完全独立）。
         #
         # 注意：同步失败必须是非阻塞（不影响 options 返回），并继续走 legacy fallback。
         if not cf_domains:

@@ -189,7 +189,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             (guide.get("aliases") or {}).get("pool_claim_provider_aliases", {}).get("imap", {}).get("kind"), "account"
         )
         guide_providers = {item.get("provider"): item for item in guide.get("providers") or []}
-        # Operator/API guide collapses Compatible Temp Mail Bridge dual-register keys.
+        # Operator/API guide collapses GPTMail dual-register keys.
         self.assertIn("legacy_bridge", guide_providers)
         self.assertNotIn("custom_domain_temp_mail", guide_providers)
         self.assertEqual(guide_providers.get("duckmail", {}).get("required_env"), ["DUCKMAIL_BEARER_TOKEN"])
@@ -413,7 +413,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertIn("temp_mail_api_key", legacy_bridge["missing_config"])
 
     def test_bridge_dual_register_collapsed_in_diagnostics_and_integration_guide(self):
-        """Operator diagnostics/guide must not double Compatible Temp Mail Bridge rows."""
+        """Operator diagnostics/guide must not double GPTMail rows."""
         with self.app.app_context():
             from mailops.services.provider_catalog import (
                 get_mailbox_provider_catalog,
@@ -446,7 +446,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             self.assertIn("legacy_bridge", guide_providers)
             self.assertNotIn("custom_domain_temp_mail", guide_providers)
             bridge_row = next(item for item in guide.get("providers") or [] if item.get("provider") == "legacy_bridge")
-            self.assertEqual(bridge_row.get("label"), "Compatible Temp Mail Bridge")
+            self.assertEqual(bridge_row.get("label"), "GPTMail")
 
     def test_providers_api_reflects_active_mailbox_provider_filter(self):
         with self.app.app_context():

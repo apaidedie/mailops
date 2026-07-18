@@ -4,6 +4,10 @@ All notable changes to MailOps are documented in this file.
 
 ## [Unreleased]
 
+### 改进 / Improvements
+
+- **临时邮箱产品名**：内置 GPTMail 兼容通道对外展示由 `Compatible Temp Mail Bridge` / `兼容临时邮箱桥接` 统一为 **GPTMail**（内部 key `legacy_bridge` / `gptmail` 不变）；配置字段文案改为 GPTMail API Base URL / API Key。
+
 ## [v2.7.2] - 2026-07-18
 
 ### 重要变更 / Important Changes

@@ -37,7 +37,7 @@ class TempMailProviderContractTests(unittest.TestCase):
 
         self.assertEqual(options["provider"], "custom_domain_temp_mail")
         self.assertEqual(options["provider_name"], "custom_domain_temp_mail")
-        self.assertEqual(options["provider_label"], "Compatible Temp Mail Bridge")
+        self.assertEqual(options["provider_label"], "GPTMail")
         self.assertEqual(options["domains"][0]["name"], "provider-contract.test")
 
     def test_create_mailbox_returns_internal_meta_contract(self):

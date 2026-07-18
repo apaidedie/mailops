@@ -92,7 +92,7 @@ def api_get_settings() -> Any:
     safe_settings["cf_worker_domains"] = settings_repo.get_cf_worker_domains()
     safe_settings["cf_worker_default_domain"] = settings_repo.get_cf_worker_default_domain()
     safe_settings["cf_worker_prefix_rules"] = settings_repo.get_cf_worker_prefix_rules()
-    # Cloudflare Worker 独立配置（与兼容临时邮箱桥接设置隔离）
+    # Cloudflare Worker 独立配置（与GPTMail设置隔离）
     cf_admin_key_value = settings_repo.get_cf_worker_admin_key()
     emailnator_api_key_value = settings_repo.get_emailnator_api_key()
     duckmail_bearer_token_value = settings_repo.get_duckmail_bearer_token()

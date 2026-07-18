@@ -313,7 +313,7 @@ def api_update_settings() -> Any:
         except (TypeError, json.JSONDecodeError):
             errors.append("cf_worker_prefix_rules 格式无效")
 
-    # Cloudflare Worker 独立配置（与兼容临时邮箱桥接设置完全隔离）
+    # Cloudflare Worker 独立配置（与GPTMail设置完全隔离）
     if "cf_worker_base_url" in data:
         queue_setting_update("cf_worker_base_url", str(data["cf_worker_base_url"] or "").strip())
         updated.append("CF Worker 地址")

@@ -84,7 +84,7 @@ def _normalize_provider_name(provider: Any, *, default: str = "") -> str:
     return str(provider or default).strip().lower() or default
 
 
-# Compatible Temp Mail Bridge dual-register keys (registry keeps both for source
+# GPTMail dual-register keys (registry keeps both for source
 # compatibility). Inventory/facets/filter collapse to the canonical operator key.
 _BRIDGE_PROVIDER_CANONICAL = "legacy_bridge"
 _BRIDGE_PROVIDER_ALIASES = frozenset(

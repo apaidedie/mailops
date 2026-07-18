@@ -97,7 +97,7 @@ class TestExportEnhancedV2(unittest.TestCase):
 
             temp_emails = [{"email": "t1@temp.example"}, {"email": "t2@temp.example"}]
             content = _build_export_text([], temp_emails)
-            self.assertIn("# === 临时邮箱（兼容临时邮箱桥接）===", content)
+            self.assertIn("# === 临时邮箱（GPTMail）===", content)
             self.assertIn("t1@temp.example", content)
             self.assertIn("t2@temp.example", content)
             # 临时邮箱行不应包含 ----

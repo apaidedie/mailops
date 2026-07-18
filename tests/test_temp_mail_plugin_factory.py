@@ -31,7 +31,7 @@ class TestPluginFactory(unittest.TestCase):
 
     # B-FAC-02
     def test_factory_returns_custom_provider(self):
-        """查询兼容临时邮箱桥接 provider 返回 CustomTempMailProvider 实例"""
+        """查询GPTMail provider 返回 CustomTempMailProvider 实例"""
         from mailops.services.temp_mail_provider_custom import CustomTempMailProvider
         from mailops.services.temp_mail_provider_factory import get_temp_mail_provider
 

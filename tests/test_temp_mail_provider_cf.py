@@ -167,7 +167,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
             from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "cloudflare_temp_mail")
-            # CF Worker 使用独立配置键（与兼容临时邮箱桥接隔离）
+            # CF Worker 使用独立配置键（与GPTMail隔离）
             settings_repo.set_setting("cf_worker_base_url", "https://cf-worker.example.workers.dev")
             settings_repo.set_setting("cf_worker_admin_key", "super-secret-admin-pass")
 

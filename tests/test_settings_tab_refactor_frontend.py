@@ -2,7 +2,7 @@
 
 目标：验证设置页面 UI 重构（Tab 化 + 临时邮箱配置区分离）的前端代码已正确存在：
   - index.html: 4 个 Tab 按钮、4 个 Tab 面板、Provider radio button（非 select）
-  - index.html: 兼容临时邮箱桥接配置面板字段、CF Worker 配置面板字段、只读属性
+  - index.html: GPTMail配置面板字段、CF Worker 配置面板字段、只读属性
   - main.js:  switchSettingsTab / onTempMailProviderChange / autoSaveSettings 函数
   - main.css: .settings-tab-nav / .settings-tab / .settings-tab-pane / .provider-radio-group / .readonly-field 样式
 
@@ -2171,7 +2171,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertNotIn("DUCKMAIL_BEARER_TOKEN", json.dumps(manifest.get("workflows") or [], ensure_ascii=False))
 
     # ──────────────────────────────────────────────────────
-    # TC-B04：index.html 包含兼容临时邮箱桥接配置面板及其字段
+    # TC-B04：index.html 包含GPTMail配置面板及其字段
     # ──────────────────────────────────────────────────────
 
     def test_index_html_contains_gptmail_config_panel(self):
@@ -2184,7 +2184,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn(
             'id="gptmailConfigPanel"',
             html,
-            "应包含兼容临时邮箱桥接配置面板 #gptmailConfigPanel",
+            "应包含GPTMail配置面板 #gptmailConfigPanel",
         )
         # Static hard-coded bridge fields are removed; schema renderer owns them.
         self.assertNotIn('id="settingsTempMailApiBaseUrl"', html)

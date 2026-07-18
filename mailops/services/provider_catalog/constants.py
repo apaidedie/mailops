@@ -15,15 +15,20 @@ from mailops.services.providers import MAIL_PROVIDERS, get_provider_list
 from mailops.services.temp_mail_provider_base import normalize_provider_capabilities
 from mailops.services.temp_mail_provider_factory import TempMailProviderFactoryError, get_available_providers
 
-COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL = "Compatible Temp Mail Bridge"
-COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH = "兼容临时邮箱桥接"
+# Operator-facing product name for the built-in GPTMail-compatible temp provider.
+# Internal keys remain legacy_bridge / custom_domain_temp_mail / gptmail for storage compat.
+GPTMAIL_PROVIDER_LABEL = "GPTMail"
+GPTMAIL_PROVIDER_LABEL_ZH = "GPTMail"
+# Historical constant names kept as aliases so older imports keep working.
+COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL = GPTMAIL_PROVIDER_LABEL
+COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH = GPTMAIL_PROVIDER_LABEL_ZH
 
 _TEMP_PROVIDER_LABEL_OVERRIDES = {
-    "custom_domain_temp_mail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
-    "legacy_bridge": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
-    "legacy_gptmail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
-    "gptmail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
-    "temp_mail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL,
+    "custom_domain_temp_mail": GPTMAIL_PROVIDER_LABEL,
+    "legacy_bridge": GPTMAIL_PROVIDER_LABEL,
+    "legacy_gptmail": GPTMAIL_PROVIDER_LABEL,
+    "gptmail": GPTMAIL_PROVIDER_LABEL,
+    "temp_mail": GPTMAIL_PROVIDER_LABEL,
     "cloudflare_temp_mail": "Cloudflare Temp Mail",
     "mail_tm": "Mail.tm",
     "duckmail": "DuckMail",
@@ -32,16 +37,16 @@ _TEMP_PROVIDER_LABEL_OVERRIDES = {
 }
 
 _TEMP_PROVIDER_ZH_LABEL_OVERRIDES = {
-    "custom_domain_temp_mail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
-    "legacy_bridge": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
-    "legacy_gptmail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
-    "gptmail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
-    "temp_mail": COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH,
+    "custom_domain_temp_mail": GPTMAIL_PROVIDER_LABEL_ZH,
+    "legacy_bridge": GPTMAIL_PROVIDER_LABEL_ZH,
+    "legacy_gptmail": GPTMAIL_PROVIDER_LABEL_ZH,
+    "gptmail": GPTMAIL_PROVIDER_LABEL_ZH,
+    "temp_mail": GPTMAIL_PROVIDER_LABEL_ZH,
 }
 
 GPTMAIL_POOL_TEMP_PROVIDER_NAMES = ("custom_domain_temp_mail", "legacy_bridge")
 GPTMAIL_RUNTIME_ALIASES = ("gptmail", "legacy_gptmail", "temp_mail")
-# Operator/API projection collapses Compatible Temp Mail Bridge dual-register keys.
+# Operator/API projection collapses GPTMail dual-register keys.
 # Registry + full catalog still keep both names for stored-source compatibility.
 _BRIDGE_OPERATOR_CANONICAL = settings_repo.LEGACY_TEMP_MAIL_PROVIDER
 _BRIDGE_OPERATOR_FAMILY = frozenset(
