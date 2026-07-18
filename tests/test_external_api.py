@@ -4213,29 +4213,37 @@ class GuardRateLimitTests(ExternalApiGuardBaseTest):
         """TC-GUARD-12: 公网模式 + 超限 → 429 RATE_LIMIT_EXCEEDED"""
         self._set_external_api_key("abc123")
         self._set_public_mode(True)
-        self._set_ip_whitelist(["127.0.0.1"])
-        self._set_rate_limit(3)
+        # Allow any client IP (Flask test client remote_addr can vary by environment).
+        self._set_ip_whitelist([])
+        self._set_rate_limit(1)
         self._clear_rate_limits()
+        with self.app.app_context():
+            from outlook_web.repositories import settings as settings_repo
+
+            self.assertTrue(settings_repo.get_external_api_public_mode())
+            self.assertEqual(settings_repo.get_external_api_rate_limit(), 1)
+
         client = self.app.test_client()
-        results = []
-        for _ in range(5):
-            resp = client.get("/api/v1/external/health", headers=self._auth_headers())
-            results.append(resp.status_code)
-        # 前 3 次应该通过（200），之后应该是 429
-        self.assertTrue(any(s == 429 for s in results), f"预期至少一个 429，实际: {results}")
-        # 检查 429 响应内容
-        last_429 = [r for r in range(5) if results[r] == 429]
-        if last_429:
-            resp = client.get("/api/v1/external/health", headers=self._auth_headers())
-            if resp.status_code == 429:
-                data = resp.get_json()
-                self.assertEqual(data["code"], "RATE_LIMIT_EXCEEDED")
+        first = client.get("/api/v1/external/health", headers=self._auth_headers())
+        second = client.get("/api/v1/external/health", headers=self._auth_headers())
+        self.assertEqual(
+            first.status_code,
+            200,
+            f"first request should pass, got {first.status_code}: {first.get_json()}",
+        )
+        self.assertEqual(
+            second.status_code,
+            429,
+            f"second request should be rate-limited, got {second.status_code}: {second.get_json()}",
+        )
+        data = second.get_json() or {}
+        self.assertEqual(data.get("code"), "RATE_LIMIT_EXCEEDED")
 
     def test_rate_limit_not_exceeded(self):
         """TC-GUARD-13: 公网模式 + 未超限 → 正常通过"""
         self._set_external_api_key("abc123")
         self._set_public_mode(True)
-        self._set_ip_whitelist(["127.0.0.1"])
+        self._set_ip_whitelist([])
         self._set_rate_limit(100)
         self._clear_rate_limits()
         client = self.app.test_client()
@@ -4247,18 +4255,19 @@ class GuardRateLimitTests(ExternalApiGuardBaseTest):
         """TC-GUARD-14: 429 响应包含 limit/current/ip"""
         self._set_external_api_key("abc123")
         self._set_public_mode(True)
-        self._set_ip_whitelist(["127.0.0.1"])
+        self._set_ip_whitelist([])
         self._set_rate_limit(1)
         self._clear_rate_limits()
         client = self.app.test_client()
-        client.get("/api/v1/external/health", headers=self._auth_headers())
+        first = client.get("/api/v1/external/health", headers=self._auth_headers())
+        self.assertEqual(first.status_code, 200)
         resp = client.get("/api/v1/external/health", headers=self._auth_headers())
-        if resp.status_code == 429:
-            data = resp.get_json()
-            err_data = data.get("data", {})
-            self.assertIn("limit", err_data)
-            self.assertIn("current", err_data)
-            self.assertIn("ip", err_data)
+        self.assertEqual(resp.status_code, 429, resp.get_json())
+        data = resp.get_json() or {}
+        err_data = data.get("data", {})
+        self.assertIn("limit", err_data)
+        self.assertIn("current", err_data)
+        self.assertIn("ip", err_data)
 
 
 class GuardCapabilitiesTests(ExternalApiGuardBaseTest):

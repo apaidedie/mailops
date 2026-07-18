@@ -171,8 +171,16 @@ def check_rate_limit() -> Optional[Any]:
             "SELECT request_count FROM external_api_rate_limits WHERE ip_address = ? AND minute_bucket = ?",
             (client_ip, bucket),
         ).fetchone()
-        count = row["request_count"] if row else 0
-    except Exception:
+        count = int(row["request_count"] if row else 0)
+    except Exception as exc:
+        # Fail open only when storage is unavailable; log so CI flakes are diagnosable.
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "external_api_rate_limit_check_failed ip=%s err=%s",
+            client_ip,
+            exc,
+        )
         return None
 
     if count > limit:
