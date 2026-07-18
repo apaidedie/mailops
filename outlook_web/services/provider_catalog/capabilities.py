@@ -954,7 +954,7 @@ def _integration_bundle_action_plan(
             "title": "Run the read-only smoke check",
             "detail": "Validate discovery, OpenAPI, provider readiness, mailbox directory, and secret safety before mutating mailbox state.",
             "endpoint": endpoint("integration_bundle"),
-            "command": "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+            "command": "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
             "docs": "docs/external-integration-quickstart.md",
         }
     )

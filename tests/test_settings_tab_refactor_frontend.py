@@ -1033,7 +1033,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         handoff_start = js_text.index("function formatExternalApiHandoffValue")
         handoff_end = js_text.index("function getOperationalReadinessMailboxSnapshot", handoff_start)
         handoff_text = js_text[handoff_start:handoff_end]
-        self.assertIn("OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key>", smoke_text)
+        self.assertIn("MAILOPS_API_KEY=<your-api-key>", smoke_text)
         self.assertIn("python scripts/external_api_smoke.py", smoke_text)
         self.assertIn("--base-url", smoke_text)
         self.assertIn("externalApiCanonicalPath('/health')", smoke_text)

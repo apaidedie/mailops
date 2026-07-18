@@ -13,7 +13,7 @@ This task is documentation and tooling around existing external APIs. It does no
 
 ## Smoke Checker Contract
 
-The script accepts `--base-url` and an API key supplied by `--api-key` or `OUTLOOK_EMAIL_PLUS_API_KEY`. It calls only read-only endpoints:
+The script accepts `--base-url` and an API key supplied by `--api-key` or `MAILOPS_API_KEY`. It calls only read-only endpoints:
 
 - `GET /api/external/health`
 - `GET /api/external/capabilities`

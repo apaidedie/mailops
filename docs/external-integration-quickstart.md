@@ -49,14 +49,14 @@ python scripts/external_api_smoke.py \
 Or pass the key through the environment:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python scripts/external_api_smoke.py --base-url https://mailbox.example.com
 ```
 
 For CI or deployment gates, request machine-readable JSON:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python scripts/external_api_smoke.py \
   --base-url https://mailbox.example.com \
   --format json
@@ -91,7 +91,7 @@ Use this as a deployment gate before connecting a production worker. A failure u
 The zero-dependency starter client in `examples/external_api_python_client.py` is importable by another service and also works as a CLI demo. Use the read-only `discover` command first:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   discover
@@ -100,7 +100,7 @@ python examples/external_api_python_client.py \
 For deployment planning, fetch the live readiness bundle at `/api/v1/external/integration-bundle` or generate the same compact bundle through the starter client:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   integration-bundle \
@@ -110,7 +110,7 @@ python examples/external_api_python_client.py \
 JavaScript services can generate the same bundle without installing packages:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 node examples/external_api_javascript_client.js \
   --base-url https://mailbox.example.com \
   integration-bundle \
@@ -120,7 +120,7 @@ node examples/external_api_javascript_client.js \
 For CI logs or a quick operator check, ask either starter client for only the action-plan summary:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   integration-bundle \
@@ -136,7 +136,7 @@ Read `data.action_plan` before mutating mailbox state. It is a versioned, machin
 The Node.js starter client in `examples/external_api_javascript_client.js` provides the same discovery and session lifecycle helpers for JavaScript services. It requires Node 18+ and no runtime package install:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 node examples/external_api_javascript_client.js \
   --base-url https://mailbox.example.com \
   discover
@@ -147,7 +147,7 @@ Both starters discover live endpoints from `capabilities.data.endpoints` and fal
 For an end-to-end verification-code demo, use `verification-code`. This command mutates server state: it starts a mailbox session, reads verification mail, and closes the lifecycle in a `finally` path.
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   verification-code \
@@ -160,7 +160,7 @@ python examples/external_api_python_client.py \
 The JavaScript command accepts the same selector fields:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 node examples/external_api_javascript_client.js \
   --base-url https://mailbox.example.com \
   verification-code \

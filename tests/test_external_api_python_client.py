@@ -152,7 +152,7 @@ def _live_integration_bundle_data() -> dict:
                     "status": "ready",
                     "blocking": False,
                     "title": "Run smoke checker",
-                    "command": "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+                    "command": "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
                 },
                 {
                     "key": "start_mailbox_session",
@@ -285,7 +285,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
             return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
-        with patch.dict(os.environ, {"OUTLOOK_EMAIL_PLUS_API_KEY": "env-key"}, clear=False):
+        with patch.dict(os.environ, {"MAILOPS_API_KEY": "env-key"}, clear=False):
             with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
                 buffer = io.StringIO()
                 with redirect_stdout(buffer):
@@ -566,7 +566,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
     def test_source_contains_only_placeholder_secrets(self):
         source = Path("examples/external_api_python_client.py").read_text(encoding="utf-8")
 
-        self.assertIn("OUTLOOK_EMAIL_PLUS_API_KEY", source)
+        self.assertIn("MAILOPS_API_KEY", source)
         self.assertNotRegex(source, r"dk_[0-9a-fA-F]{20,}")
         self.assertNotRegex(source, r"DUCKMAIL_BEARER_TOKEN\s*=")
         self.assertNotRegex(source, r"X-API-Key:\s+(?!<your-api-key>)[A-Za-z0-9_.-]{20,}")

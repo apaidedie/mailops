@@ -374,7 +374,7 @@ def _starter_clients(root: Path) -> list[CheckResult]:
         "mailbox-sessions/start",
         "mailbox-sessions/read",
         "mailbox-sessions/close",
-        "OUTLOOK_EMAIL_PLUS_API_KEY",
+        "MAILOPS_API_KEY",
         "X-API-Key",
         "integration-bundle",
         "provider_name",

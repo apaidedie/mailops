@@ -120,7 +120,7 @@ they should return `401` or `403` rather than falling back to an admin session.
 After configuring a key in Settings -> API Security, run:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python scripts/external_api_smoke.py \
   --base-url http://127.0.0.1:5000 \
   --format json

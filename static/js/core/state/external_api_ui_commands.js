@@ -336,7 +336,7 @@
         }
 
         function getExternalApiSmokeCommand() {
-            return `OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url ${getExternalApiStarterBaseUrl() || '<your-base-url>'}`;
+            return `MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url ${getExternalApiStarterBaseUrl() || '<your-base-url>'}`;
         }
 
         function getExternalApiBundleEndpointDescriptor(endpointMap = getExternalApiStarterEndpointMap()) {

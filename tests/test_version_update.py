@@ -146,7 +146,7 @@ class VersionCheckAPITests(unittest.TestCase):
             mock_resp.read.return_value = json.dumps(
                 {
                     "tag_name": "v99.0.0",
-                    "html_url": "https://github.com/hshaokang/outlookemail-plus/releases/tag/v99.0.0",
+                    "html_url": "https://github.com/apaidedie/mailops/releases/tag/v99.0.0",
                 }
             ).encode()
             mock_resp.__enter__ = lambda s: mock_resp

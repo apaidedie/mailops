@@ -11,7 +11,6 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any, Callable
 
-
 EXPECTED_STRATEGIES = ["pool_first", "task_temp_first", "pool_only", "task_temp_only"]
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 LEGACY_EXTERNAL_PREFIX = "/api/external"
@@ -103,7 +102,7 @@ SECRET_PATTERNS = [
     re.compile(r"dk_[0-9a-fA-F]{40,}"),
     re.compile(r"Bearer\s+[A-Za-z0-9_.-]{20,}", re.IGNORECASE),
     re.compile(r"X-API-Key:\s+(?!<your-api-key>)[A-Za-z0-9_.-]{20,}", re.IGNORECASE),
-    re.compile(r"OUTLOOK_EMAIL_PLUS_API_KEY=(?!<your-api-key>)[A-Za-z0-9_.-]{20,}", re.IGNORECASE),
+    re.compile(r"MAILOPS_API_KEY=(?!<your-api-key>)[A-Za-z0-9_.-]{20,}", re.IGNORECASE),
 ]
 
 
@@ -290,7 +289,9 @@ def _provider_readiness_summary_checks(prefix: str, readiness: dict[str, Any]) -
     )
     totals = readiness.get("totals") if isinstance(readiness.get("totals"), dict) else {}
     issues = readiness.get("issues") if isinstance(readiness.get("issues"), dict) else {}
-    selector_fields = readiness.get("provider_selector_fields") if isinstance(readiness.get("provider_selector_fields"), dict) else {}
+    selector_fields = (
+        readiness.get("provider_selector_fields") if isinstance(readiness.get("provider_selector_fields"), dict) else {}
+    )
     endpoints = readiness.get("endpoints") if isinstance(readiness.get("endpoints"), dict) else {}
     provider_rows = readiness.get("providers") if isinstance(readiness.get("providers"), list) else []
     results.append(
@@ -412,7 +413,9 @@ def _routing_matrix_checks(prefix: str, routing_matrix: dict[str, Any]) -> list[
     return results
 
 
-def _integration_bundle_checks(bundle: dict[str, Any], *, capabilities: dict[str, Any], openapi_payload: dict[str, Any]) -> list[CheckResult]:
+def _integration_bundle_checks(
+    bundle: dict[str, Any], *, capabilities: dict[str, Any], openapi_payload: dict[str, Any]
+) -> list[CheckResult]:
     results: list[CheckResult] = []
     required = {
         "version",
@@ -433,7 +436,9 @@ def _integration_bundle_checks(bundle: dict[str, Any], *, capabilities: dict[str
         "action_plan",
     }
     missing = _missing_keys(bundle, required)
-    results.append(_check(isinstance(bundle, dict) and not missing, "integration_bundle", "integration bundle exposes required sections"))
+    results.append(
+        _check(isinstance(bundle, dict) and not missing, "integration_bundle", "integration bundle exposes required sections")
+    )
     results.append(
         _check(
             bundle.get("status") in {"ready", "needs_config", "degraded"},
@@ -465,7 +470,8 @@ def _integration_bundle_checks(bundle: dict[str, Any], *, capabilities: dict[str
     action_plan = bundle.get("action_plan") if isinstance(bundle.get("action_plan"), dict) else {}
     results.append(
         _check(
-            (readiness.get("external_api") or {}).get("discovery", {}).get("next_endpoints", {}).get("integration_bundle") == CANONICAL_INTEGRATION_BUNDLE,
+            (readiness.get("external_api") or {}).get("discovery", {}).get("next_endpoints", {}).get("integration_bundle")
+            == CANONICAL_INTEGRATION_BUNDLE,
             "integration_bundle.readiness.discovery",
             "bundle readiness points health discovery at the bundle endpoint",
         )
@@ -481,7 +487,9 @@ def _integration_bundle_checks(bundle: dict[str, Any], *, capabilities: dict[str
     schemas = ((openapi_payload.get("components") or {}).get("schemas") or {}) if isinstance(openapi_payload, dict) else {}
     results.append(
         _check(
-            openapi.get("endpoint") == CANONICAL_OPENAPI and openapi.get("path_count") == len(paths) and openapi.get("schema_count") == len(schemas),
+            openapi.get("endpoint") == CANONICAL_OPENAPI
+            and openapi.get("path_count") == len(paths)
+            and openapi.get("schema_count") == len(schemas),
             "integration_bundle.openapi",
             "bundle OpenAPI metadata matches the generated contract",
         )
@@ -586,7 +594,7 @@ def _integration_bundle_action_plan_checks(action_plan: dict[str, Any], *, bundl
     placeholder_safe = "<your-api-key>" in serialized and "<your-base-url>" in serialized
     results.append(
         _check(
-            placeholder_safe and "OUTLOOK_EMAIL_PLUS_API_KEY=" in serialized and "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key>" in serialized,
+            placeholder_safe and "MAILOPS_API_KEY=" in serialized and "MAILOPS_API_KEY=<your-api-key>" in serialized,
             "integration_bundle.action_plan.placeholder_command",
             "action plan commands use placeholder API key and base URL values",
         )
@@ -918,7 +926,13 @@ def validate_contracts(
     results.extend(_routing_matrix_checks("providers", provider_routing_matrix))
     results.extend(_routing_matrix_checks("mailboxes", mailbox_routing_matrix))
     serialized = json.dumps(
-        {"capabilities": capabilities, "integration_bundle": integration_bundle, "providers": providers, "mailboxes": mailboxes, "openapi": openapi_payload},
+        {
+            "capabilities": capabilities,
+            "integration_bundle": integration_bundle,
+            "providers": providers,
+            "mailboxes": mailboxes,
+            "openapi": openapi_payload,
+        },
         ensure_ascii=False,
     )
     secret_hits = [pattern.pattern for pattern in SECRET_PATTERNS if pattern.search(serialized)]
@@ -938,7 +952,7 @@ def run_smoke(
     if not base_url.strip():
         raise SmokeError("--base-url is required")
     if not api_key.strip():
-        raise SmokeError("API key is required via --api-key or OUTLOOK_EMAIL_PLUS_API_KEY")
+        raise SmokeError("API key is required via --api-key or MAILOPS_API_KEY " "(legacy: OUTLOOK_EMAIL_PLUS_API_KEY)")
     if fetcher is None:
         fetcher = lambda root, key, path: fetch_json(root, key, path, timeout=timeout)
     endpoints = smoke_endpoints()
@@ -969,8 +983,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--api-key",
-        default=os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
-        help="External API key. Defaults to OUTLOOK_EMAIL_PLUS_API_KEY.",
+        default=os.environ.get("MAILOPS_API_KEY") or os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
+        help="External API key. Defaults to MAILOPS_API_KEY (legacy: OUTLOOK_EMAIL_PLUS_API_KEY).",
     )
     parser.add_argument("--timeout", type=float, default=10.0, help="HTTP timeout in seconds. Default: 10")
     parser.add_argument(

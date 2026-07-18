@@ -9,7 +9,7 @@ The script may import `outlook_web.db.init_db()` and `outlook_web.db.create_sqli
 ## Data Flow
 
 1. Parse CLI arguments.
-2. Resolve the target database path. The default is `output/demo/outlook-email-plus-demo.db`.
+2. Resolve the target database path. The default is `output/demo/mailops-demo.db`.
 3. In dry-run mode, report the resolved path and planned demo rows without creating or mutating the database.
 4. For real runs, set safe process env defaults required by `init_db()` only when absent: `SECRET_KEY`, `LOGIN_PASSWORD`, and `SCHEDULER_AUTOSTART=false`.
 5. Create the parent directory, optionally delete the target DB and SQLite sidecar files when `--reset` is passed, then call `init_db(database_path=...)`.

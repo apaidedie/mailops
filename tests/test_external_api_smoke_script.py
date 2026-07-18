@@ -441,7 +441,7 @@ def _integration_bundle_payload() -> dict:
                         "title": "Run the read-only smoke check",
                         "detail": "Validate discovery before mutating mailbox state.",
                         "endpoint": CANONICAL_INTEGRATION_BUNDLE,
-                        "command": "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+                        "command": "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
                         "docs": "docs/external-integration-quickstart.md",
                     },
                     {
@@ -763,7 +763,7 @@ class ExternalApiSmokeScriptTests(unittest.TestCase):
         bundle = _integration_bundle_payload()
         bundle["data"]["action_plan"]["items"][0][
             "command"
-        ] = "OUTLOOK_EMAIL_PLUS_API_KEY=sk-secret-secret-secret-1234567890 python scripts/external_api_smoke.py --base-url https://example.test"
+        ] = "MAILOPS_API_KEY=sk-secret-secret-secret-1234567890 python scripts/external_api_smoke.py --base-url https://example.test"
         payloads = {
             f"{CANONICAL_EXTERNAL_PREFIX}/health": _health_payload(),
             f"{CANONICAL_EXTERNAL_PREFIX}/capabilities": _capabilities_payload(),

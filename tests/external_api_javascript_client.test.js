@@ -115,7 +115,7 @@ function liveIntegrationBundleData() {
           blocking: false,
           title: "Run smoke checker",
           command:
-            "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+            "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
         },
         {
           key: "start_mailbox_session",
@@ -288,7 +288,7 @@ test("CLI discover uses API key from environment", async () => {
   const transport = makeTransport(discoveryResponses());
 
   const exitCode = await main(["--base-url", "https://mailbox.example.test", "discover"], {
-    env: { OUTLOOK_EMAIL_PLUS_API_KEY: "env-key" },
+    env: { MAILOPS_API_KEY: "env-key" },
     stdout: () => {},
     stderr: () => {},
     clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
@@ -601,7 +601,7 @@ test("CLI verification-code forwards start selection fields", async () => {
 test("source contains only placeholder secrets", () => {
   const source = fs.readFileSync("examples/external_api_javascript_client.js", "utf8");
 
-  assert.match(source, /OUTLOOK_EMAIL_PLUS_API_KEY/);
+  assert.match(source, /MAILOPS_API_KEY/);
   assert.doesNotMatch(source, /dk_[0-9a-fA-F]{20,}/);
   assert.doesNotMatch(source, /DUCKMAIL_BEARER_TOKEN\s*=/);
   assert.doesNotMatch(source, /X-API-Key:\s+(?!<your-api-key>)[A-Za-z0-9_.-]{20,}/);

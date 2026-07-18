@@ -114,12 +114,12 @@ Legacy `/api/external/*` routes were removed. Integrations must use canonical
 Copyable starter clients are available without runtime dependencies:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   integration-bundle
 
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 node examples/external_api_javascript_client.js \
   --base-url https://mailbox.example.com \
   integration-bundle
@@ -159,7 +159,7 @@ Before connecting a production registration worker, run the read-only external
 smoke checker against the target instance:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
+MAILOPS_API_KEY=<your-api-key> \
 python scripts/external_api_smoke.py \
   --base-url https://mailbox.example.com \
   --format json

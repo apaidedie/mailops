@@ -6,7 +6,7 @@ Make the locally seeded demo workspace obvious and useful on first run so a GitH
 
 ## Background
 
-- The demo seed command creates an isolated SQLite database at `output/demo/outlook-email-plus-demo.db` with synthetic Outlook, IMAP, temp-mail, verification, pool, and external API usage rows.
+- The demo seed command creates an isolated SQLite database at `output/demo/mailops-demo.db` with synthetic Outlook, IMAP, temp-mail, verification, pool, and external API usage rows.
 - The current app can run against that database, but the authenticated workspace does not visibly indicate demo mode or guide users toward the unified mailbox, temp-mail, and external API surfaces.
 - The bootstrap API already hydrates layout/polling settings and is the right contract boundary for safe page-shell metadata.
 
@@ -23,7 +23,7 @@ Make the locally seeded demo workspace obvious and useful on first run so a GitH
 
 ## Acceptance Criteria
 
-- [ ] `/api/bootstrap` returns a safe `demo_workspace.enabled=true` payload when `DATABASE_PATH` points to `output/demo/outlook-email-plus-demo.db`.
+- [ ] `/api/bootstrap` returns a safe `demo_workspace.enabled=true` payload when `DATABASE_PATH` points to `output/demo/mailops-demo.db`.
 - [ ] `/api/bootstrap` returns `demo_workspace.enabled=false` for ordinary databases.
 - [ ] The authenticated page has a stable demo-strip mount point and frontend renderer that consumes the bootstrap payload defensively.
 - [ ] Demo quick actions navigate to the intended existing pages/tabs without reading credential form fields or provider secrets.

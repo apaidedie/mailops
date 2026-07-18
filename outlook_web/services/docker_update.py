@@ -345,7 +345,7 @@ def spawn_update_helper_container(
         try:
             existing = client.containers.list(
                 all=True,
-                filters={"label": "outlook_email_plus.update_helper=true"},
+                filters={"label": "mailops.update_helper=true"},
             )
             for c in existing:
                 try:
@@ -394,8 +394,8 @@ def spawn_update_helper_container(
                 helper_env[k] = v
 
         helper_labels = {
-            "outlook_email_plus.update_helper": "true",
-            "outlook_email_plus.target_container_id": target_container_id,
+            "mailops.update_helper": "true",
+            "mailops.target_container_id": target_container_id,
             # 防止 Watchtower（如存在）误更新该容器
             "com.centurylinklabs.watchtower.enable": "false",
         }

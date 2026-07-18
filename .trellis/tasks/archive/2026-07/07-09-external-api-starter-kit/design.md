@@ -6,13 +6,13 @@ Add one stdlib-only Python module:
 
 - `examples/external_api_python_client.py`
 
-The module owns a small `OutlookEmailPlusClient` class over `urllib.request` and JSON. It should be easy to copy into an external service and should not import project internals.
+The module owns a small `MailOpsClient` class over `urllib.request` and JSON. It should be easy to copy into an external service and should not import project internals.
 
 ## Client Contract
 
 Constructor:
 
-- `OutlookEmailPlusClient(base_url: str, api_key: str, timeout: float = 20.0)`
+- `MailOpsClient(base_url: str, api_key: str, timeout: float = 20.0)`
 
 Core methods:
 
@@ -44,7 +44,7 @@ Subcommands:
 Common flags:
 
 - `--base-url` required.
-- `--api-key` optional, defaults to `OUTLOOK_EMAIL_PLUS_API_KEY`.
+- `--api-key` optional, defaults to `MAILOPS_API_KEY`.
 - `--timeout` optional.
 
 `verification-code` flags:
@@ -53,14 +53,14 @@ Common flags:
 
 ## Error Handling
 
-Raise `OutlookEmailPlusApiError` on HTTP errors, non-object JSON, or response envelopes with `success=false`. The exception should expose `status`, `code`, and `payload` when available.
+Raise `MailOpsApiError` on HTTP errors, non-object JSON, or response envelopes with `success=false`. The exception should expose `status`, `code`, and `payload` when available.
 
 ## Secret Safety
 
 The example source and docs may contain placeholder strings only:
 
 - `<your-api-key>`
-- `OUTLOOK_EMAIL_PLUS_API_KEY`
+- `MAILOPS_API_KEY`
 - fake caller/task IDs
 
 They must not include provider bearer token examples, real API keys, refresh tokens, consumer keys, task token literals with realistic secret values, or mailbox passwords.

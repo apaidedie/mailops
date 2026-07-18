@@ -34,7 +34,7 @@ Make the external API smoke checker discoverable inside the Settings -> External
 ## Acceptance Criteria
 
 - [ ] `tests/test_settings_tab_refactor_frontend.py` proves the command center has smoke-check helper/render/copy functions.
-- [ ] Frontend tests prove the smoke panel command includes `python scripts/external_api_smoke.py`, `--base-url`, and `OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key>` or equivalent placeholder auth.
+- [ ] Frontend tests prove the smoke panel command includes `python scripts/external_api_smoke.py`, `--base-url`, and `MAILOPS_API_KEY=<your-api-key>` or equivalent placeholder auth.
 - [ ] Frontend tests prove the smoke render/copy slice does not read `settingsExternalApiKey`, `settingsExternalApiKeysJson`, provider credential inputs, or provider secret values.
 - [ ] CSS tests prove smoke panel responsive hooks exist and long endpoint/command text wraps.
 - [ ] Existing external API command center tests remain green.

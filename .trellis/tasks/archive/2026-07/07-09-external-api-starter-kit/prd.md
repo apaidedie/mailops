@@ -27,7 +27,7 @@ This supports the larger product direction of turning the project into a profess
   - `read_verification_code(...)` convenience wrapper;
   - `close_session(...)` using `POST /mailbox-sessions/close`;
   - a high-level `verification_flow(...)` helper that starts, reads, and closes in a `finally` path.
-- The CLI demo must require `--base-url` and read the API key from `--api-key` or `OUTLOOK_EMAIL_PLUS_API_KEY`.
+- The CLI demo must require `--base-url` and read the API key from `--api-key` or `MAILOPS_API_KEY`.
 - The CLI must have a safe `discover` command that performs only read-only discovery.
 - Any lifecycle demo command must make it clear that it mutates server state by starting and closing a mailbox session.
 - Update the external integration quickstart and README references so users can find the starter client.

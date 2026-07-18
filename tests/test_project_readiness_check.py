@@ -175,7 +175,7 @@ def _minimal_ready_repo(root: Path) -> None:
                 project_readiness_check.CANONICAL_EXTERNAL_PREFIX,
                 "/integration-bundle",
                 "mailbox-sessions/start mailbox-sessions/read mailbox-sessions/close",
-                "OUTLOOK_EMAIL_PLUS_API_KEY X-API-Key integration-bundle provider_name",
+                "MAILOPS_API_KEY X-API-Key integration-bundle provider_name",
             ]
         ),
     )
@@ -187,7 +187,7 @@ def _minimal_ready_repo(root: Path) -> None:
                 project_readiness_check.CANONICAL_EXTERNAL_PREFIX,
                 "/integration-bundle",
                 "mailbox-sessions/start mailbox-sessions/read mailbox-sessions/close",
-                "OUTLOOK_EMAIL_PLUS_API_KEY X-API-Key integration-bundle provider_name",
+                "MAILOPS_API_KEY X-API-Key integration-bundle provider_name",
             ]
         ),
     )

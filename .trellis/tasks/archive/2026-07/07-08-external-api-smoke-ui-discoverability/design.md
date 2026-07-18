@@ -22,7 +22,7 @@ The visual language should match the existing command center: calm operational d
 The command uses placeholders:
 
 ```bash
-OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>
+MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>
 ```
 
 `<your-base-url>` can be a placeholder or derived from `window.location.origin` only if that value is not a secret. API keys, provider tokens, masked values, and settings input values must never be read or copied.

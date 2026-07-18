@@ -1888,7 +1888,7 @@ class ExternalApiSchemaValidationTests(ExternalApiBaseTest):
         self.assertEqual(action_items["run_smoke_check"]["endpoint"], endpoints["integration_bundle"])
         self.assertEqual(
             action_items["run_smoke_check"]["command"],
-            "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+            "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
         )
         self.assertEqual(action_items["generate_client"]["endpoint"], endpoints["openapi"])
         self.assertEqual(action_items["start_mailbox_session"]["endpoint"], endpoints["mailbox_session_start"])

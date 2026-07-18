@@ -46,7 +46,7 @@ Add `action_plan` to `IntegrationBundleData`:
       "title": "Run the read-only smoke check",
       "detail": "Validate discovery before mutating mailbox state.",
       "endpoint": "/api/v1/external/integration-bundle",
-      "command": "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+      "command": "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
       "docs": "docs/external-integration-quickstart.md"
     }
   ]

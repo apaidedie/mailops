@@ -16,7 +16,7 @@ This closes the current integration gap: Python consumers already have `examples
 ## Requirements
 
 - Add `examples/external_api_javascript_client.js` as a dependency-free CommonJS starter for Node 18+.
-- Export an importable `OutlookEmailPlusClient`, `OutlookEmailPlusApiError`, `DEFAULT_ENDPOINTS`, and `CANONICAL_EXTERNAL_PREFIX`.
+- Export an importable `MailOpsClient`, `MailOpsApiError`, `DEFAULT_ENDPOINTS`, and `CANONICAL_EXTERNAL_PREFIX`.
 - Mirror the Python starter's external API behavior:
   - discover live endpoints from `GET /api/v1/external/capabilities` and update the local endpoint map when `data.endpoints` is present;
   - fetch providers and OpenAPI metadata during discovery;
@@ -28,7 +28,7 @@ This closes the current integration gap: Python consumers already have `examples
 - Include CLI commands equivalent to the Python starter:
   - `discover` for read-only discovery;
   - `verification-code` for stateful start/read/close demonstration.
-- Read API keys from `--api-key` or `OUTLOOK_EMAIL_PLUS_API_KEY` and avoid embedding provider secrets or real API keys in source/docs/tests.
+- Read API keys from `--api-key` or `MAILOPS_API_KEY` and avoid embedding provider secrets or real API keys in source/docs/tests.
 - Update `docs/external-integration-quickstart.md` with JavaScript starter usage next to the Python starter.
 - Add focused automated tests for the JavaScript starter.
 

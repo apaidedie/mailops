@@ -12,7 +12,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 DEFAULT_ENDPOINTS = {
     "capabilities": f"{CANONICAL_EXTERNAL_PREFIX}/capabilities",
@@ -44,7 +43,9 @@ READ_FILTER_FIELDS = {
 }
 SECRET_TARGET_PATTERNS = (
     re.compile(r"dk_[0-9a-fA-F]{20,}"),
-    re.compile(r"(?i)(api[_-]?key|bearer|token|password|secret|jwt|refresh[_-]?token)\s*[:=]\s*(?!<|$)[A-Za-z0-9._~+/=-]{12,}"),
+    re.compile(
+        r"(?i)(api[_-]?key|bearer|token|password|secret|jwt|refresh[_-]?token)\s*[:=]\s*(?!<|$)[A-Za-z0-9._~+/=-]{12,}"
+    ),
     re.compile(r"(?i)bearer\s+(?!<)[A-Za-z0-9._~+/=-]{12,}"),
 )
 
@@ -234,12 +235,8 @@ def _action_plan_summary(
         "status": status,
         "summary": _action_plan_summary_counts(plan_summary, items),
         "blocking_keys": [str(item["key"]) for item in items if item.get("blocking")],
-        "action_required_keys": [
-            str(item["key"]) for item in items if item.get("status") in {"action_required", "blocked"}
-        ],
-        "ready_next_steps": [
-            str(item["key"]) for item in items if item.get("status") == "ready" and not item.get("blocking")
-        ],
+        "action_required_keys": [str(item["key"]) for item in items if item.get("status") in {"action_required", "blocked"}],
+        "ready_next_steps": [str(item["key"]) for item in items if item.get("status") == "ready" and not item.get("blocking")],
         "items": items,
     }
 
@@ -569,8 +566,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--base-url", required=True, help="Outlook Email Plus instance base URL")
     parser.add_argument(
         "--api-key",
-        default=os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
-        help="External API key. Defaults to OUTLOOK_EMAIL_PLUS_API_KEY.",
+        default=os.environ.get("MAILOPS_API_KEY") or os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
+        help="External API key. Defaults to MAILOPS_API_KEY (legacy: OUTLOOK_EMAIL_PLUS_API_KEY).",
     )
     parser.add_argument("--timeout", type=float, default=20.0, help="HTTP timeout in seconds")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -608,7 +605,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if not args.api_key:
-        parser.error("--api-key or OUTLOOK_EMAIL_PLUS_API_KEY is required")
+        parser.error("--api-key or MAILOPS_API_KEY is required " "(legacy env: OUTLOOK_EMAIL_PLUS_API_KEY)")
     client = MailOpsClient(args.base_url, args.api_key, timeout=args.timeout)
     try:
         if args.command == "discover":

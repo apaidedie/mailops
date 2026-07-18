@@ -299,7 +299,7 @@ def _next_actions(failed: list[dict[str, Any]]) -> list[dict[str, str]]:
                 "key": "run_external_smoke",
                 "priority": "low",
                 "label": "Run the live read-only smoke check from the target deployment",
-                "target": "OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
+                "target": "MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>",
             }
         ]
     actions = []

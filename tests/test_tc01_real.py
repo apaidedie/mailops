@@ -32,7 +32,7 @@ def main():
                     "has_update": True,
                     "current_version": "0.0.1",
                     "latest_version": "9.9.9",
-                    "release_url": "https://github.com/hshaokang/outlookemail-plus/releases/tag/v9.9.9",
+                    "release_url": "https://github.com/apaidedie/mailops/releases/tag/v9.9.9",
                 }
                 route.fulfill(
                     status=200,

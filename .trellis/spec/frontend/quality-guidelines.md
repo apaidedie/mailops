@@ -2638,7 +2638,7 @@ Copy helpers must use a placeholder header exactly like `X-API-Key: <your-api-ke
 
 
 
-The smoke-check panel is a display and copy adapter for `scripts/external_api_smoke.py`. It must stay inside `#externalApiCommandCenter`, render after the onboarding checklist and before metrics, and expose only the script's read-only discovery coverage: `/api/v1/external/integration-bundle`, `/api/v1/external/health`, `/api/v1/external/capabilities`, `/api/v1/external/providers`, `/api/v1/external/mailboxes?page_size=1`, and `/api/v1/external/openapi.json`. The browser must not execute the smoke checker or call those external endpoints; it only copies a placeholder command such as `OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <origin-or-your-base-url>`.
+The smoke-check panel is a display and copy adapter for `scripts/external_api_smoke.py`. It must stay inside `#externalApiCommandCenter`, render after the onboarding checklist and before metrics, and expose only the script's read-only discovery coverage: `/api/v1/external/integration-bundle`, `/api/v1/external/health`, `/api/v1/external/capabilities`, `/api/v1/external/providers`, `/api/v1/external/mailboxes?page_size=1`, and `/api/v1/external/openapi.json`. The browser must not execute the smoke checker or call those external endpoints; it only copies a placeholder command such as `MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <origin-or-your-base-url>`.
 
 The Integration Bundle launchpad is the primary external-developer starting point inside the same command center. It must render after the onboarding checklist and smoke-check panel, before detailed metrics, readiness, quickstart, mailbox-session, endpoint, recipe, and workflow sections. It displays the canonical `/api/v1/external/integration-bundle` path, the legacy `/api/external/integration-bundle` alias, placeholder auth, and compact readiness cards derived from settings, provider-catalog caches, and mailbox-readiness cache. It must not fetch the API-key-protected external bundle from the admin browser, because the admin page must not read or reuse configured API keys.
 
@@ -2667,7 +2667,7 @@ The External Integration Handoff Kit is the human-copyable companion to the Inte
 
 - Multi-key count missing -> derive count from `external_api_keys` only when it is an array.
 
-- Smoke checker command copied -> command uses `OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key>`, never a Settings API key, multi-key editor value, masked value, provider token, or bearer token.
+- Smoke checker command copied -> command uses `MAILOPS_API_KEY=<your-api-key>`, never a Settings API key, multi-key editor value, masked value, provider token, or bearer token.
 - Smoke coverage rendered -> coverage list stays fixed to the script's six read-only endpoints, including the integration bundle, and wraps long endpoint paths without horizontal overflow.
 - Bundle launchpad rendered -> canonical and legacy paths display together; readiness cards can show degraded states but remain visible.
 - Bundle launchpad command copied -> command uses only `X-API-Key: <your-api-key>` and the canonical v1 bundle path.
@@ -2682,7 +2682,7 @@ The External Integration Handoff Kit is the human-copyable companion to the Inte
 
 - Good: copied command is `curl -s -H "X-API-Key: <your-api-key>" <origin>/api/external/capabilities`.
 
-- Good: smoke copy command is `OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <origin-or-your-base-url>` and the panel lists `/api/v1/external/integration-bundle` plus `/api/v1/external/mailboxes?page_size=1`.
+- Good: smoke copy command is `MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <origin-or-your-base-url>` and the panel lists `/api/v1/external/integration-bundle` plus `/api/v1/external/mailboxes?page_size=1`.
 - Good: bundle copy command is `curl -s -H "X-API-Key: <your-api-key>" <origin>/api/v1/external/integration-bundle`.
 - Good: handoff copy text includes `[mailbox_session_start]`, `[mailbox_session_read]`, `[mailbox_session_close]`, `provider`, `provider_name`, and docs links without reading any Settings input value.
 - Good: provider catalog failure still shows `/api/external/capabilities` and `/api/external/openapi.json` with a degraded notice.

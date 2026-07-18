@@ -548,7 +548,7 @@ function readFlag(argv, index) {
 function parseCli(argv, env) {
   const parsed = {
     baseUrl: "",
-    apiKey: env.OUTLOOK_EMAIL_PLUS_API_KEY || "",
+    apiKey: env.MAILOPS_API_KEY || env.OUTLOOK_EMAIL_PLUS_API_KEY || "",
     timeoutSeconds: 20,
     command: "",
     commandOptions: {},
@@ -580,7 +580,9 @@ function parseCli(argv, env) {
     throw new Error("--base-url is required");
   }
   if (!parsed.apiKey) {
-    throw new Error("--api-key or OUTLOOK_EMAIL_PLUS_API_KEY is required");
+    throw new Error(
+      "--api-key or MAILOPS_API_KEY is required (legacy: OUTLOOK_EMAIL_PLUS_API_KEY)",
+    );
   }
   if (!parsed.command) {
     throw new Error("command is required: discover, integration-bundle, or verification-code");
