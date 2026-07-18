@@ -154,12 +154,12 @@ class _PublicTempMailProviderMixin:
         )
 
 
-@register_provider
+# Registered only when the Mail.tm plugin is installed (or tests call register_official_public_providers).
 class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
     provider_name = "mail_tm"
     provider_label = "Mail.tm"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": True, "delete_message": True, "clear_messages": True}
 
     _base_url = "https://api.mail.tm"
@@ -574,12 +574,12 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
         return True
 
 
-@register_provider
+# Registered only when the DuckMail plugin is installed (or tests call register_official_public_providers).
 class DuckMailTempMailProvider(MailTmTempMailProvider):
     provider_name = "duckmail"
     provider_label = "DuckMail"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
 
     def __init__(self, *, provider_name: str | None = None):
         self.provider_name = provider_name or "duckmail"
@@ -662,12 +662,12 @@ class DuckMailTempMailProvider(MailTmTempMailProvider):
         return result
 
 
-@register_provider
+# Registered only when the TempMail.lol plugin is installed (or tests call register_official_public_providers).
 class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
     provider_name = "tempmail_lol"
     provider_label = "TempMail.lol"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": False, "delete_message": False, "clear_messages": False}
 
     _base_url = "https://api.tempmail.lol/v2"
@@ -873,12 +873,12 @@ class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
         return True
 
 
-@register_provider
+# Registered only when the Emailnator plugin is installed (or tests call register_official_public_providers).
 class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
     provider_name = "emailnator"
     provider_label = "Emailnator"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": False, "delete_message": True, "clear_messages": True}
 
     _base_url = "https://gmailnator.p.rapidapi.com/api"

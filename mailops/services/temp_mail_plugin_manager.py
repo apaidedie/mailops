@@ -158,23 +158,83 @@ def get_installed_plugins() -> list[dict[str, Any]]:
     return installed
 
 
+def _get_bundled_plugin_dir() -> Path:
+    # mailops/services/this_file.py → repo root / bundled_plugins / temp_mail_providers
+    return Path(__file__).resolve().parents[2] / "bundled_plugins" / "temp_mail_providers"
+
+
+def _official_bundled_plugin_catalog() -> list[dict[str, Any]]:
+    """In-repo installable plugins (no network required)."""
+    return [
+        {
+            "name": "mail_tm",
+            "display_name": "Mail.tm",
+            "description": "公开 Mail.tm 临时邮箱服务",
+            "description_en": "Public Mail.tm temporary-mail service",
+            "version": "1.0.0",
+            "author": "MailOps",
+            "bundled": True,
+            "bundled_file": "mail_tm.py",
+        },
+        {
+            "name": "duckmail",
+            "display_name": "DuckMail",
+            "description": "兼容 Mail.tm 协议的 DuckMail 服务",
+            "description_en": "DuckMail service compatible with Mail.tm protocol",
+            "version": "1.0.0",
+            "author": "MailOps",
+            "bundled": True,
+            "bundled_file": "duckmail.py",
+        },
+        {
+            "name": "tempmail_lol",
+            "display_name": "TempMail.lol",
+            "description": "公开 TempMail.lol 临时邮箱服务",
+            "description_en": "Public TempMail.lol temporary-mail service",
+            "version": "1.0.0",
+            "author": "MailOps",
+            "bundled": True,
+            "bundled_file": "tempmail_lol.py",
+        },
+        {
+            "name": "emailnator",
+            "display_name": "Emailnator",
+            "description": "Emailnator 临时 Gmail 服务（RapidAPI）",
+            "description_en": "Emailnator temporary Gmail service (RapidAPI)",
+            "version": "1.0.0",
+            "author": "MailOps",
+            "bundled": True,
+            "bundled_file": "emailnator.py",
+        },
+    ]
+
+
 def get_available_plugins() -> list[dict[str, Any]]:
     global _AVAILABLE_PLUGINS_CACHE
+    merged: dict[str, dict[str, Any]] = {}
+    for item in _official_bundled_plugin_catalog():
+        name = str(item.get("name") or "").strip()
+        if name:
+            merged[name] = dict(item)
+
     registry_file = _get_registry_file()
-    if not registry_file.exists():
-        return list(_AVAILABLE_PLUGINS_CACHE)
+    if registry_file.exists():
+        try:
+            data = json.loads(registry_file.read_text(encoding="utf-8"))
+            plugins = data.get("plugins", [])
+            if isinstance(plugins, list):
+                for item in plugins:
+                    if not isinstance(item, dict):
+                        continue
+                    name = str(item.get("name") or "").strip()
+                    if not name:
+                        continue
+                    # Registry entries can override/extend bundled metadata.
+                    merged[name] = {**merged.get(name, {}), **item, "name": name}
+        except Exception as exc:
+            logger.warning("[plugin] registry.json 解析失败: %s", exc)
 
-    try:
-        data = json.loads(registry_file.read_text(encoding="utf-8"))
-    except Exception as exc:
-        logger.warning("[plugin] registry.json 解析失败: %s", exc)
-        return list(_AVAILABLE_PLUGINS_CACHE)
-
-    plugins = data.get("plugins", [])
-    if not isinstance(plugins, list):
-        return list(_AVAILABLE_PLUGINS_CACHE)
-
-    _AVAILABLE_PLUGINS_CACHE = list(plugins)
+    _AVAILABLE_PLUGINS_CACHE = list(merged.values())
     return list(_AVAILABLE_PLUGINS_CACHE)
 
 
@@ -187,6 +247,7 @@ def install_plugin(name: str, *, url: str | None = None) -> dict[str, Any]:
     target = plugin_dir / f"{plugin_name}.py"
 
     entry: dict[str, Any] | None = None
+    content: bytes | None = None
     if url:
         download_url = str(url).strip()
     else:
@@ -194,32 +255,46 @@ def install_plugin(name: str, *, url: str | None = None) -> dict[str, Any]:
         entry = next((item for item in available if str(item.get("name") or "").strip() == plugin_name), None)
         if entry is None:
             raise PluginManagerError("PLUGIN_NOT_FOUND", f"未在官方插件源中找到插件: {plugin_name}", status=400)
-        download_url = str(entry.get("download_url") or "").strip()
-
-    if not download_url:
-        raise PluginManagerError("PLUGIN_NO_URL", "未提供下载地址", status=400)
-
-    try:
-        resp = requests.get(download_url, timeout=30)
-        resp.raise_for_status()
-    except Timeout:
-        raise PluginManagerError("PLUGIN_DOWNLOAD_TIMEOUT", "插件下载超时", status=504)
-    except RequestException as exc:
-        raise PluginManagerError("PLUGIN_DOWNLOAD_FAILED", f"插件下载失败: {exc}", status=502)
-
-    content = resp.content
-
-    # registry 安装时做完整性校验；自定义 URL 跳过
-    if url is None and entry is not None:
-        expected_sha = str(entry.get("sha256") or "").strip().lower()
-        if expected_sha and len(expected_sha) == 64 and all(ch in "0123456789abcdef" for ch in expected_sha):
-            actual_sha = hashlib.sha256(content).hexdigest().lower()
-            if actual_sha != expected_sha:
+        # Prefer local bundled install when present (offline-friendly).
+        bundled_file = str(entry.get("bundled_file") or f"{plugin_name}.py").strip()
+        bundled_path = _get_bundled_plugin_dir() / bundled_file
+        if entry.get("bundled") or bundled_path.is_file():
+            if not bundled_path.is_file():
                 raise PluginManagerError(
-                    "PLUGIN_INTEGRITY_CHECK_FAILED",
-                    f"文件完整性校验失败: 期望 {expected_sha[:12]}..., 实际 {actual_sha[:12]}...",
-                    status=400,
+                    "PLUGIN_BUNDLED_MISSING",
+                    f"捆绑插件文件不存在: {bundled_path.name}",
+                    status=500,
                 )
+            content = bundled_path.read_bytes()
+            download_url = ""
+        else:
+            download_url = str(entry.get("download_url") or "").strip()
+
+    if content is None:
+        if not download_url:
+            raise PluginManagerError("PLUGIN_NO_URL", "未提供下载地址", status=400)
+
+        try:
+            resp = requests.get(download_url, timeout=30)
+            resp.raise_for_status()
+        except Timeout:
+            raise PluginManagerError("PLUGIN_DOWNLOAD_TIMEOUT", "插件下载超时", status=504)
+        except RequestException as exc:
+            raise PluginManagerError("PLUGIN_DOWNLOAD_FAILED", f"插件下载失败: {exc}", status=502)
+
+        content = resp.content
+
+        # registry 安装时做完整性校验；自定义 URL 跳过
+        if url is None and entry is not None:
+            expected_sha = str(entry.get("sha256") or "").strip().lower()
+            if expected_sha and len(expected_sha) == 64 and all(ch in "0123456789abcdef" for ch in expected_sha):
+                actual_sha = hashlib.sha256(content).hexdigest().lower()
+                if actual_sha != expected_sha:
+                    raise PluginManagerError(
+                        "PLUGIN_INTEGRITY_CHECK_FAILED",
+                        f"文件完整性校验失败: 期望 {expected_sha[:12]}..., 实际 {actual_sha[:12]}...",
+                        status=400,
+                    )
 
     target.write_bytes(content)
     logger.info("[plugin] 已安装: %s -> %s", plugin_name, target)

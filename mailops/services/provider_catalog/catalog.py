@@ -1661,8 +1661,13 @@ def _build_mailbox_provider_catalog() -> list[dict[str, Any]]:
         if not name:
             continue
         capabilities = normalize_provider_capabilities(item.get("capabilities"))
-        is_builtin_temp_provider = name in _TEMP_PROVIDER_LABEL_OVERRIDES
-        if is_builtin_temp_provider:
+        from .constants import _CORE_BUILTIN_TEMP_PROVIDERS
+
+        is_core_builtin_temp_provider = name in _CORE_BUILTIN_TEMP_PROVIDERS
+        # Installed official plugins still use shared settings keys / contracts.
+        if name in _TEMP_PROVIDER_CONFIG_CONTRACTS:
+            config_status = temp_mail_provider_config_status(name)
+        elif is_core_builtin_temp_provider:
             config_status = temp_mail_provider_config_status(name)
         else:
             config_status = _plugin_provider_config_status(name, item)
@@ -1676,7 +1681,7 @@ def _build_mailbox_provider_catalog() -> list[dict[str, Any]]:
             "can_delete_mailbox": bool(capabilities.get("delete_mailbox")),
             "can_delete_message": bool(capabilities.get("delete_message")),
             "can_clear_messages": bool(capabilities.get("clear_messages")),
-            "config_source": "builtin" if is_builtin_temp_provider else "plugin",
+            "config_source": "builtin" if is_core_builtin_temp_provider else "plugin",
             "configured": bool(config_status["configured"]),
             "missing_config": list(config_status["missing_config"]),
             "requires_pool_inventory": False,

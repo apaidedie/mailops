@@ -23,6 +23,19 @@ GPTMAIL_PROVIDER_LABEL_ZH = "GPTMail"
 COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL = GPTMAIL_PROVIDER_LABEL
 COMPATIBLE_TEMP_MAIL_BRIDGE_LABEL_ZH = GPTMAIL_PROVIDER_LABEL_ZH
 
+# Core built-ins only. Public services (Mail.tm / DuckMail / …) keep labels for
+# installed plugins but are not core builtins for config_source classification.
+_CORE_BUILTIN_TEMP_PROVIDERS = frozenset(
+    {
+        "custom_domain_temp_mail",
+        "legacy_bridge",
+        "legacy_gptmail",
+        "gptmail",
+        "temp_mail",
+        "cloudflare_temp_mail",
+    }
+)
+
 _TEMP_PROVIDER_LABEL_OVERRIDES = {
     "custom_domain_temp_mail": GPTMAIL_PROVIDER_LABEL,
     "legacy_bridge": GPTMAIL_PROVIDER_LABEL,

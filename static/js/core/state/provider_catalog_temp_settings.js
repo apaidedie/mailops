@@ -21,9 +21,8 @@
         }
 
         function getSettingsVisibleBuiltinTempProviders() {
-            // Operator settings list: keep Cloudflare as the only generic built-in,
-            // plus GPTMail (official API bridge). Other public services should arrive
-            // via plugin management instead of cluttering the global selector.
+            // Operator settings list: Cloudflare + GPTMail only.
+            // Mail.tm / DuckMail / TempMail.lol / Emailnator appear after plugin install.
             return new Set(['cloudflare_temp_mail', 'legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail']);
         }
 

@@ -1,4 +1,41 @@
 {
   "version": 1,
-  "plugins": []
+  "plugins": [
+    {
+      "name": "mail_tm",
+      "display_name": "Mail.tm",
+      "description": "公开 Mail.tm 临时邮箱服务",
+      "version": "1.0.0",
+      "author": "MailOps",
+      "bundled": true,
+      "bundled_file": "mail_tm.py"
+    },
+    {
+      "name": "duckmail",
+      "display_name": "DuckMail",
+      "description": "兼容 Mail.tm 协议的 DuckMail 服务",
+      "version": "1.0.0",
+      "author": "MailOps",
+      "bundled": true,
+      "bundled_file": "duckmail.py"
+    },
+    {
+      "name": "tempmail_lol",
+      "display_name": "TempMail.lol",
+      "description": "公开 TempMail.lol 临时邮箱服务",
+      "version": "1.0.0",
+      "author": "MailOps",
+      "bundled": true,
+      "bundled_file": "tempmail_lol.py"
+    },
+    {
+      "name": "emailnator",
+      "display_name": "Emailnator",
+      "description": "Emailnator 临时 Gmail 服务（RapidAPI）",
+      "version": "1.0.0",
+      "author": "MailOps",
+      "bundled": true,
+      "bundled_file": "emailnator.py"
+    }
+  ]
 }
