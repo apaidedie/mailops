@@ -197,6 +197,7 @@
             const readonlyHint = field.readonly
                 ? `<div class="form-hint">${escapeHtml(translateAppTextLocal('只读字段，可通过操作按钮更新'))}</div>`
                 : '';
+            // Keep technical setting keys out of the operator UI (cleaner GPTMail form).
             return [
                 '<div class="form-group temp-provider-config-field">',
                     '<div class="temp-provider-field-head">',
@@ -204,11 +205,89 @@
                         requiredBadge,
                     '</div>',
                     control,
-                    `<div class="form-hint temp-provider-setting-key">${escapeHtml(settingKey)}</div>`,
                     secretHint,
                     readonlyHint,
                 '</div>'
             ].join('');
+        }
+
+        function formatGptmailUsageNumber(value) {
+            const num = Number(value);
+            if (!Number.isFinite(num)) return '—';
+            try {
+                return num.toLocaleString();
+            } catch (_error) {
+                return String(num);
+            }
+        }
+
+        function renderGptmailUsagePanel(usage, options = {}) {
+            const safeUsage = usage && typeof usage === 'object' ? usage : null;
+            const opts = options && typeof options === 'object' ? options : {};
+            const status = String(opts.status || '').trim().toLowerCase();
+            const message = String(opts.message || '').trim();
+            if (!safeUsage && !message) {
+                return [
+                    '<div class="temp-provider-usage-panel" id="tempProviderUsagePanel" hidden>',
+                    '</div>',
+                ].join('');
+            }
+            const rows = [
+                ['used_today', '今日已用'],
+                ['daily_limit', '今日限额'],
+                ['remaining_today', '今日剩余'],
+                ['total_usage', '累计用量'],
+                ['total_limit', '累计限额'],
+                ['remaining_total', '累计剩余'],
+            ];
+            const grid = safeUsage
+                ? [
+                    '<div class="temp-provider-usage-grid">',
+                    ...rows.map(([key, labelZh]) => {
+                        if (!(key in safeUsage)) return '';
+                        return [
+                            '<div class="temp-provider-usage-item">',
+                                `<div class="temp-provider-usage-label">${escapeHtml(translateAppTextLocal(labelZh))}</div>`,
+                                `<div class="temp-provider-usage-value">${escapeHtml(formatGptmailUsageNumber(safeUsage[key]))}</div>`,
+                            '</div>',
+                        ].join('');
+                    }).filter(Boolean),
+                    '</div>',
+                ].join('')
+                : '';
+            const toneClass = status === 'error'
+                ? ' is-error'
+                : (status === 'ok' ? ' is-ok' : '');
+            const messageHtml = message
+                ? `<div class="temp-provider-usage-message${toneClass}">${escapeHtml(message)}</div>`
+                : '';
+            return [
+                `<div class="temp-provider-usage-panel${toneClass}" id="tempProviderUsagePanel">`,
+                    `<div class="temp-provider-usage-title">${escapeHtml(translateAppTextLocal('GPTMail 用量'))}</div>`,
+                    messageHtml,
+                    grid,
+                '</div>',
+            ].join('');
+        }
+
+        function updateGptmailUsagePanel(usage, options = {}) {
+            const panel = document.getElementById('tempProviderUsagePanel');
+            const html = renderGptmailUsagePanel(usage, options);
+            if (!panel) {
+                const body = document.getElementById('tempMailProviderConfigBody');
+                if (!body) return;
+                const actions = body.querySelector('.temp-provider-config-actions');
+                if (actions) {
+                    actions.insertAdjacentHTML('afterend', html);
+                } else {
+                    body.insertAdjacentHTML('afterbegin', html);
+                }
+                return;
+            }
+            const wrap = document.createElement('div');
+            wrap.innerHTML = html;
+            const next = wrap.firstElementChild;
+            if (next) panel.replaceWith(next);
         }
 
         function getTempProviderSettingsActions(providerName) {
@@ -340,6 +419,42 @@
                     }
                 }
 
+                // GPTMail usage probe: /api/providers/temp/.../health?probe_network=true
+                if (actionKey === 'check_usage' || endpoint.includes('/health')) {
+                    const health = data.provider_health && typeof data.provider_health === 'object'
+                        ? data.provider_health
+                        : (data.data && data.data.provider_health) || data;
+                    const probe = health && health.probe && typeof health.probe === 'object' ? health.probe : {};
+                    const details = probe.details && typeof probe.details === 'object' ? probe.details : {};
+                    const usage = details.usage && typeof details.usage === 'object' ? details.usage : null;
+                    const probeOk = probe.ok === true || probe.status === 'ok' || health.local_ready === true;
+                    if (usage) {
+                        updateGptmailUsagePanel(usage, {
+                            status: probeOk ? 'ok' : 'error',
+                            message: probeOk
+                                ? translateAppTextLocal('已从 GPTMail /api/stats 刷新用量')
+                                : (probe.error || translateAppTextLocal('探测完成，但上游返回异常')),
+                        });
+                        showToast(translateAppTextLocal('用量已更新'), probeOk ? 'success' : 'warning');
+                        if (hintEl) {
+                            const remain = usage.remaining_today != null
+                                ? `${translateAppTextLocal('今日剩余')} ${formatGptmailUsageNumber(usage.remaining_today)}`
+                                : '';
+                            hintEl.textContent = probeOk
+                                ? `✅ ${translateAppTextLocal('用量已更新')}${remain ? ` · ${remain}` : ''}`
+                                : `⚠️ ${probe.error || translateAppTextLocal('探测异常')}`;
+                        }
+                        return;
+                    }
+                    updateGptmailUsagePanel(null, {
+                        status: 'error',
+                        message: probe.error || translateAppTextLocal('上游未返回 usage 字段'),
+                    });
+                    showToast(probe.error || translateAppTextLocal('未获取到用量'), 'warning');
+                    if (hintEl) hintEl.textContent = `⚠️ ${probe.error || translateAppTextLocal('未获取到用量')}`;
+                    return;
+                }
+
                 showToast(pickApiMessage(data, data.message || '操作成功', data.message || 'Action completed'), 'success');
                 if (hintEl) {
                     const versionInfo = data.version ? ` (${data.version})` : '';
@@ -427,14 +542,29 @@
                 ? `<div class="temp-provider-config-grid">${fields.map(renderTempProviderField).join('')}</div>`
                 : `<div class="provider-radio-empty">${escapeHtml(translateAppTextLocal('该 Provider 无需本地配置'))}</div>`;
 
+            const isGptmail = ['legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail']
+                .includes(normalizedProvider);
+            const description = getUiLanguage() === 'en'
+                ? String(item?.settings_ui?.description || item?.description || '').trim()
+                : String(item?.settings_ui?.description_zh || item?.settings_ui?.description || item?.description_zh || item?.description || '').trim();
             body.innerHTML = [
                 '<div class="temp-provider-config-summary">',
                     '<div>',
                         `<div class="temp-provider-config-title">${escapeHtml(translateAppTextLocal(label))}</div>`,
+                        description
+                            ? `<div class="temp-provider-config-detail">${escapeHtml(translateAppTextLocal(description))}</div>`
+                            : '',
                         `<div class="temp-provider-config-detail">${escapeHtml(translateAppTextLocal('缺失项'))}: ${escapeHtml(missingText)}</div>`,
                     '</div>',
                     statusBadge,
                 '</div>',
+                isGptmail
+                    ? renderGptmailUsagePanel(null, {
+                        message: item?.configured
+                            ? translateAppTextLocal('点击「刷新用量」从 GPTMail /api/stats 拉取限额')
+                            : translateAppTextLocal('配置 GPTMail API Key 后可查看用量'),
+                    })
+                    : '',
                 renderTempProviderSettingsActions(normalizedProvider),
                 fieldHtml,
                 renderTempProviderEnvHints(configuration),
@@ -449,6 +579,18 @@
                     runTempProviderSettingsAction(actionBtn);
                 });
                 body.dataset.boundTempProviderActions = 'true';
+            }
+            // Soft auto-refresh usage once when GPTMail is already configured.
+            if (isGptmail && item?.configured && body.dataset.gptmailUsageAutoloaded !== normalizedProvider) {
+                body.dataset.gptmailUsageAutoloaded = normalizedProvider;
+                const usageBtn = body.querySelector('[data-temp-provider-action="check_usage"]');
+                if (usageBtn) {
+                    setTimeout(() => {
+                        if (document.body.contains(usageBtn)) {
+                            runTempProviderSettingsAction(usageBtn);
+                        }
+                    }, 80);
+                }
             }
         }
 

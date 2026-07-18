@@ -275,6 +275,9 @@ def normalize_temp_mail_api_base_url(value: str | None) -> str:
             parts = []
         else:
             parts = parts[:-1]
+    # Docs locale roots such as /zh or /en-US are not part of the API base.
+    if len(parts) == 1 and _looks_like_locale_segment(parts[0]):
+        parts = []
 
     normalized_path = "/" + "/".join(parts) if parts else ""
     return urlunsplit((parsed.scheme, parsed.netloc, normalized_path, "", ""))

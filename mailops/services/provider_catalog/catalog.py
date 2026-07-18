@@ -345,6 +345,15 @@ _TEMP_PROVIDER_SETTINGS_UI = {
         "description": "GPTMail temporary-mail API (mail.chatgpt.org.uk compatible)",
         "description_zh": "GPTMail 临时邮箱 API（兼容 mail.chatgpt.org.uk）",
         "sort_order": 10,
+        "actions": [
+            {
+                "key": "check_usage",
+                "label": "Refresh usage",
+                "label_zh": "刷新用量",
+                "method": "GET",
+                "endpoint": "/api/providers/temp/legacy_bridge/health?probe_network=true",
+            }
+        ],
     },
     # Historical catalog key kept for inventory/source compatibility; settings UI
     # treats it as the same schema panel as legacy_bridge / GPTMail.
@@ -353,6 +362,15 @@ _TEMP_PROVIDER_SETTINGS_UI = {
         "description": "GPTMail temporary-mail API (mail.chatgpt.org.uk compatible)",
         "description_zh": "GPTMail 临时邮箱 API（兼容 mail.chatgpt.org.uk）",
         "sort_order": 10,
+        "actions": [
+            {
+                "key": "check_usage",
+                "label": "Refresh usage",
+                "label_zh": "刷新用量",
+                "method": "GET",
+                "endpoint": "/api/providers/temp/legacy_bridge/health?probe_network=true",
+            }
+        ],
     },
     "cloudflare_temp_mail": {
         "panel": "schema",

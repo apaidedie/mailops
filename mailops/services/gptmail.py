@@ -13,6 +13,16 @@ from mailops.repositories.settings import (
     normalize_temp_mail_api_base_url,
 )
 
+_USAGE_INT_KEYS = (
+    "daily_limit",
+    "used_today",
+    "remaining_today",
+    "total_limit",
+    "total_usage",
+    "remaining_total",
+)
+_LAST_USAGE: Dict[str, Any] = {}
+
 
 def get_temp_mail_api_key() -> str:
     """正式临时邮箱 API Key getter，供 bridge 统一调用。"""
@@ -24,6 +34,34 @@ def get_gptmail_api_key() -> str:
     return get_temp_mail_api_key()
 
 
+def extract_usage_payload(payload: Any) -> Dict[str, int]:
+    """Normalize GPTMail ``usage`` objects into integer counters only."""
+    raw = payload.get("usage") if isinstance(payload, dict) else None
+    if not isinstance(raw, dict):
+        return {}
+    usage: Dict[str, int] = {}
+    for key in _USAGE_INT_KEYS:
+        if key not in raw:
+            continue
+        try:
+            usage[key] = int(raw[key])
+        except (TypeError, ValueError):
+            continue
+    return usage
+
+
+def remember_usage_from_payload(payload: Any) -> Dict[str, int]:
+    usage = extract_usage_payload(payload)
+    if usage:
+        _LAST_USAGE.clear()
+        _LAST_USAGE.update(usage)
+    return usage
+
+
+def get_last_usage() -> Dict[str, int]:
+    return dict(_LAST_USAGE)
+
+
 def gptmail_request(
     method: str,
     endpoint: str,
@@ -31,10 +69,10 @@ def gptmail_request(
     json_data: dict = None,
 ) -> Optional[Dict]:
     """
-    发送 legacy 临时邮箱 bridge API 请求
+    发送 GPTMail 兼容临时邮箱 API 请求
 
     返回格式：
-    - 成功：{"success": True, "data": {...}}
+    - 成功：{"success": True, "data": {...}, "usage": {...}}
     - 失败：{"success": False, "error": "错误信息", "error_type": "错误类型", "details": "详细信息"}
     """
     try:
@@ -76,7 +114,18 @@ def gptmail_request(
 
         # 处理响应
         if response.status_code == 200:
-            return response.json()
+            try:
+                payload = response.json()
+            except ValueError:
+                return {
+                    "success": False,
+                    "error": "API 返回非 JSON",
+                    "error_type": "BAD_PAYLOAD",
+                    "details": response.text[:200],
+                }
+            if isinstance(payload, dict):
+                remember_usage_from_payload(payload)
+            return payload
         elif response.status_code == 401:
             return {
                 "success": False,
@@ -294,3 +343,43 @@ def clear_temp_emails_from_api(email_addr: str) -> bool:
     """清空 legacy 临时邮箱 bridge 邮箱的所有邮件"""
     result = gptmail_request("DELETE", "/api/emails/clear", params={"email": email_addr})
     return bool(result and result.get("success", False))
+
+
+def fetch_usage_stats() -> Dict[str, Any]:
+    """
+    Probe GPTMail usage via ``GET /api/stats``.
+
+    Returns a structured result suitable for health_check / settings UI:
+    ``{success, usage, data, error?, error_type?, details?}``.
+    """
+    try:
+        base_url = normalize_temp_mail_api_base_url(get_temp_mail_api_base_url() or config.get_temp_mail_base_url())
+    except Exception:
+        base_url = normalize_temp_mail_api_base_url(config.get_temp_mail_base_url())
+
+    result = gptmail_request("GET", "/api/stats")
+    if not result:
+        return {
+            "success": False,
+            "error": "GPTMail stats 请求失败",
+            "error_type": "REQUEST_ERROR",
+            "details": "",
+            "api_base_url": base_url,
+            "usage": get_last_usage(),
+        }
+    if result.get("success"):
+        usage = extract_usage_payload(result) or get_last_usage()
+        return {
+            "success": True,
+            "api_base_url": base_url,
+            "usage": usage,
+            "data": result.get("data") if isinstance(result.get("data"), dict) else {},
+        }
+    return {
+        "success": False,
+        "error": str(result.get("error") or "GPTMail stats 失败"),
+        "error_type": str(result.get("error_type") or "HTTP_ERROR"),
+        "details": str(result.get("details") or ""),
+        "api_base_url": base_url,
+        "usage": extract_usage_payload(result) or get_last_usage(),
+    }

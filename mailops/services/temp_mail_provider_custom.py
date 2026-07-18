@@ -219,6 +219,38 @@ class CustomTempMailProvider(TempMailProviderBase):
         email_addr = self._coerce_email(mailbox)
         return gptmail.clear_temp_emails_from_api(email_addr)
 
+    def health_check(self) -> dict[str, Any]:
+        """Probe GPTMail with GET /api/stats and surface usage counters."""
+        options = self.get_options()
+        stats = gptmail.fetch_usage_stats()
+        usage = stats.get("usage") if isinstance(stats.get("usage"), dict) else {}
+        details: dict[str, Any] = {
+            "api_base_url": stats.get("api_base_url") or options.get("api_base_url") or "",
+            "configured": bool(options.get("configured", True)),
+            "missing_config": list(options.get("missing_config") or []),
+            "domain_count": len(options.get("domains") or []),
+        }
+        if usage:
+            details["usage"] = usage
+        if stats.get("success"):
+            return {
+                "success": True,
+                "method": "stats",
+                "network_probe": True,
+                "details": details,
+            }
+        return {
+            "success": False,
+            "method": "stats",
+            "network_probe": True,
+            "error_code": str(stats.get("error_type") or "UPSTREAM_PROBE_FAILED"),
+            "error": str(stats.get("error") or "GPTMail stats probe failed"),
+            "details": {
+                **details,
+                "details": str(stats.get("details") or ""),
+            },
+        }
+
 
 @register_provider
 class LegacyBridgeTempMailProvider(CustomTempMailProvider):
