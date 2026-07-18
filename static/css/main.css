@@ -914,8 +914,11 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  max-width: 1480px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  padding-inline: 0.15rem;
 }
 .unified-command-center {
   display: grid;
@@ -2664,7 +2667,8 @@ textarea.form-input {
 }
 
 .unified-mailbox-shell {
-  max-width: 1520px;
+  max-width: none;
+  width: 100%;
   gap: 1rem;
 }
 

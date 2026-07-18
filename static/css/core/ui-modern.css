@@ -4083,20 +4083,18 @@ textarea.form-input {
 }
 
 .page {
-  padding: 1rem 1.15rem;
-  max-width: 96rem;
-  margin-inline: auto;
+  padding: 1rem 1.25rem 1.35rem;
+  /* Use full main content width — avoid a narrow centered column with empty sides. */
+  max-width: none;
+  margin-inline: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* Ultra-wide: keep admin content from stretching into unreadability */
-@media (min-width: 1600px) {
+/* Soft ceiling only on ultra-wide so forms/cards stay readable but still fill space. */
+@media (min-width: 1800px) {
   .page:not(.page-workspace):not(.page-no-padding) {
-    max-width: 88rem;
-  }
-
-  #page-settings {
-    max-width: 72rem;
+    max-width: min(100%, 110rem);
     margin-inline: auto;
   }
 }
@@ -4104,6 +4102,14 @@ textarea.form-input {
 .page.page-no-padding,
 .page.page-workspace {
   padding: 0;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  width: 100%;
+}
+
+#page-settings {
+  max-width: none !important;
+  margin-inline: 0;
 }
 
 .page > .card {
@@ -6686,11 +6692,12 @@ textarea.form-textarea:focus {
 
 #page-settings .provider-radio-group {
   display: grid;
-  /* Fill width with compact cards; avoid a sparse 3-up row with a huge empty right side. */
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-  gap: 0.55rem;
-  margin-top: 0.5rem;
-  max-width: 52rem;
+  /* Fill the card width; no artificial 52rem cap that leaves empty right space. */
+  grid-template-columns: repeat(auto-fill, minmax(10.25rem, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.55rem;
+  max-width: none;
+  width: 100%;
 }
 
 #page-settings .provider-radio {
@@ -12900,16 +12907,64 @@ dialog > .modal-footer .btn-primary {
   padding: 0.95rem 1.05rem 1.1rem !important;
 }
 
+/* Wide settings: balanced 2-column field layout instead of a left-only strip. */
+@media (min-width: 1100px) {
+  #page-settings .settings-section-card > .card-body,
+  #page-settings #settings-tab-basic .card > .card-body,
+  #page-settings #settings-tab-automation .settings-section-card > .card-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.25rem;
+    row-gap: 0.35rem;
+    align-items: start;
+  }
+
+  #page-settings .settings-section-card > .card-body > .form-group,
+  #page-settings #settings-tab-basic .card > .card-body > .form-group,
+  #page-settings #settings-tab-automation .settings-section-card > .card-body > .form-group {
+    min-width: 0;
+  }
+
+  /* Full-width blocks: actions, provider pickers, workbenches, long textareas, AI panels */
+  #page-settings .settings-actions,
+  #page-settings .provider-radio-group,
+  #page-settings .form-group--flush,
+  #page-settings .settings-ai-panel,
+  #page-settings .external-api-command-center,
+  #page-settings .provider-workbench,
+  #page-settings .temp-provider-config-body,
+  #page-settings .plugin-manager-body,
+  #page-settings .settings-callout,
+  #page-settings .form-help-details,
+  #page-settings .settings-chip-grid,
+  #page-settings .settings-test-action,
+  #page-settings .form-group:has(textarea),
+  #page-settings .form-group:has(.provider-radio-group),
+  #page-settings .form-group:has(.settings-mono-input),
+  #page-settings .form-group:has(.temp-provider-usage-panel),
+  #page-settings .form-group:has(.temp-provider-config-grid) {
+    grid-column: 1 / -1;
+  }
+}
+
 #page-settings .form-group {
   margin-bottom: 0.9rem;
-  max-width: 44rem;
+  max-width: none;
+  width: 100%;
 }
 
 #page-settings .form-hint {
-  max-width: 40rem;
+  max-width: min(100%, 48rem);
   font-size: 0.78rem;
   line-height: 1.48;
   color: var(--text-muted);
+}
+
+#page-settings .form-input,
+#page-settings .form-select,
+#page-settings textarea.form-input {
+  width: 100%;
+  max-width: none;
 }
 
 #page-settings .form-label {
@@ -14604,10 +14659,52 @@ body,
 .kpi-row--simple {
   gap: 12px;
   margin-bottom: 14px;
+  width: 100%;
 }
 
 .two-col--simple {
   gap: 12px;
+  width: 100%;
+}
+
+/* Overview panes use full available width with natural multi-column balance */
+#page-dashboard .ov-pane-body,
+#page-dashboard .overview-tab-shell {
+  width: 100%;
+  max-width: none;
+}
+
+#page-dashboard .kpi-row,
+#page-dashboard .two-col {
+  width: 100%;
+}
+
+#page-dashboard .ov-api-examples-grid {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+#page-dashboard .ov-ops-health {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+/* Settings tab content fills the shell evenly */
+#page-settings .settings-tab-content,
+#page-settings .settings-card-shell,
+#page-settings .settings-section-card {
+  width: 100%;
+  max-width: none;
+}
+
+#page-settings .temp-provider-config-grid {
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+/* Workspace pages: edge-to-edge columns */
+#page-mailbox.page-workspace,
+#page-temp-emails.page-workspace {
+  max-width: none !important;
+  width: 100%;
 }
 
 .ov-simple-next {
@@ -14665,9 +14762,21 @@ body,
 }
 
 .ov-setup-steps {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
+}
+
+@media (min-width: 1100px) {
+  .ov-setup-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1500px) {
+  .ov-setup-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .ov-setup-step {
