@@ -128,7 +128,7 @@ class GunicornStartupConfigTests(unittest.TestCase):
         self.assertIn(': "${GUNICORN_THREADS:=8}"', script)
         self.assertIn(': "${GUNICORN_TIMEOUT:=120}"', script)
         self.assertIn("--threads", script)
-        self.assertIn("web_outlook_app:app", script)
+        self.assertIn("web_mailops_app:app", script)
         self.assertNotIn("--preload", script)
         self.assertIn("wait-message", script)
 
@@ -149,7 +149,7 @@ class GunicornStartupConfigTests(unittest.TestCase):
                 "120",
                 "--access-logfile",
                 "-",
-                "web_outlook_app:app",
+                "web_mailops_app:app",
             ],
         )
 
@@ -178,7 +178,7 @@ class GunicornStartupConfigTests(unittest.TestCase):
                 "90",
                 "--access-logfile",
                 "/tmp/access.log",
-                "web_outlook_app:app",
+                "web_mailops_app:app",
             ],
         )
 

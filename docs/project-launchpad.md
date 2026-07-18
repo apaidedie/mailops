@@ -45,7 +45,7 @@ For local development:
 ```bash
 python -m venv .venv
 pip install -r requirements.txt
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 To try the unified workspace before configuring real providers, seed the local
@@ -61,7 +61,7 @@ Then start the app against that generated database:
 ```powershell
 $env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 Before handing the repository to another operator or service, run the local
@@ -145,8 +145,8 @@ CF_WORKER_ADMIN_KEY=
 For future providers, prefer the plugin contract:
 
 ```bash
-python web_outlook_app.py scaffold-provider <provider_key>
-python web_outlook_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
+python web_mailops_app.py scaffold-provider <provider_key>
+python web_mailops_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
 ```
 
 Production provider rows should report `contract_validation.status=valid` before

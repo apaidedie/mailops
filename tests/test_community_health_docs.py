@@ -39,7 +39,7 @@ class CommunityHealthDocsTests(unittest.TestCase):
             "python scripts/project_readiness_check.py",
             "docs/external-integration-quickstart.md",
             "docs/provider-onboarding.md",
-            "python web_outlook_app.py validate-provider",
+            "python web_mailops_app.py validate-provider",
             "node --test tests/external_api_javascript_client.test.js",
         ):
             self.assertIn(expected, content)

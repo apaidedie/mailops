@@ -4,12 +4,19 @@ All notable changes to MailOps are documented in this file.
 
 ## [Unreleased]
 
+## [v2.7.2] - 2026-07-18
+
 ### 重要变更 / Important Changes
 
-- **包名与测试隔离前缀统一为 mailops**：Python 包目录 `outlook_web/` 重命名为 `mailops/`（import 路径同步为 `mailops.*`）；测试临时目录前缀改为 `mailops-tests-`；coverage omit 路径同步。
-- **移除旧环境变量兼容**：示例客户端与 `scripts/external_api_smoke.py` 仅认 `MAILOPS_API_KEY`（不再读取 `OUTLOOK_EMAIL_PLUS_API_KEY`）。
-- 兼容入口 `web_outlook_app.py` / `outlook_mail_reader.py` 文件名保留（部署 gunicorn 入口不变），内部已全部 import `mailops`。
-- **README 文案收口**：产品名统一为 MailOps；移除演示域名 `demo.outlookmailplus.tech` 与联系邮箱 `outlookmailplus@163.com`。
+- **包名统一为 mailops**：Python 包目录 `outlook_web/` → `mailops/`（import 为 `mailops.*`）；测试临时目录前缀 `mailops-tests-`；coverage omit 同步。
+- **应用入口重命名**：主入口 `web_outlook_app.py` → `web_mailops_app.py`；Gunicorn 默认 `web_mailops_app:app`。保留极薄 shim `web_outlook_app.py` 仅供旧部署命令过渡。
+- **移除旧环境变量兼容**：示例客户端与 smoke 仅认 `MAILOPS_API_KEY`（不再读取 `OUTLOOK_EMAIL_PLUS_API_KEY`）。
+- **README 文案收口**：产品名统一 MailOps；移除演示域名与旧联系邮箱。
+- 版本号从 `2.7.1` 升级至 `2.7.2`（`mailops.__version__` / `package.json`）。
+
+### 修复 / Bug Fixes
+
+- **Code Quality / Black**：修复包重命名后 3 个测试文件行长格式失败（`test_gptmail_error_handling` / `test_temp_mail_plugin_cli` / `test_v191_compact_mode_api_tdd`）。
 
 ## [v2.7.1] - 2026-07-18
 

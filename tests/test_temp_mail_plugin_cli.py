@@ -51,9 +51,7 @@ class TestPluginCLI(unittest.TestCase):
     # G-CLI-03
     @patch("mailops.services.temp_mail_plugin_cli.uninstall_plugin")
     @patch("mailops.services.temp_mail_plugin_cli._confirm", return_value=True)
-    @patch(
-        "mailops.services.temp_mail_plugin_cli.check_provider_in_use", return_value={"task_count": 0, "active_count": 0}
-    )
+    @patch("mailops.services.temp_mail_plugin_cli.check_provider_in_use", return_value={"task_count": 0, "active_count": 0})
     @patch("builtins.print")
     def test_cli_uninstall_plugin(self, mock_print, mock_check, mock_confirm, mock_uninstall):
         """uninstall-provider moemail 调用 uninstall_plugin"""

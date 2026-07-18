@@ -331,14 +331,14 @@ POST /api/system/reload-plugins
    - 删除单封 / 清空邮箱 / 删除邮箱接口
    - 鉴权方式
 2. 写 Provider 类
-   - 推荐优先运行 `python web_outlook_app.py scaffold-provider <provider_key>` 或复制 `examples/temp_mail_provider_plugin_template.py`
+   - 推荐优先运行 `python web_mailops_app.py scaffold-provider <provider_key>` 或复制 `examples/temp_mail_provider_plugin_template.py`
    - 保持继承 `TempMailProviderBase`，不要改成普通类
    - 保持 `@register_provider` 注册
 3. 替换模板里的 `_request_json` 适配器和响应归一化逻辑
 4. 在本地先运行契约校验：
 
 ```bash
-python web_outlook_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
+python web_mailops_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
 ```
 
 5. 只有当 `contract_validation.status = valid` 且命令退出码为 `0` 时，再把插件放到运行时插件目录
@@ -355,7 +355,7 @@ python web_outlook_app.py validate-provider <provider_key> --file path/to/<provi
 至少确认以下 10 项：
 
 1. Provider 类继承 `TempMailProviderBase`
-2. `python web_outlook_app.py validate-provider <provider_key> --file <plugin.py>` 返回 `contract_validation.status = valid`
+2. `python web_mailops_app.py validate-provider <provider_key> --file <plugin.py>` 返回 `contract_validation.status = valid`
 3. 插件能被加载，且在插件管理中显示
 4. `GET /api/plugins/<name>/contract` 返回 `contract_validation.status = valid`
 5. 配置表单能正确渲染

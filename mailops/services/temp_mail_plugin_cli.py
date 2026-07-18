@@ -191,7 +191,7 @@ def _cmd_validate_provider(name: str, file_path: str | None, probe_options: bool
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="python web_outlook_app.py")
+    parser = argparse.ArgumentParser(prog="python web_mailops_app.py")
     sub = parser.add_subparsers(dest="command")
 
     install_parser = sub.add_parser("install-provider", help="安装临时邮箱 Provider 插件")

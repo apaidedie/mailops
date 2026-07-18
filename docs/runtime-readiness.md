@@ -9,7 +9,7 @@ external API discovery surfaces are usable.
 Use the compatibility entrypoint for local operation:
 
 ```bash
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 Useful environment controls:
@@ -134,7 +134,7 @@ creating mailboxes.
 
 Last checked on 2026-07-09 against a local Windows development environment.
 
-- `python web_outlook_app.py` started successfully on `127.0.0.1:5107` with
+- `python web_mailops_app.py` started successfully on `127.0.0.1:5107` with
   `SCHEDULER_AUTOSTART=false`.
 - `GET /healthz` returned `200` with app version `2.7.0`.
 - Admin session checks passed for `/api/bootstrap`, `/api/providers`,

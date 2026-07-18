@@ -35,4 +35,4 @@ exec gunicorn \
   -b "$GUNICORN_BIND" \
   --timeout "$GUNICORN_TIMEOUT" \
   --access-logfile "$GUNICORN_ACCESS_LOGFILE" \
-  web_outlook_app:app
+  web_mailops_app:app

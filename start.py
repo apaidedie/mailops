@@ -82,9 +82,9 @@ if not os.getenv("SECRET_KEY"):
     print("❌ 错误：SECRET_KEY 环境变量未设置")
     sys.exit(1)
 
-# 直接运行 web_outlook_app.py
+# 直接运行 web_mailops_app.py
 if __name__ == "__main__":
-    # 使用 exec 运行 web_outlook_app.py，保持 __name__ == "__main__"
-    with open("web_outlook_app.py", "r", encoding="utf-8") as f:
+    # 使用 exec 运行 web_mailops_app.py，保持 __name__ == "__main__"
+    with open("web_mailops_app.py", "r", encoding="utf-8") as f:
         code = f.read()
-    exec(code, {"__name__": "__main__", "__file__": "web_outlook_app.py"})
+    exec(code, {"__name__": "__main__", "__file__": "web_mailops_app.py"})

@@ -323,9 +323,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         group_id = self._create_group()
         self._create_account(group_id=group_id)
 
-        with patch(
-            "mailops.services.external_api.list_messages_for_external", side_effect=AssertionError("should not fetch")
-        ):
+        with patch("mailops.services.external_api.list_messages_for_external", side_effect=AssertionError("should not fetch")):
             resp = client.get(f"/api/accounts?group_id={group_id}")
 
         self.assertEqual(resp.status_code, 200)

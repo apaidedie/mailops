@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+MailOps Web 应用入口。
+
+目标：
+- 部署入口：`web_mailops_app:app`（Gunicorn / Docker）
+- 直接运行：`python web_mailops_app.py`
+- 内部实现位于 `mailops/` 模块化架构
+"""
+
+import os
+import sys
+
+from mailops.runtime_output import configure_process_output
+
+configure_process_output()
+
+try:
+    # 直接执行 `python web_mailops_app.py` 时加载工作目录 .env，
+    # 避免 SECRET_KEY / LOGIN_PASSWORD 未注入导致启动失败。
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except Exception:
+    # 即使未安装 python-dotenv 也不阻断导入。
+    pass
+
+from mailops.app import create_app
+from mailops.db import create_sqlite_connection
+from mailops.errors import build_error_payload, sanitize_error_details
+from mailops.repositories.distributed_locks import (
+    acquire_distributed_lock,
+    release_distributed_lock,
+)
+
+# 兼容导入：从各模块导出常用函数
+from mailops.security.auth import MAX_LOGIN_ATTEMPTS
+from mailops.security.crypto import decrypt_data, encrypt_data
+from mailops.services import graph as graph_service
+from mailops.services import scheduler as scheduler_service
+from mailops.services.temp_mail_plugin_cli import main as temp_mail_plugin_cli_main
+
+_TEMP_MAIL_PROVIDER_CLI_COMMANDS = {
+    "install-provider",
+    "uninstall-provider",
+    "scaffold-provider",
+    "validate-provider",
+    "list-providers",
+}
+
+
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] in _TEMP_MAIL_PROVIDER_CLI_COMMANDS:
+    raise SystemExit(temp_mail_plugin_cli_main(sys.argv[1:]))
+
+# 在脚本运行场景（__main__）中，调度器由 main block 统一控制，
+# 避免 debug reloader 父进程误启后台线程。
+app = create_app(autostart_scheduler=None if __name__ != "__main__" else False)
+
+
+__all__ = [
+    "app",
+    "main",
+    "create_sqlite_connection",
+    "MAX_LOGIN_ATTEMPTS",
+    "sanitize_error_details",
+    "build_error_payload",
+    "decrypt_data",
+    "encrypt_data",
+    "acquire_distributed_lock",
+    "release_distributed_lock",
+]
+
+
+def main() -> None:
+    port = int(os.getenv("PORT", 5000))
+    host = os.getenv("HOST", "0.0.0.0")
+    debug = os.getenv("FLASK_ENV", "production") != "production"
+
+    print("=" * 60)
+    print("MailOps")
+    print("=" * 60)
+    print(f"访问地址: http://{host}:{port}")
+    print(f"运行模式: {'开发' if debug else '生产'}")
+    print("=" * 60)
+
+    # 初始化定时任务（与旧版行为保持一致）
+    if not debug or os.getenv("WERKZEUG_RUN_MAIN") == "true":
+        if scheduler_service.should_autostart_scheduler():
+            scheduler_service.init_scheduler(app, graph_service.test_refresh_token)
+        else:
+            print("✓ 已根据配置跳过启动调度器")
+    else:
+        print("✓ 调试重载器父进程：跳过启动调度器")
+
+    app.run(debug=debug, host=host, port=port)
+
+
+if __name__ == "__main__":
+    main()

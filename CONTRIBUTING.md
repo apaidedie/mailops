@@ -14,7 +14,7 @@ Thanks for improving Outlook Email Plus. This project is focused on registration
 ```bash
 python -m venv .venv
 pip install -r requirements.txt
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 Use `.env.example` as the configuration template. Keep real secrets in your local `.env` or deployment platform, never in committed docs, tests, screenshots, or fixtures.
@@ -47,7 +47,7 @@ New temporary mailbox providers should be added through the provider/plugin cont
 
 - Provider metadata and config schema with no secret default values.
 - Clear env/settings keys in `.env.example` or provider docs when needed.
-- Contract validation using `python web_outlook_app.py validate-provider <provider_key> --file <plugin.py>`.
+- Contract validation using `python web_mailops_app.py validate-provider <provider_key> --file <plugin.py>`.
 - Tests proving provider discovery, readiness, and secret-free payloads.
 
 Provider selection should stay catalog-driven. External callers should discover `/api/v1/external/*` endpoints and use `provider` for pool claims or `provider_name` for task temp-mail creation.

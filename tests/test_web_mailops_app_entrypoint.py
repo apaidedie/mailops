@@ -29,7 +29,7 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
         }
         if "mailops.app" in sys.modules:
             sys.modules["mailops.app"]._APP_INSTANCE = None
-        sys.modules.pop("web_outlook_app", None)
+        sys.modules.pop("web_mailops_app", None)
         os.environ["SECRET_KEY"] = "test-secret-key-32bytes-minimum-0000000000000000"
         os.environ["LOGIN_PASSWORD"] = "testpass123"
         os.environ["SCHEDULER_AUTOSTART"] = "false"
@@ -37,12 +37,12 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
         os.environ["HOST"] = "127.0.0.1"
         os.environ["PORT"] = "5099"
         os.environ["DATABASE_PATH"] = str(self._db_path)
-        self.module = importlib.import_module("web_outlook_app")
+        self.module = importlib.import_module("web_mailops_app")
 
     def tearDown(self) -> None:
         if "mailops.app" in sys.modules:
             sys.modules["mailops.app"]._APP_INSTANCE = None
-        sys.modules.pop("web_outlook_app", None)
+        sys.modules.pop("web_mailops_app", None)
         for key, value in self._original_env.items():
             if value is None:
                 os.environ.pop(key, None)
@@ -63,7 +63,7 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
         run_app.assert_called_once_with(debug=False, host="127.0.0.1", port=5099)
 
     def test_cli_entrypoint_includes_provider_scaffold_command(self) -> None:
-        source = Path("web_outlook_app.py").read_text(encoding="utf-8")
+        source = Path("web_mailops_app.py").read_text(encoding="utf-8")
 
         self.assertIn("_TEMP_MAIL_PROVIDER_CLI_COMMANDS", source)
         self.assertIn('"scaffold-provider"', source)
@@ -72,7 +72,7 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
         self.assertLess(source.index("_TEMP_MAIL_PROVIDER_CLI_COMMANDS"), source.index("app = create_app"))
 
     def test_entrypoint_configures_utf8_safe_output_before_startup_prints(self) -> None:
-        source = Path("web_outlook_app.py").read_text(encoding="utf-8")
+        source = Path("web_mailops_app.py").read_text(encoding="utf-8")
 
         self.assertIn("from mailops.runtime_output import configure_process_output", source)
         self.assertIn("configure_process_output()", source)

@@ -411,7 +411,7 @@ Added a dependency-free Node.js external API starter client with discovery, mail
 
 ### Summary
 
-Added a validate-provider CLI for temp-mail provider contract checks, including local plugin-file import, registry validation, JSON output for CI, nonzero warning/invalid exits, early web_outlook_app CLI dispatch before Flask app initialization, onboarding docs, and provider/plugin regression tests.
+Added a validate-provider CLI for temp-mail provider contract checks, including local plugin-file import, registry validation, JSON output for CI, nonzero warning/invalid exits, early web_mailops_app CLI dispatch before Flask app initialization, onboarding docs, and provider/plugin regression tests.
 
 ### Main Changes
 

@@ -45,7 +45,7 @@ def _next_steps(provider_key: str, file_path: str) -> list[str]:
     return [
         f"Edit {file_path} and replace the provider HTTP adapter with upstream API calls.",
         f"python scripts/provider_dev_kit.py validate {provider_key} --file {file_path} --format json",
-        f"python web_outlook_app.py validate-provider {provider_key} --file {file_path}",
+        f"python web_mailops_app.py validate-provider {provider_key} --file {file_path}",
         "Reload plugins, inspect GET /api/plugins/<name>/contract, then enable routing only after status=valid.",
     ]
 

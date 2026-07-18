@@ -193,7 +193,7 @@ def create_app(*, autostart_scheduler: Optional[bool] = None):
 
         # 打印初始化信息
         print("=" * 60)
-        print("Outlook 邮件 Web 应用已初始化")
+        print("MailOps 已初始化")
         print(f"数据库文件: {config.get_database_path()}")
         print(f"Temp Mail API: {config.get_temp_mail_base_url()}")
         print("=" * 60)

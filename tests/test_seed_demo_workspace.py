@@ -38,7 +38,7 @@ class SeedDemoWorkspaceTests(unittest.TestCase):
             self.assertEqual(result["counts"]["temp_email_messages"], 6)
             self.assertEqual(result["counts"]["verification_extract_logs"], 8)
             self.assertEqual(result["counts"]["external_api_consumer_usage_daily"], 9)
-            self.assertIn("web_outlook_app.py", result["startup_command"])
+            self.assertIn("web_mailops_app.py", result["startup_command"])
 
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row

@@ -40,7 +40,7 @@
 
 ## 版本亮点
 
-当前稳定版本：`v2.7.1`
+当前稳定版本：`v2.7.2`
 
 ### 近期版本速览
 
@@ -125,7 +125,7 @@ templates/            页面模板
 static/               前端脚本与样式
 data/                 SQLite 数据与运行时文件
 tests/                自动化测试
-web_outlook_app.py    兼容入口
+web_mailops_app.py    应用入口
 ```
 
 ## 快速开始
@@ -160,7 +160,7 @@ docker compose pull && docker compose up -d
 ```bash
 python -m venv .venv
 pip install -r requirements.txt
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 如果你还没有真实 Outlook/IMAP 或临时邮箱 Provider 凭据，可以先生成本地演示库，直接查看统一邮箱、临时邮箱、邮箱池和外部 API 看板效果：
@@ -174,7 +174,7 @@ python scripts/seed_demo_workspace.py --reset
 ```powershell
 $env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 ### 运行测试

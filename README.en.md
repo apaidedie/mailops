@@ -40,7 +40,7 @@ The repository already includes some screenshots, and more can be added later.
 
 ## Version Highlights
 
-Current stable version: `v2.7.1`
+Current stable version: `v2.7.2`
 
 ### Recent Version Overview
 
@@ -124,7 +124,7 @@ templates/            Page templates
 static/               Frontend scripts and styles
 data/                 SQLite data and runtime files
 tests/                Automated tests
-web_outlook_app.py    Backward-compatible entrypoint
+web_mailops_app.py    Application entrypoint
 ```
 
 ## Quick Start
@@ -233,7 +233,7 @@ Notes:
 ```bash
 python -m venv .venv
 pip install -r requirements.txt
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 If you do not have real Outlook/IMAP or temp-mail provider credentials yet, seed the local demo database first. It lets you inspect the unified mailbox directory, temp-mail inboxes, mailbox pool, and external API dashboard with synthetic data:
@@ -247,7 +247,7 @@ Then start the app with the generated `output/demo/mailops-demo.db` database:
 ```powershell
 $env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
-python web_outlook_app.py
+python web_mailops_app.py
 ```
 
 ### Run Tests

@@ -28,7 +28,7 @@ Do not include real API keys, provider bearer tokens, refresh tokens, task token
 For new temp-mail providers, start from `docs/provider-onboarding.md` and validate plugin shape with:
 
 ```bash
-python web_outlook_app.py validate-provider <provider_key> --file <plugin.py>
+python web_mailops_app.py validate-provider <provider_key> --file <plugin.py>
 ```
 
 For external service integration, start with the read-only checks:

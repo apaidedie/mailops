@@ -57,7 +57,7 @@ def _resolve_db_path(value: str | None) -> Path:
 
 
 def _startup_command(db_path: Path) -> str:
-    return f'$env:DATABASE_PATH="{db_path}"; $env:SCHEDULER_AUTOSTART="false"; python web_outlook_app.py'
+    return f'$env:DATABASE_PATH="{db_path}"; $env:SCHEDULER_AUTOSTART="false"; python web_mailops_app.py'
 
 
 def _demo_plan(db_path: Path) -> dict[str, Any]:

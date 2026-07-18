@@ -72,8 +72,8 @@ The generated template already inherits `TempMailProviderBase`, registers with `
 The legacy low-level commands remain available when you need them directly:
 
 ```bash
-python web_outlook_app.py scaffold-provider <provider_key>
-python web_outlook_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
+python web_mailops_app.py scaffold-provider <provider_key>
+python web_mailops_app.py validate-provider <provider_key> --file path/to/<provider_key>.py
 ```
 
 Inheritance is a hard readiness gate, not only a style preference. A provider class that defines matching methods but does not inherit `TempMailProviderBase` is reported as `contract_validation.status=invalid` with `PROVIDER_BASE_CLASS_INVALID`, because the base class owns shared capabilities, health-check shape, and future extension points.
@@ -84,7 +84,7 @@ Before copying a provider into production or enabling it in routing, run the loc
 python scripts/provider_dev_kit.py validate <provider_key> --file path/to/<provider_key>.py --format json
 ```
 
-Use `--probe-options` only when a plugin should also run the local `get_options()` shape probe. The checker never creates, deletes, clears, or mutates mailboxes, and the validation payload is secret-safe. The lower-level `python web_outlook_app.py validate-provider <provider_key> --file <plugin.py> --no-probe-options` command can still be used for parity with the Web API validator.
+Use `--probe-options` only when a plugin should also run the local `get_options()` shape probe. The checker never creates, deletes, clears, or mutates mailboxes, and the validation payload is secret-safe. The lower-level `python web_mailops_app.py validate-provider <provider_key> --file <plugin.py> --no-probe-options` command can still be used for parity with the Web API validator.
 
 Every registered temp-mail provider now exposes a secret-free `contract_validation` object through `/api/providers`, `/api/v1/external/providers`, `/api/v1/external/capabilities`, and `integration_manifest.providers[*]`. Plugin authors should treat `contract_validation.status=valid` as the structural readiness gate before enabling a provider in routing. `warning` means the provider can still be discovered but has metadata or local readiness gaps to review. `invalid` means the provider extension contract is incomplete, such as a mismatched provider key, missing required method, invalid config field, or a secret `config_schema` field that defines a default value.
 
@@ -112,7 +112,7 @@ Before treating a provider or external integration as ready, verify these condit
 - Secret fields in manifest provider env hints use empty `value` strings.
 - `integration_manifest.providers[*].contract_validation` and provider catalog rows report `status=valid` for production providers.
 - Custom provider classes inherit `TempMailProviderBase`; non-base classes fail validation with `PROVIDER_BASE_CLASS_INVALID` even if every required method is present.
-- `python web_outlook_app.py validate-provider <provider_key> --file <plugin.py>` still exits `0` and reports `contract_validation.status=valid` for low-level validator parity.
+- `python web_mailops_app.py validate-provider <provider_key> --file <plugin.py>` still exits `0` and reports `contract_validation.status=valid` for low-level validator parity.
 - `GET /api/plugins/<name>/contract` returns no API key values, bearer tokens, passwords, JWTs, task tokens, consumer keys, or secret config defaults.
 - `GET /api/v1/external/providers/{kind}/{provider}/health` reports `ready` or the expected `needs_config` reason.
 - Provider-specific pool claims use `provider`; task temp-mail creation uses `provider_name`.

@@ -436,7 +436,7 @@ def _demo_seed_script(root: Path) -> CheckResult:
         "init_db",
         "SCHEDULER_AUTOSTART",
         "DATABASE_PATH",
-        "web_outlook_app.py",
+        "web_mailops_app.py",
     )
     missing = _missing(_read(root, "scripts/seed_demo_workspace.py"), required)
     return _check(

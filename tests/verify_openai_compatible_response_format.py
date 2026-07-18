@@ -33,7 +33,7 @@ from mailops.repositories import settings as settings_repo
 from mailops.services.verification_extractor import (
     _normalize_verification_ai_endpoint,
 )
-from web_outlook_app import app
+from web_mailops_app import app
 
 
 def _preview_text(value: Any, limit: int = 400) -> str:

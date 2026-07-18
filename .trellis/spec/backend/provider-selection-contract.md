@@ -674,7 +674,7 @@ The `secret_scan` object must be shaped as `{ok: bool, hits: list}`. Each hit ma
 
 - Good: a contributor runs `python scripts/provider_dev_kit.py scaffold mail_tm_clone --format json`, edits only the generated HTTP adapter, then runs `python scripts/provider_dev_kit.py validate mail_tm_clone --file <plugin.py> --format json` before enabling routing.
 - Good: CI checks the JSON report and requires both `secret_scan.ok=true` and `contract_validation.status=valid`.
-- Base: an advanced operator still uses `python web_outlook_app.py validate-provider <provider_key> --file <plugin.py>` for parity with the Web API validator.
+- Base: an advanced operator still uses `python web_mailops_app.py validate-provider <provider_key> --file <plugin.py>` for parity with the Web API validator.
 - Bad: implementing a second method-by-method validator inside the script; that will drift from `temp_mail_provider_contract.py`.
 - Bad: making `validate` call `get_options()` by default; provider options can read settings or make future network calls.
 - Bad: printing matched token values in a secret scan to make debugging easier.
@@ -684,7 +684,7 @@ The `secret_scan` object must be shaped as `{ok: bool, hits: list}`. Each hit ma
 - Dev-kit tests assert scaffold JSON is parseable, creates a provider file through the scaffold helper, includes next-step validation commands, and is secret-scan clean.
 - Dev-kit tests assert validate JSON is parseable, defaults to offline validation, does not call `get_options()` unless `--probe-options` is passed, and returns the full contract payload.
 - Dev-kit tests assert secret-like values fail validation without appearing in stdout, assertion messages, docs, or fixtures.
-- CLI regression tests assert `web_outlook_app.py validate-provider` still uses the shared validation helper and preserves existing exit-code behavior.
+- CLI regression tests assert `web_mailops_app.py validate-provider` still uses the shared validation helper and preserves existing exit-code behavior.
 - Readiness tests assert `scripts/provider_dev_kit.py` is a required asset, is secret-scanned, and provider onboarding docs mention the dev-kit, offline default, JSON mode, optional probe flag, and `secret_scan` gate.
 
 ### 7. Wrong vs Correct

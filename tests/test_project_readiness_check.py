@@ -90,7 +90,7 @@ def _minimal_ready_repo(root: Path) -> None:
         "docs/runtime-readiness.md",
         "\n".join(
             [
-                "python web_outlook_app.py",
+                "python web_mailops_app.py",
                 "SCHEDULER_AUTOSTART=false",
                 "DUCKMAIL_API_BASE=https://api.duckmail.sbs",
                 "DUCKMAIL_BEARER_TOKEN=",
@@ -200,7 +200,7 @@ def _minimal_ready_repo(root: Path) -> None:
     _write(
         root,
         "scripts/seed_demo_workspace.py",
-        "DEFAULT_DB_PATH output demo mailops-demo.db --dry-run --reset --format seed_demo_workspace init_db SCHEDULER_AUTOSTART DATABASE_PATH web_outlook_app.py\n",
+        "DEFAULT_DB_PATH output demo mailops-demo.db --dry-run --reset --format seed_demo_workspace init_db SCHEDULER_AUTOSTART DATABASE_PATH web_mailops_app.py\n",
     )
     _write(
         root,
@@ -301,7 +301,7 @@ class ProjectReadinessCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             _minimal_ready_repo(root)
-            _write(root, "docs/runtime-readiness.md", "python web_outlook_app.py")
+            _write(root, "docs/runtime-readiness.md", "python web_mailops_app.py")
 
             report = project_readiness_check.build_report(project_readiness_check.run_checks(root))
 
