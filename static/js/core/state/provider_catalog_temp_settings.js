@@ -26,14 +26,62 @@
             return new Set(['cloudflare_temp_mail']);
         }
 
+        function getOfficialInstallableTempProviderNames() {
+            // Historical + plugin package keys that must not render as empty "saved" shells
+            // when the matching plugin is not installed / not in catalog.
+            return new Set([
+                'legacy_bridge',
+                'custom_domain_temp_mail',
+                'gptmail',
+                'legacy_gptmail',
+                'temp_mail',
+                'mail_tm',
+                'duckmail',
+                'tempmail_lol',
+                'emailnator',
+            ]);
+        }
+
+        function isTempMailProviderCatalogAvailable(providerName) {
+            const provider = normalizeTempMailSettingsProviderName(providerName) || String(providerName || '').trim();
+            if (!provider) return false;
+            if (getSettingsVisibleBuiltinTempProviders().has(provider)) return true;
+            const item = typeof getMailboxProviderCatalogItem === 'function'
+                ? getMailboxProviderCatalogItem(provider, 'temp')
+                : null;
+            if (item && String(item.provider || item.name || '').trim()) return true;
+            const pluginManager = typeof window !== 'undefined' && window.PluginManager ? window.PluginManager : null;
+            if (pluginManager && typeof pluginManager.hasInstalledProvider === 'function') {
+                if (pluginManager.hasInstalledProvider(provider)) return true;
+                // GPTMail plugin package name vs dual-register runtime keys
+                if (['legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail'].includes(provider)) {
+                    if (pluginManager.hasInstalledProvider('gptmail')) return true;
+                }
+            }
+            return false;
+        }
+
         function shouldShowTempMailSettingsProviderOption(option, selectedProvider = '') {
             if (!option || !option.provider) return false;
             const provider = normalizeTempMailSettingsProviderName(option.provider) || option.provider;
             const selected = normalizeTempMailSettingsProviderName(selectedProvider);
-            if (selected && provider === selected) return true;
+            // Never show ghost "saved" shells (e.g. bare legacy_bridge) when plugin is gone.
+            if (option.source === 'saved') {
+                if (getOfficialInstallableTempProviderNames().has(provider)) return false;
+                return isTempMailProviderCatalogAvailable(provider);
+            }
             if (option.configSource === 'plugin' || option.source === 'plugin') return true;
             if (getSettingsVisibleBuiltinTempProviders().has(provider)) return true;
-            // Hide Mail.tm / DuckMail / TempMail.lol / Emailnator from default built-in grid.
+            // Installed official plugins appear via catalog with config_source=plugin or registry.
+            if (isTempMailProviderCatalogAvailable(provider) && !getOfficialInstallableTempProviderNames().has(provider)) {
+                return true;
+            }
+            // Official installable providers: only when catalog/plugin says they exist.
+            if (getOfficialInstallableTempProviderNames().has(provider)) {
+                return isTempMailProviderCatalogAvailable(provider);
+            }
+            // Selected only if real (already filtered above for saved ghosts).
+            if (selected && provider === selected && isTempMailProviderCatalogAvailable(provider)) return true;
             return false;
         }
 
@@ -764,7 +812,14 @@
             });
 
             const selected = normalizeTempMailSettingsProviderName(selectedProvider);
-            if (selected && !optionMap.has(selected)) {
+            // Only inject a "saved" fallback when it is a real available provider.
+            // Do not invent empty shells for uninstalled GPTMail (legacy_bridge) etc.
+            if (
+                selected
+                && !optionMap.has(selected)
+                && isTempMailProviderCatalogAvailable(selected)
+                && !getOfficialInstallableTempProviderNames().has(selected)
+            ) {
                 mergeTempMailSettingsProviderOption(optionMap, normalizeTempMailSettingsProviderOption({
                     provider: selected,
                     label: selected,
@@ -875,8 +930,18 @@
             // Settings radios are deferred until initTempMailProviderOptions() (Settings open).
             // Skip rewriting the hidden mount when the user has never opened Settings.
             if (!isTempMailSettingsProviderMountBound(mount)) return '';
-            const selectedProvider = normalizeTempMailSettingsProviderName(preferredProvider)
+            let selectedProvider = normalizeTempMailSettingsProviderName(preferredProvider)
                 || getCurrentTempMailSettingsProviderSelection(mount);
+            // Stale DB value after GPTMail became a plugin (e.g. legacy_bridge) with no install.
+            if (selectedProvider && !isTempMailProviderCatalogAvailable(selectedProvider)) {
+                selectedProvider = getOperatorDefaultTempMailProvider();
+                if (tempMailSettingsSnapshot && typeof tempMailSettingsSnapshot === 'object') {
+                    tempMailSettingsSnapshot.temp_mail_provider = selectedProvider;
+                    if (typeof tempMailSettingsDirtyKeys !== 'undefined' && tempMailSettingsDirtyKeys && tempMailSettingsDirtyKeys.add) {
+                        tempMailSettingsDirtyKeys.add('temp_mail_provider');
+                    }
+                }
+            }
             const options = getTempMailSettingsProviderOptions(selectedProvider, mount);
             if (!options.length) {
                 mount.innerHTML = `<div class="provider-radio-empty">${escapeHtml(translateAppTextLocal('暂无可用临时邮箱 Provider'))}</div>`;
@@ -884,7 +949,7 @@
             }
 
             const selectedExists = options.some(option => option.provider === selectedProvider);
-            const nextSelectedProvider = selectedExists ? selectedProvider : options[0].provider;
+            const nextSelectedProvider = selectedExists ? selectedProvider : (options.find(o => o.provider === 'cloudflare_temp_mail')?.provider || options[0].provider);
             mount.innerHTML = options.map(option => renderTempMailSettingsProviderOption(option, nextSelectedProvider)).join('');
 
             const selectedRadio = findTempMailSettingsProviderRadio(nextSelectedProvider);
