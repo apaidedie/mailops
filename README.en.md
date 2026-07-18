@@ -19,7 +19,7 @@ Repo: https://github.com/apaidedie/mailops
 - [Browser Extension](#browser-extension): claim a mailbox and extract verification codes from signup pages.
 - [UI Preview](#ui-preview): see the current admin workspace screenshots.
 
-### Why OutlookMail Plus
+### Why MailOps
 
 - **Built for registration workflows**: it removes unnecessary steps as much as possible. You can copy mailbox addresses with one click; after sending a verification email on a signup page, you can return to the manager, click "Verification Code", fetch the latest email, and quickly extract the code or verification link with regex.
 - **Lighter and more focused**: non-core features such as sending mail are intentionally left out, so the interface stays cleaner and every design choice is centered on completing registration tasks.
@@ -27,16 +27,7 @@ Repo: https://github.com/apaidedie/mailops
 - **Automation-friendly**: it exposes APIs for batch registration workflows; the mail pool supports project-scoped claiming via `project_key`. For long-lived mailboxes, when `project_key + caller_id + task_id` are explicitly provided during claim, a mailbox with a recorded success in the same project will not be re-claimed, and `claim-complete(result=success)` returns it directly to `available`, allowing immediate reuse by other projects. Temp mail / `cloudflare_temp_mail` keep the legacy behavior. Mailbox claiming, verification-code retrieval, and release are all covered.
 - **Third-party notifications**: third-party notification channels are supported. Telegram is already integrated, and important mailboxes can push alerts automatically.
 
-In short, OutlookMail Plus is a mailbox manager designed specifically for registration workflows.
-
-## Demo Site
-
-Demo site: https://demo.outlookmailplus.tech/  
-Login password: `12345678`
-
-The site includes 10 mailbox accounts for demonstration. Data is periodically reset. Please do not delete the demo accounts or use them for personal purposes.
-
-The demo covers most major features in this project, except Telegram push (which requires additional configuration).
+In short, MailOps is a mailbox ops workspace designed specifically for registration workflows.
 
 ## UI Preview
 
@@ -480,7 +471,3 @@ It also draws ideas from:
 ## License
 
 Apache License 2.0
-
-## Contact
-
-For project-related issues or collaboration opportunities, feel free to reach out via email: [outlookmailplus@163.com](mailto:outlookmailplus@163.com)

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to OutlookMail Plus are documented in this file.
+All notable changes to MailOps are documented in this file.
 
 ## [Unreleased]
 
@@ -9,6 +9,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 - **包名与测试隔离前缀统一为 mailops**：Python 包目录 `outlook_web/` 重命名为 `mailops/`（import 路径同步为 `mailops.*`）；测试临时目录前缀改为 `mailops-tests-`；coverage omit 路径同步。
 - **移除旧环境变量兼容**：示例客户端与 `scripts/external_api_smoke.py` 仅认 `MAILOPS_API_KEY`（不再读取 `OUTLOOK_EMAIL_PLUS_API_KEY`）。
 - 兼容入口 `web_outlook_app.py` / `outlook_mail_reader.py` 文件名保留（部署 gunicorn 入口不变），内部已全部 import `mailops`。
+- **README 文案收口**：产品名统一为 MailOps；移除演示域名 `demo.outlookmailplus.tech` 与联系邮箱 `outlookmailplus@163.com`。
 
 ## [v2.7.1] - 2026-07-18
 
