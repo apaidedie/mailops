@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from outlook_web.services.mailbox_resolver import normalize_alias_email
+from mailops.services.mailbox_resolver import normalize_alias_email
 
 
 class TestNormalizeAliasEmail(unittest.TestCase):

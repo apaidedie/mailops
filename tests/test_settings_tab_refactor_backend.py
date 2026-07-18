@@ -31,7 +31,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             # 重置新增 key 为默认值（确保测试间隔离）
@@ -123,7 +123,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
 
         # 再通过 repository 直接写入 cf_worker_domains（模拟同步操作）
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             cf_domains = [{"name": "cf.example.com", "enabled": True}]
             settings_repo.set_setting("cf_worker_domains", json.dumps(cf_domains))
@@ -195,7 +195,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
     def test_put_other_fields_does_not_clear_cf_worker_domains(self):
         """PUT 时不传 cf_worker_domains，已有的域名应保持不变"""
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             cf_domains = [{"name": "preserved.example.com", "enabled": True}]
             settings_repo.set_setting("cf_worker_domains", json.dumps(cf_domains), commit=True)
@@ -250,7 +250,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
     def test_get_cf_worker_domains_returns_list(self):
         """get_cf_worker_domains() 应返回 list 类型"""
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             result = settings_repo.get_cf_worker_domains()
             self.assertIsInstance(result, list, "get_cf_worker_domains() 应返回 list")
@@ -262,7 +262,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
     def test_get_cf_worker_domains_handles_invalid_json(self):
         """cf_worker_domains 存储了非法 JSON 时，getter 应返回空列表而不是抛异常"""
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("cf_worker_domains", "not-valid-json", commit=True)
             result = settings_repo.get_cf_worker_domains()
@@ -275,7 +275,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
     def test_get_cf_worker_prefix_rules_handles_invalid_json(self):
         """cf_worker_prefix_rules 存储了非法 JSON 时，getter 应返回带默认键的 dict"""
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("cf_worker_prefix_rules", "{{broken", commit=True)
             result = settings_repo.get_cf_worker_prefix_rules()
@@ -298,7 +298,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
 
         # 预设兼容临时邮箱桥接域名（用于验证不被覆盖）
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             original_gptmail_domains = [{"name": "gptmail.example.com", "enabled": True}]
             settings_repo.set_setting("temp_mail_domains", json.dumps(original_gptmail_domains), commit=True)
@@ -332,7 +332,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         if resp.status_code == 200:
             # 验证写入到 cf_worker_* key
             with self.app.app_context():
-                from outlook_web.repositories import settings as settings_repo
+                from mailops.repositories import settings as settings_repo
 
                 cf_domains = settings_repo.get_cf_worker_domains()
                 cf_domain_names = [d.get("name") for d in cf_domains]
@@ -436,7 +436,7 @@ class SettingsTabRefactorBackendTests(unittest.TestCase):
         self._login(client)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "dk_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             settings_repo.set_setting("external_api_key", "external-api-secret-should-not-leak")

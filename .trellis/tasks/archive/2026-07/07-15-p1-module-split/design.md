@@ -9,7 +9,7 @@ Inherits Approach C patterns from `07-15-deep-module-split`.
 | `external_temp_emails.py` | Package by handler groups (providers, session, messages, pool) + helpers |
 | `refresh.py` | Package: constants/errors if any, core refresh ops, batch/scheduled helpers |
 
-Public: `from outlook_web.controllers.external_temp_emails import ...`, `from outlook_web.services.refresh import ...` via `__init__` re-exports. Facade setattr if tests patch package attrs.
+Public: `from mailops.controllers.external_temp_emails import ...`, `from mailops.services.refresh import ...` via `__init__` re-exports. Facade setattr if tests patch package attrs.
 
 ## Frontend
 

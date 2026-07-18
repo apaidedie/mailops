@@ -2,7 +2,7 @@
 
 ## Steps
 
-- [x] Add a base-class check to `outlook_web/services/temp_mail_provider_contract.py` without changing the response envelope shape.
+- [x] Add a base-class check to `mailops/services/temp_mail_provider_contract.py` without changing the response envelope shape.
 - [x] Add regression coverage in `tests/test_temp_mail_provider_contract_validation.py` for non-base provider classes.
 - [x] Update provider factory / plugin API expectations where existing loose test providers now report invalid contract validation.
 - [x] Strengthen `tests/test_temp_mail_provider_plugin_template.py` and scaffold assertions so the template inheritance requirement is explicit.

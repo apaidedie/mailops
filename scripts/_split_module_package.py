@@ -2,7 +2,7 @@
 """Mechanical monofile -> package splitter for Approach C deep split.
 
 Usage:
-  python scripts/_split_module_package.py --source outlook_web/db.py --package outlook_web/db --map scripts/_split_maps/db.json --delete-source
+  python scripts/_split_module_package.py --source mailops/db.py --package mailops/db --map scripts/_split_maps/db.json --delete-source
 """
 from __future__ import annotations
 

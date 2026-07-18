@@ -19,7 +19,7 @@ class GroupVerificationPolicyRepositoryTests(unittest.TestCase):
 
     def _group_columns(self) -> set[str]:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             rows = db.execute("PRAGMA table_info(groups)").fetchall()
@@ -40,7 +40,7 @@ class GroupVerificationPolicyRepositoryTests(unittest.TestCase):
         self._assert_policy_columns_exist()
 
     def test_add_group_signature_supports_policy_fields(self):
-        from outlook_web.repositories import groups as groups_repo
+        from mailops.repositories import groups as groups_repo
 
         params = set(inspect.signature(groups_repo.add_group).parameters.keys())
         for name in [
@@ -52,7 +52,7 @@ class GroupVerificationPolicyRepositoryTests(unittest.TestCase):
             self.assertIn(name, params, f"add_group 缺少参数: {name}")
 
     def test_update_group_signature_supports_policy_fields(self):
-        from outlook_web.repositories import groups as groups_repo
+        from mailops.repositories import groups as groups_repo
 
         params = set(inspect.signature(groups_repo.update_group).parameters.keys())
         for name in [
@@ -67,8 +67,8 @@ class GroupVerificationPolicyRepositoryTests(unittest.TestCase):
         self._assert_policy_columns_exist()
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import groups as groups_repo
+            from mailops.db import get_db
+            from mailops.repositories import groups as groups_repo
 
             group_name = f"policy_repo_{uuid.uuid4().hex[:10]}"
             group_id = groups_repo.add_group(group_name, "", "#123456", "")
@@ -85,7 +85,7 @@ class GroupVerificationPolicyRepositoryTests(unittest.TestCase):
             self.assertEqual(row["verification_ai_model"], "")
 
     def test_normalize_group_policy_accepts_common_length_formats(self):
-        from outlook_web.repositories import groups as groups_repo
+        from mailops.repositories import groups as groups_repo
 
         cases = {
             "6": "6-6",

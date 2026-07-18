@@ -2,13 +2,13 @@
 
 ## Architecture
 
-Add a small provider-contract validation service under `outlook_web/services/` and make it the single owner of temp-mail provider extension validation. The service consumes provider class metadata from the registry and provider-info dictionaries produced by `temp_mail_provider_factory.get_available_providers()`.
+Add a small provider-contract validation service under `mailops/services/` and make it the single owner of temp-mail provider extension validation. The service consumes provider class metadata from the registry and provider-info dictionaries produced by `temp_mail_provider_factory.get_available_providers()`.
 
 Primary entry points:
 
-- `outlook_web.services.temp_mail_provider_contract.validate_temp_mail_provider_class(name, provider_cls)`
-- `outlook_web.services.temp_mail_provider_contract.validate_temp_mail_provider_info(provider_info)`
-- `outlook_web.services.temp_mail_provider_contract.contract_validation_summary(validation)`
+- `mailops.services.temp_mail_provider_contract.validate_temp_mail_provider_class(name, provider_cls)`
+- `mailops.services.temp_mail_provider_contract.validate_temp_mail_provider_info(provider_info)`
+- `mailops.services.temp_mail_provider_contract.contract_validation_summary(validation)`
 
 `temp_mail_provider_factory.get_available_providers()` attaches full `contract_validation` to each provider metadata object. Downstream catalog builders then pass that field through instead of recalculating.
 

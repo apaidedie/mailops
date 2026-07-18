@@ -48,8 +48,8 @@ class OverviewApiBaseTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.controllers import overview as overview_controller
-            from outlook_web.db import get_db
+            from mailops.controllers import overview as overview_controller
+            from mailops.db import get_db
 
             overview_controller._OVERVIEW_SUMMARY_CACHE = None
             overview_controller._OVERVIEW_SUMMARY_CACHE_AT = 0.0
@@ -141,11 +141,11 @@ class OverviewSummaryApiTests(OverviewApiBaseTests):
 
     def test_get_summary_command_center_degrades_when_projection_fails(self):
         """A-01 Fallback: 指挥台聚合失败时不影响 summary 接口返回"""
-        from outlook_web.controllers import overview as overview_controller
+        from mailops.controllers import overview as overview_controller
 
         overview_controller._OVERVIEW_SUMMARY_CACHE = None
         overview_controller._OVERVIEW_SUMMARY_CACHE_AT = 0.0
-        with patch("outlook_web.controllers.overview.get_overview_command_center", side_effect=RuntimeError("boom")):
+        with patch("mailops.controllers.overview.get_overview_command_center", side_effect=RuntimeError("boom")):
             resp = self._get(self._URL)
 
         self.assertEqual(resp.status_code, 200)
@@ -229,7 +229,7 @@ class OverviewExternalApiTests(OverviewApiBaseTests):
         with self.app.app_context():
             from datetime import date
 
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             today = date.today().isoformat()
@@ -258,7 +258,7 @@ class OverviewExternalApiTests(OverviewApiBaseTests):
             self.assertIn("endpoint_count", data.get("caller_rank", [])[0])
         finally:
             with self.app.app_context():
-                from outlook_web.db import get_db
+                from mailops.db import get_db
 
                 db = get_db()
                 db.execute("DELETE FROM external_api_consumer_usage_daily WHERE consumer_key='api-ops-key'")

@@ -13,7 +13,7 @@
 ### Backend target shape
 
 ```text
-outlook_web/
+mailops/
   controllers/
     accounts/                 # was accounts.py
       __init__.py             # re-export public handlers + helpers tests need
@@ -28,7 +28,7 @@ outlook_web/
       __init__.py
       runtime.py | probes.py | messages.py | openapi.py | ...
     # other fat services split only when multi-responsibility (P1)
-  db/                         # was db.py — import path remains outlook_web.db
+  db/                         # was db.py — import path remains mailops.db
     __init__.py               # re-export get_db, init_db, create_sqlite_connection, ...
     connection.py
     schema.py                 # migrations / version
@@ -66,7 +66,7 @@ tests/frontend_js_bundle.py       # keep contract loader in sync
 |-----|--------|----------|
 | P0 | `controllers/accounts,settings,emails,system` | Package by handler/resource domain |
 | P0 | `services/external_api` + `external_api_openapi` | Single package, domain submodules |
-| P0 | `db.py` | Package; keep `outlook_web.db` public path |
+| P0 | `db.py` | Package; keep `mailops.db` public path |
 | P0 | `static/js/core/state.js` | Directory by store/surface/paint/bootstrap |
 | P0 | `core/admin.js`, `features/mailboxes.js` | Directory by UI domain |
 | P1 | `external_temp_emails` controller, other ≥1k services/features, `i18n.js` | Same patterns when clearly multi-responsibility |
@@ -89,7 +89,7 @@ Local WIP commits allowed for recovery; do not treat partial P0 as complete.
 - `/api/v1/external/*` paths, auth, envelopes, OpenAPI *semantics*
 - Layer boundary rules (`test_module_boundaries`)
 - User-visible app behavior
-- `from outlook_web.db import get_db` (and other public db entrypoints already used widely)
+- `from mailops.db import get_db` (and other public db entrypoints already used widely)
 
 ### Allowed to break
 

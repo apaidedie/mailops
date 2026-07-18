@@ -120,7 +120,7 @@ browser-extension/
 
 本扩展调用 OutlookMail Plus 的**外部 API**（`/api/v1/external/*`），需要：
 
-1. 主应用已启用 CORS（`flask-cors`，已配置在 `outlook_web/app.py`）
+1. 主应用已启用 CORS（`flask-cors`，已配置在 `mailops/app.py`）
 2. 已在主应用设置中创建 API Key，并通过主应用“API 安全”里的**复制**按钮获取真实明文 Key
 3. 已在主应用开启 **external pool**
 4. 如果使用的是“对外 API 多 Key”，该 Key 还需要具备 `pool_access`

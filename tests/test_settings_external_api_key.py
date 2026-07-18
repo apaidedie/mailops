@@ -12,8 +12,8 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -35,7 +35,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
 
     def test_get_settings_exposes_external_api_key_status_and_masked_value(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", "abcdef1234567890")
 
@@ -81,7 +81,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
     def test_put_settings_does_not_overwrite_when_sending_masked_placeholder(self):
         original = "abcdef1234567890"
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", original)
 
@@ -99,13 +99,13 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
         self.assertTrue(resp2.get_json().get("success"))
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_external_api_key(), original)
 
     def test_get_settings_exposes_external_api_keys_list(self):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
 
             external_api_keys_repo.create_external_api_key(
                 name="partner-a",
@@ -226,7 +226,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
 
     def test_get_settings_exposes_pool_external_enabled(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
 
@@ -254,7 +254,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
 
     def test_get_settings_exposes_pool_default_provider(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_default_provider", "duckmail")
 
@@ -316,7 +316,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
 
     def test_get_settings_exposes_active_mailbox_providers(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail, mail_tm")
 
@@ -365,7 +365,7 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
 
     def test_get_settings_exposes_pool_feature_disable_flags(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_disable_pool_claim_random", "true")
             settings_repo.set_setting("external_api_disable_pool_stats", "true")

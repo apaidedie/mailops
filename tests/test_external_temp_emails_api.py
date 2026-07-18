@@ -80,8 +80,8 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -121,7 +121,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
     def test_apply_endpoint_returns_hidden_task_mailbox_and_persists_record(self):
         client = self.app.test_client()
 
-        with patch("outlook_web.services.gptmail.generate_temp_email", return_value=("demo123@ext-temp.test", None)):
+        with patch("mailops.services.gptmail.generate_temp_email", return_value=("demo123@ext-temp.test", None)):
             resp = client.post(
                 "/api/v1/external/temp-emails/apply",
                 headers=self._headers(),
@@ -145,7 +145,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertTrue(data["data"]["task_token"].startswith("tmptask_"))
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             saved = temp_emails_repo.get_temp_email_by_task_token(data["data"]["task_token"])
 
@@ -163,7 +163,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
             return _ProviderNameRecordingTempMailProvider(str(provider_name or "custom_domain_temp_mail"))
 
         with patch(
-            "outlook_web.controllers.external_temp_emails.temp_mail_service._provider_factory",
+            "mailops.controllers.external_temp_emails.temp_mail_service._provider_factory",
             side_effect=provider_factory,
         ):
             resp = client.post(
@@ -192,7 +192,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             descriptor = temp_emails_repo.get_temp_email_by_task_token(data["task_token"], view="descriptor")
 
@@ -204,7 +204,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         client = self.app.test_client()
 
         with patch(
-            "outlook_web.controllers.external_temp_emails.temp_mail_service._provider_factory",
+            "mailops.controllers.external_temp_emails.temp_mail_service._provider_factory",
             return_value=_EmptyAddressTempMailProvider("duckmail"),
         ):
             resp = client.post(
@@ -248,12 +248,12 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_provider_preflight_reports_local_readiness_without_network_probe(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
 
         client = self.app.test_client()
-        with patch("outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
             resp = client.get("/api/v1/external/providers/preflight", headers=self._headers())
 
         self.assertEqual(resp.status_code, 200)
@@ -270,12 +270,12 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_provider_health_reports_local_readiness_without_network_probe(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
 
         client = self.app.test_client()
-        with patch("outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
             resp = client.get("/api/v1/external/providers/temp/duckmail/health", headers=self._headers())
 
         self.assertEqual(resp.status_code, 200)
@@ -292,12 +292,12 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_provider_health_skips_network_probe_when_provider_is_not_ready(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
 
         client = self.app.test_client()
-        with patch("outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
             resp = client.get("/api/v1/external/providers/temp/duckmail/health?probe_network=true", headers=self._headers())
 
         self.assertEqual(resp.status_code, 200)
@@ -311,7 +311,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
     def test_external_provider_health_runs_explicit_network_probe_and_masks_details(self):
         client = self.app.test_client()
         with patch(
-            "outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider",
+            "mailops.services.temp_mail_provider_factory.get_temp_mail_provider",
             return_value=_HealthCheckTempMailProvider("mail_tm"),
         ) as provider_factory:
             resp = client.get("/api/v1/external/providers/temp/mail_tm/health?probe_network=true", headers=self._headers())
@@ -349,9 +349,9 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_mailboxes_endpoint_returns_unified_directory(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import groups as groups_repo
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import groups as groups_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             db = get_db()
             default_group_id = int(groups_repo.get_default_group_id())
@@ -499,10 +499,10 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_mailboxes_endpoint_scopes_accounts_before_counts_and_facets(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
-            from outlook_web.repositories import groups as groups_repo
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import groups as groups_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             db = get_db()
             default_group_id = int(groups_repo.get_default_group_id())
@@ -595,7 +595,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_providers_endpoint_returns_unified_catalog_and_runtime_defaults(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "duckmail")
             settings_repo.set_setting("pool_default_provider", "mail_tm")
@@ -883,7 +883,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_providers_reports_missing_config_file_without_failing_discovery(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             settings_repo.set_setting("pool_default_provider", "")
@@ -936,7 +936,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_providers_endpoint_filters_active_mailbox_providers(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
@@ -967,7 +967,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_providers_endpoint_reports_unknown_active_mailbox_provider_filter_entries(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail,not_a_provider,gptmail")
 
@@ -1018,7 +1018,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_external_providers_endpoint_reports_default_provider_entries_excluded_by_allowlist(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
@@ -1054,13 +1054,13 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_apply_endpoint_rejects_inactive_provider_name(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
         client = self.app.test_client()
         with patch(
-            "outlook_web.controllers.external_temp_emails.temp_mail_service._provider_factory",
+            "mailops.controllers.external_temp_emails.temp_mail_service._provider_factory",
             return_value=_ProviderNameRecordingTempMailProvider("mail_tm"),
         ) as provider_factory:
             resp = client.post(
@@ -1117,7 +1117,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         for payload in payloads:
             with self.subTest(payload=payload):
                 with patch(
-                    "outlook_web.controllers.external_temp_emails.temp_mail_service._provider_factory",
+                    "mailops.controllers.external_temp_emails.temp_mail_service._provider_factory",
                     return_value=_ProviderNameRecordingTempMailProvider("custom_domain_temp_mail"),
                 ) as provider_factory:
                     resp = client.post(
@@ -1133,8 +1133,8 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         client = self.app.test_client()
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="finish@ext-temp.test",
@@ -1173,7 +1173,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertEqual(data["data"]["status"], "finished")
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             mailbox = db.execute(
@@ -1194,7 +1194,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         client = self.app.test_client()
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="finish-too-long@ext-temp.test",
@@ -1219,7 +1219,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertEqual(resp.get_json()["code"], "INVALID_PARAM")
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             mailbox = temp_emails_repo.get_temp_email_by_task_token("tmptask_finish_too_long")
 
@@ -1238,7 +1238,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertEqual(invalid_resp.get_json()["code"], "TASK_TOKEN_INVALID")
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="repeat@ext-temp.test",
@@ -1270,8 +1270,8 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_finish_endpoint_rejects_other_consumer_key(self):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             owner = external_api_keys_repo.create_external_api_key(name="owner", api_key="owner-key")
             external_api_keys_repo.create_external_api_key(name="other", api_key="other-key")
@@ -1302,7 +1302,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
 
     def test_wait_message_returns_task_finished_when_finish_happens_during_wait(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="wait@ext-temp.test",
@@ -1323,19 +1323,19 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
             call_count["value"] += 1
             if call_count["value"] == 1:
                 with self.app.app_context():
-                    from outlook_web.repositories import temp_emails as temp_emails_repo
+                    from mailops.repositories import temp_emails as temp_emails_repo
 
                     temp_emails_repo.finish_task_temp_email("tmptask_wait")
-                from outlook_web.services import external_api as external_api_service
+                from mailops.services import external_api as external_api_service
 
                 raise external_api_service.MailNotFoundError("not yet")
             raise AssertionError("wait-message should stop before a second upstream poll")
 
         client = self.app.test_client()
         with patch(
-            "outlook_web.services.external_api.probes.get_latest_message_for_external", side_effect=_finish_during_first_poll
+            "mailops.services.external_api.probes.get_latest_message_for_external", side_effect=_finish_during_first_poll
         ):
-            with patch("outlook_web.services.external_api.time.sleep", return_value=None):
+            with patch("mailops.services.external_api.time.sleep", return_value=None):
                 resp = client.get(
                     "/api/v1/external/wait-message?email=wait@ext-temp.test&timeout_seconds=2&poll_interval=1",
                     headers=self._headers(),

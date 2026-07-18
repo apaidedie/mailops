@@ -6,7 +6,7 @@ This task is frontend-only unless implementation uncovers missing data. The exis
 
 Data path:
 
-1. `outlook_web.controllers.settings.api_get_settings()` returns `settings.external_api_keys`.
+1. `mailops.controllers.settings.api_get_settings()` returns `settings.external_api_keys`.
 2. Each key item is enriched by `external_api_keys_repo.get_external_api_usage_summary()`.
 3. `static/js/main.js` stores the response in `externalApiSettingsSnapshot` and renders the API Security command center.
 4. The new consumer usage console is rendered from `safeSettings.external_api_keys` inside `renderExternalApiCommandCenter()`.

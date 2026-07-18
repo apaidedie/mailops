@@ -89,7 +89,7 @@ git pull --ff-only
 
 2. **准备版本内容**
 
-- 更新 `outlook_web/__init__.py` 中的 `__version__`，必须与即将发布的 Tag 一致（`vX.Y.Z` → `X.Y.Z`）
+- 更新 `mailops/__init__.py` 中的 `__version__`，必须与即将发布的 Tag 一致（`vX.Y.Z` → `X.Y.Z`）
 - 更新 `CHANGELOG.md`：新增 `## [vX.Y.Z] - YYYY-MM-DD`，写清新功能/修复/兼容性说明
 - （可选）更新 README / README.en 的 Docker 示例版本号
 

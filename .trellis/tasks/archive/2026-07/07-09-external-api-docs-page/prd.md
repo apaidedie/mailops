@@ -12,7 +12,7 @@ This advances the product goal of making OutlookMail Plus a polished unified mai
 - Legacy `/api/external/*` aliases are preserved through `add_external_api_url_rule()`.
 - `README.md`, `README.en.md`, `integration_manifest`, and `provider_context.documentation` already point users at the OpenAPI JSON contract.
 - There is no human-readable in-app API documentation route comparable to `/api/v1/external/docs`.
-- The app now emits CSP through `outlook_web/middleware/security_headers.py`; a docs page must avoid remote scripts/styles and work with the current same-origin/inline-compatible policy.
+- The app now emits CSP through `mailops/middleware/security_headers.py`; a docs page must avoid remote scripts/styles and work with the current same-origin/inline-compatible policy.
 - External API routes are meant for automation clients and must not expose plaintext API keys, provider secrets, IMAP passwords, refresh tokens, temp-mail task tokens, or consumer keys.
 
 ## Requirements

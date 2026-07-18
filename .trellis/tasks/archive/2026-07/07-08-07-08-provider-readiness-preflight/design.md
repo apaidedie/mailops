@@ -2,7 +2,7 @@
 
 ## Boundaries
 
-`outlook_web.services.provider_catalog` remains the owner of provider discovery and readiness projection. Controllers should only parse `probe_network`, call the service, wrap the result, and audit external access. The single-provider health contract continues to own local readiness and optional upstream probing. The new preflight helper composes those existing rows into a batch result.
+`mailops.services.provider_catalog` remains the owner of provider discovery and readiness projection. Controllers should only parse `probe_network`, call the service, wrap the result, and audit external access. The single-provider health contract continues to own local readiness and optional upstream probing. The new preflight helper composes those existing rows into a batch result.
 
 ## API shape
 

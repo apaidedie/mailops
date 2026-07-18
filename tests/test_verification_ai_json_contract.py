@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from outlook_web.services import verification_extractor as extractor
+from mailops.services import verification_extractor as extractor
 
 
 class VerificationAiJsonContractTests(unittest.TestCase):
@@ -30,7 +30,7 @@ class VerificationAiJsonContractTests(unittest.TestCase):
         self.assertIn("code_length", payload["rules"])
         self.assertIn("code_source", payload["hints"])
 
-    @patch("outlook_web.services.verification_extractor.requests.post")
+    @patch("mailops.services.verification_extractor.requests.post")
     def test_ai_invalid_json_response_falls_back_to_rule_result(self, mock_post):
         class _Resp:
             def raise_for_status(self):
@@ -42,7 +42,7 @@ class VerificationAiJsonContractTests(unittest.TestCase):
         mock_post.return_value = _Resp()
 
         with patch(
-            "outlook_web.services.verification_extractor.get_verification_ai_runtime_config",
+            "mailops.services.verification_extractor.get_verification_ai_runtime_config",
             return_value={
                 "enabled": True,
                 "base_url": "https://api.example.com/v1/chat/completions",
@@ -69,7 +69,7 @@ class VerificationAiJsonContractTests(unittest.TestCase):
         self.assertEqual(enhanced.get("verification_code"), base.get("verification_code"))
         self.assertEqual(enhanced.get("verification_link"), base.get("verification_link"))
 
-    @patch("outlook_web.services.verification_extractor.requests.post")
+    @patch("mailops.services.verification_extractor.requests.post")
     def test_ai_link_does_not_override_when_code_exists(self, mock_post):
         class _Resp:
             def raise_for_status(self):
@@ -89,7 +89,7 @@ class VerificationAiJsonContractTests(unittest.TestCase):
         mock_post.return_value = _Resp()
 
         with patch(
-            "outlook_web.services.verification_extractor.get_verification_ai_runtime_config",
+            "mailops.services.verification_extractor.get_verification_ai_runtime_config",
             return_value={
                 "enabled": True,
                 "base_url": "https://api.example.com/v1/chat/completions",

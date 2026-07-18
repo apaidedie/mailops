@@ -21,14 +21,14 @@ class TestBaselineTimestampFilter(unittest.TestCase):
         }
 
     def test_no_baseline_returns_all(self):
-        from outlook_web.services.external_api import filter_messages
+        from mailops.services.external_api import filter_messages
 
         msgs = [self._make_msg(1000), self._make_msg(2000), self._make_msg(3000)]
         result = filter_messages(msgs)
         self.assertEqual(len(result), 3)
 
     def test_baseline_filters_older_messages(self):
-        from outlook_web.services.external_api import filter_messages
+        from mailops.services.external_api import filter_messages
 
         msgs = [
             self._make_msg(1000),
@@ -42,14 +42,14 @@ class TestBaselineTimestampFilter(unittest.TestCase):
         self.assertEqual(timestamps, [2000, 3000])
 
     def test_baseline_zero_does_not_filter(self):
-        from outlook_web.services.external_api import filter_messages
+        from mailops.services.external_api import filter_messages
 
         msgs = [self._make_msg(1000), self._make_msg(2000)]
         result = filter_messages(msgs, baseline_timestamp=0)
         self.assertEqual(len(result), 2)
 
     def test_baseline_filters_combined_with_from_contains(self):
-        from outlook_web.services.external_api import filter_messages
+        from mailops.services.external_api import filter_messages
 
         msgs = [
             {**self._make_msg(1000), "from_address": "a@example.com"},
@@ -66,7 +66,7 @@ class TestClaimedAtToTimestamp(unittest.TestCase):
     """验证 claimed_at_to_timestamp 工具函数。"""
 
     def test_valid_iso_string(self):
-        from outlook_web.services.external_api import claimed_at_to_timestamp
+        from mailops.services.external_api import claimed_at_to_timestamp
 
         ts = claimed_at_to_timestamp("2026-04-01T12:00:00Z")
         self.assertIsNotNone(ts)
@@ -74,13 +74,13 @@ class TestClaimedAtToTimestamp(unittest.TestCase):
         self.assertGreater(ts, 0)
 
     def test_empty_string_returns_none(self):
-        from outlook_web.services.external_api import claimed_at_to_timestamp
+        from mailops.services.external_api import claimed_at_to_timestamp
 
         self.assertIsNone(claimed_at_to_timestamp(""))
         self.assertIsNone(claimed_at_to_timestamp(None))
 
     def test_invalid_string_returns_none(self):
-        from outlook_web.services.external_api import claimed_at_to_timestamp
+        from mailops.services.external_api import claimed_at_to_timestamp
 
         self.assertIsNone(claimed_at_to_timestamp("not-a-date"))
 
@@ -89,7 +89,7 @@ class TestEmailDomainNormalization(unittest.TestCase):
     """验证 accounts 仓储层的 email_domain 归一化函数。"""
 
     def test_normalize_extracts_domain(self):
-        from outlook_web.repositories.accounts import _normalize_account_email_domain
+        from mailops.repositories.accounts import _normalize_account_email_domain
 
         self.assertEqual(_normalize_account_email_domain("user@Outlook.COM"), "outlook.com")
         self.assertEqual(_normalize_account_email_domain("user@gmail.com"), "gmail.com")
@@ -99,13 +99,13 @@ class TestEmailDomainNormalization(unittest.TestCase):
         )
 
     def test_normalize_no_at_sign(self):
-        from outlook_web.repositories.accounts import _normalize_account_email_domain
+        from mailops.repositories.accounts import _normalize_account_email_domain
 
         self.assertEqual(_normalize_account_email_domain("no-at-sign"), "")
         self.assertEqual(_normalize_account_email_domain(""), "")
 
     def test_normalize_whitespace(self):
-        from outlook_web.repositories.accounts import _normalize_account_email_domain
+        from mailops.repositories.accounts import _normalize_account_email_domain
 
         self.assertEqual(_normalize_account_email_domain("user@  EXAMPLE.COM  "), "example.com")
 
@@ -118,7 +118,7 @@ class TestPoolRepoClaimContext(unittest.TestCase):
         import os
         import tempfile
 
-        from outlook_web.db import create_sqlite_connection, init_db
+        from mailops.db import create_sqlite_connection, init_db
 
         cls.db_fd, cls.db_path = tempfile.mkstemp(suffix=".db")
         os.close(cls.db_fd)
@@ -135,7 +135,7 @@ class TestPoolRepoClaimContext(unittest.TestCase):
             pass
 
     def _conn(self):
-        from outlook_web.db import create_sqlite_connection
+        from mailops.db import create_sqlite_connection
 
         return create_sqlite_connection(self.db_path)
 
@@ -161,7 +161,7 @@ class TestPoolRepoClaimContext(unittest.TestCase):
             conn.close()
 
     def test_get_claim_context_returns_context(self):
-        from outlook_web.repositories.pool import get_claim_context
+        from mailops.repositories.pool import get_claim_context
 
         email = "ctx_test@outlook.com"
         token = "clm_ctx_001"
@@ -177,7 +177,7 @@ class TestPoolRepoClaimContext(unittest.TestCase):
             conn.close()
 
     def test_get_claim_context_unknown_token_returns_none(self):
-        from outlook_web.repositories.pool import get_claim_context
+        from mailops.repositories.pool import get_claim_context
 
         conn = self._conn()
         try:
@@ -187,7 +187,7 @@ class TestPoolRepoClaimContext(unittest.TestCase):
             conn.close()
 
     def test_append_claim_read_context_inserts_log(self):
-        from outlook_web.repositories.pool import append_claim_read_context
+        from mailops.repositories.pool import append_claim_read_context
 
         email = "readlog_test@outlook.com"
         token = "clm_readlog_002"

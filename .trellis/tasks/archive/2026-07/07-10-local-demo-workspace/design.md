@@ -4,7 +4,7 @@
 
 Add a standalone repository helper script at `scripts/seed_demo_workspace.py`. It is an operator/developer onboarding tool, not a runtime route, service, or schema migration.
 
-The script may import `outlook_web.db.init_db()` and `outlook_web.db.create_sqlite_connection()` so it uses the real schema and migration path. It must not instantiate the Flask app, start schedulers, call temp-mail providers, probe networks, or create upstream mailboxes.
+The script may import `mailops.db.init_db()` and `mailops.db.create_sqlite_connection()` so it uses the real schema and migration path. It must not instantiate the Flask app, start schedulers, call temp-mail providers, probe networks, or create upstream mailboxes.
 
 ## Data Flow
 

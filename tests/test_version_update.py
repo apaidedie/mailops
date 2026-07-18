@@ -21,7 +21,7 @@ import time
 import unittest
 from unittest.mock import MagicMock, patch
 
-from outlook_web import __version__ as APP_VERSION
+from mailops import __version__ as APP_VERSION
 from tests._import_app import clear_login_attempts, import_web_app_module
 from tests.frontend_js_bundle import load_frontend_app_js
 
@@ -61,7 +61,7 @@ class VersionGtTests(unittest.TestCase):
         cls.app = cls.module.app
 
     def _import_fn(self):
-        from outlook_web.controllers.system import _version_gt
+        from mailops.controllers.system import _version_gt
 
         return _version_gt
 
@@ -110,7 +110,7 @@ class VersionCheckAPITests(unittest.TestCase):
         with self.app.app_context():
             clear_login_attempts()
         # Cache lives on constants (package split); clear the real module state.
-        import outlook_web.controllers.system.constants as system_constants
+        import mailops.controllers.system.constants as system_constants
 
         system_constants._version_cache = None
         system_constants._version_cache_at = 0.0
@@ -267,7 +267,7 @@ class VersionCheckAPITests(unittest.TestCase):
 
     def test_cache_expires_after_ttl(self):
         """缓存过期后重新调 GitHub API"""
-        import outlook_web.controllers.system.constants as system_constants
+        import mailops.controllers.system.constants as system_constants
 
         original_ttl = system_constants._VERSION_CACHE_TTL
         try:

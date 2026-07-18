@@ -15,8 +15,8 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             account_columns = [row[1] for row in db.execute("PRAGMA table_info(accounts)").fetchall()]
@@ -46,7 +46,7 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         claimed_project_key: str | None,
     ) -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -85,7 +85,7 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
+            from mailops.services import pool as pool_service
 
             new_status = pool_service.complete_claim(
                 account_id=account_id,
@@ -106,7 +106,7 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
+            from mailops.services import pool as pool_service
 
             new_status = pool_service.complete_claim(
                 account_id=account_id,
@@ -129,7 +129,7 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
+            from mailops.services import pool as pool_service
 
             new_status = pool_service.complete_claim(
                 account_id=account_id,
@@ -143,9 +143,9 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
 
     def test_claim_random_blank_project_key_treated_as_old_behavior(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             db = get_db()
             db.execute("""
@@ -184,8 +184,8 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             with self.assertRaises(PoolServiceError) as ctx:
                 pool_service.complete_claim(
@@ -206,8 +206,8 @@ class PoolServiceProjectReuseTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             with self.assertRaises(PoolServiceError) as ctx:
                 pool_service.complete_claim(

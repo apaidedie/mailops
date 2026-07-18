@@ -12,8 +12,8 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.security.crypto import hash_password
+            from mailops.repositories import settings as settings_repo
+            from mailops.security.crypto import hash_password
 
             settings_repo.set_setting("login_password", hash_password("testpass123"))
             clear_login_attempts()
@@ -38,7 +38,7 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.controllers.settings.config.get_allow_login_password_change",
+            "mailops.controllers.settings.config.get_allow_login_password_change",
             return_value=False,
         ):
             resp = client.get("/api/settings")
@@ -55,7 +55,7 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.controllers.settings.config.get_allow_login_password_change",
+            "mailops.controllers.settings.config.get_allow_login_password_change",
             return_value=False,
         ):
             resp = client.put("/api/settings", json={"login_password": "newpass123"})
@@ -69,8 +69,8 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.security.crypto import verify_password
+            from mailops.repositories import settings as settings_repo
+            from mailops.security.crypto import verify_password
 
             stored_password = settings_repo.get_login_password()
             self.assertTrue(verify_password("testpass123", stored_password))
@@ -81,7 +81,7 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.controllers.settings.config.get_allow_login_password_change",
+            "mailops.controllers.settings.config.get_allow_login_password_change",
             return_value=False,
         ):
             resp = client.put("/api/settings", json={"refresh_interval_days": 7})
@@ -100,7 +100,7 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.controllers.settings.config.get_allow_login_password_change",
+            "mailops.controllers.settings.config.get_allow_login_password_change",
             return_value=True,
         ):
             resp = client.put("/api/settings", json={"login_password": "newpass123"})
@@ -110,8 +110,8 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
         self.assertTrue(data.get("success"))
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.security.crypto import verify_password
+            from mailops.repositories import settings as settings_repo
+            from mailops.security.crypto import verify_password
 
             stored_password = settings_repo.get_login_password()
             self.assertTrue(verify_password("newpass123", stored_password))

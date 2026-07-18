@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 E2E_PLUGIN_CODE = b"""
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class E2ETestProvider(TempMailProviderBase):
@@ -30,7 +30,7 @@ class E2ETestProvider(TempMailProviderBase):
 
     def __init__(self, *, provider_name=None):
         self.provider_name = provider_name or "e2e_test"
-        from outlook_web.repositories import settings as repo
+        from mailops.repositories import settings as repo
         prefix = f"plugin.{self.provider_name}"
         self._base_url = repo.get_setting(f"{prefix}.base_url", "")
         self._api_key = repo.get_setting(f"{prefix}.api_key", "")
@@ -87,7 +87,7 @@ class TestPluginE2E(unittest.TestCase):
     """TDD-H: 模拟插件端到端"""
 
     def setUp(self):
-        from outlook_web.config import get_database_path
+        from mailops.config import get_database_path
         from tests._import_app import import_web_app_module
 
         self._app_mod = import_web_app_module()
@@ -99,7 +99,7 @@ class TestPluginE2E(unittest.TestCase):
         self._registry_file = self._base_dir / "plugins" / "registry.json"
         self._registry_file.parent.mkdir(parents=True, exist_ok=True)
 
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
 
         self._registry = _REGISTRY
         self._initial_keys = set(_REGISTRY.keys())
@@ -119,7 +119,7 @@ class TestPluginE2E(unittest.TestCase):
         if self._registry_file.exists():
             self._registry_file.unlink()
         # 清理配置
-        from outlook_web.repositories import settings as repo
+        from mailops.repositories import settings as repo
 
         for k in ["plugin.e2e_test.base_url", "plugin.e2e_test.api_key"]:
             repo.set_setting(k, "")
@@ -128,7 +128,7 @@ class TestPluginE2E(unittest.TestCase):
         self._registry_file.write_text(json.dumps(E2E_REGISTRY), encoding="utf-8")
 
     # H-E2E-01
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_e2e_install_configure_reload_use(self, mock_requests):
         """安装 → 配置 → 热刷新 → 使用"""
         self._write_registry()
@@ -140,19 +140,19 @@ class TestPluginE2E(unittest.TestCase):
         mock_resp.raise_for_status = MagicMock()
         mock_requests.get.return_value = mock_resp
 
-        from outlook_web.services.temp_mail_plugin_manager import install_plugin
+        from mailops.services.temp_mail_plugin_manager import install_plugin
 
         result = install_plugin("e2e_test")
         self.assertEqual(result["plugin_name"], "e2e_test")
         self.assertTrue((self._tmp_dir / "e2e_test.py").exists())
 
         # 2. 配置
-        from outlook_web.services.temp_mail_plugin_manager import save_plugin_config
+        from mailops.services.temp_mail_plugin_manager import save_plugin_config
 
         save_plugin_config("e2e_test", {"base_url": "http://e2e.test", "api_key": "test_key"})
 
         # 3. 热刷新
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         reload_result = reload_plugins()
         self.assertIn("e2e_test", self._registry)
@@ -170,7 +170,7 @@ class TestPluginE2E(unittest.TestCase):
         bad_plugin = b"def this is broken ( :\n"
         (self._tmp_dir / "bad_e2e.py").write_bytes(bad_plugin)
 
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         result = reload_plugins()
         failed_names = [f["name"] for f in result["failed"]]
@@ -184,7 +184,7 @@ class TestPluginE2E(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
     # H-E2E-03
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_e2e_uninstall_after_use(self, mock_requests):
         """使用后卸载，文件删除，历史邮箱记录保留"""
         self._write_registry()
@@ -194,15 +194,15 @@ class TestPluginE2E(unittest.TestCase):
         mock_resp.raise_for_status = MagicMock()
         mock_requests.get.return_value = mock_resp
 
-        from outlook_web.services.temp_mail_plugin_manager import install_plugin, uninstall_plugin
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_plugin_manager import install_plugin, uninstall_plugin
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         install_plugin("e2e_test")
         reload_plugins()
         self.assertIn("e2e_test", self._registry)
 
         # 模拟创建邮箱记录
-        from outlook_web.db import get_db
+        from mailops.db import get_db
 
         with self._app.app_context():
             db = get_db()
@@ -227,7 +227,7 @@ class TestPluginE2E(unittest.TestCase):
             db.commit()
 
     # H-E2E-04
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_e2e_config_persistence(self, mock_requests):
         """配置后重启读取，settings 表中配置值持久化"""
         self._write_registry()
@@ -237,9 +237,9 @@ class TestPluginE2E(unittest.TestCase):
         mock_resp.raise_for_status = MagicMock()
         mock_requests.get.return_value = mock_resp
 
-        from outlook_web.repositories import settings as repo
-        from outlook_web.services.temp_mail_plugin_manager import install_plugin, read_plugin_config, save_plugin_config
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.repositories import settings as repo
+        from mailops.services.temp_mail_plugin_manager import install_plugin, read_plugin_config, save_plugin_config
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         install_plugin("e2e_test")
         reload_plugins()  # 加载插件到注册表，使 read_plugin_config 可读取 config_schema
@@ -256,7 +256,7 @@ class TestPluginE2E(unittest.TestCase):
         self.assertEqual(result["config"]["base_url"], "http://persist.test")
 
     # H-E2E-05
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_e2e_reload_with_updated_plugin(self, mock_requests):
         """更新插件后刷新，注册表使用新版本"""
         self._write_registry()
@@ -268,8 +268,8 @@ class TestPluginE2E(unittest.TestCase):
         mock_resp.raise_for_status = MagicMock()
         mock_requests.get.return_value = mock_resp
 
-        from outlook_web.services.temp_mail_plugin_manager import install_plugin
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_plugin_manager import install_plugin
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         install_plugin("e2e_test")
         reload_plugins()
@@ -285,7 +285,7 @@ class TestPluginE2E(unittest.TestCase):
         self.assertIsNot(v1_cls, v2_cls)
 
     # H-E2E-06
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_e2e_plugin_provider_business_chain(self, mock_requests):
         """使用插件 provider 完成创建→读信→提取全链路"""
         self._write_registry()
@@ -295,8 +295,8 @@ class TestPluginE2E(unittest.TestCase):
         mock_resp.raise_for_status = MagicMock()
         mock_requests.get.return_value = mock_resp
 
-        from outlook_web.services.temp_mail_plugin_manager import install_plugin
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_plugin_manager import install_plugin
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         install_plugin("e2e_test")
         reload_plugins()

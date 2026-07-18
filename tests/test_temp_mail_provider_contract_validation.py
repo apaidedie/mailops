@@ -5,8 +5,8 @@ import unittest
 
 class TempMailProviderContractValidationTests(unittest.TestCase):
     def test_valid_provider_contract_has_no_issues(self):
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase
-        from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+        from mailops.services.temp_mail_provider_base import TempMailProviderBase
+        from mailops.services.temp_mail_provider_contract import validate_temp_mail_provider_class
 
         class ValidProvider(TempMailProviderBase):
             provider_name = "valid_contract"
@@ -58,7 +58,7 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
         self.assertNotIn("api_key_value", str(validation))
 
     def test_invalid_metadata_returns_structured_issues(self):
-        from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+        from mailops.services.temp_mail_provider_contract import validate_temp_mail_provider_class
 
         class InvalidProvider:
             provider_name = "wrong_name"
@@ -83,7 +83,7 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
         self.assertIn("PROVIDER_BASE_CLASS_INVALID", codes)
 
     def test_non_base_provider_with_matching_methods_is_invalid(self):
-        from outlook_web.services.temp_mail_provider_contract import (
+        from mailops.services.temp_mail_provider_contract import (
             contract_validation_summary,
             validate_temp_mail_provider_class,
         )
@@ -132,8 +132,8 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
         self.assertIn("PROVIDER_BASE_CLASS_INVALID", summary["issue_codes"])
 
     def test_secret_config_defaults_are_flagged_and_redacted(self):
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase
-        from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+        from mailops.services.temp_mail_provider_base import TempMailProviderBase
+        from mailops.services.temp_mail_provider_contract import validate_temp_mail_provider_class
 
         class SecretDefaultProvider(TempMailProviderBase):
             provider_name = "secret_default"
@@ -183,7 +183,7 @@ class TempMailProviderContractValidationTests(unittest.TestCase):
         self.assertNotIn("default", field)
 
     def test_provider_info_validation_counts_config_schema_issues(self):
-        from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_info
+        from mailops.services.temp_mail_provider_contract import validate_temp_mail_provider_info
 
         validation = validate_temp_mail_provider_info(
             {

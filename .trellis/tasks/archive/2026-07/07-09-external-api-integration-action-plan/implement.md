@@ -4,8 +4,8 @@
 
 1. Read Trellis backend/frontend specs and cross-layer/code-reuse guides before editing.
 2. Add failing/updated tests for the action-plan bundle contract and smoke checker validation.
-3. Implement `action_plan` generation in `outlook_web/services/provider_catalog.py`.
-4. Update OpenAPI schemas in `outlook_web/services/external_api_openapi.py`.
+3. Implement `action_plan` generation in `mailops/services/provider_catalog.py`.
+4. Update OpenAPI schemas in `mailops/services/external_api_openapi.py`.
 5. Update `scripts/external_api_smoke.py` and its fixtures/tests.
 6. Add Settings -> API Security action-plan rendering in `static/js/main.js` and responsive CSS in `static/css/main.css`.
 7. Update frontend contract tests for new JS/CSS hooks.

@@ -24,7 +24,7 @@ Run focused tests, module-boundary tests, readiness check, diff check, and brows
 
 ## Validation Commands
 
-`python -m py_compile outlook_web/services/unified_mailbox_messages.py outlook_web/controllers/mailboxes.py outlook_web/routes/mailboxes.py outlook_web/repositories/temp_emails.py`
+`python -m py_compile mailops/services/unified_mailbox_messages.py mailops/controllers/mailboxes.py mailops/routes/mailboxes.py mailops/repositories/temp_emails.py`
 
 `python -m pytest tests/test_module_boundaries.py tests/test_unified_mailbox_catalog.py tests/test_unified_mailbox_frontend_contract.py -q`
 

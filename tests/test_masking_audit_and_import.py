@@ -213,7 +213,7 @@ class MaskingAuditAndImportTests(unittest.TestCase):
 
         # Mock legacy bridge 返回元组 (email_addr, None)
         # 当前正式入口经 temp mail provider 间接调用兼容 bridge，因此这里仍 patch gptmail 模块。
-        from outlook_web.services import gptmail as gptmail_service
+        from mailops.services import gptmail as gptmail_service
 
         with patch.object(gptmail_service, "generate_temp_email", return_value=(email_addr, None)):
             resp = client.post("/api/temp-emails/generate", json={})

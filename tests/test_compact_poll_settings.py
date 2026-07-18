@@ -14,7 +14,7 @@ class CompactPollSettingsTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             # TC-A07 需要验证这三个 key 不在 DB 中（DB 层不预置默认值）
             # 其他测试通过 GET Python fallback 默认值（10/5）或 PUT API 设置值
@@ -166,7 +166,7 @@ class CompactPollSettingsTests(unittest.TestCase):
     # TC-A07: DB 默认值
     def test_db_default_values(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("enable_compact_auto_poll", None), None)
             self.assertEqual(settings_repo.get_setting("compact_poll_interval", None), None)

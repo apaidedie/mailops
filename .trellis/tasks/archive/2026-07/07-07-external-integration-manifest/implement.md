@@ -16,7 +16,7 @@
 - `python -m pytest tests/test_temp_mail_target_contract.py tests/test_temp_mail_settings_platform_contract.py tests/test_external_api_temp_mail_compat.py tests/test_external_temp_emails_api.py -q`
 - `git diff --check`
 - `rg -n "console\.(log|debug)" static\js -g '!tests/layout-system/coverage/**'`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 
 ## Risk Points
 

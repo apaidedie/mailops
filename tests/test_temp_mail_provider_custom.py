@@ -15,7 +15,7 @@ class CustomTempMailProviderTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             settings_repo.set_setting("temp_mail_api_base_url", "https://bridge.example")
@@ -31,7 +31,7 @@ class CustomTempMailProviderTests(unittest.TestCase):
 
     def test_get_options_parses_settings_contract(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider
+            from mailops.services.temp_mail_provider_custom import CustomTempMailProvider
 
             provider = CustomTempMailProvider()
             options = provider.get_options()
@@ -61,12 +61,12 @@ class CustomTempMailProviderTests(unittest.TestCase):
         ]
 
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider
+            from mailops.services.temp_mail_provider_custom import CustomTempMailProvider
 
             provider = CustomTempMailProvider()
             for error_message, expected_code in cases:
                 with self.subTest(error_message=error_message):
-                    with patch("outlook_web.services.gptmail.generate_temp_email", return_value=(None, error_message)):
+                    with patch("mailops.services.gptmail.generate_temp_email", return_value=(None, error_message)):
                         result = provider.generate_mailbox(prefix="demo", domain="mail.example.com")
 
                 self.assertFalse(result["success"])
@@ -75,11 +75,11 @@ class CustomTempMailProviderTests(unittest.TestCase):
 
     def test_generate_mailbox_success_passes_prefix_and_domain(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider
+            from mailops.services.temp_mail_provider_custom import CustomTempMailProvider
 
             provider = CustomTempMailProvider()
             with patch(
-                "outlook_web.services.gptmail.generate_temp_email",
+                "mailops.services.gptmail.generate_temp_email",
                 return_value=("demo@mail.example.com", None),
             ) as generate_mock:
                 result = provider.generate_mailbox(prefix="demo", domain="mail.example.com")
@@ -92,11 +92,11 @@ class CustomTempMailProviderTests(unittest.TestCase):
 
     def test_list_messages_raises_stable_read_error_when_bridge_read_fails(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider, TempMailProviderReadError
+            from mailops.services.temp_mail_provider_custom import CustomTempMailProvider, TempMailProviderReadError
 
             provider = CustomTempMailProvider()
             with patch(
-                "outlook_web.services.gptmail.gptmail_request",
+                "mailops.services.gptmail.gptmail_request",
                 return_value={
                     "success": False,
                     "error": "API 请求超时",
@@ -113,11 +113,11 @@ class CustomTempMailProviderTests(unittest.TestCase):
 
     def test_get_message_detail_raises_stable_read_error_when_bridge_read_fails(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider, TempMailProviderReadError
+            from mailops.services.temp_mail_provider_custom import CustomTempMailProvider, TempMailProviderReadError
 
             provider = CustomTempMailProvider()
             with patch(
-                "outlook_web.services.gptmail.gptmail_request",
+                "mailops.services.gptmail.gptmail_request",
                 return_value={
                     "success": False,
                     "error": "临时邮箱服务暂时不可用",

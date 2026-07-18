@@ -4,7 +4,7 @@ from __future__ import annotations
 TDD C 层：Overview Repository 查询测试
 
 覆盖 docs/TDD/2026-04-19-数据概览大盘TDD.md §7
-当前运行会失败（红）—— outlook_web/repositories/overview.py 尚未创建。
+当前运行会失败（红）—— mailops/repositories/overview.py 尚未创建。
 实现 5 个查询函数后，所有用例应通过（绿）。
 """
 
@@ -24,7 +24,7 @@ class OverviewRepositoryBaseTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             # 清理本测试模块涉及的表（保留非测试数据）
@@ -37,7 +37,7 @@ class OverviewRepositoryBaseTests(unittest.TestCase):
 
     def _insert_extract_log(self, *, account_id: int, channel: str, result_type: str, duration_ms: int, used_ai: bool = False):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             now_ts = int(time.time())
@@ -58,7 +58,7 @@ class OverviewSummaryRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_overview_summary_returns_valid_schema_when_empty(self):
         """R-01 空数据: 空数据时返回合法结构，所有计数为 0"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_overview_summary
+            from mailops.repositories.overview import get_overview_summary
 
             result = get_overview_summary()
 
@@ -70,8 +70,8 @@ class OverviewSummaryRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_overview_summary_account_status_counts(self):
         """R-01 有数据: account_status 计数与实际账号状态一致"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.overview import get_overview_summary
+            from mailops.db import get_db
+            from mailops.repositories.overview import get_overview_summary
 
             db = get_db()
             # 插入两个 active 账号
@@ -96,7 +96,7 @@ class OverviewSummaryRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_overview_summary_pool_snapshot_keys_exist(self):
         """R-01: pool_snapshot 包含 in_use/available/cooldown/total 键"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_overview_summary
+            from mailops.repositories.overview import get_overview_summary
 
             result = get_overview_summary()
             pool = result.get("pool_snapshot", {})
@@ -110,7 +110,7 @@ class OverviewVerificationStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_verification_stats_empty_logs_returns_zero_kpi(self):
         """R-02 空数据: 无记录时 KPI 全为 0，recent 为空列表"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_verification_stats
+            from mailops.repositories.overview import get_verification_stats
 
             result = get_verification_stats()
 
@@ -129,7 +129,7 @@ class OverviewVerificationStatsRepositoryTests(OverviewRepositoryBaseTests):
         self._insert_extract_log(account_id=1, channel="graph_delta", result_type="none", duration_ms=800)
 
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_verification_stats
+            from mailops.repositories.overview import get_verification_stats
 
             result = get_verification_stats()
             kpi = result.get("kpi", {})
@@ -142,7 +142,7 @@ class OverviewVerificationStatsRepositoryTests(OverviewRepositoryBaseTests):
         self._insert_extract_log(account_id=1, channel="imap_ssl", result_type="code", duration_ms=200)
 
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_verification_stats
+            from mailops.repositories.overview import get_verification_stats
 
             result = get_verification_stats()
             channel_stats = result.get("channel_stats", [])
@@ -157,7 +157,7 @@ class OverviewVerificationStatsRepositoryTests(OverviewRepositoryBaseTests):
             self._insert_extract_log(account_id=1, channel="graph_delta", result_type="code", duration_ms=100 + i)
 
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_verification_stats
+            from mailops.repositories.overview import get_verification_stats
 
             result = get_verification_stats()
             recent = result.get("recent", [])
@@ -170,7 +170,7 @@ class OverviewExternalApiStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_external_api_stats_empty_returns_valid_schema(self):
         """R-03 空数据: 返回合法结构，计数为 0，列表为空"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_external_api_stats
+            from mailops.repositories.overview import get_external_api_stats
 
             result = get_external_api_stats()
 
@@ -187,8 +187,8 @@ class OverviewExternalApiStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_external_api_stats_reflects_usage_records(self):
         """R-03 有数据: daily_series 和 kpi 反映实际 usage_daily 记录"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.overview import get_external_api_stats
+            from mailops.db import get_db
+            from mailops.repositories.overview import get_external_api_stats
 
             db = get_db()
             from datetime import date
@@ -216,8 +216,8 @@ class OverviewExternalApiStatsRepositoryTests(OverviewRepositoryBaseTests):
         with self.app.app_context():
             from datetime import date
 
-            from outlook_web.db import get_db
-            from outlook_web.repositories.overview import get_external_api_stats
+            from mailops.db import get_db
+            from mailops.repositories.overview import get_external_api_stats
 
             db = get_db()
             today = date.today().isoformat()
@@ -267,7 +267,7 @@ class OverviewPoolStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_pool_stats_empty_returns_valid_schema(self):
         """R-04 空数据: 返回合法结构，计数为 0，列表为空"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_pool_stats
+            from mailops.repositories.overview import get_pool_stats
 
             result = get_pool_stats()
 
@@ -281,7 +281,7 @@ class OverviewPoolStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_pool_stats_operation_distribution_has_expected_keys(self):
         """R-04: operation_distribution 包含 claim/complete/release/expire 分布"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_pool_stats
+            from mailops.repositories.overview import get_pool_stats
 
             result = get_pool_stats()
             dist = result.get("operation_distribution", {})
@@ -297,7 +297,7 @@ class OverviewActivityStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_activity_stats_empty_returns_valid_schema(self):
         """R-05 空数据: 返回合法结构，KPI 为 0，timeline 为空列表"""
         with self.app.app_context():
-            from outlook_web.repositories.overview import get_activity_stats
+            from mailops.repositories.overview import get_activity_stats
 
             result = get_activity_stats()
 
@@ -309,8 +309,8 @@ class OverviewActivityStatsRepositoryTests(OverviewRepositoryBaseTests):
     def test_get_activity_stats_timeline_structure(self):
         """R-05: timeline 列表元素包含 time/action/status 等字段"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.overview import get_activity_stats
+            from mailops.db import get_db
+            from mailops.repositories.overview import get_activity_stats
 
             db = get_db()
             db.execute("""

@@ -11,7 +11,7 @@ class SecurityHeadersTests(unittest.TestCase):
         os.environ.setdefault("SECRET_KEY", "test-secret-key-for-security-headers")
         os.environ.setdefault("DATABASE_PATH", ":memory:")
 
-        import outlook_web.app as app_module
+        import mailops.app as app_module
 
         app_module._APP_INSTANCE = None
         self.app_module = importlib.reload(app_module)
@@ -97,7 +97,7 @@ class SecurityHeadersTests(unittest.TestCase):
     def test_middleware_does_not_overwrite_existing_headers(self):
         from flask import Response
 
-        from outlook_web.middleware.security_headers import attach_security_headers
+        from mailops.middleware.security_headers import attach_security_headers
 
         with self.app.test_request_context("/custom"):
             resp = Response("ok")

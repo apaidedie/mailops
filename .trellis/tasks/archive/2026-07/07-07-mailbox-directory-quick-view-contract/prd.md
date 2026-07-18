@@ -24,7 +24,7 @@ Promote unified mailbox quick-view presets from a frontend-only convenience into
 
 ## Acceptance Criteria
 
-- [x] `outlook_web/services/mailbox_directory_contract.py` exposes `quick_view_presets` with stable keys, labels, descriptions, and filter objects.
+- [x] `mailops/services/mailbox_directory_contract.py` exposes `quick_view_presets` with stable keys, labels, descriptions, and filter objects.
 - [x] `/api/mailboxes`, `/api/external/mailboxes`, `/api/external/capabilities`, and `/api/external/openapi.json` include or describe the shared preset contract.
 - [x] `static/js/features/mailboxes.js` prefers contract-provided presets and falls back to local presets only when the contract is absent.
 - [x] Frontend and backend tests cover preset contract exposure, OpenAPI schema coverage, frontend contract consumption, provider-agnostic behavior, and secret-safety scans.
@@ -37,7 +37,7 @@ Promote unified mailbox quick-view presets from a frontend-only convenience into
 - `node --check static/js/features/mailboxes.js`
 - `python -m pytest tests/test_unified_mailbox_catalog.py tests/test_external_api.py tests/test_external_temp_emails_api.py tests/test_unified_mailbox_frontend_contract.py tests/test_multi_mailbox.py -q`
 - `git diff --check`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 - `rg -n "console\.(log|debug)" static\js -g '!tests/layout-system/coverage/**'`
 
 ## Notes

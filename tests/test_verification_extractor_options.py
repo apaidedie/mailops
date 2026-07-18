@@ -1,6 +1,6 @@
 import unittest
 
-from outlook_web.services import verification_extractor as extractor
+from mailops.services import verification_extractor as extractor
 
 
 class VerificationExtractorOptionsTests(unittest.TestCase):

@@ -17,7 +17,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages")
@@ -31,7 +31,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
 
     def _insert_temp_email(self, email_addr: str) -> None:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("INSERT INTO temp_emails (email, status) VALUES (?, 'active')", (email_addr,))
@@ -40,7 +40,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
     def test_save_temp_email_messages_preserves_raw_payload_for_inline_images(self):
         self._insert_temp_email("inline@test.example")
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 "inline@test.example",
@@ -73,7 +73,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
     def test_save_temp_email_messages_does_not_downgrade_detail_payload_with_list_payload(self):
         self._insert_temp_email("merge@test.example")
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 "merge@test.example",
@@ -125,7 +125,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-remote-1",
                 "from_address": "sender@example.com",
@@ -152,7 +152,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
 
         data_image = "data:image/png;base64,QUJDRA=="
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-data-1",
                 "from_address": "sender@example.com",
@@ -176,7 +176,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-cid-1",
                 "from_address": "sender@example.com",
@@ -209,7 +209,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-cid-angle-1",
                 "from_address": "sender@example.com",
@@ -240,7 +240,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-cid-raw-1",
                 "from_address": "sender@example.com",
@@ -263,7 +263,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-text-1",
                 "from_address": "sender@example.com",
@@ -288,7 +288,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 email_addr,
@@ -305,7 +305,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
                 ],
             )
 
-        with patch("outlook_web.services.gptmail.get_temp_email_detail_from_api") as detail_mock:
+        with patch("mailops.services.gptmail.get_temp_email_detail_from_api") as detail_mock:
             resp = client.get(f"/api/temp-emails/{email_addr}/messages/temp-cached-1")
 
         self.assertEqual(resp.status_code, 200)
@@ -320,7 +320,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 email_addr,
@@ -338,7 +338,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
             )
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-sparse-1",
                 "from_address": "sender@example.com",
@@ -363,7 +363,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
         self._insert_temp_email(email_addr)
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 email_addr,
@@ -380,7 +380,7 @@ class TempEmailImageSupportTests(unittest.TestCase):
             )
 
         with patch(
-            "outlook_web.services.gptmail.get_temp_email_detail_from_api",
+            "mailops.services.gptmail.get_temp_email_detail_from_api",
             return_value={
                 "id": "temp-cid-refresh-1",
                 "from_address": "sender@example.com",

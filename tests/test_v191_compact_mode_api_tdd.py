@@ -254,7 +254,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         self.assertEqual(account.get("latest_verification_code"), "777888")
         self.assertEqual(account.get("latest_verification_received_at"), "2026-03-20T10:00:00Z")
 
-    @patch("outlook_web.controllers.emails.graph_service.get_emails_graph")
+    @patch("mailops.controllers.emails.graph_service.get_emails_graph")
     def test_t_api_005c_fetch_emails_updates_latest_verification_from_message_preview(self, mock_get_emails_graph):
         client = self.app.test_client()
         self._login(client)
@@ -324,7 +324,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         self._create_account(group_id=group_id)
 
         with patch(
-            "outlook_web.services.external_api.list_messages_for_external", side_effect=AssertionError("should not fetch")
+            "mailops.services.external_api.list_messages_for_external", side_effect=AssertionError("should not fetch")
         ):
             resp = client.get(f"/api/accounts?group_id={group_id}")
 

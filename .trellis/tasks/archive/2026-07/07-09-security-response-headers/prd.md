@@ -8,7 +8,7 @@ This closes the high-priority item in `docs/项目地图.md`: security response 
 
 ## Confirmed Facts
 
-- `outlook_web/app.py` currently registers trace/error after-request handling, static cache headers, blueprint routes, and CORS for `/api/external/*` and `/api/v1/external/*`.
+- `mailops/app.py` currently registers trace/error after-request handling, static cache headers, blueprint routes, and CORS for `/api/external/*` and `/api/v1/external/*`.
 - No centralized middleware currently sets `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, or HSTS.
 - The UI uses existing inline scripts/styles and template event handlers, so an enforcing CSP cannot be too strict in this first pass.
 - HSTS should not be forced on local HTTP development responses, but should be available for secure/proxied production requests.
@@ -16,7 +16,7 @@ This closes the high-priority item in `docs/项目地图.md`: security response 
 
 ## Requirements
 
-- Add a reusable response-header middleware under `outlook_web/middleware` and register it in `create_app()`.
+- Add a reusable response-header middleware under `mailops/middleware` and register it in `create_app()`.
 - Set these baseline headers when the response does not already define them:
   - `X-Content-Type-Options: nosniff`
   - `X-Frame-Options: DENY`

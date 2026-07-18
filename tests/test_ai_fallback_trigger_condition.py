@@ -15,7 +15,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from outlook_web.services import verification_extractor as extractor
+from mailops.services import verification_extractor as extractor
 
 _EMAIL_OBJ = {
     "subject": "Test",
@@ -58,8 +58,8 @@ def _make_extracted(code_conf: str, link_conf: str, **overrides):
 class AiFallbackTriggerConditionTests(unittest.TestCase):
     """方案 A：任一 high 即跳过 AI，仅 both-low 才触发"""
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_high_link_high_skips_ai(self, mock_config, mock_ai_call):
         """code=high + link=high → 不触发 AI"""
         mock_config.return_value = _AI_CONFIG
@@ -70,8 +70,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         mock_ai_call.assert_not_called()
         self.assertIsNone(result.get("ai_used"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_high_link_low_skips_ai(self, mock_config, mock_ai_call):
         """code=high + link=low → 不触发 AI（code 已高置信）"""
         mock_config.return_value = _AI_CONFIG
@@ -86,8 +86,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         self.assertEqual(result["code_confidence"], "high")
         self.assertIsNone(result.get("verification_link"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_low_link_high_skips_ai(self, mock_config, mock_ai_call):
         """code=low + link=high → 不触发 AI（link 已高置信）"""
         mock_config.return_value = _AI_CONFIG
@@ -102,8 +102,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         self.assertIsNone(result.get("verification_link"))
         self.assertEqual(result["link_confidence"], "low")
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_low_link_low_triggers_ai(self, mock_config, mock_ai_call):
         """code=low + link=low → 触发 AI"""
         mock_config.return_value = _AI_CONFIG
@@ -116,8 +116,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         self.assertTrue(result.get("ai_used"))
         self.assertEqual(result["verification_code"], "AI123")
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_low_link_low_ai_returns_none_fallback(self, mock_config, mock_ai_call):
         """code=low + link=low + AI 返回 None → 回退规则结果"""
         mock_config.return_value = _AI_CONFIG
@@ -131,8 +131,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         self.assertIsNone(result.get("ai_used"))
         self.assertEqual(result["verification_code"], "999000")
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_low_link_low_ai_invalid_json_fallback(self, mock_config, mock_ai_call):
         """code=low + link=low + AI 返回空 code+link → 回退规则结果"""
         mock_config.return_value = _AI_CONFIG
@@ -149,8 +149,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         mock_ai_call.assert_called_once()
         self.assertIsNone(result.get("ai_used"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_ai_disabled_skips_ai(self, mock_config, mock_ai_call):
         """AI 关闭 → 不触发 AI，即使 both-low"""
         mock_config.return_value = {**_AI_CONFIG, "enabled": False}
@@ -161,8 +161,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         mock_ai_call.assert_not_called()
         self.assertIsNone(result.get("ai_used"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_ai_config_incomplete_skips_ai(self, mock_config, mock_ai_call):
         """AI 开启但配置不完整 → 不触发 AI"""
         mock_config.return_value = {
@@ -178,8 +178,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
         mock_ai_call.assert_not_called()
         self.assertIsNone(result.get("ai_used"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_code_high_link_low_enforces_mutual_exclusion(self, mock_config, mock_ai_call):
         """code=high + link=low → 不触发 AI，且按产品策略抑制 verification_link"""
         mock_config.return_value = _AI_CONFIG
@@ -196,8 +196,8 @@ class AiFallbackTriggerConditionTests(unittest.TestCase):
 class AiFallbackEdgeCaseTests(unittest.TestCase):
     """边界情况：缺失 confidence 字段时默认为 low"""
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_missing_code_confidence_triggers_ai(self, mock_config, mock_ai_call):
         """code_confidence 缺失 → 视为 low → 如果 link 也 low 则触发 AI"""
         mock_config.return_value = _AI_CONFIG
@@ -209,8 +209,8 @@ class AiFallbackEdgeCaseTests(unittest.TestCase):
 
         mock_ai_call.assert_called_once()
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_missing_link_confidence_with_code_high_skips_ai(self, mock_config, mock_ai_call):
         """link_confidence 缺失但 code=high → 不触发 AI"""
         mock_config.return_value = _AI_CONFIG
@@ -222,8 +222,8 @@ class AiFallbackEdgeCaseTests(unittest.TestCase):
         mock_ai_call.assert_not_called()
         self.assertIsNone(result.get("ai_used"))
 
-    @patch("outlook_web.services.verification_extractor._call_verification_ai")
-    @patch("outlook_web.services.verification_extractor.get_verification_ai_runtime_config")
+    @patch("mailops.services.verification_extractor._call_verification_ai")
+    @patch("mailops.services.verification_extractor.get_verification_ai_runtime_config")
     def test_empty_extracted_triggers_ai(self, mock_config, mock_ai_call):
         """空 extracted（无验证码/链接） → both-low → 触发 AI"""
         mock_config.return_value = _AI_CONFIG

@@ -29,7 +29,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-01: 全新库初始化后 verification_extract_logs 表存在"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-") as tmp:
             db_path = Path(tmp) / "fresh.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             conn = sqlite3.connect(str(db_path))
@@ -45,7 +45,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-04: verification_extract_logs 表包含 TDD 约定的 11 个字段"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-col-") as tmp:
             db_path = Path(tmp) / "fresh.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             conn = sqlite3.connect(str(db_path))
@@ -73,7 +73,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-01: verification_extract_logs 建立了至少 3 个命名索引"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-idx-") as tmp:
             db_path = Path(tmp) / "fresh.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             conn = sqlite3.connect(str(db_path))
@@ -99,7 +99,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-02: 升级后旧有 accounts/audit_logs 等表不受影响"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-upgrade-") as tmp:
             db_path = Path(tmp) / "v23.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             conn = sqlite3.connect(str(db_path))
@@ -116,7 +116,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-03: 重复调用 init_db 不报错，幂等"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-idem-") as tmp:
             db_path = Path(tmp) / "idempotent.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             try:
@@ -130,7 +130,7 @@ class DbSchemaV23OverviewTests(unittest.TestCase):
         """V-04: result_type 字段可存储 'code'/'link'/'none'"""
         with tempfile.TemporaryDirectory(prefix="outlookEmail-v23-write-") as tmp:
             db_path = Path(tmp) / "write_test.db"
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
             conn = sqlite3.connect(str(db_path))

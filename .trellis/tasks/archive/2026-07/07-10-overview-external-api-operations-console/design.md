@@ -2,7 +2,7 @@
 
 ## Boundaries
 
-- Backend ownership stays in `outlook_web/repositories/overview.py`; the controller and routes remain thin.
+- Backend ownership stays in `mailops/repositories/overview.py`; the controller and routes remain thin.
 - Frontend ownership stays in `static/js/features/overview.js` and the existing Overview section of `static/css/main.css`.
 - Template mount points in `templates/index.html` remain unchanged unless a missing accessibility hook is discovered.
 - The feature consumes existing `external_api_consumer_usage_daily` data only. It does not create new persistence or call upstream providers.

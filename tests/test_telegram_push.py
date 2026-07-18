@@ -71,7 +71,7 @@ class TestBuildTelegramMessage(unittest.TestCase):
     """TDD-00007 T-01 ~ T-05"""
 
     def _build(self, account_email, **email_kwargs):
-        from outlook_web.services.telegram_push import _build_telegram_message
+        from mailops.services.telegram_push import _build_telegram_message
 
         email = {
             "subject": email_kwargs.get("subject", "Test Subject"),
@@ -142,7 +142,7 @@ class TestHtmlToPlain(unittest.TestCase):
     """TDD-00007 T-06 ~ T-07"""
 
     def _convert(self, html):
-        from outlook_web.services.telegram_push import _html_to_plain
+        from mailops.services.telegram_push import _html_to_plain
 
         return _html_to_plain(html)
 
@@ -177,7 +177,7 @@ class TestEscapeHtml(unittest.TestCase):
 
     def test_t08_escape_three_special_chars(self):
         """T-08：& < > 三种字符均被正确转义"""
-        from outlook_web.services.telegram_push import _escape_html
+        from mailops.services.telegram_push import _escape_html
 
         result = _escape_html("a & <b> and > c")
         self.assertEqual(result, "a &amp; &lt;b&gt; and &gt; c")
@@ -198,7 +198,7 @@ class TestToggleTelegramPush(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@tgtest.com'")
@@ -208,8 +208,8 @@ class TestToggleTelegramPush(unittest.TestCase):
     def test_t09_first_enable_sets_cursor(self):
         """T-09：首次开启时 telegram_last_checked_at 被设置（不为 None）"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.accounts import toggle_telegram_push
+            from mailops.db import get_db
+            from mailops.repositories.accounts import toggle_telegram_push
 
             result = toggle_telegram_push(self._account_id, True)
             self.assertTrue(result)
@@ -228,8 +228,8 @@ class TestToggleTelegramPush(unittest.TestCase):
     def test_t10_disable_preserves_cursor(self):
         """T-10：关闭推送时游标不清空"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.accounts import toggle_telegram_push
+            from mailops.db import get_db
+            from mailops.repositories.accounts import toggle_telegram_push
 
             db = get_db()
             # 先开启（设置游标）
@@ -248,7 +248,7 @@ class TestToggleTelegramPush(unittest.TestCase):
     def test_t11_nonexistent_account_returns_false(self):
         """T-11：账号不存在时返回 False"""
         with self.app.app_context():
-            from outlook_web.repositories.accounts import toggle_telegram_push
+            from mailops.repositories.accounts import toggle_telegram_push
 
             result = toggle_telegram_push(99999, True)
             self.assertFalse(result)
@@ -256,8 +256,8 @@ class TestToggleTelegramPush(unittest.TestCase):
     def test_t12_repeat_enable_not_reset_cursor(self):
         """T-12：重复开启不重置已有游标"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.accounts import toggle_telegram_push
+            from mailops.db import get_db
+            from mailops.repositories.accounts import toggle_telegram_push
 
             db = get_db()
             # 先开启（游标设为 T1）
@@ -275,10 +275,10 @@ class TestToggleTelegramPush(unittest.TestCase):
     def test_t12b_reenable_resets_cursor(self):
         """T-12b：禁用后重新启用应重置游标到当前时间"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import notification_state as notification_state_repo
-            from outlook_web.repositories.accounts import toggle_telegram_push
-            from outlook_web.services import notification_dispatch
+            from mailops.db import get_db
+            from mailops.repositories import notification_state as notification_state_repo
+            from mailops.repositories.accounts import toggle_telegram_push
+            from mailops.services import notification_dispatch
 
             db = get_db()
             # 先开启
@@ -327,7 +327,7 @@ class TestUpdateTelegramCursor(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email = 'cursor@tgtest.com'")
@@ -337,8 +337,8 @@ class TestUpdateTelegramCursor(unittest.TestCase):
     def test_t13_update_cursor(self):
         """T-13：update_telegram_cursor 正确更新游标"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories.accounts import update_telegram_cursor
+            from mailops.db import get_db
+            from mailops.repositories.accounts import update_telegram_cursor
 
             update_telegram_cursor(self._account_id, "2026-03-04T14:30:00")
             row = (
@@ -361,7 +361,7 @@ class TestGetTelegramPushAccounts(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@tg14test.com'")
@@ -374,7 +374,7 @@ class TestGetTelegramPushAccounts(unittest.TestCase):
     def test_t14_returns_only_enabled_active_accounts(self):
         """T-14：只返回 enabled=1 且 status=active 的账号"""
         with self.app.app_context():
-            from outlook_web.repositories.accounts import get_telegram_push_accounts
+            from mailops.repositories.accounts import get_telegram_push_accounts
 
             accounts = get_telegram_push_accounts()
             emails = [a["email"] for a in accounts]
@@ -398,7 +398,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@tgjob.com'")
@@ -408,8 +408,8 @@ class TestRunTelegramPushJob(unittest.TestCase):
             db.commit()
 
     def _set_settings(self, bot_token="test_token_12345678", chat_id="-12345"):
-        from outlook_web.repositories.settings import set_setting
-        from outlook_web.security.crypto import encrypt_data
+        from mailops.repositories.settings import set_setting
+        from mailops.security.crypto import encrypt_data
 
         if bot_token:
             set_setting("telegram_bot_token", encrypt_data(bot_token))
@@ -418,7 +418,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
         set_setting("telegram_chat_id", chat_id)
 
     def _run_job(self):
-        from outlook_web.services.telegram_push import run_telegram_push_job
+        from mailops.services.telegram_push import run_telegram_push_job
 
         run_telegram_push_job(self.app)
 
@@ -437,7 +437,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
         """T-15：Bot Token 未配置 → Telegram API 不被调用"""
         with self.app.app_context():
             self._set_settings(bot_token="", chat_id="-12345")
-            with patch("outlook_web.services.telegram_push._send_telegram_message") as mock_send:
+            with patch("mailops.services.telegram_push._send_telegram_message") as mock_send:
                 self._run_job()
                 mock_send.assert_not_called()
 
@@ -445,7 +445,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
         """T-16：Chat ID 未配置 → Telegram API 不被调用"""
         with self.app.app_context():
             self._set_settings(bot_token="valid_token_xyz", chat_id="")
-            with patch("outlook_web.services.telegram_push._send_telegram_message") as mock_send:
+            with patch("mailops.services.telegram_push._send_telegram_message") as mock_send:
                 self._run_job()
                 mock_send.assert_not_called()
 
@@ -454,22 +454,22 @@ class TestRunTelegramPushJob(unittest.TestCase):
         with self.app.app_context():
             self._set_settings()
             # 确保无 enabled 账号（setUp 已清理）
-            with patch("outlook_web.services.telegram_push._send_telegram_message") as mock_send:
+            with patch("mailops.services.telegram_push._send_telegram_message") as mock_send:
                 self._run_job()
                 mock_send.assert_not_called()
 
     def test_t18_first_run_sets_cursor_no_push(self):
         """T-18：首次开启（last_checked_at=NULL）→ 设游标，不推送"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "first@tgjob.com", enabled=1, last_checked=None)
             self._set_settings()
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap") as mock_fetch, patch(
-                "outlook_web.services.telegram_push._fetch_new_emails_graph"
-            ) as mock_graph, patch("outlook_web.services.telegram_push._send_telegram_message") as mock_send:
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap") as mock_fetch, patch(
+                "mailops.services.telegram_push._fetch_new_emails_graph"
+            ) as mock_graph, patch("mailops.services.telegram_push._send_telegram_message") as mock_send:
 
                 mock_fetch.return_value = [self._make_email(), self._make_email()]
                 mock_graph.return_value = []
@@ -485,7 +485,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
     def test_t19_normal_push_calls_api_and_updates_cursor(self):
         """T-19：正常推送 → Telegram API 被调用，游标更新"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "normal@tgjob.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -499,9 +499,9 @@ class TestRunTelegramPushJob(unittest.TestCase):
                 self._make_email(recent),
                 self._make_email(recent),
             ]
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
 
                 self._run_job()
 
@@ -517,7 +517,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
     def test_t20_global_limit_20(self):
         """T-20：全局上限 20 封，跨账号合计不超过 20 条 Telegram 消息"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             # 账号 A：12 封；账号 B：15 封 → 合计最多 20 封
@@ -543,9 +543,9 @@ class TestRunTelegramPushJob(unittest.TestCase):
                 call_count += 1
                 return True
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", side_effect=fake_send
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
+                "mailops.services.telegram_push._send_telegram_message", side_effect=fake_send
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             self.assertEqual(call_count, 20, f"Expected 20, got {call_count}")
@@ -553,16 +553,16 @@ class TestRunTelegramPushJob(unittest.TestCase):
     def test_t21_imap_exception_silent_cursor_not_advanced(self):
         """T-21：IMAP 连接异常 → 不抛出，游标不推进（避免漏推邮件）"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "imapfail@tgjob.com", enabled=1, last_checked="2026-03-01T00:00:00")
             self._set_settings()
 
             with patch(
-                "outlook_web.services.telegram_push._fetch_new_emails_imap",
+                "mailops.services.telegram_push._fetch_new_emails_imap",
                 side_effect=ConnectionError("IMAP connection refused"),
-            ), patch("outlook_web.services.telegram_push._send_telegram_message") as mock_send:
+            ), patch("mailops.services.telegram_push._send_telegram_message") as mock_send:
                 # 不应抛出异常
                 try:
                     self._run_job()
@@ -580,7 +580,7 @@ class TestRunTelegramPushJob(unittest.TestCase):
     def test_t22_send_failure_silent_cursor_preserved_for_retry(self):
         """T-22：Telegram 发送失败 → 不抛出，游标保留以便重试"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "sendfail@tgjob.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -590,9 +590,9 @@ class TestRunTelegramPushJob(unittest.TestCase):
 
             recent = (datetime.now(timezone.utc) - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S")
             emails = [self._make_email(recent), self._make_email(recent)]
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=False
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=False
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 try:
                     self._run_job()
                 except Exception as e:
@@ -620,7 +620,7 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@tgapi.com'")
@@ -648,7 +648,7 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
         self.assertEqual(data["message_en"], "Mailbox notifications enabled")
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             row = get_db().execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (self._account_id,)).fetchone()
             self.assertEqual(row["telegram_push_enabled"], 1)
@@ -656,7 +656,7 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
     def test_t24_disable_success(self):
         """T-24：关闭成功 → 200, success=true, DB 更新"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             get_db().execute("UPDATE accounts SET telegram_push_enabled=1 WHERE id=?", (self._account_id,))
             get_db().commit()
@@ -673,14 +673,14 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
         self.assertEqual(data["message_en"], "Mailbox notifications disabled")
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             row = get_db().execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (self._account_id,)).fetchone()
             self.assertEqual(row["telegram_push_enabled"], 0)
 
     def test_t24b_get_accounts_exposes_notification_enabled_alias(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             get_db().execute("UPDATE accounts SET telegram_push_enabled=1 WHERE id=?", (self._account_id,))
             get_db().commit()
@@ -697,7 +697,7 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
 
     def test_t24c_get_account_detail_exposes_notification_enabled_alias(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             get_db().execute("UPDATE accounts SET telegram_push_enabled=1 WHERE id=?", (self._account_id,))
             get_db().commit()
@@ -714,7 +714,7 @@ class TestTelegramToggleEndpoint(unittest.TestCase):
 
     def test_t24d_search_accounts_exposes_notification_enabled_alias(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             get_db().execute("UPDATE accounts SET telegram_push_enabled=1 WHERE id=?", (self._account_id,))
             get_db().commit()
@@ -761,7 +761,7 @@ class TestTelegramSettingsAPI(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories.settings import set_setting
+            from mailops.repositories.settings import set_setting
 
             set_setting("telegram_bot_token", "")
             set_setting("telegram_chat_id", "")
@@ -770,8 +770,8 @@ class TestTelegramSettingsAPI(unittest.TestCase):
     def test_t27_get_settings_includes_telegram_fields(self):
         """T-27：GET /api/settings 返回 telegram 配置字段，bot_token 脱敏"""
         with self.app.app_context():
-            from outlook_web.repositories.settings import set_setting
-            from outlook_web.security.crypto import encrypt_data
+            from mailops.repositories.settings import set_setting
+            from mailops.security.crypto import encrypt_data
 
             set_setting("telegram_bot_token", encrypt_data("1234567890:AAxxxxx"))
 
@@ -795,7 +795,7 @@ class TestTelegramSettingsAPI(unittest.TestCase):
 
     def test_t27b_get_settings_preserves_telegram_poll_interval_without_ui_clamping(self):
         with self.app.app_context():
-            from outlook_web.repositories.settings import set_setting
+            from mailops.repositories.settings import set_setting
 
             set_setting("telegram_poll_interval", "7200")
 
@@ -824,8 +824,8 @@ class TestTelegramSettingsAPI(unittest.TestCase):
         self.assertTrue(data.get("success"), f"Expected success, got: {data}")
 
         with self.app.app_context():
-            from outlook_web.repositories.settings import get_setting
-            from outlook_web.security.crypto import decrypt_data
+            from mailops.repositories.settings import get_setting
+            from mailops.security.crypto import decrypt_data
 
             raw_token = get_setting("telegram_bot_token")
             # 应加密存储（前缀 enc:）
@@ -849,8 +849,8 @@ class TestTelegramSettingsAPI(unittest.TestCase):
     def test_t30_masked_token_placeholder_not_overwrite(self):
         """T-30：传入脱敏占位符（****xxxx）不覆盖已有 bot_token"""
         with self.app.app_context():
-            from outlook_web.repositories.settings import set_setting
-            from outlook_web.security.crypto import encrypt_data
+            from mailops.repositories.settings import set_setting
+            from mailops.security.crypto import encrypt_data
 
             original_encrypted = encrypt_data("OriginalRealToken")
             set_setting("telegram_bot_token", original_encrypted)
@@ -866,8 +866,8 @@ class TestTelegramSettingsAPI(unittest.TestCase):
         self.assertIn(resp.status_code, [200, 204])
 
         with self.app.app_context():
-            from outlook_web.repositories.settings import get_setting
-            from outlook_web.security.crypto import decrypt_data, encrypt_data
+            from mailops.repositories.settings import get_setting
+            from mailops.security.crypto import decrypt_data, encrypt_data
 
             stored = get_setting("telegram_bot_token")
             # 解密后应仍为原始值（未被覆盖）
@@ -890,7 +890,7 @@ class TestRegressions(unittest.TestCase):
         """T-31：加载 telegram_push 模块不影响 token_refresh 调度器 job"""
         # 确认可以导入 telegram_push 模块而不报错
         try:
-            import outlook_web.services.telegram_push as tp  # noqa: F401
+            import mailops.services.telegram_push as tp  # noqa: F401
         except ImportError as e:
             self.fail(f"Cannot import telegram_push service: {e}")
 
@@ -898,14 +898,14 @@ class TestRegressions(unittest.TestCase):
         """T-32：现有核心功能（providers, settings）在引入新模块后仍正常"""
         with self.app.app_context():
             # providers 模块正常
-            from outlook_web.services.providers import get_provider_list
+            from mailops.services.providers import get_provider_list
 
             providers = get_provider_list()
             self.assertIsInstance(providers, list)
             self.assertGreater(len(providers), 0)
 
             # settings repository 正常
-            from outlook_web.repositories.settings import get_setting, set_setting
+            from mailops.repositories.settings import get_setting, set_setting
 
             set_setting("_test_regression_key", "ok")
             val = get_setting("_test_regression_key")
@@ -1025,7 +1025,7 @@ class TestFetchAccountEmails(unittest.TestCase):
 
     def test_first_run_returns_none_emails(self):
         """首次运行（last_checked_at=None）→ emails=None, error=None"""
-        from outlook_web.services.telegram_push import _fetch_account_emails
+        from mailops.services.telegram_push import _fetch_account_emails
 
         account = {"id": 1, "email": "x@test.com", "provider": "qq", "telegram_last_checked_at": None}
         acc, emails, error = _fetch_account_emails(account)
@@ -1034,30 +1034,30 @@ class TestFetchAccountEmails(unittest.TestCase):
 
     def test_fetch_success_returns_emails(self):
         """正常 fetch → 返回邮件列表"""
-        from outlook_web.services.telegram_push import _fetch_account_emails
+        from mailops.services.telegram_push import _fetch_account_emails
 
         account = {"id": 1, "email": "x@test.com", "provider": "qq", "telegram_last_checked_at": "2026-03-01T00:00:00"}
         fake_emails = [{"subject": "Hi", "sender": "a@b.com", "received_at": "2026-03-05T10:00:00", "preview": ""}]
 
-        with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=fake_emails):
+        with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=fake_emails):
             acc, emails, error = _fetch_account_emails(account)
         self.assertEqual(len(emails), 1)
         self.assertIsNone(error)
 
     def test_fetch_error_returns_error(self):
         """fetch 异常 → emails=None, error=Exception"""
-        from outlook_web.services.telegram_push import _fetch_account_emails
+        from mailops.services.telegram_push import _fetch_account_emails
 
         account = {"id": 1, "email": "x@test.com", "provider": "qq", "telegram_last_checked_at": "2026-03-01T00:00:00"}
 
-        with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", side_effect=ConnectionError("timeout")):
+        with patch("mailops.services.telegram_push._fetch_new_emails_imap", side_effect=ConnectionError("timeout")):
             acc, emails, error = _fetch_account_emails(account)
         self.assertIsNone(emails)
         self.assertIsInstance(error, ConnectionError)
 
     def test_outlook_uses_graph_fetch(self):
         """Outlook 账号使用 Graph API fetch，并覆盖 inbox/junkemail 目录"""
-        from outlook_web.services.telegram_push import _fetch_account_emails
+        from mailops.services.telegram_push import _fetch_account_emails
 
         account = {
             "id": 1,
@@ -1067,8 +1067,8 @@ class TestFetchAccountEmails(unittest.TestCase):
             "telegram_last_checked_at": "2026-03-01T00:00:00",
         }
 
-        with patch("outlook_web.services.telegram_push._fetch_new_emails_graph", return_value=[]) as mock_graph, patch(
-            "outlook_web.services.telegram_push._fetch_new_emails_imap"
+        with patch("mailops.services.telegram_push._fetch_new_emails_graph", return_value=[]) as mock_graph, patch(
+            "mailops.services.telegram_push._fetch_new_emails_imap"
         ) as mock_imap:
             _fetch_account_emails(account)
         self.assertEqual(mock_graph.call_count, 2)
@@ -1080,7 +1080,7 @@ class TestFetchAccountEmails(unittest.TestCase):
 
     def test_outlook_provider_with_imap_account_type_uses_imap_fetch(self):
         """历史坏数据：provider=outlook 但 account_type=imap 时，应走 IMAP fetch。"""
-        from outlook_web.services.telegram_push import _fetch_account_emails
+        from mailops.services.telegram_push import _fetch_account_emails
 
         account = {
             "id": 1,
@@ -1090,8 +1090,8 @@ class TestFetchAccountEmails(unittest.TestCase):
             "telegram_last_checked_at": "2026-03-01T00:00:00",
         }
 
-        with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=[]) as mock_imap, patch(
-            "outlook_web.services.telegram_push._fetch_new_emails_graph"
+        with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=[]) as mock_imap, patch(
+            "mailops.services.telegram_push._fetch_new_emails_graph"
         ) as mock_graph:
             _fetch_account_emails(account)
         self.assertEqual(mock_imap.call_count, 2)
@@ -1107,7 +1107,7 @@ class TestParallelJobBehavior(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@parallel.com'")
@@ -1116,8 +1116,8 @@ class TestParallelJobBehavior(unittest.TestCase):
             db.commit()
 
     def _set_settings(self, bot_token="test_token_12345678", chat_id="-12345"):
-        from outlook_web.repositories.settings import set_setting
-        from outlook_web.security.crypto import encrypt_data
+        from mailops.repositories.settings import set_setting
+        from mailops.security.crypto import encrypt_data
 
         if bot_token:
             set_setting("telegram_bot_token", encrypt_data(bot_token))
@@ -1126,7 +1126,7 @@ class TestParallelJobBehavior(unittest.TestCase):
         set_setting("telegram_chat_id", chat_id)
 
     def _run_job(self):
-        from outlook_web.services.telegram_push import run_telegram_push_job
+        from mailops.services.telegram_push import run_telegram_push_job
 
         run_telegram_push_job(self.app)
 
@@ -1144,7 +1144,7 @@ class TestParallelJobBehavior(unittest.TestCase):
     def test_send_failure_does_not_increment_count(self):
         """发送失败时 sent_count 不递增"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "fail@parallel.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1161,9 +1161,9 @@ class TestParallelJobBehavior(unittest.TestCase):
                 send_calls.append(msg)
                 return False  # 发送失败
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", side_effect=fake_send
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", side_effect=fake_send
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             self.assertEqual(len(send_calls), 1, "应尝试发送 1 次")
@@ -1171,7 +1171,7 @@ class TestParallelJobBehavior(unittest.TestCase):
     def test_mixed_success_failure_accounts(self):
         """混合场景：一个账号成功、一个失败 → 成功的游标推进，失败的保留"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ok_id = _insert_test_account(db, "ok@parallel.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1188,9 +1188,9 @@ class TestParallelJobBehavior(unittest.TestCase):
                     return emails
                 raise ConnectionError("IMAP timeout")
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             ok_cursor = db.execute("SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (ok_id,)).fetchone()[
@@ -1206,7 +1206,7 @@ class TestParallelJobBehavior(unittest.TestCase):
     def test_parallel_fetch_all_accounts_processed(self):
         """并行模式下所有账号都应被处理"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = []
@@ -1221,8 +1221,8 @@ class TestParallelJobBehavior(unittest.TestCase):
                 fetch_emails.add(account["email"])
                 return []
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", side_effect=fake_fetch), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
             ):
                 self._run_job()
 
@@ -1233,8 +1233,8 @@ class TestParallelJobBehavior(unittest.TestCase):
         """调度器默认间隔应为 600 秒"""
         with self.app.app_context():
             # 清除可能存在的设置
-            from outlook_web.repositories.settings import set_setting
-            from outlook_web.services.scheduler import _get_telegram_interval
+            from mailops.repositories.settings import set_setting
+            from mailops.services.scheduler import _get_telegram_interval
 
             set_setting("telegram_poll_interval", "")
             interval = _get_telegram_interval(self.app)
@@ -1243,7 +1243,7 @@ class TestParallelJobBehavior(unittest.TestCase):
     def test_old_email_after_cursor_still_sent(self):
         """启用后的游标负责截断历史，游标之后的旧邮件仍应发送"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "old@parallel.com", enabled=1, last_checked="2026-01-01T00:00:00")
@@ -1261,9 +1261,9 @@ class TestParallelJobBehavior(unittest.TestCase):
                 send_calls.append(msg)
                 return True
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=old_emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", side_effect=fake_send
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=old_emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", side_effect=fake_send
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             self.assertEqual(len(send_calls), 1, "只要位于游标之后，就不应再被额外年龄过滤拦截")
@@ -1271,7 +1271,7 @@ class TestParallelJobBehavior(unittest.TestCase):
     def test_recent_email_after_cursor_sent_once_across_folders(self):
         """最近邮件在 inbox+junkemail 双目录扫描下仍只发送一次"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "new@parallel.com", enabled=1, last_checked="2026-01-01T00:00:00")
@@ -1289,9 +1289,9 @@ class TestParallelJobBehavior(unittest.TestCase):
                 send_calls.append(msg)
                 return True
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=recent_emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", side_effect=fake_send
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=recent_emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", side_effect=fake_send
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             self.assertEqual(len(send_calls), 1, "同一封邮件跨目录不应重复发送")
@@ -1306,7 +1306,7 @@ class TestCursorClockSkew(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@clockskew.com'")
@@ -1315,21 +1315,21 @@ class TestCursorClockSkew(unittest.TestCase):
             db.commit()
 
     def _set_settings(self):
-        from outlook_web.repositories.settings import set_setting
-        from outlook_web.security.crypto import encrypt_data
+        from mailops.repositories.settings import set_setting
+        from mailops.security.crypto import encrypt_data
 
         set_setting("telegram_bot_token", encrypt_data("test_token_12345678"))
         set_setting("telegram_chat_id", "-12345")
 
     def _run_job(self):
-        from outlook_web.services.telegram_push import run_telegram_push_job
+        from mailops.services.telegram_push import run_telegram_push_job
 
         run_telegram_push_job(self.app)
 
     def test_cursor_advances_past_future_email(self):
         """BUG-00011: 邮件 received_at > job_start_time 时，游标应推进到 received_at"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "skew@clockskew.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1349,9 +1349,9 @@ class TestCursorClockSkew(unittest.TestCase):
                 }
             ]
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
                 mock_send.assert_called_once()
@@ -1365,7 +1365,7 @@ class TestCursorClockSkew(unittest.TestCase):
     def test_cursor_advances_to_last_successful_message_when_emails_older(self):
         """正常场景：旧邮件发送成功后，游标推进到最后连续成功消息时间而不是盲目推进到 job_start_time"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "normal@clockskew.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1384,9 +1384,9 @@ class TestCursorClockSkew(unittest.TestCase):
                 }
             ]
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             cursor = db.execute("SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (acc_id,)).fetchone()[
@@ -1398,7 +1398,7 @@ class TestCursorClockSkew(unittest.TestCase):
     def test_no_duplicate_after_clock_skew(self):
         """BUG-00011 端到端: 时钟偏差邮件推送 1 次后不应再被推送"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             acc_id = _insert_test_account(db, "e2e@clockskew.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1417,9 +1417,9 @@ class TestCursorClockSkew(unittest.TestCase):
                 }
             ]
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
             self.assertEqual(mock_send.call_count, 1)
 
@@ -1433,9 +1433,9 @@ class TestCursorClockSkew(unittest.TestCase):
                 # 如果游标正确（>= future_time），该邮件不应被返回
                 return [e for e in emails if e["received_at"] > since]
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", side_effect=smart_fetch), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send2, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", side_effect=smart_fetch), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send2, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             # 第二轮不应推送任何消息
@@ -1451,7 +1451,7 @@ class TestMessageIdDedup(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@dedup.com'")
@@ -1460,21 +1460,21 @@ class TestMessageIdDedup(unittest.TestCase):
             db.commit()
 
     def _set_settings(self):
-        from outlook_web.repositories.settings import set_setting
-        from outlook_web.security.crypto import encrypt_data
+        from mailops.repositories.settings import set_setting
+        from mailops.security.crypto import encrypt_data
 
         set_setting("telegram_bot_token", encrypt_data("test_token_12345678"))
         set_setting("telegram_chat_id", "-12345")
 
     def _run_job(self):
-        from outlook_web.services.telegram_push import run_telegram_push_job
+        from mailops.services.telegram_push import run_telegram_push_job
 
         run_telegram_push_job(self.app)
 
     def test_same_message_id_not_pushed_twice(self):
         """同一 message_id 的邮件在两轮 Job 中只推送 1 次"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "dup@dedup.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1494,9 +1494,9 @@ class TestMessageIdDedup(unittest.TestCase):
             ]
 
             # 第一轮：推送成功
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as send1, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as send1, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
             self.assertEqual(send1.call_count, 1)
 
@@ -1505,9 +1505,9 @@ class TestMessageIdDedup(unittest.TestCase):
             self.assertIsNotNone(row)
 
             # 第二轮：同一封邮件再次被 fetch（模拟游标未正确推进的极端场景）
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as send2, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as send2, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
             # Message-ID 去重：不应再推送
             send2.assert_not_called()
@@ -1515,7 +1515,7 @@ class TestMessageIdDedup(unittest.TestCase):
     def test_different_message_ids_both_pushed(self):
         """不同 message_id 的邮件各推送 1 次"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "multi@dedup.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1529,16 +1529,16 @@ class TestMessageIdDedup(unittest.TestCase):
                 {"message_id": "<bbb@mail.com>", "subject": "B", "sender": "s@t.com", "received_at": recent, "preview": "b"},
             ]
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
             self.assertEqual(mock_send.call_count, 2)
 
     def test_push_log_cleanup(self):
         """过期记录（>7 天）应被清理"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "clean@dedup.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1556,9 +1556,9 @@ class TestMessageIdDedup(unittest.TestCase):
             db.commit()
 
             # 运行 job 触发 cleanup
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=[]), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ), patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=[]), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ), patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
 
             # 旧记录应被清理
@@ -1572,7 +1572,7 @@ class TestMessageIdDedup(unittest.TestCase):
     def test_email_without_message_id_still_pushed(self):
         """缺少 message_id 的邮件仍然正常推送（降级到仅游标防重）"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             _insert_test_account(db, "nomsgid@dedup.com", enabled=1, last_checked="2026-03-01T00:00:00")
@@ -1590,9 +1590,9 @@ class TestMessageIdDedup(unittest.TestCase):
                 }
             ]  # 注意：没有 message_id 字段
 
-            with patch("outlook_web.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
-                "outlook_web.services.telegram_push._send_telegram_message", return_value=True
-            ) as mock_send, patch("outlook_web.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
+            with patch("mailops.services.telegram_push._fetch_new_emails_imap", return_value=emails), patch(
+                "mailops.services.telegram_push._send_telegram_message", return_value=True
+            ) as mock_send, patch("mailops.services.telegram_push.TELEGRAM_PUSH_DELAY_SEC", 0):
                 self._run_job()
             mock_send.assert_called_once()
 

@@ -6,7 +6,7 @@ Remove GPTMail as a formal product-facing provider label while preserving the ex
 
 ## Background
 
-The parent platform task requires de-emphasizing legacy GPTMail branding from product-facing surfaces while keeping compatibility aliases and migration behavior. Current evidence shows that `outlook_web/services/provider_catalog.py` maps `legacy_bridge`, `custom_domain_temp_mail`, and compatibility aliases to the label `GPTMail`, README files document `GPTMAIL_*` as first-class setup knobs, `.env.example` names the compatible bridge as old GPTMail, and settings tests still assert `temp_mail_provider_label == "GPTMail"`.
+The parent platform task requires de-emphasizing legacy GPTMail branding from product-facing surfaces while keeping compatibility aliases and migration behavior. Current evidence shows that `mailops/services/provider_catalog.py` maps `legacy_bridge`, `custom_domain_temp_mail`, and compatibility aliases to the label `GPTMail`, README files document `GPTMAIL_*` as first-class setup knobs, `.env.example` names the compatible bridge as old GPTMail, and settings tests still assert `temp_mail_provider_label == "GPTMail"`.
 
 Compatibility must remain intact because legacy deployments may still set `GPTMAIL_BASE_URL`, `GPTMAIL_API_KEY`, `TEMP_MAIL_PROVIDER=gptmail`, `legacy_gptmail`, or `temp_mail`, and provider discovery must keep documenting those aliases for external callers.
 
@@ -29,5 +29,5 @@ Compatibility must remain intact because legacy deployments may still set `GPTMA
 ## Out Of Scope
 
 - Renaming environment variables, database keys, provider keys, or request fields.
-- Removing `outlook_web.services.gptmail` or legacy settings migration logic.
+- Removing `mailops.services.gptmail` or legacy settings migration logic.
 - Redesigning the Settings page layout beyond copy and label cleanup.

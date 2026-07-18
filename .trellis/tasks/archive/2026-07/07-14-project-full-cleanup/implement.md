@@ -9,11 +9,11 @@
 
 ## W4 checklist
 
-1. [x] Convert `outlook_web/services/provider_catalog.py` → package `provider_catalog/`
+1. [x] Convert `mailops/services/provider_catalog.py` → package `provider_catalog/`
 2. [x] Extract real domains: `endpoints.py`, `health.py`, `catalog.py`, `integration.py`, `capabilities.py`, `selection.py`, `bridge.py`, `constants.py`
 3. [x] Thin `_impl.py` to re-export hub (~100 lines)
 4. [x] Extract accounts import/export pure logic → `services/account_import_export.py`
-5. [x] Keep public import path `outlook_web.services.provider_catalog` stable
+5. [x] Keep public import path `mailops.services.provider_catalog` stable
 6. [x] Focused tests green (boundaries, detect/export, multi_mailbox, unified catalog, v1 aliases)
 7. [x] Update `.trellis/spec/backend/directory-structure.md` for package layout
 8. [x] Full readiness gate + commit (`26ae7627`)

@@ -4,7 +4,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from outlook_web.services import email_push
+from mailops.services import email_push
 
 
 class EmailPushTransportModeTests(unittest.TestCase):

@@ -27,8 +27,8 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
                 "DATABASE_PATH",
             )
         }
-        if "outlook_web.app" in sys.modules:
-            sys.modules["outlook_web.app"]._APP_INSTANCE = None
+        if "mailops.app" in sys.modules:
+            sys.modules["mailops.app"]._APP_INSTANCE = None
         sys.modules.pop("web_outlook_app", None)
         os.environ["SECRET_KEY"] = "test-secret-key-32bytes-minimum-0000000000000000"
         os.environ["LOGIN_PASSWORD"] = "testpass123"
@@ -40,8 +40,8 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
         self.module = importlib.import_module("web_outlook_app")
 
     def tearDown(self) -> None:
-        if "outlook_web.app" in sys.modules:
-            sys.modules["outlook_web.app"]._APP_INSTANCE = None
+        if "mailops.app" in sys.modules:
+            sys.modules["mailops.app"]._APP_INSTANCE = None
         sys.modules.pop("web_outlook_app", None)
         for key, value in self._original_env.items():
             if value is None:
@@ -74,9 +74,9 @@ class WebOutlookAppEntrypointTests(unittest.TestCase):
     def test_entrypoint_configures_utf8_safe_output_before_startup_prints(self) -> None:
         source = Path("web_outlook_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("from outlook_web.runtime_output import configure_process_output", source)
+        self.assertIn("from mailops.runtime_output import configure_process_output", source)
         self.assertIn("configure_process_output()", source)
-        self.assertLess(source.index("configure_process_output()"), source.index("from outlook_web.app import create_app"))
+        self.assertLess(source.index("configure_process_output()"), source.index("from mailops.app import create_app"))
 
 
 class StartScriptSecretOutputTests(unittest.TestCase):

@@ -4,8 +4,8 @@
 
 Primary backend files:
 
-- `outlook_web/services/provider_catalog.py`
-- `outlook_web/services/external_api_openapi.py`
+- `mailops/services/provider_catalog.py`
+- `mailops/services/external_api_openapi.py`
 - `scripts/external_api_smoke.py`
 
 Primary frontend/docs files:

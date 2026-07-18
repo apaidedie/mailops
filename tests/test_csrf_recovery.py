@@ -29,7 +29,7 @@ class CsrfRecoveryTests(unittest.TestCase):
 
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@csrf.test'")
@@ -47,7 +47,7 @@ class CsrfRecoveryTests(unittest.TestCase):
 
     def _default_group_id(self) -> int:
         with self.app.app_context():
-            from outlook_web.repositories import groups as groups_repo
+            from mailops.repositories import groups as groups_repo
 
             return int(groups_repo.get_default_group_id())
 
@@ -138,7 +138,7 @@ class CsrfRecoveryTests(unittest.TestCase):
         self.assertTrue(success_data.get("success"))
 
     def test_plain_bad_request_with_csrf_text_is_not_mapped_as_csrf_error(self):
-        from outlook_web.middleware.error_handler import handle_http_exception
+        from mailops.middleware.error_handler import handle_http_exception
 
         with self.app.test_request_context("/api/test-bad-request"):
             response, status_code = handle_http_exception(BadRequest("business error mentions csrf field name"))
@@ -151,7 +151,7 @@ class CsrfRecoveryTests(unittest.TestCase):
 
     @unittest.skipIf(CSRFError is None, "flask-wtf unavailable")
     def test_explicit_csrf_exception_is_mapped_to_csrf_error_code(self):
-        from outlook_web.middleware.error_handler import handle_http_exception
+        from mailops.middleware.error_handler import handle_http_exception
 
         with self.app.test_request_context("/api/test-csrf"):
             response, status_code = handle_http_exception(CSRFError("The CSRF token is invalid."))

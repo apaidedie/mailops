@@ -22,8 +22,8 @@ class Issue60CompatibilityRegressionTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM account_claim_logs")
@@ -58,7 +58,7 @@ class Issue60CompatibilityRegressionTests(unittest.TestCase):
 
     def _make_account(self, *, group_id: int | None = None, pool_status: str | None = None) -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             email = f"issue60_reg_{secrets.token_hex(4)}@example.com"
@@ -75,7 +75,7 @@ class Issue60CompatibilityRegressionTests(unittest.TestCase):
 
     def _make_group(self, name_suffix: str = "") -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             name = f"Issue60Compat-{name_suffix or secrets.token_hex(3)}"

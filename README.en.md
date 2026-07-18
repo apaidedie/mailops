@@ -128,7 +128,7 @@ The `browser-extension/` directory contains a Chrome/Edge Manifest V3 extension.
 ## Project Layout
 
 ```text
-outlook_web/          Main Flask application (controllers / routes / services / repositories)
+mailops/          Main Flask application (controllers / routes / services / repositories)
 templates/            Page templates
 static/               Frontend scripts and styles
 data/                 SQLite data and runtime files

@@ -80,7 +80,7 @@ class TestPerformance(unittest.TestCase):
         预期结果：平均响应时间 < 2000ms
         """
         # TODO: 实现后取消注释
-        # from outlook_web.app import create_app
+        # from mailops.app import create_app
         #
         # app = create_app()
         # client = app.test_client()
@@ -199,7 +199,7 @@ class TestPerformance(unittest.TestCase):
         """
         # TODO: 实现后取消注释
         # import concurrent.futures
-        # from outlook_web.app import create_app
+        # from mailops.app import create_app
         #
         # app = create_app()
         # client = app.test_client()

@@ -18,7 +18,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_header(self):
         """导出文本包含 v2 头部元信息"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -39,7 +39,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_outlook_section(self):
         """Outlook 分段格式不变"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -58,7 +58,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_imap_section(self):
         """IMAP 分段格式正确"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -75,7 +75,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_custom_5_segment(self):
         """Custom IMAP 输出 5 段"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -93,7 +93,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_temp_mail_section(self):
         """临时邮箱分段仅邮箱地址"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             temp_emails = [{"email": "t1@temp.example"}, {"email": "t2@temp.example"}]
             content = _build_export_text([], temp_emails)
@@ -108,7 +108,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_temp_mail_sections_are_provider_aware(self):
         """临时邮箱导出标题应反映真实 Provider，避免把公共服务误标为自建。"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             temp_emails = [
                 {"email": "duck@temp.example", "provider_name": "duckmail"},
@@ -125,7 +125,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_cloudflare_pool_account_exports_as_temp_mail(self):
         """accounts 表中的 CF 临时邮箱不应被误导出为普通 IMAP。"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -143,8 +143,8 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_regular_imap_wins_provider_name_collision(self):
         """普通邮箱 provider 与临时邮箱插件撞名时，account_type=imap 仍按普通邮箱导出。"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
-            from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
+            from mailops.controllers.accounts import _build_export_text
+            from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
 
             original_gmail_provider = _REGISTRY.get("gmail")
 
@@ -177,7 +177,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_build_export_text_v2_mixed_counts(self):
         """混合账号统计正确"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {
@@ -208,7 +208,7 @@ class TestExportEnhancedV2(unittest.TestCase):
     def test_export_ends_with_newline(self):
         """导出文件末尾有换行"""
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _build_export_text
+            from mailops.controllers.accounts import _build_export_text
 
             accounts = [
                 {

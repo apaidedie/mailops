@@ -15,7 +15,7 @@ import unittest
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from outlook_web.services.verification_extractor import (
+from mailops.services.verification_extractor import (
     extract_email_text,
     extract_links,
     extract_verification_info,

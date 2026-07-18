@@ -8,14 +8,14 @@ Trigger: backend changes that add or modify mailbox providers, temp-mail provide
 
 ### 2. Signatures
 
-- `outlook_web.services.provider_catalog.get_mailbox_provider_selection_policy(*, deployment_profile: dict[str, Any] | None = None) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_external_integration_manifest(...) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_provider_documentation_contract() -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_external_api_readiness_summary(*, consumer: dict[str, Any] | None = None, database_ok: bool = True, upstream_probe_ok: bool | None = None) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_mailbox_provider_preflight(*, probe_network: bool = False) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.mailbox_session_provider_metadata(source: dict[str, Any]) -> dict[str, str]`
-- `outlook_web.services.temp_mail_provider_contract.validate_temp_mail_provider_class(provider_name: str, provider_cls: type, *, probe_options: bool = False) -> dict[str, Any]`
-- `outlook_web.services.temp_mail_provider_contract.contract_validation_summary(validation: dict[str, Any]) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_mailbox_provider_selection_policy(*, deployment_profile: dict[str, Any] | None = None) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_external_integration_manifest(...) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_provider_documentation_contract() -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_external_api_readiness_summary(*, consumer: dict[str, Any] | None = None, database_ok: bool = True, upstream_probe_ok: bool | None = None) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_mailbox_provider_preflight(*, probe_network: bool = False) -> dict[str, Any]`
+- `mailops.services.provider_catalog.mailbox_session_provider_metadata(source: dict[str, Any]) -> dict[str, str]`
+- `mailops.services.temp_mail_provider_contract.validate_temp_mail_provider_class(provider_name: str, provider_cls: type, *, probe_options: bool = False) -> dict[str, Any]`
+- `mailops.services.temp_mail_provider_contract.contract_validation_summary(validation: dict[str, Any]) -> dict[str, Any]`
 - `GET /api/providers`
 - `GET /api/providers/preflight`
 - `GET /api/plugins/<name>/contract`
@@ -94,7 +94,7 @@ Active allowlist matching for Compatible Temp Mail Bridge must treat dual-regist
 
 `GET /api/external/openapi.json` must type the external mailbox read path for generated clients. `MessagesData` must require `emails`, `count`, and `has_more`; `MessageSummary` must require the common list/latest fields including `method`; `MessageDetail` must be an explicit typed object with content fields (`to_address`, `content`, `html_content`, `raw_content`) instead of a loose `additionalProperties` extension; `/api/external/messages/{message_id}/raw` must reference `RawMessageData`; `VerificationResult`, `AccountStatusData`, and `ProbeStatusData` must expose typed required fields matching the current controller/service payloads. These schemas may allow additional diagnostic fields where runtime providers vary, but they must not document or expose account passwords, refresh tokens, task tokens, provider JWTs, API keys, bearer token values, or provider secret values.
 
-External request length limits are owned by `outlook_web.services.external_request_limits`. Pool APIs, task temp-mail apply/finish runtime validation, and OpenAPI request schemas must consume those constants instead of duplicating numeric limits. The task temp-mail apply `prefix` schema is a platform maximum; provider-specific prefix rules remain enforced by provider `get_options()` and runtime validation.
+External request length limits are owned by `mailops.services.external_request_limits`. Pool APIs, task temp-mail apply/finish runtime validation, and OpenAPI request schemas must consume those constants instead of duplicating numeric limits. The task temp-mail apply `prefix` schema is a platform maximum; provider-specific prefix rules remain enforced by provider `get_options()` and runtime validation.
 
 `selection_policy.version` is `1`.
 
@@ -122,7 +122,7 @@ Environment overrides still take priority over provider config file errors. If a
 
 `provider_integration_guide.source_priority` must equal `selection_policy.source_priority`. Guide provider examples must be derived from catalog item `deployment`, `configuration`, diagnostics, and endpoint map rather than a separate hardcoded provider registry. GPTMail compatibility aliases and the account-level `imap` allowlist/pool alias must remain visible through the guide's alias map.
 
-`contract_validation.version` is `1`. The validation owner is `outlook_web.services.temp_mail_provider_contract`; provider factory, provider catalog, plugin controllers, external discovery endpoints, and frontend code must consume that result instead of reimplementing provider-extension checks. `temp_mail_provider_factory.get_available_providers()` must attach static, secret-free validation to built-in and plugin temp-mail provider metadata without network probes or mailbox mutation. The authenticated plugin endpoint `GET /api/plugins/<name>/contract` may run a single-provider `get_options()` shape probe through `probe_options=true`, but it must never call mailbox create/delete/list/detail/clear methods and must not return raw options, credentials, upstream tokens, bearer values, API keys, passwords, JWTs, task tokens, or consumer keys. Validation must check that provider classes inherit `TempMailProviderBase`, then check provider key/metadata, normalized capabilities, config schema field shape, secret defaults, required provider methods, and compact `get_options()` return shape when explicitly probed. A class that only defines matching method names but does not inherit `TempMailProviderBase` must return `status=invalid`, `valid=false`, and issue code `PROVIDER_BASE_CLASS_INVALID`.
+`contract_validation.version` is `1`. The validation owner is `mailops.services.temp_mail_provider_contract`; provider factory, provider catalog, plugin controllers, external discovery endpoints, and frontend code must consume that result instead of reimplementing provider-extension checks. `temp_mail_provider_factory.get_available_providers()` must attach static, secret-free validation to built-in and plugin temp-mail provider metadata without network probes or mailbox mutation. The authenticated plugin endpoint `GET /api/plugins/<name>/contract` may run a single-provider `get_options()` shape probe through `probe_options=true`, but it must never call mailbox create/delete/list/detail/clear methods and must not return raw options, credentials, upstream tokens, bearer values, API keys, passwords, JWTs, task tokens, or consumer keys. Validation must check that provider classes inherit `TempMailProviderBase`, then check provider key/metadata, normalized capabilities, config schema field shape, secret defaults, required provider methods, and compact `get_options()` return shape when explicitly probed. A class that only defines matching method names but does not inherit `TempMailProviderBase` must return `status=invalid`, `valid=false`, and issue code `PROVIDER_BASE_CLASS_INVALID`.
 
 ### 4. Validation & Error Matrix
 
@@ -300,9 +300,9 @@ Trigger: backend or UI changes that need to display, filter, or orchestrate Outl
 
 ### 2. Signatures
 
-- `outlook_web.services.mailbox_catalog.list_unified_mailboxes(kind: str = "all", status: str = "all", read_capability: str = "all", action: str = "all", provider: str = "all", search: str = "", sort: str = "updated_desc", page: int | str = 1, page_size: int | str = 50, allowed_account_emails: list[str] | None = None) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_mailbox_directory_provider_context(*, mailbox_inventory: dict[str, Any] | None = None) -> dict[str, Any]`
-- `outlook_web.services.provider_catalog.get_mailbox_provider_readiness_summary(*, mailbox_inventory: dict[str, Any] | None = None, provider_diagnostics: dict[str, Any] | None = None, provider_integration_guide: dict[str, Any] | None = None, selection_policy: dict[str, Any] | None = None, discovery: dict[str, Any] | None = None) -> dict[str, Any]`
+- `mailops.services.mailbox_catalog.list_unified_mailboxes(kind: str = "all", status: str = "all", read_capability: str = "all", action: str = "all", provider: str = "all", search: str = "", sort: str = "updated_desc", page: int | str = 1, page_size: int | str = 50, allowed_account_emails: list[str] | None = None) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_mailbox_directory_provider_context(*, mailbox_inventory: dict[str, Any] | None = None) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_mailbox_provider_readiness_summary(*, mailbox_inventory: dict[str, Any] | None = None, provider_diagnostics: dict[str, Any] | None = None, provider_integration_guide: dict[str, Any] | None = None, selection_policy: dict[str, Any] | None = None, discovery: dict[str, Any] | None = None) -> dict[str, Any]`
 - `GET /api/mailboxes`
 - `GET /api/external/mailboxes`
 
@@ -314,9 +314,9 @@ Trigger: backend or UI changes that need to display, filter, or orchestrate Outl
 
 The response exposes `success`, `mailboxes`, `summary`, `facets`, `pagination`, `filters`, `provider_context`, and `contract`.
 
-The mailbox directory contract is owned by `outlook_web.services.mailbox_directory_contract.get_mailbox_catalog_contract()`. Directory service, external capabilities, OpenAPI schemas, and frontend unified mailbox controls must consume that shared contract for `filters.kind`, `filters.status`, `filters.read_capability`, `filters.action`, `filters.sort`, `kinds`, `kind_definitions`, `status_definitions`, `read_capability_definitions`, `action_definitions`, `sort_definitions`, `summary_fields`, and `quick_view_presets` instead of maintaining separate mailbox kind, status, read-capability, action-capability, sort, summary, or recommended quick-view literals.
+The mailbox directory contract is owned by `mailops.services.mailbox_directory_contract.get_mailbox_catalog_contract()`. Directory service, external capabilities, OpenAPI schemas, and frontend unified mailbox controls must consume that shared contract for `filters.kind`, `filters.status`, `filters.read_capability`, `filters.action`, `filters.sort`, `kinds`, `kind_definitions`, `status_definitions`, `read_capability_definitions`, `action_definitions`, `sort_definitions`, `summary_fields`, and `quick_view_presets` instead of maintaining separate mailbox kind, status, read-capability, action-capability, sort, summary, or recommended quick-view literals.
 
-Mailbox source loading is owned by `outlook_web.services.mailbox_catalog.MAILBOX_SOURCE_LOADERS`. `list_unified_mailboxes()` must load records through that registry instead of directly concatenating account and temp loaders in the query flow. Each loader kind must match the ordered `contract.kinds` list, so adding a future mailbox kind has one directory loading extension point.
+Mailbox source loading is owned by `mailops.services.mailbox_catalog.MAILBOX_SOURCE_LOADERS`. `list_unified_mailboxes()` must load records through that registry instead of directly concatenating account and temp loaders in the query flow. Each loader kind must match the ordered `contract.kinds` list, so adding a future mailbox kind has one directory loading extension point.
 
 The authenticated unified mailbox UI must render `provider_context` as a read-only source-policy status band near the directory summary. It should show the runtime temp-mail default, pool claim default, active provider mode, local readiness counts, source priority, and the provider discovery endpoint without exposing any secret values.
 
@@ -350,7 +350,7 @@ Each `readiness_summary.providers[*]` row must be compact and secret-free: `kind
 
 `provider_context.deployment_env`, `provider_context.deployment_profile`, and `provider_context.selection_policy` must be generated from the same provider-catalog helpers used by `/api/external/providers` and `/api/external/capabilities`, so templates and source priority cannot drift between discovery endpoints.
 
-Temp-mail provider operation capabilities are owned by each provider class through `provider_capabilities`, normalized by `outlook_web.services.temp_mail_provider_base.normalize_provider_capabilities()`, and surfaced through `temp_mail_provider_factory.get_available_providers()`. Provider catalog code must consume that factory metadata instead of maintaining a second provider-name capability table. Stored mailbox `meta.provider_capabilities` remains the per-mailbox historical operation contract for existing records.
+Temp-mail provider operation capabilities are owned by each provider class through `provider_capabilities`, normalized by `mailops.services.temp_mail_provider_base.normalize_provider_capabilities()`, and surfaced through `temp_mail_provider_factory.get_available_providers()`. Provider catalog code must consume that factory metadata instead of maintaining a second provider-name capability table. Stored mailbox `meta.provider_capabilities` remains the per-mailbox historical operation contract for existing records.
 
 `provider_context.discovery.providers_endpoint` is `/api/external/providers`, and `provider_context.discovery.provider_health_endpoint` is `/api/external/providers/{kind}/{provider}/health`.
 
@@ -542,11 +542,11 @@ Trigger: backend changes that add or modify authenticated admin message preview,
 
 ### 2. Signatures
 
-- `outlook_web.services.unified_mailbox_messages.resolve_mailbox_identity(kind: Any, source_id: Any) -> dict[str, Any]`
-- `outlook_web.services.unified_mailbox_messages.list_unified_mailbox_messages(*, kind: Any, source_id: Any, folder: Any = "inbox", skip: Any = 0, top: Any = 20) -> dict[str, Any]`
-- `outlook_web.services.unified_mailbox_messages.get_unified_mailbox_message_detail(*, kind: Any, source_id: Any, message_id: Any, folder: Any = "inbox") -> dict[str, Any]`
-- `outlook_web.services.unified_mailbox_messages.get_unified_mailbox_verification(*, kind: Any, source_id: Any, folder: Any = "inbox", code_regex: Any = None, code_length: Any = None, code_source: Any = "all") -> dict[str, Any]`
-- `outlook_web.repositories.temp_emails.get_temp_email_by_id(temp_email_id: int, *, view: str = "record") -> dict[str, Any] | None`
+- `mailops.services.unified_mailbox_messages.resolve_mailbox_identity(kind: Any, source_id: Any) -> dict[str, Any]`
+- `mailops.services.unified_mailbox_messages.list_unified_mailbox_messages(*, kind: Any, source_id: Any, folder: Any = "inbox", skip: Any = 0, top: Any = 20) -> dict[str, Any]`
+- `mailops.services.unified_mailbox_messages.get_unified_mailbox_message_detail(*, kind: Any, source_id: Any, message_id: Any, folder: Any = "inbox") -> dict[str, Any]`
+- `mailops.services.unified_mailbox_messages.get_unified_mailbox_verification(*, kind: Any, source_id: Any, folder: Any = "inbox", code_regex: Any = None, code_length: Any = None, code_source: Any = "all") -> dict[str, Any]`
+- `mailops.repositories.temp_emails.get_temp_email_by_id(temp_email_id: int, *, view: str = "record") -> dict[str, Any] | None`
 - `GET /api/mailboxes/<kind>/<source_id>/messages`
 - `GET /api/mailboxes/<kind>/<source_id>/messages/<message_id>`
 - `GET /api/mailboxes/<kind>/<source_id>/verification`
@@ -555,7 +555,7 @@ Trigger: backend changes that add or modify authenticated admin message preview,
 
 The admin unified message preview endpoints are authenticated first-party UI APIs. They must be mounted under `/api/mailboxes/...`, use the normal logged-in admin session, and must not require a plaintext External API key or call `/api/v1/external/*` or `/api/external/*` from the browser.
 
-Routes only register URLs. Controllers own login, request parsing, service calls, and JSON responses. `outlook_web.services.unified_mailbox_messages` owns mailbox resolution, read orchestration, DTO normalization, cache fallback decisions, and secret stripping. Repositories only own SQLite lookup helpers.
+Routes only register URLs. Controllers own login, request parsing, service calls, and JSON responses. `mailops.services.unified_mailbox_messages` owns mailbox resolution, read orchestration, DTO normalization, cache fallback decisions, and secret stripping. Repositories only own SQLite lookup helpers.
 
 Mailbox identity is resolved by stable directory item fields. `kind=account` loads `accounts.id` through the account repository. `kind=temp` loads `temp_emails.id` through `get_temp_email_by_id(..., view="descriptor")`. Account-backed `provider=cloudflare_temp_mail` may resolve through the mailbox resolver and temp-mail read service; ordinary Outlook and IMAP account reads may compose the existing external-api service read helpers internally without exposing external API auth to the admin browser.
 
@@ -645,7 +645,7 @@ Trigger: backend, script, docs, or readiness changes that add or modify local te
 - `scripts.provider_dev_kit.build_scaffold_report(provider_key: str, *, output_dir: str | None = None, force: bool = False) -> dict[str, Any]`
 - `scripts.provider_dev_kit.build_validation_report(provider_key: str, *, file_path: str, probe_options: bool = False) -> dict[str, Any]`
 - `scripts.provider_dev_kit.scan_provider_file_for_secrets(file_path: str | Path) -> dict[str, Any]`
-- `outlook_web.services.temp_mail_plugin_cli.validate_provider_contract(provider_name: str, file_path: str | None = None, *, probe_options: bool = True) -> dict[str, object]`
+- `mailops.services.temp_mail_plugin_cli.validate_provider_contract(provider_name: str, file_path: str | None = None, *, probe_options: bool = True) -> dict[str, object]`
 
 ### 3. Contracts
 
@@ -716,7 +716,7 @@ Trigger: backend, docs, smoke-checker, or starter-client changes that add or mod
 
 ### 2. Signatures
 
-- `outlook_web.services.provider_catalog.get_external_api_integration_bundle(*, consumer: dict[str, Any] | None = None, service: str = "mailops", version: str = "", database_ok: bool = True, upstream_probe_ok: bool | None = None, openapi_metadata: dict[str, Any] | None = None) -> dict[str, Any]`
+- `mailops.services.provider_catalog.get_external_api_integration_bundle(*, consumer: dict[str, Any] | None = None, service: str = "mailops", version: str = "", database_ok: bool = True, upstream_probe_ok: bool | None = None, openapi_metadata: dict[str, Any] | None = None) -> dict[str, Any]`
 - `GET /api/v1/external/integration-bundle`
 - `GET /api/external/integration-bundle`
 - `examples/external_api_python_client.py -> MailOpsClient.integration_bundle()`
@@ -872,8 +872,8 @@ Trigger: backend changes that add or modify the authenticated admin External API
 
 ### 2. Signatures
 
-- `outlook_web.services.external_api_contract_check.get_external_api_contract_check() -> dict[str, Any]`
-- `outlook_web.controllers.settings.api_external_api_contract_check() -> Response`
+- `mailops.services.external_api_contract_check.get_external_api_contract_check() -> dict[str, Any]`
+- `mailops.controllers.settings.api_external_api_contract_check() -> Response`
 - `GET /api/settings/external-api/contract-check`
 - `scripts.external_api_smoke.validate_contracts(...)`
 
@@ -881,7 +881,7 @@ Trigger: backend changes that add or modify the authenticated admin External API
 
 The admin contract check is a local-only, read-only validation report for operators before they hand the External API to another service. It is not a new external API endpoint and must not be mounted under `/api/v1/external/*` or `/api/external/*`.
 
-Routes stay thin: `outlook_web.routes.settings` registers the URL only, `outlook_web.controllers.settings` applies login/auth and returns JSON, and `outlook_web.services.external_api_contract_check` owns report composition. The service may compose existing provider catalog, external API OpenAPI, integration bundle, readiness, and mailbox-directory service contracts. Controllers and frontend code must not rebuild provider selection, endpoint maps, OpenAPI metadata, integration manifests, quickstarts, or readiness summaries.
+Routes stay thin: `mailops.routes.settings` registers the URL only, `mailops.controllers.settings` applies login/auth and returns JSON, and `mailops.services.external_api_contract_check` owns report composition. The service may compose existing provider catalog, external API OpenAPI, integration bundle, readiness, and mailbox-directory service contracts. Controllers and frontend code must not rebuild provider selection, endpoint maps, OpenAPI metadata, integration manifests, quickstarts, or readiness summaries.
 
 The report must run in process without requiring a plaintext external API key. It must not call upstream provider networks, create task temp mailboxes, claim pool inventory, read messages, mutate mailbox/database state, or audit as an external API consumer request. Any provider readiness used by the report must be local-only unless a future endpoint explicitly documents an operator-triggered probe.
 
@@ -987,7 +987,7 @@ CORS(app, resources={r"/api/*": {"origins": "*", "supports_credentials": True}})
 ### Correct
 
 ```python
-from outlook_web.cors_config import configure_external_api_cors
+from mailops.cors_config import configure_external_api_cors
 
 configure_external_api_cors(app)
 ```
@@ -1000,11 +1000,11 @@ Trigger: backend or Settings frontend changes that project temp-mail provider se
 
 ### 2. Signatures
 
-- `outlook_web.services.provider_catalog._temp_provider_settings_ui_contract(...)`
-- `outlook_web.services.provider_catalog._TEMP_PROVIDER_CONFIG_CONTRACTS`
+- `mailops.services.provider_catalog._temp_provider_settings_ui_contract(...)`
+- `mailops.services.provider_catalog._TEMP_PROVIDER_CONFIG_CONTRACTS`
 - catalog item fields: `settings_ui`, `configuration.config_schema.fields`
 - `static/js/main.js -> renderTempMailProviderConfigPanel / collectTempProviderSchemaSettings / runTempProviderSettingsAction`
-- `outlook_web.controllers.settings.api_get_settings / api_update_settings` plugin settings round-trip
+- `mailops.controllers.settings.api_get_settings / api_update_settings` plugin settings round-trip
 - `POST /api/settings/cf-worker-sync-domains` (existing CF domain sync endpoint)
 
 ### 3. Contracts

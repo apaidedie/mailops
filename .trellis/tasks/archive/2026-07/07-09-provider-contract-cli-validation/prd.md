@@ -8,10 +8,10 @@ This improves the project's extensibility goal: future mailbox kinds and provide
 
 ## Confirmed Facts
 
-- `outlook_web.services.temp_mail_provider_contract.validate_temp_mail_provider_class()` is already the authoritative validator for temp-mail provider classes.
+- `mailops.services.temp_mail_provider_contract.validate_temp_mail_provider_class()` is already the authoritative validator for temp-mail provider classes.
 - `GET /api/plugins/<name>/contract` exposes the same validation for loaded plugins, but it requires a running authenticated Web app.
 - `python web_outlook_app.py scaffold-provider <provider_key>` already generates a valid plugin file from `examples/temp_mail_provider_plugin_template.py`.
-- `outlook_web.services.temp_mail_plugin_cli` currently supports `install-provider`, `uninstall-provider`, `scaffold-provider`, and `list-providers`, but has no direct validation command.
+- `mailops.services.temp_mail_plugin_cli` currently supports `install-provider`, `uninstall-provider`, `scaffold-provider`, and `list-providers`, but has no direct validation command.
 - `web_outlook_app.py` only forwards those four CLI commands to `temp_mail_plugin_cli.main()`.
 
 ## Requirements

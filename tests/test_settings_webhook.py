@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from outlook_web.security.crypto import decrypt_data, encrypt_data
+from mailops.security.crypto import decrypt_data, encrypt_data
 from tests._import_app import clear_login_attempts, import_web_app_module
 
 
@@ -16,7 +16,7 @@ class SettingsWebhookApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("webhook_notification_enabled", "false")
             settings_repo.set_setting("webhook_notification_url", "")
@@ -98,7 +98,7 @@ class SettingsWebhookApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             raw = settings_repo.get_setting("webhook_notification_token", "")
             self.assertTrue(raw.startswith("enc:"))
@@ -113,7 +113,7 @@ class SettingsWebhookApiTests(unittest.TestCase):
     def test_update_settings_webhook_token_placeholder_keeps_existing(self):
         existing = "old-webhook-token"
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("webhook_notification_token", encrypt_data(existing))
 
@@ -133,14 +133,14 @@ class SettingsWebhookApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             raw = settings_repo.get_setting("webhook_notification_token", "")
             self.assertEqual(decrypt_data(raw), existing)
 
     def test_update_settings_webhook_token_empty_clears_value(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("webhook_notification_token", encrypt_data("to-be-cleared"))
 
@@ -157,7 +157,7 @@ class SettingsWebhookApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("webhook_notification_token", ""), "")
 
@@ -184,7 +184,7 @@ class SettingsWebhookApiTests(unittest.TestCase):
             captured["retry"] = retry
 
         with patch(
-            "outlook_web.services.webhook_push.send_webhook_message",
+            "mailops.services.webhook_push.send_webhook_message",
             side_effect=_fake_send,
         ):
             resp = client.post(

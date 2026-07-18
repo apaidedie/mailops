@@ -17,8 +17,8 @@ class ExternalPoolApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM audit_logs WHERE resource_type = 'external_api'")
@@ -47,7 +47,7 @@ class ExternalPoolApiTests(unittest.TestCase):
 
     def _set_external_api_key(self, value: str):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", value)
 
@@ -60,7 +60,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         enabled: bool = True,
     ):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
 
             return external_api_keys_repo.create_external_api_key(
                 name=name,
@@ -72,7 +72,7 @@ class ExternalPoolApiTests(unittest.TestCase):
 
     def _set_public_mode(self, enabled: bool):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_public_mode", "true" if enabled else "false")
 
@@ -80,13 +80,13 @@ class ExternalPoolApiTests(unittest.TestCase):
         import json
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_ip_whitelist", json.dumps(ips))
 
     def _set_disable_feature(self, setting_key: str, enabled: bool):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting(setting_key, "true" if enabled else "false")
 
@@ -99,7 +99,7 @@ class ExternalPoolApiTests(unittest.TestCase):
     ) -> int:
         email_addr = f"{uuid.uuid4().hex}@extpool.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -129,7 +129,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         email_addr = f"{uuid.uuid4().hex}@{domain}"
         prefix = email_addr.split("@", 1)[0]
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -203,7 +203,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -233,7 +233,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -264,7 +264,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -305,7 +305,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
 
@@ -322,7 +322,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="gmail", account_type="imap")
@@ -347,7 +347,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="gmail", account_type="imap")
@@ -371,7 +371,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
             settings_repo.set_setting("pool_default_provider", "duckmail")
@@ -395,7 +395,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
             settings_repo.set_setting("pool_default_provider", "duckmail")
@@ -421,7 +421,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         email_addr = self._insert_temp_mailbox(provider_name="duckmail")
@@ -447,13 +447,13 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         email_addr = f"created-{uuid.uuid4().hex}@extpool.test"
 
         with patch(
-            "outlook_web.services.pool.get_temp_mail_provider",
+            "mailops.services.pool.get_temp_mail_provider",
             return_value=self._FakePoolTempProvider(email_addr),
         ):
             resp = client.post(
@@ -479,7 +479,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -500,7 +500,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         self.assertEqual(data.get("code"), "OK")
 
     def test_external_pool_blueprint_applies_csrf_exempt_to_all_handlers(self):
-        from outlook_web.routes import external_pool as external_pool_routes
+        from mailops.routes import external_pool as external_pool_routes
 
         wrapped_handlers = []
 
@@ -524,7 +524,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -561,7 +561,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -601,7 +601,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(pool_status="available")
@@ -634,7 +634,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._set_public_mode(True)
@@ -652,7 +652,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._set_public_mode(True)
@@ -674,7 +674,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -714,7 +714,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -755,7 +755,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._create_external_api_key("partner-a", "multi-pool-deny", pool_access=False)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -773,7 +773,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._create_external_api_key("partner-a", "multi-pool-random-deny", pool_access=False)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -797,7 +797,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         self._create_external_api_key("partner-deny", "multi-pool-release-deny", pool_access=False)
         self._create_external_api_key("partner-allow", "multi-pool-release-allow", pool_access=True)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -829,7 +829,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         self._create_external_api_key("partner-deny", "multi-pool-complete-deny", pool_access=False)
         self._create_external_api_key("partner-allow", "multi-pool-complete-allow", pool_access=True)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")
@@ -873,7 +873,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._set_external_api_key("abc123")
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._set_public_mode(True)
@@ -889,7 +889,7 @@ class ExternalPoolApiTests(unittest.TestCase):
         client = self.app.test_client()
         self._create_external_api_key("partner-a", "multi-pool-allow", pool_access=True)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         self._insert_pool_account(provider="outlook")

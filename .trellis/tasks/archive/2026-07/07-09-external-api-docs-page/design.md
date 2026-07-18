@@ -14,7 +14,7 @@
 
 Add a small HTML-rendering service beside the existing OpenAPI generator:
 
-- `outlook_web/services/external_api_docs.py`
+- `mailops/services/external_api_docs.py`
   - Calls `get_external_api_openapi_contract(consumer=consumer)`.
   - Extracts endpoint groups from `paths` dynamically.
   - Extracts discovery/workflow/provider-selection metadata from `x-capabilities`.
@@ -22,13 +22,13 @@ Add a small HTML-rendering service beside the existing OpenAPI generator:
 
 Controller and routing:
 
-- Add `api_external_docs()` to `outlook_web/controllers/system.py`.
+- Add `api_external_docs()` to `mailops/controllers/system.py`.
 - Register `/api/external/docs` through `add_external_api_url_rule()`, which also exposes `/api/v1/external/docs`.
 - Use `@external_api_guards()` so access behavior matches existing external docs contracts.
 
 Discovery:
 
-- Extend provider documentation metadata in `outlook_web/services/provider_catalog.py` so `documentation.entries.api_docs` points to `/api/v1/external/docs` with legacy endpoint `/api/external/docs`.
+- Extend provider documentation metadata in `mailops/services/provider_catalog.py` so `documentation.entries.api_docs` points to `/api/v1/external/docs` with legacy endpoint `/api/external/docs`.
 - If endpoint maps are centralized, add `docs` to that map so capabilities, integration manifest, and generated docs can reference the same canonical path.
 
 ## HTML Contract

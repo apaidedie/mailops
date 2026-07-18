@@ -27,14 +27,14 @@ class ModuleBoundaryTests(unittest.TestCase):
 
     def test_routes_do_not_import_services_repos_or_legacy(self):
         repo_root = Path(__file__).resolve().parents[1]
-        routes_dir = repo_root / "outlook_web" / "routes"
+        routes_dir = repo_root / "mailops" / "routes"
         self.assertTrue(routes_dir.exists())
 
         forbidden = (
-            "outlook_web.legacy",
-            "outlook_web.services",
-            "outlook_web.repositories",
-            "outlook_web.db",
+            "mailops.legacy",
+            "mailops.services",
+            "mailops.repositories",
+            "mailops.db",
         )
         for path in sorted(routes_dir.glob("*.py")):
             if path.name == "__init__.py":
@@ -43,14 +43,14 @@ class ModuleBoundaryTests(unittest.TestCase):
 
     def test_repositories_do_not_depend_on_flask_routes_or_services(self):
         repo_root = Path(__file__).resolve().parents[1]
-        repos_dir = repo_root / "outlook_web" / "repositories"
+        repos_dir = repo_root / "mailops" / "repositories"
         self.assertTrue(repos_dir.exists())
 
         forbidden = (
             "flask",
-            "outlook_web.routes",
-            "outlook_web.services",
-            "outlook_web.legacy",
+            "mailops.routes",
+            "mailops.services",
+            "mailops.legacy",
         )
         for path in sorted(repos_dir.glob("*.py")):
             if path.name == "__init__.py":
@@ -59,13 +59,13 @@ class ModuleBoundaryTests(unittest.TestCase):
 
     def test_services_do_not_depend_on_flask_routes_or_legacy(self):
         repo_root = Path(__file__).resolve().parents[1]
-        services_dir = repo_root / "outlook_web" / "services"
+        services_dir = repo_root / "mailops" / "services"
         self.assertTrue(services_dir.exists())
 
         forbidden = (
             "flask",
-            "outlook_web.routes",
-            "outlook_web.legacy",
+            "mailops.routes",
+            "mailops.legacy",
         )
         for path in sorted(services_dir.glob("*.py")):
             if path.name == "__init__.py":

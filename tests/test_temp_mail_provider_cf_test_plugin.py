@@ -35,7 +35,7 @@ class CloudflareTempMailTestPluginTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("plugin.cloudflare_temp_mail_test_plugin.base_url", "https://cf-temp.example.com")
             settings_repo.set_setting("plugin.cloudflare_temp_mail_test_plugin.admin_key", "admin-key")
@@ -44,13 +44,13 @@ class CloudflareTempMailTestPluginTests(unittest.TestCase):
             settings_repo.set_setting("plugin.cloudflare_temp_mail_test_plugin.default_domain", "cfmail.example.com")
             settings_repo.set_setting("plugin.cloudflare_temp_mail_test_plugin.request_timeout", "30")
 
-        from outlook_web.temp_mail_registry import _REGISTRY
+        from mailops.temp_mail_registry import _REGISTRY
 
         self._registry = _REGISTRY
         self._initial_keys = set(_REGISTRY.keys())
 
     def tearDown(self):
-        from outlook_web.services import temp_mail_provider_factory as factory
+        from mailops.services import temp_mail_provider_factory as factory
 
         for key in set(self._registry.keys()) - self._initial_keys:
             self._registry.pop(key, None)
@@ -63,8 +63,8 @@ class CloudflareTempMailTestPluginTests(unittest.TestCase):
         factory._PLUGIN_LOAD_STATE.clear()
 
     def test_provider_register_discover_without_overriding_builtin(self):
-        from outlook_web.services import temp_mail_provider_factory as factory
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers, reload_plugins
+        from mailops.services import temp_mail_provider_factory as factory
+        from mailops.services.temp_mail_provider_factory import get_available_providers, reload_plugins
 
         plugin_dir = Path(__file__).resolve().parents[1] / "plugins" / "temp_mail_providers" / "test_plugin"
 
@@ -117,7 +117,7 @@ class CloudflareTempMailTestPluginTests(unittest.TestCase):
         self.assertEqual(success["meta"]["provider_mailbox_id"], "addr-1")
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("plugin.cloudflare_temp_mail_test_plugin.admin_key", "")
             provider_no_key = provider_cls(provider_name="cloudflare_temp_mail_test_plugin")

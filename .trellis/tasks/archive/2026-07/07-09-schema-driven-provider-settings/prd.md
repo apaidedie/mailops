@@ -7,7 +7,7 @@ Make Settings -> Temp Mail provider configuration catalog/schema driven so opera
 ## Background
 
 - The temp-mail provider selector is already rendered from the backend provider catalog.
-- Built-in temp-mail providers expose configuration metadata through `outlook_web/services/provider_catalog.py`, including settings keys, required settings, secret settings, and defaults.
+- Built-in temp-mail providers expose configuration metadata through `mailops/services/provider_catalog.py`, including settings keys, required settings, secret settings, and defaults.
 - Plugin providers already expose a `config_schema` path consumed by `static/js/features/plugins.js`.
 - Settings -> Temp Mail still contains built-in provider-specific configuration panels and JavaScript routing/collection logic for providers such as legacy bridge, Cloudflare Worker temp mail, DuckMail, Emailnator, Mail.tm, and TempMail.lol.
 

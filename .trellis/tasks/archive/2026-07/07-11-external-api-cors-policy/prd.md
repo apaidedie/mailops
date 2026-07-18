@@ -6,12 +6,12 @@ Make the external API safely usable from explicitly approved browser application
 
 ## Confirmed Facts
 
-- CORS is currently configured inline in `outlook_web.app.create_app()`.
+- CORS is currently configured inline in `mailops.app.create_app()`.
 - Only origins matching `chrome-extension://.*` are allowed.
 - CORS is scoped to `/api/external/*` and `/api/v1/external/*`; internal `/api/*` routes remain same-origin only.
 - Allowed methods are GET/POST/OPTIONS, allowed headers are Content-Type/X-API-Key, and credentials are disabled.
 - No environment setting or discovery/readiness field currently describes browser-origin access.
-- External capabilities, readiness, and integration bundle contracts are owned by `outlook_web.services.provider_catalog`.
+- External capabilities, readiness, and integration bundle contracts are owned by `mailops.services.provider_catalog`.
 
 ## Requirements
 

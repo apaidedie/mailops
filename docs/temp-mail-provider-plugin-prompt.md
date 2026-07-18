@@ -147,8 +147,8 @@ plugin.[provider_name].[field_key]
 ## 实现建议
 
 1. 先参考：
-   - `outlook_web/services/temp_mail_provider_cf.py`
-   - `outlook_web/services/temp_mail_provider_custom.py`
+   - `mailops/services/temp_mail_provider_cf.py`
+   - `mailops/services/temp_mail_provider_custom.py`
 2. 如果上游没有单独 detail 接口：
    - 允许通过 `list_messages()` 回退过滤
 3. 如果上游有 provider 侧 mailbox id / token：

@@ -952,7 +952,7 @@ def run_smoke(
     if not base_url.strip():
         raise SmokeError("--base-url is required")
     if not api_key.strip():
-        raise SmokeError("API key is required via --api-key or MAILOPS_API_KEY " "(legacy: OUTLOOK_EMAIL_PLUS_API_KEY)")
+        raise SmokeError("API key is required via --api-key or MAILOPS_API_KEY")
     if fetcher is None:
         fetcher = lambda root, key, path: fetch_json(root, key, path, timeout=timeout)
     endpoints = smoke_endpoints()
@@ -974,17 +974,17 @@ def run_smoke(
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Read-only smoke check for Outlook Email Plus external API discovery contracts."
+        description="Read-only smoke check for MailOps external API discovery contracts."
     )
     parser.add_argument(
         "--base-url",
         required=True,
-        help="Base URL of the Outlook Email Plus instance, for example https://mailbox.example.com",
+        help="Base URL of the MailOps instance, for example https://mailbox.example.com",
     )
     parser.add_argument(
         "--api-key",
-        default=os.environ.get("MAILOPS_API_KEY") or os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
-        help="External API key. Defaults to MAILOPS_API_KEY (legacy: OUTLOOK_EMAIL_PLUS_API_KEY).",
+        default=os.environ.get("MAILOPS_API_KEY", ""),
+        help="External API key. Defaults to MAILOPS_API_KEY.",
     )
     parser.add_argument("--timeout", type=float, default=10.0, help="HTTP timeout in seconds. Default: 10")
     parser.add_argument(

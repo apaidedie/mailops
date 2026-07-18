@@ -20,6 +20,6 @@
 
 - `python -m pytest tests/test_temp_mail_settings_platform_contract.py tests/test_temp_mail_target_contract.py tests/test_unified_mailbox_catalog.py tests/test_external_api.py -q -rs`
 - `python -m pytest tests/test_unified_mailbox_frontend_contract.py -q -rs`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 - `git diff --check`
 - Full `python -m pytest -q -rs` when the focused suite is green.

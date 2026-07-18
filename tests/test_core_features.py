@@ -12,7 +12,7 @@ class CoreFeatureTests(unittest.TestCase):
         cls.module = import_web_app_module()
         cls.app = cls.module.app
         # 导入 graph_service 用于 mock
-        from outlook_web.services import graph as graph_service
+        from mailops.services import graph as graph_service
 
         cls.graph_service = graph_service
 
@@ -184,7 +184,7 @@ class CoreFeatureTests(unittest.TestCase):
         email_addr = f"temp_{uuid.uuid4().hex}@example.com"
         # Mock legacy bridge 返回元组 (email_addr, None)
         # 当前正式入口经 temp mail provider 间接调用兼容 bridge，因此这里仍 patch gptmail 模块。
-        from outlook_web.services import gptmail as gptmail_service
+        from mailops.services import gptmail as gptmail_service
 
         with patch.object(gptmail_service, "generate_temp_email", return_value=(email_addr, None)):
             created = client.post("/api/temp-emails/generate", json={"prefix": "x", "domain": "y"})

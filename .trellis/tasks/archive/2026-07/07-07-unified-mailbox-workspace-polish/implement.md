@@ -15,7 +15,7 @@
 - `node --check static/js/features/mailboxes.js`
 - `python -m pytest tests/test_unified_mailbox_frontend_contract.py tests/test_unified_mailbox_catalog.py -q`
 - `git diff --check`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 - `rg -n "console\.(log|debug)" static\js -g '!tests/layout-system/coverage/**'`
 
 ## Rollback Points

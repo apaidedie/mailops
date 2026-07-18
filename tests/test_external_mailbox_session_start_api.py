@@ -20,8 +20,8 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM audit_logs WHERE resource_type = 'external_api'")
@@ -53,7 +53,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
 
     def _create_external_api_key(self, name: str, api_key: str, *, pool_access: bool = False):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
 
             return external_api_keys_repo.create_external_api_key(
                 name=name,
@@ -65,8 +65,8 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
     def _insert_pool_account(self, *, provider: str = "outlook", account_type: str = "outlook") -> str:
         email_addr = f"{uuid.uuid4().hex}@session-start.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
             db = get_db()
@@ -125,13 +125,13 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
 
     def test_mailbox_session_start_pool_first_falls_back_to_task_temp_when_pool_empty(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("pool_external_enabled", "true")
         client = self.app.test_client()
 
         with patch(
-            "outlook_web.controllers.external_temp_emails.temp_mail_service.apply_task_mailbox",
+            "mailops.controllers.external_temp_emails.temp_mail_service.apply_task_mailbox",
             return_value=self._task_mailbox_payload("fallback"),
         ):
             resp = client.post(
@@ -164,7 +164,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         client = self.app.test_client()
 
         with patch(
-            "outlook_web.controllers.external_temp_emails.temp_mail_service.apply_task_mailbox",
+            "mailops.controllers.external_temp_emails.temp_mail_service.apply_task_mailbox",
             return_value=self._task_mailbox_payload("taskonly"),
         ):
             resp = client.post(
@@ -286,7 +286,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
 
     def test_mailbox_session_close_finishes_task_temp_mailbox(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="close-task@session-start.test",
@@ -324,7 +324,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(data["email"], "close-task@session-start.test")
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             mailbox = temp_emails_repo.get_temp_email_by_task_token("tmptask_session_close")
         self.assertEqual(mailbox["status"], "finished")
@@ -389,7 +389,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
                 session = self._start_pool_session(caller_id="worker-1", task_id=f"job-{feature}")
                 lifecycle = session["lifecycle"]
                 with self.app.app_context():
-                    from outlook_web.repositories import settings as settings_repo
+                    from mailops.repositories import settings as settings_repo
 
                     settings_repo.set_setting("external_api_public_mode", "true")
                     settings_repo.set_setting(setting_key, "true")
@@ -413,7 +413,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
                 self.assertEqual(resp.get_json()["data"]["feature"], feature)
 
                 with self.app.app_context():
-                    from outlook_web.repositories import settings as settings_repo
+                    from mailops.repositories import settings as settings_repo
 
                     settings_repo.set_setting("external_api_public_mode", "false")
                     settings_repo.set_setting(setting_key, "false")
@@ -439,7 +439,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.get_json()["code"], "INVALID_RESULT")
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             row = (
                 get_db()
@@ -453,8 +453,8 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
 
     def test_mailbox_session_close_rejects_other_consumer_task_token(self):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             owner = external_api_keys_repo.create_external_api_key(name="owner", api_key="owner-close-key")
             external_api_keys_repo.create_external_api_key(name="other", api_key="other-close-key")
@@ -487,7 +487,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.get_json()["code"], "FORBIDDEN")
 
-    @patch("outlook_web.controllers.external_temp_emails.external_api_service.list_messages_for_external")
+    @patch("mailops.controllers.external_temp_emails.external_api_service.list_messages_for_external")
     def test_mailbox_session_read_pool_claim_lists_messages_and_logs_read_context(self, mock_list_messages):
         session = self._start_pool_session(caller_id="worker-1", task_id="job-read-pool")
         lifecycle = session["lifecycle"]
@@ -533,7 +533,7 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         mock_list_messages.assert_called_once()
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             row = (
                 get_db()
@@ -548,10 +548,10 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(row["task_id"], "job-read-pool")
         self.assertIn("session read_action=messages", row["detail"])
 
-    @patch("outlook_web.controllers.external_temp_emails.external_api_service.get_verification_result")
+    @patch("mailops.controllers.external_temp_emails.external_api_service.get_verification_result")
     def test_mailbox_session_read_task_temp_verification_code(self, mock_get_verification):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="read-task@session-start.test",
@@ -598,8 +598,8 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
 
     def test_mailbox_session_read_rejects_other_consumer_task_token(self):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             owner = external_api_keys_repo.create_external_api_key(name="owner-read", api_key="owner-read-key")
             external_api_keys_repo.create_external_api_key(name="other-read", api_key="other-read-key")
@@ -652,12 +652,12 @@ class ExternalMailboxSessionStartApiTests(unittest.TestCase):
         self.assertEqual(bad_action.get_json()["code"], "INVALID_PARAM")
         self.assertIn("verification_code", bad_action.get_json()["data"]["allowed_values"])
 
-    @patch("outlook_web.controllers.external_temp_emails.external_api_service.get_message_detail_for_external")
+    @patch("mailops.controllers.external_temp_emails.external_api_service.get_message_detail_for_external")
     def test_mailbox_session_read_respects_public_mode_raw_disable_before_reading(self, mock_detail):
         session = self._start_pool_session(caller_id="worker-1", task_id="job-raw-disabled")
         lifecycle = session["lifecycle"]
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_public_mode", "true")
             settings_repo.set_setting("external_api_disable_raw_content", "true")

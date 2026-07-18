@@ -70,10 +70,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         return mock_conn
 
     # R-01: 有邮件 → 返回 emails + detail，IMAP 连接仅 1 次
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_fetch_and_detail_returns_both(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
 
@@ -100,10 +100,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         self.assertEqual(mock_imap_cls.call_count, 1)
 
     # R-02: 空信箱 → emails=[], detail=None
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_empty_mailbox_returns_empty_with_no_detail(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
         self._setup_imap_mock(mock_imap_cls, search_ids=[])
@@ -115,10 +115,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         self.assertIsNone(result.get("detail"))
 
     # R-03: 认证失败 → error
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_auth_failure_returns_error(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
         self._setup_imap_mock(mock_imap_cls, auth_fail=True)
@@ -129,10 +129,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         self.assertIsNotNone(result.get("error"))
 
     # R-04: token 获取失败 → error（不建立 IMAP 连接）
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_token_failure_no_connection(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(False)
 
@@ -142,10 +142,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         mock_imap_cls.assert_not_called()
 
     # R-05: top=1 → 摘要和详情来自同一次 FETCH
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_top_one_single_fetch(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
 
@@ -160,10 +160,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         self.assertEqual(mock_conn.fetch.call_count, 1)
 
     # R-06: 连接异常断开 → 资源正确释放
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_connection_reset_releases_resources(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
         mock_conn = MagicMock()
@@ -179,10 +179,10 @@ class TestImapConnectionReuse(unittest.TestCase):
         mock_conn.logout.assert_called()
 
     # 额外：验证 authenticate 只调用 1 次
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_imap_connection_created_only_once(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import fetch_and_detail_imap_with_server
+        from mailops.services.imap import fetch_and_detail_imap_with_server
 
         mock_token.return_value = self._mock_token_result(True)
         raw = _build_rfc822_bytes("Test", "Body text")

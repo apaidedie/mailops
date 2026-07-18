@@ -8,7 +8,7 @@ Make the external API area operational for real integrations by showing a safe, 
 
 - The project goal is a unified mailbox aggregation service with Outlook/IMAP, temporary mailbox providers, extensible provider contracts, and external APIs for other services.
 - `/api/settings` already returns `external_api_keys` with safe consumer metadata and today usage fields: `today_total_count`, `today_success_count`, `today_error_count`, and `today_last_used_at`.
-- `outlook_web.services.external_api.audit_external_api_access()` records external API usage through `record_external_api_consumer_usage()` when an authenticated consumer calls audited external endpoints.
+- `mailops.services.external_api.audit_external_api_access()` records external API usage through `record_external_api_consumer_usage()` when an authenticated consumer calls audited external endpoints.
 - The Settings -> API Security page currently exposes a JSON editor for multi-key configuration and an external API command center, but it does not give operators a compact per-consumer usage/status view.
 
 ## Requirements

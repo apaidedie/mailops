@@ -4,25 +4,25 @@ The project uses Python `logging` for operational logs and SQLite audit logs for
 
 ## Runtime Logging
 
-- `outlook_web.logging_config.configure_runtime_logging()` owns the managed stderr handler for the `outlook_web` namespace and Flask app logger propagation.
+- `mailops.logging_config.configure_runtime_logging()` owns the managed stderr handler for the `mailops` namespace and Flask app logger propagation.
 - Default output is text with format `%(asctime)s %(name)s %(levelname)s %(message)s`; `LOG_FORMAT=json` selects line-delimited JSON.
 - Default logger level is `INFO`; explicit `LOG_LEVEL` wins, while `PERF_LOGGING=true` remains the backward-compatible `DEBUG` fallback when `LOG_LEVEL` is absent.
 - Use `current_app.logger.exception(...)` for unexpected server errors so tracebacks are preserved in server logs while API responses remain sanitized.
-- Prefer module loggers under the `outlook_web.*` namespace for new service logs.
+- Prefer module loggers under the `mailops.*` namespace for new service logs.
 
 ## Scenario: Runtime Text And JSON Logging
 
 ### 1. Scope / Trigger
 
-Trigger: changes to application startup logging, `outlook_web.*` logger handlers, Flask `app.logger`, runtime log environment keys, request trace enrichment, JSON fields, or container log collection behavior.
+Trigger: changes to application startup logging, `mailops.*` logger handlers, Flask `app.logger`, runtime log environment keys, request trace enrichment, JSON fields, or container log collection behavior.
 
 ### 2. Signatures
 
-- `outlook_web.config.get_log_format() -> str`
-- `outlook_web.config.get_log_level() -> str`
-- `outlook_web.logging_config.RequestContextFilter`
-- `outlook_web.logging_config.JsonLogFormatter`
-- `outlook_web.logging_config.configure_runtime_logging(app, *, stream=None, log_format=None, log_level=None) -> logging.Handler`
+- `mailops.config.get_log_format() -> str`
+- `mailops.config.get_log_level() -> str`
+- `mailops.logging_config.RequestContextFilter`
+- `mailops.logging_config.JsonLogFormatter`
+- `mailops.logging_config.configure_runtime_logging(app, *, stream=None, log_format=None, log_level=None) -> logging.Handler`
 - Environment: `LOG_FORMAT`, `LOG_LEVEL`, and legacy `PERF_LOGGING`.
 
 ### 3. Contracts
@@ -33,7 +33,7 @@ JSON output is one object per line. Stable fields are `timestamp` (UTC ISO-8601 
 
 The automatic request context must use `request.path`, never a full URL or query string. It must not add request bodies, headers, cookies, environment values, provider config contents, mailbox content, API keys, bearer tokens, passwords, task/claim tokens, JWTs, or arbitrary `LogRecord` extras.
 
-The `outlook_web` namespace owns one managed handler and does not propagate to the root logger. Flask's default handler is removed from `app.logger`, which then propagates to the namespace handler. Reconfiguration replaces only handlers marked as managed so tests and reloads do not multiply output or remove operator-owned handlers.
+The `mailops` namespace owns one managed handler and does not propagate to the root logger. Flask's default handler is removed from `app.logger`, which then propagates to the namespace handler. Reconfiguration replaces only handlers marked as managed so tests and reloads do not multiply output or remove operator-owned handlers.
 
 ### 4. Validation & Error Matrix
 
@@ -51,7 +51,7 @@ The `outlook_web` namespace owns one managed handler and does not propagate to t
 - Good: `current_app.logger.info("request complete", extra={"event": "request_complete", "duration_ms": 42})` produces optional safe fields in JSON mode and remains readable in text mode.
 - Good: a 404 warning has the same `trace_id` as the `X-Trace-Id` response header.
 - Base: existing `%s`-style messages continue to work without conversion to structured extras.
-- Bad: attaching separate managed handlers to both `app.logger` and `outlook_web`, which emits every Flask line twice.
+- Bad: attaching separate managed handlers to both `app.logger` and `mailops`, which emits every Flask line twice.
 - Bad: serializing `record.__dict__` wholesale, which can expose arbitrary secret-bearing extras.
 - Bad: logging `request.url`, `request.query_string`, request bodies, headers, or cookies automatically.
 
@@ -71,7 +71,7 @@ The `outlook_web` namespace owns one managed handler and does not propagate to t
 ```python
 handler = logging.StreamHandler()
 app.logger.addHandler(handler)
-logging.getLogger("outlook_web").addHandler(handler)
+logging.getLogger("mailops").addHandler(handler)
 payload = record.__dict__
 ```
 
@@ -87,7 +87,7 @@ current_app.logger.info(
 
 ## Audit Logging
 
-- Use `outlook_web.audit.log_audit()` for app-side audit events and `external_api_service.audit_external_api_access()` for external API access logs.
+- Use `mailops.audit.log_audit()` for app-side audit events and `external_api_service.audit_external_api_access()` for external API access logs.
 - Audit records should include stable action/resource/endpoint/status details and the request trace ID when available.
 - Audit logging is best-effort and must not break primary user flows. This exception is intentional; do not copy silent failure handling to normal writes.
 

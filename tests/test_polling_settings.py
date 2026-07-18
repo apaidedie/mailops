@@ -12,7 +12,7 @@ class PollingSettingsTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("enable_auto_polling", "false")
             settings_repo.set_setting("polling_interval", "10")
@@ -47,7 +47,7 @@ class PollingSettingsTests(unittest.TestCase):
         self.assertEqual(settings.get("polling_count"), 0)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("polling_count"), "0")
 

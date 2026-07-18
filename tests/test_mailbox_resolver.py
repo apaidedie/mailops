@@ -15,7 +15,7 @@ class MailboxResolverTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@resolver.test'")
@@ -25,8 +25,8 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_resolve_mailbox_returns_account_descriptor_for_regular_account(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import mailbox_resolver
+            from mailops.db import get_db
+            from mailops.services import mailbox_resolver
 
             db = get_db()
             db.execute(
@@ -55,8 +55,8 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_resolve_mailbox_supports_plus_alias_lookup(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import mailbox_resolver
+            from mailops.db import get_db
+            from mailops.services import mailbox_resolver
 
             db = get_db()
             db.execute(
@@ -84,8 +84,8 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_resolve_mailbox_returns_temp_descriptor_for_temp_mailbox(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services import mailbox_resolver
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services import mailbox_resolver
 
             temp_emails_repo.create_temp_email(
                 email_addr="temp@resolver.test",
@@ -102,8 +102,8 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_resolve_mailbox_returns_temp_provider_capability_for_cf_pool_account(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import mailbox_resolver
+            from mailops.db import get_db
+            from mailops.services import mailbox_resolver
 
             db = get_db()
             db.execute(
@@ -135,9 +135,9 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_resolve_mailbox_conflict_raises_mailbox_conflict_error(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services import external_api, mailbox_resolver
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services import external_api, mailbox_resolver
 
             db = get_db()
             db.execute(
@@ -170,8 +170,8 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_task_temp_mailbox_requires_same_consumer_key(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services import external_api, mailbox_resolver
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services import external_api, mailbox_resolver
 
             temp_emails_repo.create_temp_email(
                 email_addr="task@resolver.test",
@@ -193,9 +193,9 @@ class MailboxResolverTests(unittest.TestCase):
 
     def test_finished_task_temp_mailbox_returns_task_finished_error(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services import external_api, mailbox_resolver
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services import external_api, mailbox_resolver
 
             task_token = f"tmptask_finished_{uuid.uuid4().hex}"
             created = temp_emails_repo.create_temp_email(

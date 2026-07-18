@@ -6,7 +6,7 @@ Four sequential waves; each leaves the app bootable and testable.
 
 ```text
 W1 Hygiene ──► W2 API surface ──► W3 Frontend split ──► W4 Backend split
-   docs/tree        contracts           static/js           outlook_web/
+   docs/tree        contracts           static/js           mailops/
 ```
 
 ## W1 target tree

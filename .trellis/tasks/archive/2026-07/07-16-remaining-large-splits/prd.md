@@ -6,7 +6,7 @@ Split remaining oversized single-purpose / multi-handler files after P0/P1, espe
 
 ## In scope
 
-- `outlook_web/services/external_api/openapi.py` → submodules (builders, schemas, paths, contract)
+- `mailops/services/external_api/openapi.py` → submodules (builders, schemas, paths, contract)
 - `static/js/features/temp_emails.js` → package
 - `static/js/features/overview.js` → package (0-indent functions)
 - Skip: `i18n.js`, `layout-manager.js` (IIFE / data maps)

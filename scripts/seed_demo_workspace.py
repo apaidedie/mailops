@@ -128,7 +128,7 @@ def _ensure_demo_group(conn: sqlite3.Connection) -> int:
 
 
 def _insert_accounts(conn: sqlite3.Connection, group_id: int, now: datetime) -> list[int]:
-    from outlook_web.security.crypto import encrypt_data
+    from mailops.security.crypto import encrypt_data
 
     rows = [
         {
@@ -515,7 +515,7 @@ def seed_demo_workspace(db_path: Path, *, reset: bool = False) -> dict[str, Any]
     if reset:
         _remove_sqlite_files(db_path)
 
-    from outlook_web.db import create_sqlite_connection, init_db
+    from mailops.db import create_sqlite_connection, init_db
 
     with redirect_stdout(io.StringIO()):
         init_db(database_path=str(db_path))

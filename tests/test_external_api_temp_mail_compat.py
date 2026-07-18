@@ -16,8 +16,8 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -47,8 +47,8 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
         status: str = "active",
     ) -> str:
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr=email_addr,
@@ -79,7 +79,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
         content: str = "Use code 246810 to continue. Verify at https://verify.example/confirm",
     ) -> str:
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.save_temp_email_messages(
                 email_addr,
@@ -136,7 +136,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
         message_id = self._seed_message(email_addr)
         client = self.app.test_client()
         with patch(
-            "outlook_web.services.gptmail.gptmail_request",
+            "mailops.services.gptmail.gptmail_request",
             side_effect=self._success_gptmail_request_factory(
                 message_id=message_id,
                 content="Use code 246810 to continue. Verify at https://verify.example/confirm",
@@ -246,7 +246,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
 
     def test_other_consumer_gets_403_for_task_mailbox_read_wait_and_probe_paths(self):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
 
             owner = external_api_keys_repo.create_external_api_key(name="owner", api_key="owner-key")
             external_api_keys_repo.create_external_api_key(name="other", api_key="other-key")
@@ -267,7 +267,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
             f"/api/v1/external/verification-link?email={email_addr}",
         ]
         with patch(
-            "outlook_web.services.gptmail.gptmail_request",
+            "mailops.services.gptmail.gptmail_request",
             side_effect=self._success_gptmail_request_factory(
                 message_id=message_id,
                 content="Use code 246810 to continue. Verify at https://verify.example/confirm",
@@ -331,8 +331,8 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
         self.assertEqual(status_data["data"]["error_code"], "PROBE_CANCELLED")
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import external_api as external_api_service
+            from mailops.db import get_db
+            from mailops.services import external_api as external_api_service
 
             db = get_db()
             row = db.execute(
@@ -351,7 +351,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
         client = self.app.test_client()
 
         with patch(
-            "outlook_web.services.gptmail.gptmail_request",
+            "mailops.services.gptmail.gptmail_request",
             return_value={
                 "success": False,
                 "error": "API 请求超时",
@@ -399,7 +399,7 @@ class ExternalApiTempMailCompatTests(unittest.TestCase):
                 }
             return {"success": False, "error": "unexpected endpoint", "error_type": "TEST_ERROR", "details": endpoint}
 
-        with patch("outlook_web.services.gptmail.gptmail_request", side_effect=_fake_gptmail_request):
+        with patch("mailops.services.gptmail.gptmail_request", side_effect=_fake_gptmail_request):
             detail_resp = client.get(
                 f"/api/v1/external/messages/msg-upstream-1?email={email_addr}",
                 headers=self._headers("compat-key"),

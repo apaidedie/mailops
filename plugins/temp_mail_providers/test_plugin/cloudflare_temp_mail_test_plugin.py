@@ -10,8 +10,8 @@ from typing import Any
 
 import requests
 
-from outlook_web.repositories import settings as settings_repo
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.repositories import settings as settings_repo
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 
 def _safe_int(value: Any, default: int) -> int:

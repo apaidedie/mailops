@@ -13,7 +13,7 @@
 
 ```powershell
 python -m pytest tests/test_external_api.py -q -rs
-python -m py_compile outlook_web\services\provider_catalog.py outlook_web\services\external_api_openapi.py outlook_web\controllers\external_temp_emails.py outlook_web\controllers\accounts.py
+python -m py_compile mailops\services\provider_catalog.py mailops\services\external_api_openapi.py mailops\controllers\external_temp_emails.py mailops\controllers\accounts.py
 git diff --check
 ```
 

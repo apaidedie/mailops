@@ -78,7 +78,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM account_claim_logs")
@@ -95,7 +95,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=3, enabled=0)
@@ -113,7 +113,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
         # 验证 DB 状态
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             for aid in ids:
@@ -127,7 +127,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=3, enabled=1)
@@ -144,7 +144,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
         # 验证 DB 状态
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             for aid in ids:
@@ -159,7 +159,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=2, enabled=1)
@@ -186,7 +186,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=2, enabled=0)
@@ -213,7 +213,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=2, enabled=0)
@@ -238,7 +238,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             id_enabled = _insert_test_account(db, "enabled1@test.com", enabled=1)
@@ -254,7 +254,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
         # 两个都应该变成 enabled=1
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             for aid in [id_enabled, id_disabled]:
@@ -310,7 +310,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=2, enabled=1)
@@ -327,7 +327,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
         # 验证 DB 中已关闭
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             for aid in ids:
@@ -354,7 +354,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             aid = _insert_test_account(db, "claimed_note@test.com", enabled=0, pool_status="claimed")
@@ -367,7 +367,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         self.assertTrue(resp.get_json().get("success"))
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute(
@@ -383,7 +383,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             aid = _insert_test_account(db, "frozen_note@test.com", enabled=0, pool_status="frozen")
@@ -403,7 +403,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=3, enabled=0)
@@ -414,7 +414,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             for aid in ids:
@@ -431,7 +431,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             aid = _insert_test_account(db, "cursor_test@test.com", enabled=0)
@@ -442,7 +442,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             rows = db.execute(
@@ -460,7 +460,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             aid = _insert_test_account(db, "lastcheck@test.com", enabled=0)
@@ -474,7 +474,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             after = db.execute("SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (aid,)).fetchone()
@@ -497,7 +497,7 @@ class BatchEmailFetchApiTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM account_claim_logs")
@@ -511,7 +511,7 @@ class BatchEmailFetchApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=2)
@@ -531,7 +531,7 @@ class BatchEmailFetchApiTests(unittest.TestCase):
         _login(client)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             ids = _insert_test_accounts(db, count=1)

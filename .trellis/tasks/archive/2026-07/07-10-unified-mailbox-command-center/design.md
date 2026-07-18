@@ -2,11 +2,11 @@
 
 ## Boundaries
 
-- Backend owner: `outlook_web.controllers.overview.api_get_overview_summary` composes the existing repository KPI summary with a service-owned command-center projection.
-- Dashboard SQL owner: `outlook_web.repositories.overview.get_overview_summary` remains SQL-only and must not import services.
-- Command-center projection owner: `outlook_web.services.overview_command_center.get_overview_command_center` builds the mailbox/provider/external-readiness summary from existing service contracts.
-- Provider readiness source of truth: `outlook_web.services.provider_catalog.get_mailbox_directory_provider_context` and `get_external_api_readiness_summary`.
-- Mailbox inventory source of truth: `outlook_web.services.mailbox_catalog.list_unified_mailboxes(page=1, page_size=1)` and its existing `summary`, `pagination`, `facets`, and `provider_context` fields.
+- Backend owner: `mailops.controllers.overview.api_get_overview_summary` composes the existing repository KPI summary with a service-owned command-center projection.
+- Dashboard SQL owner: `mailops.repositories.overview.get_overview_summary` remains SQL-only and must not import services.
+- Command-center projection owner: `mailops.services.overview_command_center.get_overview_command_center` builds the mailbox/provider/external-readiness summary from existing service contracts.
+- Provider readiness source of truth: `mailops.services.provider_catalog.get_mailbox_directory_provider_context` and `get_external_api_readiness_summary`.
+- Mailbox inventory source of truth: `mailops.services.mailbox_catalog.list_unified_mailboxes(page=1, page_size=1)` and its existing `summary`, `pagination`, `facets`, and `provider_context` fields.
 - Frontend owner: `static/js/features/overview.js` renders the dashboard summary tab and consumes only `/api/overview/summary`.
 - Styling owner: the existing Overview Dashboard CSS block in `static/css/main.css`.
 

@@ -5,7 +5,7 @@ TDD B 层：号池管理 Service 测试
 
 覆盖 docs/TDD/2026-05-18-Issue60-号池管理UI与状态维护TDD.md §6
 当前运行会失败（红）—— pool_admin service 模块尚未创建。
-实现 outlook_web/services/pool_admin.py 后，所有用例应通过（绿）。
+实现 mailops/services/pool_admin.py 后，所有用例应通过（绿）。
 
 测试目标：
 1. [MVP] NULL -> available 动作（移入号池）
@@ -27,7 +27,7 @@ class PoolAdminServiceBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = import_web_app_module()
-        from outlook_web.db import create_sqlite_connection
+        from mailops.db import create_sqlite_connection
 
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
 
@@ -93,7 +93,7 @@ class PoolAdminServiceActionTests(PoolAdminServiceBase):
 
     def test_apply_action_allows_move_into_pool_from_null(self):
         """A-01: NULL -> available (move_into_pool)"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status=None)
 
@@ -105,7 +105,7 @@ class PoolAdminServiceActionTests(PoolAdminServiceBase):
 
     def test_apply_action_allows_move_out_of_pool_from_available(self):
         """A-02: available -> NULL (move_out_of_pool)"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -117,7 +117,7 @@ class PoolAdminServiceActionTests(PoolAdminServiceBase):
 
     def test_apply_action_allows_restore_available_from_used(self):
         """A-03: used -> available (restore_available)"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="used")
 
@@ -129,7 +129,7 @@ class PoolAdminServiceActionTests(PoolAdminServiceBase):
 
     def test_apply_action_allows_freeze_from_available(self):
         """A-06: available -> frozen (freeze)"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -157,7 +157,7 @@ class PoolAdminServiceClaimedProtectionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_move_out_of_pool_on_claimed(self):
         """C-01: claimed 状态拒绝 move_out_of_pool"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -170,7 +170,7 @@ class PoolAdminServiceClaimedProtectionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_restore_available_on_claimed(self):
         """C-02: claimed 状态拒绝 restore_available"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -182,7 +182,7 @@ class PoolAdminServiceClaimedProtectionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_freeze_on_claimed(self):
         """C-03: claimed 状态拒绝 freeze"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -194,7 +194,7 @@ class PoolAdminServiceClaimedProtectionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_retire_on_claimed(self):
         """C-04: claimed 状态拒绝 retire"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -206,7 +206,7 @@ class PoolAdminServiceClaimedProtectionTests(PoolAdminServiceBase):
 
     def test_apply_action_returns_stable_error_for_claimed_protection(self):
         """所有 claimed 拒绝应返回稳定错误码/信息"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -237,7 +237,7 @@ class PoolAdminServiceInvalidActionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_move_into_pool_when_already_in_pool(self):
         """已在池内的账号不能再次移入"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -247,7 +247,7 @@ class PoolAdminServiceInvalidActionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_move_out_of_pool_when_null(self):
         """池外账号不能再移出"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status=None)
 
@@ -257,7 +257,7 @@ class PoolAdminServiceInvalidActionTests(PoolAdminServiceBase):
 
     def test_apply_action_rejects_invalid_action_name(self):
         """无效动作名称应被拒绝"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -283,7 +283,7 @@ class PoolAdminServiceForceReleaseTests(PoolAdminServiceBase):
 
     def test_force_release_only_allows_claimed_account(self):
         """F-02: 非 claimed 账号不能执行 force_release"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -293,7 +293,7 @@ class PoolAdminServiceForceReleaseTests(PoolAdminServiceBase):
 
     def test_force_release_success_for_claimed(self):
         """F-01: claimed 账号可强制释放"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -305,7 +305,7 @@ class PoolAdminServiceForceReleaseTests(PoolAdminServiceBase):
 
     def test_force_release_is_not_generic_update_bypass(self):
         """force_release 是独立动作，不能绕过通用 claimed 保护"""
-        from outlook_web.services import pool_admin as svc
+        from mailops.services import pool_admin as svc
 
         account_id, _ = self._make_claimed_account(self.conn)
 

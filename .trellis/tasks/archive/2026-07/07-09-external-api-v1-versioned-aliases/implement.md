@@ -16,7 +16,7 @@
 - `python -m pytest tests/test_external_api_versioned_aliases.py -q`
 - `python -m pytest tests/test_external_api_smoke_script.py tests/test_multi_mailbox.py -k "capabilities or openapi or mailbox_session" -q`
 - `python -m pytest tests/test_external_temp_emails_api.py tests/test_external_mailbox_session_start_api.py -q`
-- `python -m py_compile outlook_web/routes/system.py outlook_web/routes/emails.py outlook_web/routes/external_pool.py outlook_web/routes/external_temp_emails.py outlook_web/services/provider_catalog.py outlook_web/services/external_api_openapi.py scripts/external_api_smoke.py`
+- `python -m py_compile mailops/routes/system.py mailops/routes/emails.py mailops/routes/external_pool.py mailops/routes/external_temp_emails.py mailops/services/provider_catalog.py mailops/services/external_api_openapi.py scripts/external_api_smoke.py`
 - `git diff --check`
 
 ## Risk Notes

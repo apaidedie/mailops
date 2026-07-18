@@ -23,7 +23,7 @@ class TestExtractVerificationAPI(unittest.TestCase):
     def setUp(self):
         """测试前置准备"""
         # TODO: 实现后取消注释
-        # from outlook_web.app import create_app
+        # from mailops.app import create_app
         # self.app = create_app()
         # self.client = self.app.test_client()
         pass

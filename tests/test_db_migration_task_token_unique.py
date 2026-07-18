@@ -58,7 +58,7 @@ class DbMigrationTaskTokenUniqueTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy.db"
             self._seed_legacy_db(db_path, duplicate_token=True)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             with self.assertRaises(Exception) as ctx:
                 init_db(database_path=str(db_path))
@@ -90,7 +90,7 @@ class DbMigrationTaskTokenUniqueTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy.db"
             self._seed_legacy_db(db_path, duplicate_token=False)
 
-            from outlook_web.db import DB_SCHEMA_VERSION, init_db
+            from mailops.db import DB_SCHEMA_VERSION, init_db
 
             init_db(database_path=str(db_path))
 

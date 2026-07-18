@@ -27,7 +27,7 @@ Make the external API discovery payload tell callers exactly how to choose and c
 ## Verification
 
 - `python -m pytest tests/test_external_api.py tests/test_external_temp_emails_api.py tests/test_unified_mailbox_catalog.py tests/test_multi_mailbox.py -q` -> 184 passed, 5 subtests passed.
-- `python -m compileall -q outlook_web` -> passed.
+- `python -m compileall -q mailops` -> passed.
 - `git diff --check` -> passed.
 - `python -m pytest -q` -> 1685 passed, 14 skipped, 34 subtests passed.
 

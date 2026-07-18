@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Add `outlook_web/logging_config.py` as the single owner of runtime formatter/filter/handler setup. `outlook_web.config` owns environment normalization, and `create_app()` delegates logging setup to the new module after Flask app creation.
+Add `mailops/logging_config.py` as the single owner of runtime formatter/filter/handler setup. `mailops.config` owns environment normalization, and `create_app()` delegates logging setup to the new module after Flask app creation.
 
 `RequestContextFilter` enriches records only when a Flask request context exists. `JsonLogFormatter` converts a `LogRecord` into a deterministic dictionary and serializes it with `json.dumps(..., ensure_ascii=False)`. Text mode reuses the existing timestamp/name/level/message format.
 
@@ -22,7 +22,7 @@ For exceptions include an `exception` object with `type`, `message`, and `stack`
 
 ## Handler Ownership
 
-The `outlook_web` namespace owns one managed stderr handler and does not propagate to the root logger. The Flask app logger removes Flask's default handler and any prior managed handler, then propagates to `outlook_web`. Reconfiguration replaces only handlers marked as managed by this module so unrelated operator handlers remain intact.
+The `mailops` namespace owns one managed stderr handler and does not propagate to the root logger. The Flask app logger removes Flask's default handler and any prior managed handler, then propagates to `mailops`. Reconfiguration replaces only handlers marked as managed by this module so unrelated operator handlers remain intact.
 
 ## Compatibility And Rollback
 

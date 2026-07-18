@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from outlook_web import config
+from mailops import config
 
 
 class ExternalApiCorsConfigTests(unittest.TestCase):
@@ -74,7 +74,7 @@ class ExternalApiCorsPolicyTests(unittest.TestCase):
         else:
             os.environ["EXTERNAL_API_CORS_ALLOW_CHROME_EXTENSION"] = "true" if allow_extension else "false"
 
-        import outlook_web.app as app_module
+        import mailops.app as app_module
 
         app_module._APP_INSTANCE = None
         self.app_module = importlib.reload(app_module)
@@ -141,7 +141,7 @@ class ExternalApiCorsPolicyTests(unittest.TestCase):
             allow_extension=False,
         )
         with app.app_context():
-            from outlook_web.services.provider_catalog import (
+            from mailops.services.provider_catalog import (
                 get_external_api_capabilities_contract,
                 get_external_api_readiness_summary,
             )

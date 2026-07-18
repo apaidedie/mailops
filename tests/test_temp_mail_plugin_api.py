@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 MOCK_PROVIDER_CODE = b"""
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class MockApiProvider(TempMailProviderBase):
@@ -27,7 +27,7 @@ class MockApiProvider(TempMailProviderBase):
     }
     def __init__(self, *, provider_name=None):
         self.provider_name = provider_name or "mock_api"
-        from outlook_web.repositories import settings as repo
+        from mailops.repositories import settings as repo
         self._url = repo.get_setting(f"plugin.{self.provider_name}.base_url", "")
     def get_options(self): return {"domains": [{"name": "mock.com"}]}
     def create_mailbox(self, **kw): return {"email": "test@mock.com"}
@@ -40,7 +40,7 @@ class MockApiProvider(TempMailProviderBase):
 
 BROKEN_PROVIDER_CODE = b"""
 import definitely_missing_test_plugin_dependency
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase
+from mailops.services.temp_mail_provider_base import TempMailProviderBase
 
 class BrokenProvider(TempMailProviderBase):
     provider_name = "mock_broken"
@@ -75,8 +75,8 @@ class TestPluginAPI(unittest.TestCase):
     """TDD-E: API 接口契约"""
 
     def setUp(self):
-        from outlook_web.config import get_database_path
-        from outlook_web.services import temp_mail_provider_factory as factory
+        from mailops.config import get_database_path
+        from mailops.services import temp_mail_provider_factory as factory
         from tests._import_app import import_web_app_module
 
         self._app_mod = import_web_app_module()
@@ -88,7 +88,7 @@ class TestPluginAPI(unittest.TestCase):
         self._registry_file = self._base_dir / "plugins" / "registry.json"
         self._registry_file.parent.mkdir(parents=True, exist_ok=True)
 
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
 
         self._registry = _REGISTRY
         self._initial_keys = set(_REGISTRY.keys())
@@ -100,7 +100,7 @@ class TestPluginAPI(unittest.TestCase):
             sess["user_id"] = 1
 
     def tearDown(self):
-        from outlook_web.services import temp_mail_provider_factory as factory
+        from mailops.services import temp_mail_provider_factory as factory
 
         for key in set(self._registry.keys()) - self._initial_keys:
             del self._registry[key]
@@ -155,7 +155,7 @@ class TestPluginAPI(unittest.TestCase):
 
     def test_get_plugins_includes_contract_validation_summary_for_loaded_plugin(self):
         """已加载插件列表项包含契约验证摘要"""
-        from outlook_web.services.temp_mail_provider_factory import reload_plugins
+        from mailops.services.temp_mail_provider_factory import reload_plugins
 
         self._write_registry()
         (self._tmp_dir / "mock_api.py").write_bytes(MOCK_PROVIDER_CODE)
@@ -194,7 +194,7 @@ class TestPluginAPI(unittest.TestCase):
         self.assertEqual(result.get("installed_count"), 0)
 
     # E-API-04
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_install_plugin_success(self, mock_requests):
         """正常安装"""
         self._write_registry()
@@ -238,7 +238,7 @@ class TestPluginAPI(unittest.TestCase):
         self.assertEqual(data.get("code"), "PLUGIN_NOT_FOUND")
 
     # E-API-07
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_install_plugin_with_dependencies(self, mock_requests):
         """有依赖的插件"""
         self._write_registry()
@@ -261,7 +261,7 @@ class TestPluginAPI(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
     # E-API-08
-    @patch("outlook_web.services.temp_mail_plugin_manager.requests")
+    @patch("mailops.services.temp_mail_plugin_manager.requests")
     def test_install_plugin_download_failure(self, mock_requests):
         """下载失败"""
         self._write_registry()
@@ -298,7 +298,7 @@ class TestPluginAPI(unittest.TestCase):
     # E-API-11
     def test_uninstall_plugin_blocked_by_task(self):
         """有任务邮箱时阻止卸载"""
-        from outlook_web.db import get_db
+        from mailops.db import get_db
 
         (self._tmp_dir / "mock_api.py").write_bytes(b"# empty")
 
@@ -323,7 +323,7 @@ class TestPluginAPI(unittest.TestCase):
     # E-API-12
     def test_get_config_schema_success(self):
         """正常获取 config schema"""
-        from outlook_web.services.temp_mail_provider_base import register_provider
+        from mailops.services.temp_mail_provider_base import register_provider
 
         @register_provider
         class SchemaTestProvider:
@@ -349,7 +349,7 @@ class TestPluginAPI(unittest.TestCase):
 
     def test_get_plugin_contract_success(self):
         """读取插件契约验证结果"""
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
         @register_provider
         class ContractApiProvider(TempMailProviderBase):
@@ -394,7 +394,7 @@ class TestPluginAPI(unittest.TestCase):
 
     def test_get_plugin_contract_marks_non_base_provider_invalid(self):
         """契约端点应把未继承基类的 Provider 标记为 invalid"""
-        from outlook_web.services.temp_mail_provider_base import register_provider
+        from mailops.services.temp_mail_provider_base import register_provider
 
         @register_provider
         class LooseContractProvider:
@@ -449,7 +449,7 @@ class TestPluginAPI(unittest.TestCase):
     # E-API-14
     def test_save_config_success(self):
         """正常保存配置"""
-        from outlook_web.services.temp_mail_provider_base import register_provider
+        from mailops.services.temp_mail_provider_base import register_provider
 
         @register_provider
         class SaveConfigProvider:
@@ -480,7 +480,7 @@ class TestPluginAPI(unittest.TestCase):
         self.assertEqual(data.get("code"), "INVALID_PARAMS")
 
     # E-API-16
-    @patch("outlook_web.services.temp_mail_plugin_manager.get_temp_mail_provider")
+    @patch("mailops.services.temp_mail_plugin_manager.get_temp_mail_provider")
     def test_test_connection_success(self, mock_factory):
         """连接成功"""
         mock_provider = MagicMock()
@@ -495,7 +495,7 @@ class TestPluginAPI(unittest.TestCase):
         self.assertIn("latency_ms", result)
 
     # E-API-17
-    @patch("outlook_web.services.temp_mail_plugin_manager.get_temp_mail_provider")
+    @patch("mailops.services.temp_mail_plugin_manager.get_temp_mail_provider")
     def test_test_connection_failure(self, mock_factory):
         """连接失败"""
         mock_factory.side_effect = Exception("connection refused")
@@ -520,7 +520,7 @@ class TestPluginAPI(unittest.TestCase):
     # E-API-19
     def test_reload_plugins_preserves_builtin(self):
         """内置 provider 在刷新后仍在注册表"""
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
 
         self._client.post("/api/system/reload-plugins")
         self.assertIn("cloudflare_temp_mail", _REGISTRY)

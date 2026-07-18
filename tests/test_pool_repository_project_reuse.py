@@ -15,7 +15,7 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             account_columns = [row[1] for row in db.execute("PRAGMA table_info(accounts)").fetchall()]
@@ -47,7 +47,7 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
         lease_expires_at: str = "2026-04-16T10:10:00Z",
     ) -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -89,7 +89,7 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
         success_count: int = 0,
     ) -> None:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             first_success_at = "2026-04-16T10:20:00Z" if success_count > 0 else None
@@ -109,8 +109,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_claim_atomic_sets_claimed_project_key_when_project_reuse_enabled(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(email="repo-claim@example.com")
             db = get_db()
@@ -128,8 +128,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_claim_atomic_same_project_only_claim_trace_does_not_block(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(email="repo-claim-trace@example.com")
             self._insert_usage_row(account_id=account_id, consumer_key="repo_bot", project_key="project_alpha")
@@ -148,8 +148,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_claim_atomic_same_project_success_record_blocks(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(email="repo-success-block@example.com")
             self._insert_usage_row(
@@ -172,8 +172,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_claim_atomic_leaves_claimed_project_key_empty_without_project_key(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(email="repo-no-project@example.com")
             db = get_db()
@@ -190,8 +190,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_claim_atomic_different_project_success_record_still_allows_claim(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(email="repo-diff-project@example.com")
             self._insert_usage_row(
@@ -215,8 +215,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_complete_reuse_path_success_returns_available_and_updates_success_record(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-complete@example.com",
@@ -259,8 +259,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_complete_old_path_success_still_returns_used(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-old-path@example.com",
@@ -284,8 +284,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_complete_non_success_on_reuse_path_does_not_write_project_success(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-non-success@example.com",
@@ -323,8 +323,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_release_keeps_project_usage_row_but_clears_claimed_project_key(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-release@example.com",
@@ -364,8 +364,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_expire_stale_claims_clears_claimed_project_key_without_creating_success_record(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-expire@example.com",
@@ -401,8 +401,8 @@ class PoolRepositoryProjectReuseTests(unittest.TestCase):
 
     def test_get_stats_counts_reuse_path_success_account_as_available_not_used(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import get_db
+            from mailops.repositories import pool as pool_repo
 
             account_id = self._insert_available_account(
                 email="repo-stats@example.com",

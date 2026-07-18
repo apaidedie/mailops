@@ -5,9 +5,9 @@
 1. Add failing tests in `tests/test_external_mailbox_session_start_api.py` for unified close success and errors.
 2. Extend OpenAPI/discovery assertions in existing external API tests for `mailbox_session_close`.
 3. Add route registration for `/api/external/mailbox-sessions/close`.
-4. Implement controller helper/handler in `outlook_web/controllers/external_temp_emails.py` by reusing pool and temp-mail services.
-5. Update `outlook_web/services/provider_catalog.py` endpoint map, capabilities contract, quickstart request examples, and integration workflow steps.
-6. Update `outlook_web/services/external_api_openapi.py` schemas and paths.
+4. Implement controller helper/handler in `mailops/controllers/external_temp_emails.py` by reusing pool and temp-mail services.
+5. Update `mailops/services/provider_catalog.py` endpoint map, capabilities contract, quickstart request examples, and integration workflow steps.
+6. Update `mailops/services/external_api_openapi.py` schemas and paths.
 7. Update `docs/external-integration-quickstart.md` to show unified close.
 8. Run targeted and full relevant regressions.
 9. Update specs if the new session lifecycle contract should be preserved for future work.

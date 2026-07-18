@@ -14,7 +14,7 @@
 
 - `python -m pytest tests/test_external_mailbox_session_start_api.py tests/test_external_api.py -q -rs -k "mailbox_session or capabilities_returns_feature_list_and_audits or openapi_contract_exposes_external_api_paths_and_security"`
 - `python -m pytest tests/test_external_mailbox_session_start_api.py -q -rs`
-- `python -m py_compile outlook_web/controllers/external_temp_emails.py outlook_web/routes/external_temp_emails.py outlook_web/services/provider_catalog.py outlook_web/services/external_api_openapi.py`
+- `python -m py_compile mailops/controllers/external_temp_emails.py mailops/routes/external_temp_emails.py mailops/services/provider_catalog.py mailops/services/external_api_openapi.py`
 - `git diff --check`
 - Run the repository secret scan pattern used by recent external API tasks.
 

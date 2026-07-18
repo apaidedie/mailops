@@ -15,7 +15,7 @@
 - `python -m pytest tests/test_multi_mailbox.py -k "provider_preflight" -q` -> 3 passed, 26 deselected.
 - `python -m pytest tests/test_unified_mailbox_frontend_contract.py -q` -> 8 passed.
 - `python -m pytest tests/test_settings_tab_refactor_frontend.py tests/test_unified_mailbox_frontend_contract.py -q` -> 35 passed, 4 subtests passed.
-- `python -m py_compile outlook_web\controllers\accounts.py outlook_web\routes\accounts.py outlook_web\services\provider_catalog.py` -> passed.
+- `python -m py_compile mailops\controllers\accounts.py mailops\routes\accounts.py mailops\services\provider_catalog.py` -> passed.
 - `node --check static/js/main.js` and `node --check static/js/i18n.js` -> passed.
 - `git diff --check` -> passed; Git reports existing LF-to-CRLF warnings for touched text files.
 - Browser QA via Playwright against `http://127.0.0.1:5057/` -> desktop and mobile preflight panel rendered, page/panel/summary/list horizontal overflow all `0`; screenshots written under `output/playwright/` and left untracked.
@@ -26,7 +26,7 @@ No `.trellis/spec/` update was needed. The feature follows existing frontend spe
 
 ## Validation Commands
 
-- `python -m py_compile outlook_web\\controllers\\accounts.py outlook_web\\routes\\accounts.py outlook_web\\services\\provider_catalog.py`
+- `python -m py_compile mailops\\controllers\\accounts.py mailops\\routes\\accounts.py mailops\\services\\provider_catalog.py`
 - `python -m pytest tests/test_settings_tab_refactor_frontend.py tests/test_unified_mailbox_frontend_contract.py -q`
 - `python -m pytest tests/test_multi_mailbox.py -k "provider_preflight" -q`
 - `git diff --check`

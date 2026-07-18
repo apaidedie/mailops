@@ -52,7 +52,7 @@
 
 Provider 必须继承：
 
-- `outlook_web.services.temp_mail_provider_base.TempMailProviderBase`
+- `mailops.services.temp_mail_provider_base.TempMailProviderBase`
 
 这是硬性契约，不只是代码风格要求。即使一个类实现了所有同名方法，只要没有继承 `TempMailProviderBase`，`validate-provider` 和 `/api/plugins/<name>/contract` 都会返回 `contract_validation.status = invalid`，并给出 `PROVIDER_BASE_CLASS_INVALID`。
 
@@ -67,7 +67,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 
 @register_provider

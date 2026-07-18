@@ -28,7 +28,7 @@ class DemoWorkspaceBootstrapTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with patch(
-            "outlook_web.controllers.system.helpers._resolve_configured_database_path",
+            "mailops.controllers.system.helpers._resolve_configured_database_path",
             return_value=configured_database_path.resolve(strict=False),
         ):
             resp = client.get("/api/bootstrap")

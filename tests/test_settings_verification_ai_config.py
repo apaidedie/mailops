@@ -14,7 +14,7 @@ class SettingsVerificationAiConfigTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("verification_ai_enabled", "false")
             settings_repo.set_setting("verification_ai_base_url", "")

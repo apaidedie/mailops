@@ -6,7 +6,7 @@ Strengthen the unified mailbox platform's provider-routing contract so operators
 
 ## Confirmed Facts
 
-- Provider selection is centralized in `outlook_web.services.provider_catalog.get_mailbox_provider_selection_policy()` with source priority `env`, `provider_config_file`, `settings`, then `default`.
+- Provider selection is centralized in `mailops.services.provider_catalog.get_mailbox_provider_selection_policy()` with source priority `env`, `provider_config_file`, `settings`, then `default`.
 - Provider discovery payloads already expose `provider_integration_guide`, `integration_manifest`, `quickstart`, `selection_policy`, `documentation`, and compact `readiness_summary` projections.
 - The unified mailbox directory is the main aggregation surface for Outlook/Graph, IMAP, temp-mail providers, and external API entry points.
 - Current readiness provider rows expose readiness, inventory counts, endpoints, and capabilities, but do not explicitly state which selection scopes each provider can be used for.

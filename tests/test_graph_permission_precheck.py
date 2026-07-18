@@ -46,32 +46,32 @@ class TestGraphPermissionPrecheck(unittest.TestCase):
 
     def test_has_mail_read_permission_true(self):
         """G-01: scope 含 Mail.Read → True"""
-        from outlook_web.services.graph import has_mail_read_permission
+        from mailops.services.graph import has_mail_read_permission
 
         self.assertTrue(has_mail_read_permission("User.Read Mail.Read profile"))
 
     def test_has_mail_readwrite_permission_true(self):
         """G-02: scope 含 Mail.ReadWrite → True"""
-        from outlook_web.services.graph import has_mail_read_permission
+        from mailops.services.graph import has_mail_read_permission
 
         self.assertTrue(has_mail_read_permission("Mail.ReadWrite User.Read"))
 
     def test_no_mail_permission_returns_false(self):
         """G-03: scope 无邮件权限 → False"""
-        from outlook_web.services.graph import has_mail_read_permission
+        from mailops.services.graph import has_mail_read_permission
 
         self.assertFalse(has_mail_read_permission("User.Read profile openid email"))
 
     def test_empty_scope_returns_false(self):
         """G-04: scope 为空 → False"""
-        from outlook_web.services.graph import has_mail_read_permission
+        from mailops.services.graph import has_mail_read_permission
 
         self.assertFalse(has_mail_read_permission(""))
         self.assertFalse(has_mail_read_permission(None))
 
     def test_scope_case_sensitive(self):
         """G-06: MS scope 区分大小写"""
-        from outlook_web.services.graph import has_mail_read_permission
+        from mailops.services.graph import has_mail_read_permission
 
         self.assertFalse(has_mail_read_permission("mail.read user.read"))
         self.assertFalse(has_mail_read_permission("MAIL.READ"))
@@ -80,10 +80,10 @@ class TestGraphPermissionPrecheck(unittest.TestCase):
     # get_access_token_graph_result 返回 scope 字段
     # ------------------------------------------------------------------
 
-    @patch("outlook_web.services.graph.requests.post")
+    @patch("mailops.services.graph.requests.post")
     def test_token_result_includes_scope(self, mock_post):
         """token 结果应包含 scope 字段"""
-        from outlook_web.services.graph import get_access_token_graph_result
+        from mailops.services.graph import get_access_token_graph_result
 
         mock_post.return_value = _make_graph_token_response("at-123", scope="User.Read Mail.Read profile")
 
@@ -91,10 +91,10 @@ class TestGraphPermissionPrecheck(unittest.TestCase):
         self.assertTrue(result.get("success"))
         self.assertEqual(result.get("scope"), "User.Read Mail.Read profile")
 
-    @patch("outlook_web.services.graph.requests.post")
+    @patch("mailops.services.graph.requests.post")
     def test_token_refresh_failure_returns_auth_expired(self, mock_post):
         """G-05: token 刷新失败 → 正常返回错误，不检查 scope"""
-        from outlook_web.services.graph import get_access_token_graph_result
+        from mailops.services.graph import get_access_token_graph_result
 
         mock_post.return_value = _make_error_response(400)
 
@@ -106,11 +106,11 @@ class TestGraphPermissionPrecheck(unittest.TestCase):
     # get_emails_graph 跳过无权限调用
     # ------------------------------------------------------------------
 
-    @patch("outlook_web.services.graph.requests.get")
-    @patch("outlook_web.services.graph.requests.post")
+    @patch("mailops.services.graph.requests.get")
+    @patch("mailops.services.graph.requests.post")
     def test_get_emails_graph_skips_api_when_no_permission(self, mock_post, mock_get):
         """无 Mail.Read 权限时不发起 Graph messages API 请求"""
-        from outlook_web.services.graph import get_emails_graph
+        from mailops.services.graph import get_emails_graph
 
         mock_post.return_value = _make_graph_token_response("at-123", scope="User.Read profile openid email")
 
@@ -121,11 +121,11 @@ class TestGraphPermissionPrecheck(unittest.TestCase):
         # Graph messages API 不应被调用
         mock_get.assert_not_called()
 
-    @patch("outlook_web.services.graph.requests.get")
-    @patch("outlook_web.services.graph.requests.post")
+    @patch("mailops.services.graph.requests.get")
+    @patch("mailops.services.graph.requests.post")
     def test_get_emails_graph_calls_api_when_has_permission(self, mock_post, mock_get):
         """有 Mail.Read 权限时正常调用 Graph API"""
-        from outlook_web.services.graph import get_emails_graph
+        from mailops.services.graph import get_emails_graph
 
         mock_post.return_value = _make_graph_token_response("at-123", scope="User.Read Mail.Read profile")
         # Graph messages API 返回

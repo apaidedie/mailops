@@ -46,9 +46,9 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
             "provider": "outlook",
         }
 
-    @patch("outlook_web.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
+    @patch("mailops.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
     @patch(
-        "outlook_web.controllers.emails.compact_summary_service.update_summary_from_message_list",
+        "mailops.controllers.emails.compact_summary_service.update_summary_from_message_list",
         return_value={
             "latest_email_subject": "验证码 123456",
             "latest_email_from": "noreply@example.com",
@@ -58,7 +58,7 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
         },
     )
     @patch(
-        "outlook_web.controllers.emails.graph_service.get_emails_graph",
+        "mailops.controllers.emails.graph_service.get_emails_graph",
         return_value={
             "success": True,
             "emails": [
@@ -74,7 +74,7 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
             ],
         },
     )
-    @patch("outlook_web.controllers.emails.accounts_repo.get_account_by_email")
+    @patch("mailops.controllers.emails.accounts_repo.get_account_by_email")
     def test_email_api_success_payload_contains_fields_used_by_batch_fetch(
         self,
         mock_get_account_by_email,
@@ -100,9 +100,9 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
         self.assertIsInstance(data.get("emails"), list)
         self.assertIsInstance(data.get("account_summary"), dict)
 
-    @patch("outlook_web.controllers.emails.imap_service.get_emails_imap_with_server")
+    @patch("mailops.controllers.emails.imap_service.get_emails_imap_with_server")
     @patch(
-        "outlook_web.controllers.emails.graph_service.get_emails_graph",
+        "mailops.controllers.emails.graph_service.get_emails_graph",
         return_value={
             "success": False,
             "error": {
@@ -113,7 +113,7 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
             },
         },
     )
-    @patch("outlook_web.controllers.emails.accounts_repo.get_account_by_email")
+    @patch("mailops.controllers.emails.accounts_repo.get_account_by_email")
     def test_email_api_failure_payload_remains_compatible_with_batch_failure_aggregation(
         self,
         mock_get_account_by_email,
@@ -137,13 +137,13 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
         self.assertEqual(data.get("status"), 502)
         self.assertTrue(data.get("trace_id"))
 
-    @patch("outlook_web.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
+    @patch("mailops.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
     @patch(
-        "outlook_web.controllers.emails.compact_summary_service.update_summary_from_message_list",
+        "mailops.controllers.emails.compact_summary_service.update_summary_from_message_list",
         return_value={"latest_email_folder": "junkemail"},
     )
     @patch(
-        "outlook_web.controllers.emails.graph_service.get_emails_graph",
+        "mailops.controllers.emails.graph_service.get_emails_graph",
         return_value={
             "success": True,
             "emails": [
@@ -159,7 +159,7 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
             ],
         },
     )
-    @patch("outlook_web.controllers.emails.accounts_repo.get_account_by_email")
+    @patch("mailops.controllers.emails.accounts_repo.get_account_by_email")
     def test_email_api_junkemail_folder_returns_same_shape_as_inbox(
         self,
         mock_get_account_by_email,
@@ -183,19 +183,19 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
         self.assertIn("has_more", data)
         self.assertIn("account_summary", data)
 
-    @patch("outlook_web.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
+    @patch("mailops.controllers.emails.accounts_repo.touch_last_refresh_at", return_value=True)
     @patch(
-        "outlook_web.controllers.emails.compact_summary_service.update_summary_from_message_list",
+        "mailops.controllers.emails.compact_summary_service.update_summary_from_message_list",
         return_value=None,
     )
     @patch(
-        "outlook_web.controllers.emails.graph_service.get_emails_graph",
+        "mailops.controllers.emails.graph_service.get_emails_graph",
         return_value={
             "success": True,
             "emails": [],
         },
     )
-    @patch("outlook_web.controllers.emails.accounts_repo.get_account_by_email")
+    @patch("mailops.controllers.emails.accounts_repo.get_account_by_email")
     def test_email_api_account_summary_field_is_optional_but_safe(
         self,
         mock_get_account_by_email,

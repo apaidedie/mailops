@@ -20,7 +20,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
 
     def _set_external_api_key(self, value: str):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", value)
 
@@ -76,7 +76,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.controllers.emails.get_email_detail_imap_generic_result",
+            "mailops.controllers.emails.get_email_detail_imap_generic_result",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(f"/api/email/{email_addr}/message-1")
@@ -90,7 +90,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         email_addr = "legacy-external@outlook.com"
         with self.app.app_context():
             self._insert_imap_outlook_account(email_addr)
-            from outlook_web.services import external_api as external_api_service
+            from mailops.services import external_api as external_api_service
 
             error_payload = {
                 "code": "IMAP_AUTH_FAILED",
@@ -103,7 +103,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
             }
 
             with patch(
-                "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
+                "mailops.services.external_api.messages.get_email_detail_imap_generic_result",
                 return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
             ):
                 with self.assertRaises(external_api_service.UpstreamReadFailedError) as ctx:
@@ -131,7 +131,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         # extract-verification delegates to external_api.get_verification_result →
         # messages.list_messages_for_external (imap path uses messages-local import).
         with patch(
-            "outlook_web.services.external_api.messages.get_emails_imap_generic",
+            "mailops.services.external_api.messages.get_emails_imap_generic",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(f"/api/emails/{email_addr}/extract-verification")
@@ -159,7 +159,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
+            "mailops.services.external_api.messages.get_email_detail_imap_generic_result",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(
@@ -189,7 +189,7 @@ class OutlookBasicAuthRegressionTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.services.external_api.messages.get_email_detail_imap_generic_result",
+            "mailops.services.external_api.messages.get_email_detail_imap_generic_result",
             return_value={"success": False, "error": error_payload, "error_code": "IMAP_AUTH_FAILED"},
         ):
             resp = client.get(

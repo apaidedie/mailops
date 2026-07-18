@@ -14,7 +14,7 @@ class TempMailMailboxModelTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@mailbox-model.test'")
@@ -23,7 +23,7 @@ class TempMailMailboxModelTests(unittest.TestCase):
 
     def test_repo_returns_record_descriptor_and_public_views(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             created = temp_emails_repo.create_temp_email(
                 email_addr="demo@mailbox-model.test",
@@ -63,7 +63,7 @@ class TempMailMailboxModelTests(unittest.TestCase):
 
     def test_legacy_and_task_mailboxes_share_unified_descriptor_shape(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="legacy@mailbox-model.test",

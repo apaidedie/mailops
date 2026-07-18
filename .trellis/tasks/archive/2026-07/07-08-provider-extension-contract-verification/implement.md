@@ -15,7 +15,7 @@
    - `get_mailbox_provider_catalog()` / `/api/providers` catalog item.
    - `provider_integration_guide.providers`.
    - `integration_manifest.providers`.
-4. Implement `outlook_web/services/temp_mail_provider_contract.py`.
+4. Implement `mailops/services/temp_mail_provider_contract.py`.
 5. Attach validation in `temp_mail_provider_factory.get_available_providers()`.
 6. Pass through validation in `provider_catalog` catalog items, diagnostics, integration guide, and manifest provider entries.
 7. Add plugin manager/controller/route support for `/api/plugins/<name>/contract`.

@@ -1212,7 +1212,7 @@ Mailbox inventory/facets/filter now canonicalize Compatible Temp Mail Bridge ali
 
 ### Main Changes
 
-- `outlook_web/services/mailbox_catalog.py`: `_canonical_inventory_provider`, filter/facets/inventory collapse
+- `mailops/services/mailbox_catalog.py`: `_canonical_inventory_provider`, filter/facets/inventory collapse
 - `tests/test_unified_mailbox_catalog.py`: dual-row collapse contract
 - Trellis task archived: `07-12-collapse-bridge-inventory-dual-rows-to-legacy-bridge`
 
@@ -1238,7 +1238,7 @@ Mailbox inventory/facets/filter now canonicalize Compatible Temp Mail Bridge ali
 
 ### Main Changes
 
-- `outlook_web/services/provider_catalog.py`: `_collapse_bridge_operator_provider_rows` on diagnostics + guide
+- `mailops/services/provider_catalog.py`: `_collapse_bridge_operator_provider_rows` on diagnostics + guide
 - `tests/test_multi_mailbox.py`: collapse contract test
 - Trellis task archived: `07-12-collapse-bridge-diagnostics-and-guide`
 
@@ -1264,7 +1264,7 @@ Operator-facing `provider_diagnostics` and `provider_integration_guide` collapse
 
 ### Main Changes
 
-- `outlook_web/services/provider_catalog.py`: `_collapse_bridge_operator_provider_rows` for diagnostics + guide
+- `mailops/services/provider_catalog.py`: `_collapse_bridge_operator_provider_rows` for diagnostics + guide
 - `tests/test_multi_mailbox.py`, `tests/test_external_temp_emails_api.py`, `tests/test_unified_mailbox_catalog.py`
 - `.trellis/spec/backend/provider-selection-contract.md`
 
@@ -1433,7 +1433,7 @@ Admin `GET /api/providers` now exposes operator-facing `default_temp_mail_provid
 
 ### Main Changes
 
-- `outlook_web/controllers/accounts.py`: default temp fields on admin providers API
+- `mailops/controllers/accounts.py`: default temp fields on admin providers API
 - `tests/test_multi_mailbox.py`: assert default + guide membership
 - provider-selection contract updated
 

@@ -5,7 +5,7 @@ TDD C 层：号池管理 Controller / API 集成测试
 
 覆盖 docs/TDD/2026-05-18-Issue60-号池管理UI与状态维护TDD.md §7
 当前运行会失败（红）—— pool_admin route/controller 模块尚未创建。
-实现 outlook_web/routes/pool_admin.py + outlook_web/controllers/pool_admin.py 后，所有用例应通过（绿）。
+实现 mailops/routes/pool_admin.py + mailops/controllers/pool_admin.py 后，所有用例应通过（绿）。
 
 测试目标：
 1. [MVP] 查询接口鉴权（未登录 401）
@@ -59,7 +59,7 @@ class PoolAdminApiBase(unittest.TestCase):
     def _make_account_via_db(self, *, pool_status=None, provider="outlook"):
         """通过直接 DB 操作创建测试账号"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             email = f"api_admin_{secrets.token_hex(4)}@example.com"
@@ -77,7 +77,7 @@ class PoolAdminApiBase(unittest.TestCase):
     def _make_group_via_db(self, *, name_prefix="PoolAdminGroup"):
         """创建测试分组并返回 group_id"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             name = f"{name_prefix}_{secrets.token_hex(3)}"
@@ -95,7 +95,7 @@ class PoolAdminApiBase(unittest.TestCase):
         from datetime import datetime, timedelta, timezone
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             account_id = self._make_account_via_db(pool_status="available")
@@ -120,7 +120,7 @@ class PoolAdminApiBase(unittest.TestCase):
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM account_claim_logs")
@@ -174,7 +174,7 @@ class PoolAdminQueryApiTests(PoolAdminApiBase):
     def test_pool_admin_accounts_supports_group_filter(self):
         """查询接口支持 group_id 筛选"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             group_a = self._make_group_via_db(name_prefix="PoolAdminA")

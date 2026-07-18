@@ -3,7 +3,7 @@
 ## Checklist
 
 - [x] Read relevant Trellis backend/frontend/shared specs before editing code.
-- [x] Add backend command-center projection helper in `outlook_web/services/overview_command_center.py` and compose it from the overview controller.
+- [x] Add backend command-center projection helper in `mailops/services/overview_command_center.py` and compose it from the overview controller.
 - [x] Add backend tests for command-center schema, degraded fallback, and secret safety.
 - [x] Add `renderOverviewCommandCenter` and small formatting helpers in `static/js/features/overview.js`.
 - [x] Add Overview Dashboard CSS classes for the command center in `static/css/main.css`.

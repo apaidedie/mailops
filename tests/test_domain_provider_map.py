@@ -5,41 +5,41 @@ import unittest
 
 class TestDomainProviderMap(unittest.TestCase):
     def test_infer_gmail(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@gmail.com"), "gmail")
         self.assertEqual(infer_provider_from_email("user@googlemail.com"), "gmail")
 
     def test_infer_qq(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@qq.com"), "qq")
         self.assertEqual(infer_provider_from_email("user@foxmail.com"), "qq")
 
     def test_infer_163(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@163.com"), "163")
 
     def test_infer_126(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@126.com"), "126")
 
     def test_infer_yahoo(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@yahoo.com"), "yahoo")
         self.assertEqual(infer_provider_from_email("user@yahoo.co.jp"), "yahoo")
 
     def test_infer_aliyun(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@aliyun.com"), "aliyun")
         self.assertEqual(infer_provider_from_email("user@alimail.com"), "aliyun")
 
     def test_infer_outlook(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertEqual(infer_provider_from_email("user@outlook.com"), "outlook")
         self.assertEqual(infer_provider_from_email("user@hotmail.com"), "outlook")
@@ -47,20 +47,20 @@ class TestDomainProviderMap(unittest.TestCase):
         self.assertEqual(infer_provider_from_email("user@live.cn"), "outlook")
 
     def test_infer_unknown_domain(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertIsNone(infer_provider_from_email("user@unknown.org"))
         self.assertIsNone(infer_provider_from_email("user@company.co"))
 
     def test_infer_invalid_input(self):
-        from outlook_web.services.providers import infer_provider_from_email
+        from mailops.services.providers import infer_provider_from_email
 
         self.assertIsNone(infer_provider_from_email(""))
         self.assertIsNone(infer_provider_from_email(None))
         self.assertIsNone(infer_provider_from_email("no-at-sign"))
 
     def test_known_provider_keys(self):
-        from outlook_web.services.providers import KNOWN_PROVIDER_KEYS, MAIL_PROVIDERS
+        from mailops.services.providers import KNOWN_PROVIDER_KEYS, MAIL_PROVIDERS
 
         self.assertEqual(KNOWN_PROVIDER_KEYS, set(MAIL_PROVIDERS.keys()))
         self.assertIn("outlook", KNOWN_PROVIDER_KEYS)
@@ -68,13 +68,13 @@ class TestDomainProviderMap(unittest.TestCase):
         self.assertIn("custom", KNOWN_PROVIDER_KEYS)
 
     def test_provider_group_name(self):
-        from outlook_web.services.providers import PROVIDER_GROUP_NAME
+        from mailops.services.providers import PROVIDER_GROUP_NAME
 
         self.assertEqual(PROVIDER_GROUP_NAME["outlook"], "Outlook")
         self.assertEqual(PROVIDER_GROUP_NAME["temp_mail"], "临时邮箱")
 
     def test_get_provider_list_has_auto_first(self):
-        from outlook_web.services.providers import get_provider_list
+        from mailops.services.providers import get_provider_list
 
         providers = get_provider_list()
         self.assertGreater(len(providers), 0)
@@ -87,7 +87,7 @@ class TestDomainProviderMap(unittest.TestCase):
     # ── PR#27 新增：provider_supports_email_domain / extract_email_domain 测试 ──
 
     def test_extract_email_domain_basic(self):
-        from outlook_web.services.providers import extract_email_domain
+        from mailops.services.providers import extract_email_domain
 
         self.assertEqual(extract_email_domain("user@outlook.com"), "outlook.com")
         self.assertEqual(extract_email_domain("USER@GMAIL.COM"), "gmail.com")
@@ -96,7 +96,7 @@ class TestDomainProviderMap(unittest.TestCase):
         self.assertEqual(extract_email_domain(""), "")
 
     def test_provider_supports_email_domain_public_domains(self):
-        from outlook_web.services.providers import provider_supports_email_domain
+        from mailops.services.providers import provider_supports_email_domain
 
         self.assertTrue(provider_supports_email_domain("outlook", "outlook.com"))
         self.assertTrue(provider_supports_email_domain("outlook", "hotmail.com"))
@@ -107,7 +107,7 @@ class TestDomainProviderMap(unittest.TestCase):
         self.assertFalse(provider_supports_email_domain("qq", "gmail.com"))
 
     def test_provider_supports_email_domain_enterprise_outlook(self):
-        from outlook_web.services.providers import provider_supports_email_domain
+        from mailops.services.providers import provider_supports_email_domain
 
         # 企业 onmicrosoft.com 应被 outlook provider 支持
         self.assertTrue(provider_supports_email_domain("outlook", "myorg.onmicrosoft.com"))
@@ -116,14 +116,14 @@ class TestDomainProviderMap(unittest.TestCase):
         self.assertFalse(provider_supports_email_domain("gmail", "myorg.onmicrosoft.com"))
 
     def test_provider_supports_email_domain_edge_cases(self):
-        from outlook_web.services.providers import provider_supports_email_domain
+        from mailops.services.providers import provider_supports_email_domain
 
         self.assertFalse(provider_supports_email_domain("", "outlook.com"))
         self.assertFalse(provider_supports_email_domain("outlook", ""))
         self.assertFalse(provider_supports_email_domain("outlook", None))
 
     def test_get_provider_domains(self):
-        from outlook_web.services.providers import get_provider_domains
+        from mailops.services.providers import get_provider_domains
 
         outlook_domains = get_provider_domains("outlook")
         self.assertIn("outlook.com", outlook_domains)

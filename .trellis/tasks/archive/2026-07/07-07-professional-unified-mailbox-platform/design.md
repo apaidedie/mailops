@@ -6,7 +6,7 @@ The product should present one mailbox platform with multiple source types rathe
 
 ## Architecture Boundaries
 
-Provider discovery, selection policy, deployment templates, and integration manifests stay in `outlook_web.services.provider_catalog`. Unified inventory stays in `outlook_web.services.mailbox_catalog` and consumes provider context from the catalog helpers. UI surfaces act as display adapters over these contracts and must not rebuild provider semantics locally.
+Provider discovery, selection policy, deployment templates, and integration manifests stay in `mailops.services.provider_catalog`. Unified inventory stays in `mailops.services.mailbox_catalog` and consumes provider context from the catalog helpers. UI surfaces act as display adapters over these contracts and must not rebuild provider semantics locally.
 
 ## UI Direction
 

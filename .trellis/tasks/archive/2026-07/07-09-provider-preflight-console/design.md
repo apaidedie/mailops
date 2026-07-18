@@ -2,7 +2,7 @@
 
 ## Boundaries
 
-This is a frontend/admin-console task over the existing authenticated preflight endpoint. Backend behavior stays unchanged. The owner of provider readiness remains `outlook_web.services.provider_catalog`; the UI only fetches and formats the returned `provider_preflight` object.
+This is a frontend/admin-console task over the existing authenticated preflight endpoint. Backend behavior stays unchanged. The owner of provider readiness remains `mailops.services.provider_catalog`; the UI only fetches and formats the returned `provider_preflight` object.
 
 The panel lives inside Settings -> API Security -> `#providerWorkbench`, near the existing provider overview and contract status. It must compose with the existing `/api/providers` cache, provider workbench renderer, and language-change/render hooks.
 

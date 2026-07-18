@@ -9,7 +9,7 @@ Add a stable, versioned external API entrypoint under `/api/v1/external/*` while
 - The project goal is to become a unified Outlook/IMAP/temp-mail aggregation service with durable external APIs for other services.
 - `docs/项目地图.md` lists API versioning as a high-priority item: move external APIs from `/api/external/*` toward `/api/v1/external/*` to avoid future breaking changes.
 - Existing discovery, OpenAPI, quickstart, Settings UI, and tests currently use `/api/external/*` paths.
-- External routes are split across `outlook_web/routes/system.py`, `outlook_web/routes/emails.py`, `outlook_web/routes/external_pool.py`, and `outlook_web/routes/external_temp_emails.py`.
+- External routes are split across `mailops/routes/system.py`, `mailops/routes/emails.py`, `mailops/routes/external_pool.py`, and `mailops/routes/external_temp_emails.py`.
 - The safest first step is non-destructive aliasing: mount the same controller handlers at both legacy and v1 paths, then make discovery advertise v1 as canonical with legacy compatibility metadata.
 
 ## Requirements

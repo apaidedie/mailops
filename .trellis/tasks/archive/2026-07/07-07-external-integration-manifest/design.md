@@ -2,7 +2,7 @@
 
 ## Boundary
 
-The manifest is a read-only projection over existing external discovery data. It lives in `outlook_web.services.provider_catalog` near `get_provider_integration_guide()` and `get_external_api_capabilities_contract()` because that module already owns endpoint maps, provider deployment profile, selection policy, diagnostics, aliases, and the integration guide.
+The manifest is a read-only projection over existing external discovery data. It lives in `mailops.services.provider_catalog` near `get_provider_integration_guide()` and `get_external_api_capabilities_contract()` because that module already owns endpoint maps, provider deployment profile, selection policy, diagnostics, aliases, and the integration guide.
 
 No controller should rebuild the manifest directly. Controllers should receive it from the same service payload that owns their `provider_integration_guide`.
 

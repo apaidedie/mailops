@@ -5,7 +5,7 @@ Outlook 邮件 Web 应用（兼容入口）
 
 目标：
 - 保持部署入口兼容：`web_outlook_app:app`
-- 内部实现已迁移到 `outlook_web/` 模块化架构
+- 内部实现已迁移到 `mailops/` 模块化架构
 
 关联文档：
 - PRD：docs/PRD/Outlook邮件管理工具-前后端拆分与模块化PRD.md
@@ -17,7 +17,7 @@ Outlook 邮件 Web 应用（兼容入口）
 import os
 import sys
 
-from outlook_web.runtime_output import configure_process_output
+from mailops.runtime_output import configure_process_output
 
 configure_process_output()
 
@@ -32,20 +32,20 @@ except Exception:
     # 保持部署兼容：即使未安装 python-dotenv 也不阻断导入。
     pass
 
-from outlook_web.app import create_app
-from outlook_web.db import create_sqlite_connection
-from outlook_web.errors import build_error_payload, sanitize_error_details
-from outlook_web.repositories.distributed_locks import (
+from mailops.app import create_app
+from mailops.db import create_sqlite_connection
+from mailops.errors import build_error_payload, sanitize_error_details
+from mailops.repositories.distributed_locks import (
     acquire_distributed_lock,
     release_distributed_lock,
 )
 
 # 兼容导入：从各模块导出常用函数
-from outlook_web.security.auth import MAX_LOGIN_ATTEMPTS
-from outlook_web.security.crypto import decrypt_data, encrypt_data
-from outlook_web.services import graph as graph_service
-from outlook_web.services import scheduler as scheduler_service
-from outlook_web.services.temp_mail_plugin_cli import main as temp_mail_plugin_cli_main
+from mailops.security.auth import MAX_LOGIN_ATTEMPTS
+from mailops.security.crypto import decrypt_data, encrypt_data
+from mailops.services import graph as graph_service
+from mailops.services import scheduler as scheduler_service
+from mailops.services.temp_mail_plugin_cli import main as temp_mail_plugin_cli_main
 
 _TEMP_MAIL_PROVIDER_CLI_COMMANDS = {
     "install-provider",

@@ -25,8 +25,8 @@ class TempMailTargetContractTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_probe_cache")
@@ -72,7 +72,7 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_temp_email_extract_verification_endpoint_returns_code_and_link(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="demo123@test.example",
@@ -97,7 +97,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with patch(
-            "outlook_web.services.gptmail.gptmail_request",
+            "mailops.services.gptmail.gptmail_request",
             side_effect=[
                 {
                     "success": True,
@@ -140,7 +140,7 @@ class TempMailTargetContractTests(unittest.TestCase):
     def test_external_apply_endpoint_returns_hidden_task_mailbox(self):
         client = self.app.test_client()
 
-        with patch("outlook_web.services.gptmail.generate_temp_email", return_value=("demo123@test.example", None)):
+        with patch("mailops.services.gptmail.generate_temp_email", return_value=("demo123@test.example", None)):
             resp = client.post(
                 "/api/v1/external/temp-emails/apply",
                 headers={"X-API-Key": "contract-key"},
@@ -163,7 +163,7 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_external_finish_endpoint_marks_task_mailbox_finished(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="finish@test.example",
@@ -192,7 +192,7 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_settings_get_returns_temp_mail_contract_fields(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             settings_repo.set_setting("temp_mail_api_base_url", "https://temp.example")
@@ -260,7 +260,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertTrue(resp.get_json()["success"])
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_provider"), "custom_domain_temp_mail")
             self.assertEqual(settings_repo.get_setting("temp_mail_api_base_url"), "https://bridge.example")
@@ -292,14 +292,14 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertTrue(resp.get_json()["success"])
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_api_base_url"), "https://mail.chatgpt.org.uk")
             self.assertEqual(settings_repo.get_temp_mail_api_base_url(), "https://mail.chatgpt.org.uk")
 
     def test_settings_masked_temp_mail_api_key_placeholder_does_not_overwrite(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_api_key", "keep-this-secret")
 
@@ -311,13 +311,13 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_api_key"), "keep-this-secret")
 
     def test_settings_legacy_gptmail_api_key_still_reads_into_temp_contract_fields(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_api_key", "")
             settings_repo.set_setting("gptmail_api_key", "legacy-only-secret")
@@ -334,7 +334,7 @@ class TempMailTargetContractTests(unittest.TestCase):
 
     def test_settings_legacy_gptmail_api_key_put_does_not_reverse_pollute_temp_mail_api_key(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_api_key", "formal-secret")
             settings_repo.set_setting("gptmail_api_key", "legacy-secret")
@@ -346,14 +346,14 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_api_key"), "formal-secret")
             self.assertEqual(settings_repo.get_setting("gptmail_api_key"), "legacy-updated")
 
     def test_temp_emails_schema_supports_visibility_and_task_ownership_fields(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             rows = db.execute("PRAGMA table_info(temp_emails)").fetchall()

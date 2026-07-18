@@ -12,7 +12,7 @@
 
 - `python -m pytest tests/test_settings_tab_refactor_frontend.py tests/test_v190_frontend_contract.py -q`
 - `python -m pytest tests/test_external_api_versioned_aliases.py tests/test_external_api_smoke_script.py tests/test_multi_mailbox.py -q`
-- `python -m py_compile outlook_web/services/provider_catalog.py outlook_web/services/external_api_openapi.py`
+- `python -m py_compile mailops/services/provider_catalog.py mailops/services/external_api_openapi.py`
 - `rg -n "/api/external" static/js/main.js templates/index.html static/js/i18n.js README.md README.en.md docs/external-integration-quickstart.md docs/项目地图.md`
 - `git diff --check`
 

@@ -11,7 +11,7 @@ The bundle should make the project more professional and extensible by presentin
 - The project already exposes API-key protected discovery surfaces: `/api/v1/external/capabilities`, `/api/v1/external/providers`, `/api/v1/external/mailboxes`, `/api/v1/external/openapi.json`, and `/api/v1/external/docs`.
 - Legacy `/api/external/*` aliases must stay callable and discoverable, but new contracts should prefer canonical `/api/v1/external/*` paths.
 - Existing starter clients already build a local `integration-bundle` from capabilities, providers, and OpenAPI. This task converts that concept into a live server contract that other services can fetch directly.
-- Provider selection/readiness logic is owned by `outlook_web.services.provider_catalog`; controllers and docs must consume service helpers rather than rebuilding provider rules.
+- Provider selection/readiness logic is owned by `mailops.services.provider_catalog`; controllers and docs must consume service helpers rather than rebuilding provider rules.
 - The docs page is self-contained vanilla HTML/CSS generated from OpenAPI and capabilities metadata.
 
 ## Requirements

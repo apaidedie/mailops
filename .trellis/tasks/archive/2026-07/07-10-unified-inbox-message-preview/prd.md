@@ -10,7 +10,7 @@ The unified mailbox directory already normalizes Outlook, IMAP, mailbox pool, pr
 
 ## Confirmed Facts
 
-The project is a Flask app with static JS/CSS frontend. The unified mailbox directory is served by `GET /api/mailboxes`, registered in `outlook_web/routes/mailboxes.py`, handled by `outlook_web/controllers/mailboxes.py`, and owned by `outlook_web/services/mailbox_catalog.py`. The frontend unified workspace lives in `templates/index.html`, `static/js/features/mailboxes.js`, and `static/css/main.css`.
+The project is a Flask app with static JS/CSS frontend. The unified mailbox directory is served by `GET /api/mailboxes`, registered in `mailops/routes/mailboxes.py`, handled by `mailops/controllers/mailboxes.py`, and owned by `mailops/services/mailbox_catalog.py`. The frontend unified workspace lives in `templates/index.html`, `static/js/features/mailboxes.js`, and `static/css/main.css`.
 
 Existing account read endpoints are provider-specific through `/api/emails/<email>` and `/api/email/<email>/<message_id>`. Existing temp-mail read endpoints are provider-specific through `/api/temp-emails/<email>/messages` and `/api/temp-emails/<email>/messages/<message_id>`. The current unified mailbox card action calls `openUnifiedMailbox(...)`, which navigates to the account or temp-mail page instead of rendering messages in place.
 

@@ -50,6 +50,6 @@ States: loading, error, ready, active quick view, custom filters, mobile scroll,
 - `python -m pytest tests/test_unified_mailbox_frontend_contract.py tests/test_unified_mailbox_catalog.py -q` -> 22 passed
 - `python -m pytest tests/test_unified_mailbox_frontend_contract.py tests/test_unified_mailbox_catalog.py tests/test_external_api.py tests/test_external_temp_emails_api.py tests/test_multi_mailbox.py -q` -> 194 passed, 5 subtests passed
 - `git diff --check`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web` -> no matches
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops` -> no matches
 - `rg -n "console\.(log|debug)" static\js -g '!tests/layout-system/coverage/**'` -> no matches
 - Playwright QA on `http://127.0.0.1:5017` with a temporary database: `output/playwright/unified-mailbox-desktop.png`, `output/playwright/unified-mailbox-mobile.png`, and `output/playwright/unified-mailbox-qa.json`. Desktop rail rendered 5 buttons with page overflow 0; mobile rail rendered as internal horizontal scroll with page overflow 0; clicking `readable` set `action=read_messages`; clicking `temp` set `kind=temp`.

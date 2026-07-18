@@ -11,7 +11,7 @@ provider selection, mailbox-session workflow, and endpoint coverage quickly.
 - The project already exposes `GET /api/v1/external/docs` as a self-contained
   HTML page generated from the live OpenAPI contract.
 - The UI stack detector found no framework or component-library dependency for
-  this page; `outlook_web/services/external_api_docs.py` owns the HTML/CSS.
+  this page; `mailops/services/external_api_docs.py` owns the HTML/CSS.
 - Current tests verify auth, canonical/legacy docs discovery, secret redaction,
   and core endpoint visibility.
 - The long-term project goal is a professional unified mailbox aggregation

@@ -16,8 +16,8 @@ class EmailAliasFlowTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@aliasflow.test'")
@@ -54,7 +54,7 @@ class EmailAliasFlowTests(unittest.TestCase):
 
     def _insert_outlook_account(self, email_addr: str) -> None:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -77,7 +77,7 @@ class EmailAliasFlowTests(unittest.TestCase):
 
     def _set_external_api_key(self, value: str):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", value)
 
@@ -90,7 +90,7 @@ class EmailAliasFlowTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.get_json().get("success"))
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_messages_supports_plus_alias_email(self, mock_get_emails_graph):
         self._insert_outlook_account("user@aliasflow.test")
         self._set_external_api_key("abc123")
@@ -109,9 +109,9 @@ class EmailAliasFlowTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.get_json().get("success"))
 
-    @patch("outlook_web.services.graph.get_email_raw_graph")
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_raw_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_verification_code_supports_plus_alias_email(
         self,
         mock_get_emails_graph,
@@ -137,7 +137,7 @@ class EmailAliasFlowTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.get_json().get("data", {}).get("verification_code"), "123456")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_internal_get_emails_supports_plus_alias_email(self, mock_get_emails_graph):
         self._insert_outlook_account("user@aliasflow.test")
         mock_get_emails_graph.return_value = {
@@ -152,7 +152,7 @@ class EmailAliasFlowTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.get_json().get("success"))
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
     def test_internal_get_email_detail_supports_plus_alias_email(self, mock_get_email_detail_graph):
         self._insert_outlook_account("user@aliasflow.test")
         mock_get_email_detail_graph.return_value = self._graph_detail()

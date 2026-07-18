@@ -6,10 +6,10 @@ Add production-grade structured runtime logging that can emit one JSON object pe
 
 ## Confirmed Facts
 
-- `outlook_web.app.create_app()` currently creates one stderr handler with `%(asctime)s %(name)s %(levelname)s %(message)s`.
-- `PERF_LOGGING=true` currently raises the `outlook_web` namespace to `DEBUG`; default level is `INFO`.
+- `mailops.app.create_app()` currently creates one stderr handler with `%(asctime)s %(name)s %(levelname)s %(message)s`.
+- `PERF_LOGGING=true` currently raises the `mailops` namespace to `DEBUG`; default level is `INFO`.
 - Request middleware already creates or forwards `g.trace_id` and returns it through `X-Trace-Id`.
-- Application modules use `current_app.logger` and `outlook_web.*` module loggers.
+- Application modules use `current_app.logger` and `mailops.*` module loggers.
 - The project has logging secret-safety rules but no machine-readable runtime formatter or `LOG_FORMAT`/`LOG_LEVEL` configuration.
 - Docker already writes application stdout/stderr through the container logging driver, so line-delimited JSON is sufficient for ELK/Loki collectors.
 
@@ -22,7 +22,7 @@ Add production-grade structured runtime logging that can emit one JSON object pe
 - JSON logs must include stable top-level fields for UTC timestamp, level, logger, message, process/thread metadata, module/function/line, trace ID, request method/path, and safe structured event fields when provided.
 - Exception logs must preserve exception type, message, and formatted stack data in JSON mode.
 - Never add request query strings, bodies, headers, cookies, environment dumps, provider config contents, mailbox content, or secret values automatically.
-- Configure the `outlook_web` namespace and Flask app logger without duplicate handlers or duplicate emitted lines, including repeated test configuration.
+- Configure the `mailops` namespace and Flask app logger without duplicate handlers or duplicate emitted lines, including repeated test configuration.
 - Add focused formatter/configuration tests and an application-factory integration test proving request trace context reaches JSON logs.
 - Document the new environment keys in `.env.example` and deployment/runtime documentation.
 - Extend the local readiness contract so the logging configuration remains documented and discoverable.

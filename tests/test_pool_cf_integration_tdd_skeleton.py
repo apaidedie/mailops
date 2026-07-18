@@ -19,8 +19,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             # 仅清理本用例会污染的关键表，避免影响其他测试
@@ -45,7 +45,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_dynamic_create_success(self):
         """R-CF-CLAIM-01: provider=cloudflare_temp_mail 且池空 → 动态创建并 claim 成功"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
+            from mailops.services import pool as pool_service
 
             mock_result = {
                 "success": True,
@@ -53,7 +53,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "meta": {"provider_jwt": "jwt", "provider_mailbox_id": "123"},
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ):
                 account = pool_service.claim_random(
@@ -70,7 +70,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_dynamic_create_respects_email_domain(self):
         """R-CF-CLAIM-02: 指定 email_domain 时应传递给 create_mailbox，并确保写入 email 域名匹配"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
+            from mailops.services import pool as pool_service
 
             mock_result = {
                 "success": True,
@@ -78,7 +78,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "meta": {"provider_jwt": "jwt", "provider_mailbox_id": "123"},
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ) as create_mock:
                 account = pool_service.claim_random(
@@ -95,8 +95,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_dynamic_create_rejects_email_domain_mismatch(self):
         """R-CF-CLAIM-02b: CF 上游忽略 email_domain 时应清理远程邮箱并返回稳定错误码"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             mock_result = {
                 "success": True,
@@ -104,10 +104,10 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "meta": {"provider_jwt": "jwt", "provider_mailbox_id": "123"},
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ), patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
                 return_value=True,
             ) as delete_mock:
                 with self.assertRaises(PoolServiceError) as ctx:
@@ -125,11 +125,11 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_dynamic_create_upstream_timeout(self):
         """R-CF-CLAIM-03: create_mailbox 超时/异常 → 抛出稳定错误码（如 UPSTREAM_TIMEOUT）"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 side_effect=TimeoutError("upstream timeout"),
             ):
                 with self.assertRaises(PoolServiceError) as ctx:
@@ -147,8 +147,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_dynamic_create_not_configured(self):
         """R-CF-CLAIM-04: Provider 返回未配置 → 抛 TEMP_MAIL_PROVIDER_NOT_CONFIGURED（或实现约定）"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             mock_result = {
                 "success": False,
@@ -156,7 +156,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "error_code": "TEMP_MAIL_PROVIDER_NOT_CONFIGURED",
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ):
                 with self.assertRaises(PoolServiceError) as ctx:
@@ -173,8 +173,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_non_cf_pool_empty_returns_none(self):
         """R-CF-CLAIM-05: 普通账号 provider 且池空 → 不动态创建临时邮箱"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             with self.assertRaises(PoolServiceError) as ctx:
                 pool_service.claim_random(
@@ -194,8 +194,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_complete_cf_deletes_remote_on_success(self):
         """R-CF-COMP-01: CF + result=success → delete_mailbox 被调用（非阻塞）"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             # 预置一个 claimed 的 CF 账号（字段按实现期望补齐）
             db = get_db()
@@ -221,7 +221,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
             account_id = int(row["id"])
 
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
                 return_value=True,
             ) as delete_mock:
                 new_status = pool_service.complete_claim(
@@ -239,8 +239,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_complete_cf_deletes_remote_on_credential_invalid(self):
         """R-CF-COMP-02: CF + result=credential_invalid → delete_mailbox 被调用；本地状态为 retired"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             db = get_db()
             db.execute(
@@ -269,7 +269,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
             )
 
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
                 return_value=True,
             ) as delete_mock:
                 new_status = pool_service.complete_claim(
@@ -287,8 +287,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_complete_cf_skip_delete_on_timeout(self):
         """R-CF-COMP-03: CF + result=verification_timeout → 不调用 delete；本地状态为 cooldown"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             db = get_db()
             db.execute(
@@ -312,7 +312,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
             account_id = int(db.execute("SELECT id FROM accounts WHERE claim_token = ?", ("clm_timeout",)).fetchone()["id"])
 
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
                 return_value=True,
             ) as delete_mock:
                 new_status = pool_service.complete_claim(
@@ -330,8 +330,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_complete_cf_delete_failure_nonblocking(self):
         """R-CF-COMP-04: delete_mailbox 返回 False / 抛异常 → complete 仍成功返回，状态流转不受影响"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             db = get_db()
             db.execute(
@@ -355,7 +355,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
             account_id = int(db.execute("SELECT id FROM accounts WHERE claim_token = ?", ("clm_del_fail",)).fetchone()["id"])
 
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.delete_mailbox",
                 side_effect=RuntimeError("delete failed"),
             ):
                 new_status = pool_service.complete_claim(
@@ -376,8 +376,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_claim_cf_with_project_key_records_usage(self):
         """R-CF-PROJ-01: project_key 存在时，应记录 account_project_usage（或等价行为）"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             mock_result = {
                 "success": True,
@@ -385,7 +385,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "meta": {"provider_jwt": "jwt", "provider_mailbox_id": "127"},
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ):
                 account = pool_service.claim_random(
@@ -407,8 +407,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
     def test_release_keeps_project_usage_without_success(self):
         """R-CF-PROJ-02: release 后保留 usage 行，但不应形成 success 阻断"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services import pool as pool_service
+            from mailops.db import get_db
+            from mailops.services import pool as pool_service
 
             # 先 claim 一个 CF
             mock_result = {
@@ -417,7 +417,7 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "meta": {"provider_jwt": "jwt", "provider_mailbox_id": "128"},
             }
             with patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
                 return_value=mock_result,
             ):
                 account = pool_service.claim_random(
@@ -462,8 +462,8 @@ class PoolServiceProviderValidationTddSkeletonTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             # 先删除有外键引用的子表，再删除父表
@@ -477,8 +477,8 @@ class PoolServiceProviderValidationTddSkeletonTests(unittest.TestCase):
     def test_claim_random_invalid_provider_rejected(self):
         """S-CF-VAL-01: provider=unknown → PoolServiceError(error_code='invalid_provider')"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             with self.assertRaises(PoolServiceError) as ctx:
                 pool_service.claim_random(
@@ -494,8 +494,8 @@ class PoolServiceProviderValidationTddSkeletonTests(unittest.TestCase):
     def test_claim_random_provider_blank_treated_as_none(self):
         """S-CF-VAL-02: provider='' → 行为与 None 一致（不报 invalid_provider）"""
         with self.app.app_context():
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             # 池为空时，期望走 no_available_account，而不是 invalid_provider
             with self.assertRaises(PoolServiceError) as ctx:
@@ -512,13 +512,13 @@ class PoolServiceProviderValidationTddSkeletonTests(unittest.TestCase):
     def test_claim_random_maps_repo_error_code(self):
         """S-CF-VAL-03: repo 抛 PoolRepositoryError → service 转换为 PoolServiceError 且保留 error_code"""
         with self.app.app_context():
-            from outlook_web.repositories.pool import PoolRepositoryError
-            from outlook_web.services import pool as pool_service
-            from outlook_web.services.pool import PoolServiceError
+            from mailops.repositories.pool import PoolRepositoryError
+            from mailops.services import pool as pool_service
+            from mailops.services.pool import PoolServiceError
 
             # PoolRepositoryError 在 repo 层抛出时，service 层应捕获并转换为 PoolServiceError
             with patch(
-                "outlook_web.repositories.pool.claim_atomic",
+                "mailops.repositories.pool.claim_atomic",
                 side_effect=PoolRepositoryError("upstream timeout", "upstream_timeout"),
             ):
                 with self.assertRaises(PoolServiceError) as ctx:
@@ -544,8 +544,8 @@ class ExternalPoolApiContractTddSkeletonTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -579,7 +579,7 @@ class ExternalPoolApiContractTddSkeletonTests(unittest.TestCase):
         """C-CF-API-01: claim-random 可接收 provider 参数，并保持最小字段契约"""
         client = self.app.test_client()
         with patch(
-            "outlook_web.controllers.external_pool.claim_random",
+            "mailops.controllers.external_pool.claim_random",
             return_value={
                 "id": 1,
                 "email": "abc123@cf-domain.com",
@@ -611,10 +611,10 @@ class ExternalPoolApiContractTddSkeletonTests(unittest.TestCase):
     def test_claim_random_invalid_provider_returns_error(self):
         """C-CF-API-02: provider 白名单生效 → 返回统一错误 code"""
         client = self.app.test_client()
-        from outlook_web.services.pool import PoolServiceError
+        from mailops.services.pool import PoolServiceError
 
         with patch(
-            "outlook_web.controllers.external_pool.claim_random",
+            "mailops.controllers.external_pool.claim_random",
             side_effect=PoolServiceError("invalid provider", "invalid_provider", http_status=400),
         ):
             resp = client.post(
@@ -637,10 +637,10 @@ class ExternalPoolApiContractTddSkeletonTests(unittest.TestCase):
     ):
         """C-CF-API-03: CF 动态创建失败路径 → 返回稳定错误 code（no_available 或 upstream）"""
         client = self.app.test_client()
-        from outlook_web.services.pool import PoolServiceError
+        from mailops.services.pool import PoolServiceError
 
         with patch(
-            "outlook_web.controllers.external_pool.claim_random",
+            "mailops.controllers.external_pool.claim_random",
             side_effect=PoolServiceError("upstream timeout", "upstream_timeout", http_status=502),
         ):
             resp = client.post(
@@ -671,8 +671,8 @@ class ExternalVerificationCompatibilityTddSkeletonTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -705,7 +705,7 @@ class ExternalVerificationCompatibilityTddSkeletonTests(unittest.TestCase):
 
         # 1) claim cf
         with patch(
-            "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
+            "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.create_mailbox",
             return_value={
                 "success": True,
                 "email": "abc200@cf-domain.com",
@@ -729,7 +729,7 @@ class ExternalVerificationCompatibilityTddSkeletonTests(unittest.TestCase):
         # 2) mock list_messages — 返回与 CF Provider list_messages 一致的消息列表格式
         with (
             patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.list_messages",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.list_messages",
                 return_value=[
                     {
                         "id": "msg-e2e-001",
@@ -745,7 +745,7 @@ class ExternalVerificationCompatibilityTddSkeletonTests(unittest.TestCase):
                 ],
             ),
             patch(
-                "outlook_web.services.temp_mail_provider_cf.CloudflareTempMailProvider.get_message_detail",
+                "mailops.services.temp_mail_provider_cf.CloudflareTempMailProvider.get_message_detail",
                 return_value={
                     "id": "msg-e2e-001",
                     "message_id": "msg-e2e-001",

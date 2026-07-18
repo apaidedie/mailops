@@ -6,10 +6,10 @@ The implementation adds a versioned route alias layer without changing controlle
 
 Route files remain the assembly boundary:
 
-- `outlook_web/routes/system.py` owns health, capabilities, OpenAPI, and account status.
-- `outlook_web/routes/emails.py` owns external read endpoints.
-- `outlook_web/routes/external_pool.py` owns pool lifecycle endpoints.
-- `outlook_web/routes/external_temp_emails.py` owns mailbox directory, provider catalog, mailbox sessions, and task temp-mail lifecycle endpoints.
+- `mailops/routes/system.py` owns health, capabilities, OpenAPI, and account status.
+- `mailops/routes/emails.py` owns external read endpoints.
+- `mailops/routes/external_pool.py` owns pool lifecycle endpoints.
+- `mailops/routes/external_temp_emails.py` owns mailbox directory, provider catalog, mailbox sessions, and task temp-mail lifecycle endpoints.
 
 ## Route Strategy
 

@@ -2,7 +2,7 @@
 
 ## Contract Boundary
 
-`outlook_web.services.provider_catalog` owns the provider integration guide because it already owns the provider catalog, deployment profile, selection policy, diagnostics, alias contract, and endpoint constants. Controllers and OpenAPI must consume this service output rather than reassembling provider instructions locally.
+`mailops.services.provider_catalog` owns the provider integration guide because it already owns the provider catalog, deployment profile, selection policy, diagnostics, alias contract, and endpoint constants. Controllers and OpenAPI must consume this service output rather than reassembling provider instructions locally.
 
 The guide is discovery metadata only. It may expose provider names, env key names, settings key names, examples with provider values, endpoint paths, and readiness states. It must not expose env values, settings values, API keys, bearer tokens, passwords, JWTs, consumer keys, task tokens, or raw provider secrets.
 

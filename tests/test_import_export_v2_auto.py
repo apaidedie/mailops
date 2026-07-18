@@ -162,7 +162,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
 
         # 严格导入：探测必须返回非空 list 才允许落库
         with patch(
-            "outlook_web.services.gptmail.get_temp_emails_from_api",
+            "mailops.services.gptmail.get_temp_emails_from_api",
             return_value=[{"id": "probe"}],
         ):
             resp = client.post(
@@ -256,11 +256,11 @@ class ImportExportV2AutoTests(unittest.TestCase):
 
         with (
             patch(
-                "outlook_web.services.gptmail.get_temp_emails_from_api",
+                "mailops.services.gptmail.get_temp_emails_from_api",
                 return_value=None,
             ),
             patch(
-                "outlook_web.services.gptmail.generate_temp_email",
+                "mailops.services.gptmail.generate_temp_email",
                 return_value=(actual_email, None),
             ),
         ):

@@ -8,7 +8,7 @@ External clients should be able to call `/api/external/capabilities` or read Ope
 
 ## Confirmed Facts
 
-- `outlook_web.services.provider_catalog.get_external_api_capabilities_contract()` already builds the canonical external discovery payload with `selection_policy`, `provider_integration_guide`, endpoint map, mailbox directory discovery, pool discovery, and task temp-mail discovery.
+- `mailops.services.provider_catalog.get_external_api_capabilities_contract()` already builds the canonical external discovery payload with `selection_policy`, `provider_integration_guide`, endpoint map, mailbox directory discovery, pool discovery, and task temp-mail discovery.
 - `GET /api/external/providers`, `GET /api/external/capabilities`, `GET /api/external/openapi.json`, and the authenticated `/api/providers` contract already expose provider catalog data and must stay consistent.
 - `provider_integration_guide` is already secret-free and may expose key names such as `DUCKMAIL_BEARER_TOKEN`, but not secret values.
 - Source priority is fixed as `env`, `provider_config_file`, `settings`, `default`; provider aliases such as `gptmail`, `legacy_gptmail`, `temp_mail`, and `legacy_bridge` must remain data-driven.
@@ -26,7 +26,7 @@ External clients should be able to call `/api/external/capabilities` or read Ope
 
 ## Acceptance Criteria
 
-- `outlook_web.services.provider_catalog` defines a reusable manifest builder and `get_external_api_capabilities_contract()` includes `integration_manifest` at top level.
+- `mailops.services.provider_catalog` defines a reusable manifest builder and `get_external_api_capabilities_contract()` includes `integration_manifest` at top level.
 - `GET /api/external/capabilities` returns `integration_manifest` in the response data.
 - `GET /api/external/providers` and authenticated `/api/providers` include the same manifest shape, generated from the same provider catalog/selection-policy inputs as their `provider_integration_guide`.
 - `GET /api/external/openapi.json` includes `integration_manifest` in `x-capabilities`, in the `CapabilitiesData` schema, and in provider catalog/discovery schemas where applicable.

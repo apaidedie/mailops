@@ -25,8 +25,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@public-provider.test'")
@@ -46,8 +46,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
     def test_public_providers_are_registered_and_factory_discoverable(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.temp_mail_provider_factory import get_available_providers, get_temp_mail_provider
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_provider_factory import get_available_providers, get_temp_mail_provider
 
             names = {item["name"] for item in get_available_providers()}
 
@@ -65,7 +65,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
             self.assertEqual(settings_repo.validate_temp_mail_provider_name("emailnator"), "emailnator")
 
     def test_mail_tm_get_options_parses_hydra_domains(self):
-        from outlook_web.services.temp_mail_provider_public import MailTmTempMailProvider
+        from mailops.services.temp_mail_provider_public import MailTmTempMailProvider
 
         domains_resp = _response(
             payload={
@@ -84,7 +84,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(options["domains"][1]["enabled"], False)
 
     def test_mail_tm_api_base_can_come_from_environment(self):
-        from outlook_web.services.temp_mail_provider_public import MailTmTempMailProvider
+        from mailops.services.temp_mail_provider_public import MailTmTempMailProvider
 
         with patch.dict("os.environ", {"MAILTM_API_BASE": "https://api.mail.tm/"}):
             provider = MailTmTempMailProvider(provider_name="mail_tm")
@@ -92,7 +92,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._base_url, "https://api.mail.tm")
 
     def test_mail_tm_create_mailbox_stores_account_secret_and_token(self):
-        from outlook_web.services.temp_mail_provider_public import MailTmTempMailProvider
+        from mailops.services.temp_mail_provider_public import MailTmTempMailProvider
 
         account_resp = _response(payload={"id": "account-1", "address": "demo@mail.tm"})
         token_resp = _response(payload={"id": "token-1", "token": "jwt-token"})
@@ -114,7 +114,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(token_payload["password"], account_payload["password"])
 
     def test_mail_tm_list_and_detail_normalize_messages(self):
-        from outlook_web.services.temp_mail_provider_public import MailTmTempMailProvider
+        from mailops.services.temp_mail_provider_public import MailTmTempMailProvider
 
         mailbox = {"email": "demo@mail.tm", "meta": {"provider_jwt": "jwt-token"}}
         list_resp = _response(
@@ -156,7 +156,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertTrue(detail["has_html"])
 
     def test_tempmail_lol_create_and_list_normalize_messages(self):
-        from outlook_web.services.temp_mail_provider_public import TempMailLolProvider
+        from mailops.services.temp_mail_provider_public import TempMailLolProvider
 
         create_resp = _response(payload={"address": "demo@public-provider.test", "token": "inbox-token"})
         inbox_resp = _response(
@@ -191,8 +191,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertTrue(messages[0]["has_html"])
 
     def test_tempmail_lol_api_key_can_come_from_environment(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import TempMailLolProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import TempMailLolProvider
 
         with self.app.app_context():
             settings_repo.set_setting("tempmail_lol_api_key", "")
@@ -205,8 +205,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._headers()["Authorization"], "Bearer env-temp-key")
 
     def test_tempmail_lol_api_key_accepts_legacy_environment_alias(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import TempMailLolProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import TempMailLolProvider
 
         with self.app.app_context():
             settings_repo.set_setting("tempmail_lol_api_key", "")
@@ -219,10 +219,10 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._headers()["Authorization"], "Bearer legacy-env-temp-key")
 
     def test_duckmail_create_uses_configured_base_and_bearer_token(self):
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_api_base", "https://api.duckmail.sbs")
             settings_repo.set_setting("duckmail_bearer_token", "duck-token")
@@ -243,8 +243,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(post_mock.call_args_list[1].kwargs["headers"]["Authorization"], "Bearer duck-token")
 
     def test_duckmail_config_can_come_from_environment(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("duckmail_api_base", "")
@@ -262,8 +262,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
             self.assertEqual(provider._service_bearer_token(), "env-duck-token")
 
     def test_duckmail_options_without_token_do_not_call_upstream_domains(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("duckmail_api_base", "https://api.duckmail.sbs")
@@ -278,8 +278,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(options["provider_name"], "duckmail")
 
     def test_duckmail_env_base_overrides_built_in_default_setting(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("duckmail_api_base", "https://api.duckmail.sbs")
@@ -290,8 +290,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._base_url, "https://duck-env.example")
 
     def test_duckmail_explicit_db_base_takes_priority_over_environment(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("duckmail_api_base", "https://duck-db.example/")
@@ -302,10 +302,10 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._base_url, "https://duck-db.example")
 
     def test_duckmail_normalizes_message_ids_with_duckmail_prefix(self):
-        from outlook_web.services.temp_mail_provider_public import DuckMailTempMailProvider
+        from mailops.services.temp_mail_provider_public import DuckMailTempMailProvider
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_api_base", "https://api.duckmail.sbs")
             settings_repo.set_setting("duckmail_bearer_token", "duck-token")
@@ -354,10 +354,10 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(delete_mock.call_args.kwargs["headers"]["Authorization"], "Bearer mailbox-jwt")
 
     def test_emailnator_create_requires_api_key(self):
-        from outlook_web.services.temp_mail_provider_public import EmailnatorTempMailProvider
+        from mailops.services.temp_mail_provider_public import EmailnatorTempMailProvider
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("emailnator_api_key", "")
 
@@ -367,8 +367,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(result["error_code"], "TEMP_MAIL_PROVIDER_NOT_CONFIGURED")
 
     def test_emailnator_config_can_come_from_environment(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import EmailnatorTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import EmailnatorTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("emailnator_api_key", "")
@@ -386,8 +386,8 @@ class PublicTempMailProviderTests(unittest.TestCase):
             self.assertEqual(provider._email_types(), ["private_gmail_plus", "private_gmail_dot"])
 
     def test_emailnator_explicit_db_types_take_priority_over_environment(self):
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.temp_mail_provider_public import EmailnatorTempMailProvider
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.temp_mail_provider_public import EmailnatorTempMailProvider
 
         with self.app.app_context():
             settings_repo.set_setting("emailnator_email_types", '["public_gmail_dot"]')
@@ -398,10 +398,10 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(provider._email_types(), ["public_gmail_dot"])
 
     def test_emailnator_create_and_list_detail_delete_normalize_messages(self):
-        from outlook_web.services.temp_mail_provider_public import EmailnatorTempMailProvider
+        from mailops.services.temp_mail_provider_public import EmailnatorTempMailProvider
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("emailnator_api_key", "rapid-key")
             settings_repo.set_setting("emailnator_email_types", '["public_gmail_plus"]')
@@ -491,7 +491,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
         self.assertEqual(second_resp.status_code, 200)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_emailnator_api_key(), "rapid-secret-123456")
 
@@ -531,7 +531,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
         self.assertEqual(second_resp.status_code, 200)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_duckmail_bearer_token(), "duck-secret-123456")
 
@@ -551,13 +551,13 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
         self.assertEqual(second_resp.status_code, 200)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_tempmail_lol_api_key(), "temp-lol-secret-123456")
 
     def test_provider_secret_survives_temp_mailbox_meta_serialization(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             temp_emails_repo.create_temp_email(
                 email_addr="secret@public-provider.test",
@@ -578,9 +578,9 @@ class PublicTempMailProviderTests(unittest.TestCase):
 
     def test_local_delete_skips_provider_when_capability_is_false(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailService
 
             temp_emails_repo.create_temp_email(
                 email_addr="local-delete@public-provider.test",

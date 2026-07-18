@@ -12,7 +12,7 @@ Backend quality is contract-first: public API envelopes, provider discovery payl
 
 ## Forbidden Patterns
 
-- Rebuilding provider selection, endpoint maps, integration manifests, quickstarts, or readiness summaries outside `outlook_web.services.provider_catalog`.
+- Rebuilding provider selection, endpoint maps, integration manifests, quickstarts, or readiness summaries outside `mailops.services.provider_catalog`.
 - Adding direct SQLite writes in controllers when a repository or service-owned read model should own the data access.
 - Adding external automation routes outside `/api/v1/external/*`, or re-introducing removed `/api/external/*` dual mounts without an explicit migration plan.
 - Returning raw provider diagnostics, mailbox credentials, task tokens, claim tokens, refresh tokens, or provider bearer/API token values from discovery/readiness/list endpoints.
@@ -31,8 +31,8 @@ Backend quality is contract-first: public API envelopes, provider discovery payl
 - Trigger: backend changes that add, remove, or reinterpret fields returned by `/api/overview/external-api` or aggregate rows from `external_api_consumer_usage_daily` for Dashboard operations UI.
 
 #### 2. Signatures
-- `outlook_web.repositories.overview.get_external_api_stats(conn: sqlite3.Connection | None = None, *, days: int = 7) -> dict[str, Any]`
-- `outlook_web.controllers.overview.api_get_overview_external_api() -> Response`
+- `mailops.repositories.overview.get_external_api_stats(conn: sqlite3.Connection | None = None, *, days: int = 7) -> dict[str, Any]`
+- `mailops.controllers.overview.api_get_overview_external_api() -> Response`
 - `GET /api/overview/external-api`
 - `GET /api/overview/external-api-stats`
 - `external_api_consumer_usage_daily(consumer_key, consumer_name, caller_id, usage_date, date, endpoint, total_count, call_count, success_count, error_count, last_status, last_used_at)`
@@ -85,14 +85,14 @@ def api_get_overview_external_api() -> Any:
 - Trigger: backend changes that add, remove, or reinterpret fields returned by `/api/overview/summary.command_center` for the Dashboard summary tab.
 
 #### 2. Signatures
-- `outlook_web.repositories.overview.get_overview_summary(conn: sqlite3.Connection | None = None) -> dict[str, Any]`
-- `outlook_web.services.overview_command_center.get_overview_command_center() -> dict[str, Any]`
-- `outlook_web.services.overview_command_center.get_overview_command_center_degraded() -> dict[str, Any]`
-- `outlook_web.controllers.overview.api_get_overview_summary() -> Response`
+- `mailops.repositories.overview.get_overview_summary(conn: sqlite3.Connection | None = None) -> dict[str, Any]`
+- `mailops.services.overview_command_center.get_overview_command_center() -> dict[str, Any]`
+- `mailops.services.overview_command_center.get_overview_command_center_degraded() -> dict[str, Any]`
+- `mailops.controllers.overview.api_get_overview_summary() -> Response`
 - `GET /api/overview/summary`
 
 #### 3. Contracts
-The overview repository remains SQL-only and must not import service modules. The controller composes the existing SQL summary with `command_center` from `outlook_web.services.overview_command_center`, then caches the combined payload with the existing overview TTL.
+The overview repository remains SQL-only and must not import service modules. The controller composes the existing SQL summary with `command_center` from `mailops.services.overview_command_center`, then caches the combined payload with the existing overview TTL.
 
 `command_center` is a local-only, read-only projection over existing service contracts. It may call `list_unified_mailboxes(page=1, page_size=1)` and `get_external_api_readiness_summary(consumer=None, database_ok=True, upstream_probe_ok=None)`, but it must not start provider upstream probes, create mailboxes, claim pool inventory, read messages, or rebuild provider selection rules outside `provider_catalog`.
 
@@ -109,7 +109,7 @@ The payload must include `overall_status`, `mailbox_inventory`, `provider_readin
 - Good: controller attaches `result["command_center"] = get_overview_command_center()` after repository summary aggregation.
 - Good: service helper reuses `provider_context.readiness_summary` and external readiness fields instead of duplicating provider rules.
 - Base: action `target` values are safe app navigation tokens or endpoint paths, never credential values.
-- Bad: importing `outlook_web.services.mailbox_catalog` from `outlook_web.repositories.overview` to make the repository the single aggregation point.
+- Bad: importing `mailops.services.mailbox_catalog` from `mailops.repositories.overview` to make the repository the single aggregation point.
 - Bad: adding provider-name branches such as `duckmail`, `mail_tm`, `tempmail_lol`, `emailnator`, or `gptmail` to the overview controller or frontend command-center projection.
 
 #### 6. Tests Required
@@ -120,7 +120,7 @@ The payload must include `overall_status`, `mailbox_inventory`, `provider_readin
 #### 7. Wrong vs Correct
 ##### Wrong
 ```python
-from outlook_web.services.mailbox_catalog import list_unified_mailboxes
+from mailops.services.mailbox_catalog import list_unified_mailboxes
 
 def get_overview_summary():
     summary = _sql_summary()
@@ -179,7 +179,7 @@ Keep demo data isolated behind an explicit script and an explicit database path.
 
 #### 1. Scope / Trigger
 - Trigger: changes to authenticated first-run onboarding, `/api/bootstrap`, or UI surfaces that identify the local demo database.
-- Scope: `outlook_web.controllers.system.api_bootstrap`, the demo database detector, the authenticated workspace shell, and focused bootstrap/frontend contract tests.
+- Scope: `mailops.controllers.system.api_bootstrap`, the demo database detector, the authenticated workspace shell, and focused bootstrap/frontend contract tests.
 
 #### 2. Signatures
 - `GET /api/bootstrap -> { success: true, bootstrap: { demo_workspace: {...} } }`
@@ -222,7 +222,7 @@ return {"demo_workspace": {"enabled": True, "database": "output/demo/mailops-dem
 
 #### 1. Scope / Trigger
 - Trigger: Backend infra changes that register Flask middleware, touch response headers, static response handling, trace/error after-request hooks, CORS, or deployment-facing security behavior.
-- Scope: `outlook_web/middleware/security_headers.py`, the `create_app()` middleware registration in `outlook_web/app.py`, and related config helpers in `outlook_web/config.py`.
+- Scope: `mailops/middleware/security_headers.py`, the `create_app()` middleware registration in `mailops/app.py`, and related config helpers in `mailops/config.py`.
 
 #### 2. Signatures
 - Middleware: `attach_security_headers(response) -> response`.

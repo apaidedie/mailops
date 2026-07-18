@@ -14,8 +14,8 @@ class ExternalPoolE2ETests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM audit_logs WHERE resource_type = 'external_api'")
@@ -42,7 +42,7 @@ class ExternalPoolE2ETests(unittest.TestCase):
 
     def _create_external_api_key(self, name: str, api_key: str, *, pool_access: bool):
         with self.app.app_context():
-            from outlook_web.repositories import external_api_keys as external_api_keys_repo
+            from mailops.repositories import external_api_keys as external_api_keys_repo
 
             return external_api_keys_repo.create_external_api_key(
                 name=name,
@@ -55,7 +55,7 @@ class ExternalPoolE2ETests(unittest.TestCase):
     def _insert_pool_account(self, *, provider: str = "outlook") -> int:
         email_addr = f"{uuid.uuid4().hex}@extpoole2e.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -83,7 +83,7 @@ class ExternalPoolE2ETests(unittest.TestCase):
 
     def _external_audit_logs(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             rows = db.execute("""
@@ -96,7 +96,7 @@ class ExternalPoolE2ETests(unittest.TestCase):
 
     def _external_consumer_usage_rows(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             rows = db.execute("""
@@ -180,7 +180,7 @@ class ExternalPoolE2ETests(unittest.TestCase):
         self.assertEqual(deny_resp.get_json().get("code"), "FORBIDDEN")
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_public_mode", "true")
             settings_repo.set_setting("external_api_ip_whitelist", json.dumps(["127.0.0.1"]))

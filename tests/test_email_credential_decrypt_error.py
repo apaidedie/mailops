@@ -52,7 +52,7 @@ class EmailCredentialDecryptErrorTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
 
-        with patch("outlook_web.services.graph.get_emails_graph") as mock_graph:
+        with patch("mailops.services.graph.get_emails_graph") as mock_graph:
             resp = client.get(f"/api/emails/{email_addr}?folder=inbox&skip=0&top=10")
 
         self.assertEqual(resp.status_code, 500)
@@ -90,7 +90,7 @@ class EmailCredentialDecryptErrorTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
 
-        with patch("outlook_web.services.graph.get_emails_graph") as mock_graph:
+        with patch("mailops.services.graph.get_emails_graph") as mock_graph:
             resp = client.get(f"/api/emails/{email_addr}/extract-verification")
 
         self.assertEqual(resp.status_code, 500)

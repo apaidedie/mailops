@@ -15,7 +15,7 @@ class SettingsVerificationAiProbeTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("verification_ai_enabled", "true")
             settings_repo.set_setting("verification_ai_base_url", "")
@@ -48,7 +48,7 @@ class SettingsVerificationAiProbeTests(unittest.TestCase):
         self.assertIn("verification_ai_api_key", probe.get("missing_fields") or [])
         self.assertIn("verification_ai_model", probe.get("missing_fields") or [])
 
-    @patch("outlook_web.services.verification_extractor.requests.post")
+    @patch("mailops.services.verification_extractor.requests.post")
     def test_verification_ai_test_success_when_runtime_reachable(self, mock_post):
         class _Resp:
             status_code = 200
@@ -67,7 +67,7 @@ class SettingsVerificationAiProbeTests(unittest.TestCase):
         mock_post.return_value = _Resp()
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting(
                 "verification_ai_base_url",
@@ -93,7 +93,7 @@ class SettingsVerificationAiProbeTests(unittest.TestCase):
             "verification_ai_v1",
         )
 
-    @patch("outlook_web.services.verification_extractor.requests.post")
+    @patch("mailops.services.verification_extractor.requests.post")
     def test_verification_ai_test_connectivity_ok_when_contract_invalid(self, mock_post):
         class _Resp:
             status_code = 200
@@ -112,7 +112,7 @@ class SettingsVerificationAiProbeTests(unittest.TestCase):
         mock_post.return_value = _Resp()
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting(
                 "verification_ai_base_url",

@@ -14,7 +14,7 @@ TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "examples" / "temp_mail_pr
 
 class TempMailProviderPluginTemplateTests(unittest.TestCase):
     def setUp(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
 
         self._registry = _REGISTRY
         self._missing = object()
@@ -45,8 +45,8 @@ class TempMailProviderPluginTemplateTests(unittest.TestCase):
         self.assertEqual(module.TemplateTempMailProvider.provider_name, PROVIDER_KEY)
 
     def test_template_contract_validation_is_valid_and_secret_safe(self):
-        from outlook_web.services.temp_mail_provider_base import TempMailProviderBase
-        from outlook_web.services.temp_mail_provider_contract import validate_temp_mail_provider_class
+        from mailops.services.temp_mail_provider_base import TempMailProviderBase
+        from mailops.services.temp_mail_provider_contract import validate_temp_mail_provider_class
 
         module = self._load_template_module()
 

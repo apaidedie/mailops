@@ -4,7 +4,7 @@
 
 This task adds a thin orchestration endpoint for external callers. It must not create a second mailbox-reading implementation or a new lifecycle state machine. Existing services remain authoritative:
 
-- Pool lifecycle: `outlook_web.services.pool.claim_random`, release, and complete endpoints.
+- Pool lifecycle: `mailops.services.pool.claim_random`, release, and complete endpoints.
 - Task temp-mail lifecycle: `TempMailService.apply_task_mailbox` and finish endpoint.
 - Read lifecycle: `get_external_mailbox_read_contract()` and existing external read endpoints.
 

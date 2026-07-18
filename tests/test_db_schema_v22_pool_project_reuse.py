@@ -77,7 +77,7 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
 
@@ -93,7 +93,7 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
 
@@ -111,7 +111,7 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
 
@@ -128,7 +128,7 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
 
@@ -145,7 +145,7 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import init_db
+            from mailops.db import init_db
 
             init_db(database_path=str(db_path))
 
@@ -168,8 +168,8 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import create_sqlite_connection, init_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import create_sqlite_connection, init_db
+            from mailops.repositories import pool as pool_repo
 
             init_db(database_path=str(db_path))
 
@@ -193,8 +193,8 @@ class DbSchemaV22PoolProjectReuseTests(unittest.TestCase):
             db_path = Path(tmp) / "legacy_v21.db"
             self._seed_legacy_v21_db(db_path)
 
-            from outlook_web.db import create_sqlite_connection, init_db
-            from outlook_web.repositories import pool as pool_repo
+            from mailops.db import create_sqlite_connection, init_db
+            from mailops.repositories import pool as pool_repo
 
             init_db(database_path=str(db_path))
 

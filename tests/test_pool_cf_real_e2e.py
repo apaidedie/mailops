@@ -56,8 +56,8 @@ class RealCFWorkerE2ETests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")
@@ -121,7 +121,7 @@ class RealCFWorkerE2ETests(unittest.TestCase):
 
         # 验证 DB 中有对应的账号记录
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute(
@@ -213,7 +213,7 @@ class RealCFWorkerE2ETests(unittest.TestCase):
 
         # 3) 验证本地状态变为 used
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute("SELECT pool_status FROM accounts WHERE id = ?", (account_id,)).fetchone()
@@ -225,7 +225,7 @@ class RealCFWorkerE2ETests(unittest.TestCase):
         # 因此验证"删除成功"的标准是：至少 complete 接口返回 200 + 日志显示已删除
         time.sleep(1)  # 等待异步删除完成
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute("SELECT temp_mail_meta FROM accounts WHERE id = ?", (account_id,)).fetchone()
@@ -284,7 +284,7 @@ class RealCFWorkerE2ETests(unittest.TestCase):
 
         # 3) 验证远程邮箱仍可读（JWT 仍有效）
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute("SELECT temp_mail_meta, email FROM accounts WHERE id = ?", (account_id,)).fetchone()

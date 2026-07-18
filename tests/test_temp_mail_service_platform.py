@@ -79,7 +79,7 @@ class TempMailServicePlatformTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@service-platform.test'")
@@ -89,8 +89,8 @@ class TempMailServicePlatformTests(unittest.TestCase):
     def test_service_uses_factory_and_persists_provider_meta(self):
         provider = _MailboxFirstProvider()
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailService
 
             service = TempMailService(provider_factory=lambda provider_name=None: provider)
             mailbox = service.generate_user_mailbox(prefix="demo", domain="service-platform.test")
@@ -104,8 +104,8 @@ class TempMailServicePlatformTests(unittest.TestCase):
     def test_service_reads_messages_through_mailbox_descriptor(self):
         provider = _MailboxFirstProvider()
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailService
 
             temp_emails_repo.create_temp_email(
                 email_addr="reader@service-platform.test",
@@ -123,8 +123,8 @@ class TempMailServicePlatformTests(unittest.TestCase):
     def test_delete_mailbox_skips_remote_delete_when_capability_disabled(self):
         provider = _MailboxFirstProvider()
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailService
 
             temp_emails_repo.create_temp_email(
                 email_addr="delete-local@service-platform.test",

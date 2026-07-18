@@ -8,7 +8,7 @@ Make future temp-mail provider additions faster by adding a local CLI command th
 
 - The project already has a tested template at `examples/temp_mail_provider_plugin_template.py`.
 - Runtime plugin files are loaded from `<DATABASE_PATH parent>/plugins/temp_mail_providers/*.py`.
-- `outlook_web.services.temp_mail_plugin_cli` already owns plugin install, uninstall, and list commands.
+- `mailops.services.temp_mail_plugin_cli` already owns plugin install, uninstall, and list commands.
 - Provider extension should stay contract-driven and secret-free; generated files must not contain real credentials or secret defaults.
 
 ## Requirements

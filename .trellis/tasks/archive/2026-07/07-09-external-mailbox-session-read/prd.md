@@ -11,8 +11,8 @@ The endpoint should reduce client branching between pool claims and task temp-ma
 - `POST /api/external/mailbox-sessions/start` already returns `session_type`, `email`, lifecycle handles, `external_mailbox_read_contract`, and `next_actions` for `pool_claim` and `task_temp_mailbox` sessions.
 - `POST /api/external/mailbox-sessions/close` already closes pool claims and task temp-mailboxes through existing lifecycle services.
 - Existing read behavior lives on `/api/external/messages`, `/api/external/messages/latest`, `/api/external/messages/{message_id}`, `/api/external/messages/{message_id}/raw`, `/api/external/verification-code`, `/api/external/verification-link`, and `/api/external/wait-message`.
-- `outlook_web.services.external_api.resolve_external_mail_scope()` already resolves `email` or `claim_token`, enforces mailbox access, and applies the pool claim baseline timestamp.
-- `outlook_web.services.mailbox_resolver.ensure_mailbox_can_read()` already enforces account email scope and task temp-mailbox consumer ownership.
+- `mailops.services.external_api.resolve_external_mail_scope()` already resolves `email` or `claim_token`, enforces mailbox access, and applies the pool claim baseline timestamp.
+- `mailops.services.mailbox_resolver.ensure_mailbox_can_read()` already enforces account email scope and task temp-mailbox consumer ownership.
 - Historical API docs explicitly avoid adding a separate task-token-specific message API. This task must not create a parallel task mailbox read subsystem.
 
 ## Requirements

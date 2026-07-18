@@ -107,9 +107,9 @@ class ErrorAndTraceTests(unittest.TestCase):
         }
 
         # 控制器现在使用 repositories 和 services，需要 mock 这些模块
-        from outlook_web.repositories import accounts as accounts_repo
-        from outlook_web.services import graph as graph_service
-        from outlook_web.services import imap as imap_service
+        from mailops.repositories import accounts as accounts_repo
+        from mailops.services import graph as graph_service
+        from mailops.services import imap as imap_service
 
         with (
             patch.object(
@@ -183,9 +183,9 @@ class ErrorAndTraceTests(unittest.TestCase):
         }
 
         # 控制器现在使用 repositories 和 services，需要 mock 这些模块
-        from outlook_web.repositories import accounts as accounts_repo
-        from outlook_web.services import graph as graph_service
-        from outlook_web.services import imap as imap_service
+        from mailops.repositories import accounts as accounts_repo
+        from mailops.services import graph as graph_service
+        from mailops.services import imap as imap_service
 
         with (
             patch.object(
@@ -262,8 +262,8 @@ class ErrorAndTraceTests(unittest.TestCase):
         self.assertEqual(login.status_code, 200)
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.scheduler import REFRESH_LOCK_NAME
+            from mailops.db import get_db
+            from mailops.services.scheduler import REFRESH_LOCK_NAME
 
             db = get_db()
             db.execute("DELETE FROM distributed_locks WHERE name = ?", (REFRESH_LOCK_NAME,))
@@ -288,7 +288,7 @@ class ErrorAndTraceTests(unittest.TestCase):
         client = self.app.test_client()
 
         with self.app.test_request_context("/api/test"):
-            from outlook_web.middleware.error_handler import handle_exception
+            from mailops.middleware.error_handler import handle_exception
 
             response, status_code = handle_exception(RuntimeError("database path C:/secret.db exploded"))
 
@@ -393,7 +393,7 @@ class ErrorAndTraceTests(unittest.TestCase):
         self.assertEqual(login.status_code, 200)
 
         with patch(
-            "outlook_web.controllers.groups.consume_export_verify_token",
+            "mailops.controllers.groups.consume_export_verify_token",
             return_value=(False, "验证失败：IP 不匹配"),
         ):
             resp = client.get("/api/groups/1/export")

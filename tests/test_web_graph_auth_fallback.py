@@ -23,7 +23,7 @@ class WebGraphAuthFallbackTests(unittest.TestCase):
 
     def _insert_outlook_account(self, email_addr: str):
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -37,8 +37,8 @@ class WebGraphAuthFallbackTests(unittest.TestCase):
             )
             db.commit()
 
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_get_emails_graph_401_still_fallback_to_imap(
         self,
         mock_graph_list,
@@ -84,8 +84,8 @@ class WebGraphAuthFallbackTests(unittest.TestCase):
         self.assertEqual(data.get("method"), "IMAP (New)")
         self.assertTrue(mock_imap_list.called)
 
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_get_emails_returns_auth_expired_only_after_all_fallbacks_fail(
         self,
         mock_graph_list,

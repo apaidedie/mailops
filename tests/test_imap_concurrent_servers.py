@@ -50,9 +50,9 @@ class TestImapConcurrentServers(unittest.TestCase):
     """IMAP 并发双服务器测试"""
 
     # P-01: 两台都成功 → 返回先到的结果
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_first_success_wins(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         def side_effect(*args, **kwargs):
             server = kwargs.get("server", args[6] if len(args) > 6 else "")
@@ -80,9 +80,9 @@ class TestImapConcurrentServers(unittest.TestCase):
         self.assertIn("live", result["emails"][0]["subject"])
 
     # P-02: 一台失败一台成功 → 返回成功的那台
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_one_fail_one_success_returns_success(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         def side_effect(*args, **kwargs):
             server = kwargs.get("server", args[6] if len(args) > 6 else "")
@@ -105,9 +105,9 @@ class TestImapConcurrentServers(unittest.TestCase):
         self.assertTrue(result.get("success"))
 
     # P-03: 两台都失败 → 返回错误
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_both_fail_returns_error(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         mock_fetch.return_value = _make_error_result()
 
@@ -124,9 +124,9 @@ class TestImapConcurrentServers(unittest.TestCase):
         self.assertFalse(result.get("success"))
 
     # P-04: 一台超时一台成功 → 返回成功的
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_timeout_fallback(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         def side_effect(*args, **kwargs):
             server = kwargs.get("server", args[6] if len(args) > 6 else "")
@@ -150,9 +150,9 @@ class TestImapConcurrentServers(unittest.TestCase):
         self.assertTrue(result.get("success"))
 
     # P-05: 只传单台服务器 → 不并发
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_single_server_no_concurrency(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         mock_fetch.return_value = _make_success_result(1, "live")
 
@@ -171,9 +171,9 @@ class TestImapConcurrentServers(unittest.TestCase):
         self.assertEqual(mock_fetch.call_count, 1)
 
     # P-06: 并发结束后两个调用都完成（不检查 logout，交由 get_emails_imap_with_server 内部处理）
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_both_servers_called(self, mock_fetch):
-        from outlook_web.services.imap import get_emails_imap_concurrent
+        from mailops.services.imap import get_emails_imap_concurrent
 
         mock_fetch.return_value = _make_success_result(1, "any")
 

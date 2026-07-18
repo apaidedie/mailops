@@ -7,7 +7,7 @@ Remove the authenticated UI's blocked CDN dependency for DOMPurify so HTML email
 ## Background
 
 - `templates/index.html` loads DOMPurify from `https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js`.
-- `outlook_web/middleware/security_headers.py` emits `script-src 'self' 'unsafe-inline'`, so the browser blocks that CDN script in normal app pages.
+- `mailops/middleware/security_headers.py` emits `script-src 'self' 'unsafe-inline'`, so the browser blocks that CDN script in normal app pages.
 - `static/js/features/emails.js` has a fallback sanitizer when `DOMPurify` is missing, but the production path should load the stronger sanitizer reliably from a first-party static URL.
 
 ## Requirements

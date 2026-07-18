@@ -133,7 +133,7 @@
 ## 项目结构
 
 ```text
-outlook_web/          Flask 应用主体（controllers / routes / services / repositories）
+mailops/          Flask 应用主体（controllers / routes / services / repositories）
 templates/            页面模板
 static/               前端脚本与样式
 data/                 SQLite 数据与运行时文件

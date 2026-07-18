@@ -4,7 +4,7 @@
 
 1. Add backend contract tests for readiness summary `routing_matrix` on `/api/providers`, `/api/mailboxes`, and OpenAPI.
 2. Add frontend contract expectations for `readinessSummary.routing_matrix` consumption in `static/js/features/mailboxes.js`.
-3. Implement routing-matrix helpers in `outlook_web.services.provider_catalog` and include the matrix in `get_mailbox_provider_readiness_summary()`.
+3. Implement routing-matrix helpers in `mailops.services.provider_catalog` and include the matrix in `get_mailbox_provider_readiness_summary()`.
 4. Update OpenAPI schemas for `MailboxProviderReadinessSummary` and routing-matrix provider rows.
 5. Render a compact provider-routing strip in the unified mailbox provider readiness band without provider-specific branches.
 6. Run targeted tests, then scoped browser-extension tests to confirm no unrelated regression.

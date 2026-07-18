@@ -16,7 +16,7 @@
 - `python -m pytest tests/test_settings_tab_refactor_frontend.py -q`
 - `python -m pytest tests/test_i18n_settings_completeness.py -q`
 - `python -m pytest tests/test_ui_settings_external_api_key.py -q`
-- `python -m py_compile outlook_web/controllers/external_temp_emails.py outlook_web/routes/external_temp_emails.py`
+- `python -m py_compile mailops/controllers/external_temp_emails.py mailops/routes/external_temp_emails.py`
 - `git diff --check`
 
 ## Risk Notes

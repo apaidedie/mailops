@@ -13,7 +13,7 @@ class TestDetectLineType(unittest.TestCase):
 
     def _detect(self, line, fallback_host="", fallback_port=993):
         with self.app.app_context():
-            from outlook_web.controllers.accounts import _detect_line_type
+            from mailops.controllers.accounts import _detect_line_type
 
             return _detect_line_type(line, fallback_host, fallback_port)
 

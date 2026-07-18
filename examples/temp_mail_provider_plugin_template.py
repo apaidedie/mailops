@@ -4,7 +4,7 @@ import json
 from typing import Any
 from urllib.parse import quote
 
-from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 
 PROVIDER_KEY = "template_temp_mail"
@@ -59,7 +59,7 @@ class TemplateTempMailProvider(TempMailProviderBase):
         # Plugin settings are persisted as plugin.<provider>.<field>. Keep the
         # import lazy so structural validation can run without app setup.
         try:
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             return str(settings_repo.get_setting(f"plugin.{self.provider_name}.{key}", default) or "").strip()
         except Exception:

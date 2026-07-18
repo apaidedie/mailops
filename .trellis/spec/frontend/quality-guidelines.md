@@ -1404,7 +1404,7 @@ Trigger: frontend or backend changes that expose, render, refresh, or save Setti
 - `GET /api/providers -> data.mailbox_providers[*].configuration.config_schema`
 - `GET /api/settings -> data.settings.<setting>_set` and `data.settings.<setting>_masked` for secret state hints
 - `PUT /api/settings -> settings.<provider setting key>`
-- `outlook_web/services/provider_catalog.py -> configuration.config_schema`
+- `mailops/services/provider_catalog.py -> configuration.config_schema`
 - `templates/index.html -> #tempMailProviderConfigPanel`
 - `templates/index.html -> #tempMailProviderConfigBody`
 - `templates/index.html -> #tempMailProviderConfigSubtitle`

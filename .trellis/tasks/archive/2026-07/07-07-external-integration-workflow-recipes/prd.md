@@ -8,7 +8,7 @@ Make the existing `integration_manifest` more useful for external projects by ad
 
 The current manifest already exposes API key metadata, discovery endpoints, provider selection fields, deployment hints, and per-provider env/settings keys. External clients can generate starter config from it, but they still have to infer the end-to-end operation order from several separate payload sections and README prose.
 
-The provider selection contract requires `integration_manifest` to be generated in `outlook_web.services.provider_catalog` from the same guide, selection policy, deployment profile, diagnostics, and endpoint map as the owning response. It must remain additive, provider-agnostic, and secret-safe.
+The provider selection contract requires `integration_manifest` to be generated in `mailops.services.provider_catalog` from the same guide, selection policy, deployment profile, diagnostics, and endpoint map as the owning response. It must remain additive, provider-agnostic, and secret-safe.
 
 ## Requirements
 

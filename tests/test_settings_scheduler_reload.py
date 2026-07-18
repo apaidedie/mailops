@@ -31,8 +31,8 @@ class SettingsSchedulerReloadTests(unittest.TestCase):
 
         fake_scheduler = MagicMock(name="scheduler")
 
-        with patch("outlook_web.services.scheduler.get_scheduler_instance", return_value=fake_scheduler), patch(
-            "outlook_web.services.scheduler.configure_scheduler_jobs"
+        with patch("mailops.services.scheduler.get_scheduler_instance", return_value=fake_scheduler), patch(
+            "mailops.services.scheduler.configure_scheduler_jobs"
         ) as configure_jobs:
             resp = client.put("/api/settings", json={"telegram_poll_interval": 60})
 
@@ -50,12 +50,12 @@ class SettingsSchedulerReloadTests(unittest.TestCase):
     def test_configure_scheduler_jobs_uses_unified_notification_dispatch_job(self):
         fake_scheduler = MagicMock(name="scheduler")
 
-        with patch("outlook_web.services.scheduler._configure_telegram_push_job") as configure_telegram, patch(
-            "outlook_web.services.scheduler._configure_email_notification_job"
-        ) as configure_email, patch("outlook_web.services.scheduler._configure_probe_poll_job"), patch(
-            "outlook_web.services.scheduler._configure_pool_maintenance_jobs"
+        with patch("mailops.services.scheduler._configure_telegram_push_job") as configure_telegram, patch(
+            "mailops.services.scheduler._configure_email_notification_job"
+        ) as configure_email, patch("mailops.services.scheduler._configure_probe_poll_job"), patch(
+            "mailops.services.scheduler._configure_pool_maintenance_jobs"
         ):
-            from outlook_web.services import scheduler as scheduler_service
+            from mailops.services import scheduler as scheduler_service
 
             scheduler_service.configure_scheduler_jobs(fake_scheduler, self.app, lambda *_args, **_kwargs: None)
 

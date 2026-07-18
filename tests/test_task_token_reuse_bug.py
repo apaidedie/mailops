@@ -27,7 +27,7 @@ class TestTaskTokenReuseBug(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages")
@@ -38,7 +38,7 @@ class TestTaskTokenReuseBug(unittest.TestCase):
 
     def test_two_sequential_tasks_get_different_tokens(self):
         """两次 apply 应该各自得到不同的 task_token，互不影响"""
-        from outlook_web.repositories import temp_emails as repo
+        from mailops.repositories import temp_emails as repo
 
         with self.app.app_context():
             ok1 = repo.create_temp_email(
@@ -65,7 +65,7 @@ class TestTaskTokenReuseBug(unittest.TestCase):
 
     def test_same_task_token_value_rejected_by_unique_constraint(self):
         """同一个 task_token 值写入第二条记录时，应该被 UNIQUE 约束拒绝"""
-        from outlook_web.repositories import temp_emails as repo
+        from mailops.repositories import temp_emails as repo
 
         with self.app.app_context():
             ok1 = repo.create_temp_email(
@@ -99,7 +99,7 @@ class TestTaskTokenReuseBug(unittest.TestCase):
         2. finish 后，task_token 没有被清空
         3. 再用同样的 task_token 创建新邮箱 → 失败
         """
-        from outlook_web.repositories import temp_emails as repo
+        from mailops.repositories import temp_emails as repo
 
         with self.app.app_context():
             # 步骤1：任务A 创建邮箱
@@ -138,7 +138,7 @@ class TestTaskTokenReuseBug(unittest.TestCase):
 
     def test_unique_index_exists_on_task_token(self):
         """确认 idx_temp_emails_task_token_unique 索引存在"""
-        from outlook_web.db import get_db
+        from mailops.db import get_db
 
         with self.app.app_context():
             db = get_db()
@@ -155,8 +155,8 @@ class TestTaskTokenReuseBug(unittest.TestCase):
 
     def test_finish_does_not_clear_task_token(self):
         """直接查数据库，确认 finish 只改了 status 和 finished_at，没清 task_token"""
-        from outlook_web.db import get_db
-        from outlook_web.repositories import temp_emails as repo
+        from mailops.db import get_db
+        from mailops.repositories import temp_emails as repo
 
         with self.app.app_context():
             repo.create_temp_email(

@@ -11,14 +11,14 @@ class PoolFlowSuiteTests(unittest.TestCase):
         cls.module = import_web_app_module()
         cls.app = cls.module.app
         cls.client = cls.app.test_client()
-        from outlook_web.db import create_sqlite_connection
+        from mailops.db import create_sqlite_connection
 
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             account_columns = [row[1] for row in db.execute("PRAGMA table_info(accounts)").fetchall()]

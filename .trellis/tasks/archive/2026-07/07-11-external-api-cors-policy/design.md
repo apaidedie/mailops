@@ -2,7 +2,7 @@
 
 ## Architecture
 
-`outlook_web.config` owns environment parsing and origin validation. A new `outlook_web/cors_config.py` module owns the safe discovery contract and Flask-CORS registration. `create_app()` delegates to `configure_external_api_cors(app)`.
+`mailops.config` owns environment parsing and origin validation. A new `mailops/cors_config.py` module owns the safe discovery contract and Flask-CORS registration. `create_app()` delegates to `configure_external_api_cors(app)`.
 
 `provider_catalog.get_external_api_capabilities_contract()` copies the safe CORS contract into `cors`. `get_external_api_readiness_summary()` projects the same contract into `cors`, so the integration bundle includes it through `readiness.external_api.cors` without rebuilding policy elsewhere.
 

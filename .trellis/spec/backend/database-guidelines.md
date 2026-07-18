@@ -4,13 +4,13 @@ The project uses SQLite directly through `sqlite3`; there is no ORM. Database be
 
 ## Connection Lifecycle
 
-- Use `outlook_web.db.get_db()` inside request/app contexts. It stores the connection on `flask.g` and uses `sqlite3.Row` for row access.
+- Use `mailops.db.get_db()` inside request/app contexts. It stores the connection on `flask.g` and uses `sqlite3.Row` for row access.
 - `create_sqlite_connection()` sets `PRAGMA foreign_keys = ON` and `PRAGMA busy_timeout = 5000`; do not create ad hoc raw connections unless you need an isolated script/test path.
 - `register_db(app)` wires teardown cleanup. Do not close the shared request connection manually in controllers/services.
 
 ## Query Patterns
 
-- Repositories own persistence queries. Put new CRUD/query behavior under `outlook_web/repositories/<resource>.py` unless the query is a cross-source read model owned by a service, such as `services/mailbox_catalog.py`.
+- Repositories own persistence queries. Put new CRUD/query behavior under `mailops/repositories/<resource>.py` unless the query is a cross-source read model owned by a service, such as `services/mailbox_catalog.py`.
 - Use parameterized SQL with `?` placeholders. Build dynamic `WHERE` clauses by appending trusted SQL snippets plus a separate `params` list, as in `repositories/accounts.py`.
 - Convert `sqlite3.Row` objects to dictionaries at repository or service boundaries before returning JSON-facing data.
 - Batch related lookups when practical. `repositories/accounts._load_tags_by_account_ids()` is the current pattern for avoiding N+1 tag queries.
@@ -24,14 +24,14 @@ The project uses SQLite directly through `sqlite3`; there is no ORM. Database be
 
 ## Migrations
 
-- Schema version is centralized in `outlook_web/db.py` as `DB_SCHEMA_VERSION`. Increment it when adding or changing schema.
+- Schema version is centralized in `mailops/db.py` as `DB_SCHEMA_VERSION`. Increment it when adding or changing schema.
 - Migrations must be idempotent for fresh databases and older databases. Use `CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, and defensive column/index checks where needed.
 - Add a short version comment near `DB_SCHEMA_VERSION` describing the migration.
 - Add migration tests for schema changes. Existing examples include `tests/test_db_schema_v22_pool_project_reuse.py`, `tests/test_db_schema_v23_overview.py`, and `tests/test_db_migration_task_token_unique.py`.
 
 ## Secrets And Encryption
 
-- Account credentials are stored encrypted. Use repository helpers such as `_decrypt_account_field()` and crypto helpers from `outlook_web.security.crypto` instead of exposing raw encrypted values to controllers or UI payloads.
+- Account credentials are stored encrypted. Use repository helpers such as `_decrypt_account_field()` and crypto helpers from `mailops.security.crypto` instead of exposing raw encrypted values to controllers or UI payloads.
 - Public discovery/readiness payloads must not include mailbox passwords, refresh tokens, API keys, bearer tokens, task tokens, consumer keys, provider JWTs, or decrypted credential values.
 - Provider configuration docs and manifests may expose secret key names, but secret values must be blank or absent.
 

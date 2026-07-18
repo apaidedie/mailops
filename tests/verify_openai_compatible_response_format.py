@@ -29,8 +29,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import requests
 
-from outlook_web.repositories import settings as settings_repo
-from outlook_web.services.verification_extractor import (
+from mailops.repositories import settings as settings_repo
+from mailops.services.verification_extractor import (
     _normalize_verification_ai_endpoint,
 )
 from web_outlook_app import app

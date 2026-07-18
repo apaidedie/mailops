@@ -6,7 +6,7 @@ This task adds a compact `quickstart` projection to the existing external integr
 
 ## Backend Design
 
-`outlook_web.services.provider_catalog` owns a helper that builds the quickstart object from the same endpoint map, selection policy, and manifest workflow keys used by `get_external_integration_manifest()`.
+`mailops.services.provider_catalog` owns a helper that builds the quickstart object from the same endpoint map, selection policy, and manifest workflow keys used by `get_external_integration_manifest()`.
 
 `integration_manifest.quickstart` is the source of truth. `get_external_api_capabilities_contract()`, `/api/external/providers`, and authenticated `/api/providers` expose `quickstart` by copying it from the manifest, not by rebuilding it in controllers.
 

@@ -2,7 +2,7 @@
 
 ## Steps
 
-- Add backend recipe builder helpers in `outlook_web.services.provider_catalog`.
+- Add backend recipe builder helpers in `mailops.services.provider_catalog`.
 - Expose recipes from deployment profile, selection policy, provider integration guide, and integration manifest.
 - Extend external OpenAPI schemas for the new recipe payload.
 - Add backend tests for recipe presence, derivation, future-provider behavior, and secret safety.
@@ -13,7 +13,7 @@
 
 - `python -m pytest tests/test_external_api.py tests/test_unified_mailbox_catalog.py -q -rs`
 - `python -m pytest tests/test_settings_tab_refactor_frontend.py -q -rs`
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 - `git diff --check`
 
 ## Rollback Notes

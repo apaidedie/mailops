@@ -31,7 +31,7 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         ai_model: str = "",
     ) -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             cols = {str(r["name"]) for r in db.execute("PRAGMA table_info(groups)").fetchall()}
@@ -47,7 +47,7 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             name = f"grp_pol_{uuid.uuid4().hex[:8]}"
@@ -68,7 +68,7 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
     def _create_outlook_account(self, group_id: int) -> str:
         email_addr = f"{uuid.uuid4().hex}@extapi.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -106,8 +106,8 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
             "body": {"content": body_text, "contentType": "text"},
         }
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_extract_uses_default_6_digits_for_code(self, mock_get_emails_graph, mock_get_email_detail_graph):
         group_id = self._create_group_with_policy(length="6-6", regex="")
         email_addr = self._create_outlook_account(group_id)
@@ -125,8 +125,8 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         data = resp.get_json().get("data", {})
         self.assertEqual(data.get("verification_code"), "123456")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_extract_link_not_affected_by_default_6_digits(self, mock_get_emails_graph, mock_get_email_detail_graph):
         group_id = self._create_group_with_policy(length="6-6", regex="")
         email_addr = self._create_outlook_account(group_id)
@@ -146,8 +146,8 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         data = resp.get_json().get("data", {})
         self.assertIn("verify", str(data.get("links") or ""))
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_extract_uses_group_regex_over_group_length(self, mock_get_emails_graph, mock_get_email_detail_graph):
         group_id = self._create_group_with_policy(length="6-6", regex=r"\b[A-Z]{4}\d{2}\b")
         email_addr = self._create_outlook_account(group_id)
@@ -165,8 +165,8 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         data = resp.get_json().get("data", {})
         self.assertEqual(data.get("verification_code"), "CODE12")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_extract_request_params_override_group_policy(self, mock_get_emails_graph, mock_get_email_detail_graph):
         group_id = self._create_group_with_policy(length="6-6", regex=r"\b[A-Z]{4}\d{2}\b")
         email_addr = self._create_outlook_account(group_id)
@@ -184,7 +184,7 @@ class ExtractVerificationGroupPolicyTests(unittest.TestCase):
         data = resp.get_json().get("data", {})
         self.assertEqual(data.get("verification_code"), "1234")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_extract_group_ai_legacy_fields_do_not_block(self, mock_get_emails_graph):
         group_id = self._create_group_with_policy(length="6-6", regex="", ai_enabled=1, ai_model="")
         email_addr = self._create_outlook_account(group_id)

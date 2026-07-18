@@ -5,7 +5,7 @@ TDD A 层：号池管理 Repository 测试
 
 覆盖 docs/TDD/2026-05-18-Issue60-号池管理UI与状态维护TDD.md §5
 当前运行会失败（红）—— pool_admin repository 模块尚未创建。
-实现 outlook_web/repositories/pool_admin.py 后，所有用例应通过（绿）。
+实现 mailops/repositories/pool_admin.py 后，所有用例应通过（绿）。
 
 测试目标：
 1. [MVP] 池内筛选 (in_pool=true)
@@ -28,7 +28,7 @@ class PoolAdminRepositoryBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = import_web_app_module()
-        from outlook_web.db import create_sqlite_connection
+        from mailops.db import create_sqlite_connection
 
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
 
@@ -100,7 +100,7 @@ class PoolAdminListQueryTests(PoolAdminRepositoryBase):
     # --- Q-01: in_pool=true 仅返回 pool_status IS NOT NULL ---
     def test_list_accounts_returns_only_in_pool_accounts_when_in_pool_true(self):
         """Q-01: in_pool=true 仅返回 pool_status IS NOT NULL 的账号"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         id_in = self._make_account(self.conn, pool_status="available")
         id_in2 = self._make_account(self.conn, pool_status="cooldown")
@@ -115,7 +115,7 @@ class PoolAdminListQueryTests(PoolAdminRepositoryBase):
     # --- Q-02: in_pool=false 仅返回 pool_status IS NULL ---
     def test_list_accounts_returns_only_out_of_pool_accounts_when_in_pool_false(self):
         """Q-02: in_pool=false 仅返回 pool_status IS NULL 的账号"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         id_in = self._make_account(self.conn, pool_status="available")
         id_out = self._make_account(self.conn, pool_status=None)
@@ -130,7 +130,7 @@ class PoolAdminListQueryTests(PoolAdminRepositoryBase):
     # --- Q-06: 空结果合法 ---
     def test_list_accounts_empty_result_is_legal(self):
         """Q-06: 空数据时返回合法结构"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         result = repo.list_accounts(self.conn, in_pool="true")
         self.assertIn("items", result)
@@ -155,7 +155,7 @@ class PoolAdminClaimedFieldsTests(PoolAdminRepositoryBase):
 
     def test_list_accounts_returns_claim_fields_for_claimed_rows(self):
         """Q-04: claimed 行应返回 claimed_by / claimed_at / lease_expires_at"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -193,7 +193,7 @@ class PoolAdminStatusUpdateTests(PoolAdminRepositoryBase):
 
     def test_update_pool_status_moves_null_to_available(self):
         """A-01: NULL -> available（移入号池）"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id = self._make_account(self.conn, pool_status=None)
 
@@ -204,7 +204,7 @@ class PoolAdminStatusUpdateTests(PoolAdminRepositoryBase):
 
     def test_update_pool_status_moves_available_to_null(self):
         """A-02: available -> NULL（移出号池）"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id = self._make_account(self.conn, pool_status="available")
 
@@ -215,7 +215,7 @@ class PoolAdminStatusUpdateTests(PoolAdminRepositoryBase):
 
     def test_update_pool_status_does_not_affect_other_accounts(self):
         """状态更新不应影响其他账号"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id_1 = self._make_account(self.conn, pool_status=None)
         account_id_2 = self._make_account(self.conn, pool_status="available")
@@ -243,7 +243,7 @@ class PoolAdminForceReleaseTests(PoolAdminRepositoryBase):
 
     def test_force_release_clears_claim_context_and_sets_available(self):
         """F-01 + F-03: 强制释放将 claimed -> available，清理 claim 上下文"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id, _ = self._make_claimed_account(self.conn)
 
@@ -261,7 +261,7 @@ class PoolAdminForceReleaseTests(PoolAdminRepositoryBase):
 
     def test_force_release_keeps_account_in_pool(self):
         """F-01 补充: 强制释放后账号仍在池内（pool_status != NULL）"""
-        from outlook_web.repositories import pool_admin as repo
+        from mailops.repositories import pool_admin as repo
 
         account_id, _ = self._make_claimed_account(self.conn)
 

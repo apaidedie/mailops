@@ -22,11 +22,11 @@
   - `static/js/features/groups.js`
   - `static/js/main.js`
 - 账号新增入库：
-  - `outlook_web/repositories/accounts.py`
+  - `mailops/repositories/accounts.py`
 - 池领取条件：
-  - `outlook_web/repositories/pool.py`
+  - `mailops/repositories/pool.py`
 - 数据库字段默认值：
-  - `outlook_web/db.py`
+  - `mailops/db.py`
 
 ## 测试前置条件
 

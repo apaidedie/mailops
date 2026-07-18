@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Add a small middleware module, `outlook_web/middleware/security_headers.py`, and register it through `app.after_request()` in `create_app()` after trace/error middleware and before blueprint/CORS setup. The middleware is response-only and has no database or request-body dependency.
+Add a small middleware module, `mailops/middleware/security_headers.py`, and register it through `app.after_request()` in `create_app()` after trace/error middleware and before blueprint/CORS setup. The middleware is response-only and has no database or request-body dependency.
 
 ## Header Contract
 
@@ -41,7 +41,7 @@ Set `Strict-Transport-Security` when either:
 - Flask sees `request.is_secure`, including ProxyFix-enabled deployments that set `X-Forwarded-Proto: https` correctly.
 - `SECURITY_HEADERS_FORCE_HSTS=true` is set.
 
-Expose config helpers in `outlook_web/config.py`:
+Expose config helpers in `mailops/config.py`:
 
 - `get_security_headers_enabled() -> bool`, default true.
 - `get_security_headers_force_hsts() -> bool`, default false.

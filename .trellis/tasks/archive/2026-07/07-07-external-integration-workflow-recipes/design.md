@@ -2,7 +2,7 @@
 
 ## Boundary
 
-The workflow recipes are an additive projection inside `integration_manifest`. The owner stays `outlook_web.services.provider_catalog` because that module already builds the external endpoint map, provider integration guide, deployment profile, selection policy, provider diagnostics, and the current manifest.
+The workflow recipes are an additive projection inside `integration_manifest`. The owner stays `mailops.services.provider_catalog` because that module already builds the external endpoint map, provider integration guide, deployment profile, selection policy, provider diagnostics, and the current manifest.
 
 Controllers must not rebuild recipes. `/api/providers`, `/api/external/providers`, `/api/external/capabilities`, and OpenAPI `x-capabilities` should receive recipes only through `get_external_integration_manifest()` or the existing capabilities contract path.
 

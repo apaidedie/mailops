@@ -16,7 +16,7 @@
 - `node --check static/js/main.js`
 - `node --check static/js/i18n.js`
 - Browser QA on Settings -> API Security at desktop and mobile widths.
-- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web`
+- `rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\\s*=\\s*dk_|Bearer\\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops`
 - `git diff --check`
 - `python -m pytest -q -rs`
 

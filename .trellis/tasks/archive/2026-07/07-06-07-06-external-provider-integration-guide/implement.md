@@ -2,7 +2,7 @@
 
 ## Steps
 
-- Add `get_provider_integration_guide(...)` in `outlook_web.services.provider_catalog`, with optional prebuilt inputs so callers can reuse the same deployment profile, selection policy, diagnostics, provider filter, and endpoint map.
+- Add `get_provider_integration_guide(...)` in `mailops.services.provider_catalog`, with optional prebuilt inputs so callers can reuse the same deployment profile, selection policy, diagnostics, provider filter, and endpoint map.
 - Build provider entries from catalog items plus diagnostics and deployment snippets. Keep secret values out by copying only key names and redacted/default-free examples.
 - Add the guide to external capabilities, external providers, internal providers, and mailbox directory provider context.
 - Extend OpenAPI schemas with `ProviderIntegrationGuide`, require it in `CapabilitiesData` and `MailboxProviderContext`, and keep schema details broad enough for future providers.

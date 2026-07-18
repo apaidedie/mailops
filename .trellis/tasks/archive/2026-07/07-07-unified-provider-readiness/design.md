@@ -6,7 +6,7 @@ This task adds an inventory-aware readiness projection to the existing unified m
 
 ## Backend Design
 
-`outlook_web.services.provider_catalog` owns a new helper that projects readiness from existing `provider_context` inputs: provider diagnostics, provider integration guide, selection policy, defaults, discovery endpoints, and a lightweight mailbox inventory summary passed by `mailbox_catalog`.
+`mailops.services.provider_catalog` owns a new helper that projects readiness from existing `provider_context` inputs: provider diagnostics, provider integration guide, selection policy, defaults, discovery endpoints, and a lightweight mailbox inventory summary passed by `mailbox_catalog`.
 
 The helper returns `readiness_summary` with `version=1`, `overall_status`, `totals`, `issues`, `source_priority`, `provider_selector_fields`, `endpoints`, and `providers`. Per-provider rows are compact and secret-free: `kind`, `provider`, `label`, `active`, `configured`, `readiness_status`, `mailbox_count`, `account_count`, `temp_count`, `can_dynamic_create`, `requires_pool_inventory`, `read_capability`, `missing_config_count`, and endpoint hints.
 

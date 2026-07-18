@@ -16,7 +16,7 @@ class TestAutoImport(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             # 清理测试数据
@@ -133,7 +133,7 @@ class TestAutoImport(unittest.TestCase):
 
         # 获取默认分组 ID
         with self.app.app_context():
-            from outlook_web.repositories import groups as groups_repo
+            from mailops.repositories import groups as groups_repo
 
             default_id = groups_repo.get_default_group_id()
 

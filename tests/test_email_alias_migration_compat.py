@@ -18,8 +18,8 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@aliascompat.test'")
@@ -57,7 +57,7 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
 
     def _insert_outlook_account(self, email_addr: str = "user@aliascompat.test") -> str:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -81,7 +81,7 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
 
     def _set_external_api_key(self, value: str = "abc123"):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", value)
 
@@ -94,7 +94,7 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.get_json().get("success"))
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_messages_alias_and_canonical_are_equivalent(self, mock_get_emails_graph):
         canonical_email = self._insert_outlook_account()
         alias_email = "user+signup@aliascompat.test"
@@ -128,9 +128,9 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
             (data_alias.get("emails") or [])[0].get("id"),
         )
 
-    @patch("outlook_web.services.graph.get_email_raw_graph")
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_raw_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_verification_code_alias_and_canonical_are_equivalent(
         self,
         mock_get_emails_graph,
@@ -168,7 +168,7 @@ class EmailAliasMigrationCompatTests(unittest.TestCase):
         self.assertEqual(data_canonical.get("verification_code"), data_alias.get("verification_code"))
         self.assertEqual(data_alias.get("verification_code"), "123456")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_internal_get_emails_alias_and_canonical_are_equivalent(self, mock_get_emails_graph):
         canonical_email = self._insert_outlook_account()
         alias_email = "user+signup@aliascompat.test"

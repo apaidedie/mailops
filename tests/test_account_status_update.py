@@ -20,7 +20,7 @@ class AccountStatusUpdateTests(unittest.TestCase):
 
     def _insert_account(self, email_addr: str = "status-update@test.example") -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             cur = db.execute(

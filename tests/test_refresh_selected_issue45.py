@@ -152,15 +152,15 @@ class RefreshSelectedIssue45Tests(unittest.TestCase):
 
         with (
             patch(
-                "outlook_web.services.graph.test_refresh_token_with_rotation",
+                "mailops.services.graph.test_refresh_token_with_rotation",
                 side_effect=fake_refresh,
             ),
             patch(
-                "outlook_web.repositories.distributed_locks.acquire_distributed_lock",
+                "mailops.repositories.distributed_locks.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
-            patch("outlook_web.repositories.distributed_locks.release_distributed_lock"),
-            patch("outlook_web.services.refresh.time.sleep"),
+            patch("mailops.repositories.distributed_locks.release_distributed_lock"),
+            patch("mailops.services.refresh.time.sleep"),
         ):
             resp = client.post(
                 "/api/accounts/refresh/selected",

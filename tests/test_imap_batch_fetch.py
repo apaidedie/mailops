@@ -43,10 +43,10 @@ class TestImapBatchFetch(unittest.TestCase):
         return conn
 
     # B-01: 单封 → 正确解析，等价于逐封 FETCH
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_single_email_batch_fetch(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import get_emails_imap_with_server
+        from mailops.services.imap import get_emails_imap_with_server
 
         mock_token.return_value = _MOCK_TOKEN_OK
         raw = _build_rfc822_bytes("单封测试", "Hello single")
@@ -64,10 +64,10 @@ class TestImapBatchFetch(unittest.TestCase):
         self.assertIn("单封测试", emails[0].get("subject", ""))
 
     # B-02: 多封 → 一次 FETCH 返回多封，全部正确解析
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_multi_email_batch_fetch(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import get_emails_imap_with_server
+        from mailops.services.imap import get_emails_imap_with_server
 
         mock_token.return_value = _MOCK_TOKEN_OK
 
@@ -93,10 +93,10 @@ class TestImapBatchFetch(unittest.TestCase):
         self.assertEqual(conn.fetch.call_count, 1)
 
     # B-03: SEARCH 返回 0 个 ID → 不发起 FETCH
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_empty_search_no_fetch(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import get_emails_imap_with_server
+        from mailops.services.imap import get_emails_imap_with_server
 
         mock_token.return_value = _MOCK_TOKEN_OK
         conn = self._make_imap_conn(mock_imap_cls, search_ids=[])
@@ -108,10 +108,10 @@ class TestImapBatchFetch(unittest.TestCase):
         conn.fetch.assert_not_called()
 
     # B-04: 部分解析失败 → 其余邮件正常返回
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_partial_parse_failure_returns_valid_emails(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import get_emails_imap_with_server
+        from mailops.services.imap import get_emails_imap_with_server
 
         mock_token.return_value = _MOCK_TOKEN_OK
 
@@ -140,10 +140,10 @@ class TestImapBatchFetch(unittest.TestCase):
         self.assertGreaterEqual(len(emails), 2)
 
     # B-05: 大批量 top=20
-    @patch("outlook_web.services.imap.imaplib.IMAP4_SSL")
-    @patch("outlook_web.services.imap.get_access_token_imap_result")
+    @patch("mailops.services.imap.imaplib.IMAP4_SSL")
+    @patch("mailops.services.imap.get_access_token_imap_result")
     def test_large_batch_fetch(self, mock_token, mock_imap_cls):
-        from outlook_web.services.imap import get_emails_imap_with_server
+        from mailops.services.imap import get_emails_imap_with_server
 
         mock_token.return_value = _MOCK_TOKEN_OK
 

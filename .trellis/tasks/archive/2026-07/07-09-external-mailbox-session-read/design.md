@@ -2,7 +2,7 @@
 
 ## Boundary
 
-This task adds a session-level adapter, not a second mailbox reading system. Runtime mailbox reads remain owned by `outlook_web.services.external_api` and `outlook_web.services.mailbox_resolver`.
+This task adds a session-level adapter, not a second mailbox reading system. Runtime mailbox reads remain owned by `mailops.services.external_api` and `mailops.services.mailbox_resolver`.
 
 ## Endpoint
 
@@ -21,7 +21,7 @@ Request body fields:
 
 ## Data Flow
 
-1. Route registers the endpoint in `outlook_web/routes/external_temp_emails.py`.
+1. Route registers the endpoint in `mailops/routes/external_temp_emails.py`.
 2. Controller validates JSON object body and session/read enums.
 3. Controller resolves the session target:
    - `pool_claim`: call `external_api.resolve_external_mail_scope(email, claim_token)` to reuse claim-token validation, email consistency checks, access checks, and baseline timestamp.

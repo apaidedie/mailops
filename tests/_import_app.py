@@ -4,7 +4,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-_TEMP_DIR = tempfile.TemporaryDirectory(prefix="outlookEmail-tests-")
+_TEMP_DIR = tempfile.TemporaryDirectory(prefix="mailops-tests-")
 _DB_PATH = Path(_TEMP_DIR.name) / "test.db"
 
 
@@ -36,7 +36,7 @@ def import_web_app_module():
 
 def clear_login_attempts():
     """清理登录限制记录，避免测试间互相影响"""
-    from outlook_web.db import get_db
+    from mailops.db import get_db
 
     try:
         db = get_db()

@@ -12,9 +12,9 @@ class TempMailboxPoolTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = import_web_app_module()
-        from outlook_web.db import create_sqlite_connection
-        from outlook_web.repositories import pool as pool_repo
-        from outlook_web.services import pool as pool_service
+        from mailops.db import create_sqlite_connection
+        from mailops.repositories import pool as pool_repo
+        from mailops.services import pool as pool_service
 
         cls.pool_repo = pool_repo
         cls.pool_service = pool_service
@@ -163,7 +163,7 @@ class TempMailboxPoolTests(unittest.TestCase):
         email = f"created@{domain}"
         fake_provider = self._FakeDynamicTempProvider(provider_name="duckmail", email=email)
 
-        with patch("outlook_web.services.pool.get_temp_mail_provider", return_value=fake_provider):
+        with patch("mailops.services.pool.get_temp_mail_provider", return_value=fake_provider):
             result = self.pool_service.claim_random(
                 caller_id="reg_bot",
                 task_id="t_dynamic_duck",
@@ -198,7 +198,7 @@ class TempMailboxPoolTests(unittest.TestCase):
             conn.close()
 
     def test_claim_random_auto_does_not_dynamically_create_temp_provider(self):
-        with patch("outlook_web.services.pool.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.pool.get_temp_mail_provider") as provider_factory:
             with self.assertRaises(self.pool_service.PoolServiceError) as ctx:
                 self.pool_service.claim_random(caller_id="reg_bot", task_id="t_auto_empty", provider="auto")
 
@@ -208,7 +208,7 @@ class TempMailboxPoolTests(unittest.TestCase):
     def test_claim_random_temp_provider_create_failure_uses_stable_pool_error(self):
         fake_provider = self._FakeDynamicTempProvider(provider_name="duckmail", success=False)
 
-        with patch("outlook_web.services.pool.get_temp_mail_provider", return_value=fake_provider):
+        with patch("mailops.services.pool.get_temp_mail_provider", return_value=fake_provider):
             with self.assertRaises(self.pool_service.PoolServiceError) as ctx:
                 self.pool_service.claim_random(
                     caller_id="reg_bot",
@@ -222,7 +222,7 @@ class TempMailboxPoolTests(unittest.TestCase):
     def test_claim_random_temp_provider_dynamic_create_rejects_domain_mismatch(self):
         fake_provider = self._FakeDynamicTempProvider(provider_name="duckmail", email="created@wrong.test")
 
-        with patch("outlook_web.services.pool.get_temp_mail_provider", return_value=fake_provider):
+        with patch("mailops.services.pool.get_temp_mail_provider", return_value=fake_provider):
             with self.assertRaises(self.pool_service.PoolServiceError) as ctx:
                 self.pool_service.claim_random(
                     caller_id="reg_bot",

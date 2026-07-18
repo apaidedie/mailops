@@ -47,7 +47,7 @@ jobs:
 
       - name: Syntax check
         run: |
-          python -m compileall -q outlook_web web_outlook_app.py outlook_mail_reader.py start.py tests
+          python -m compileall -q mailops web_outlook_app.py outlook_mail_reader.py start.py tests
 
       - name: Run unit tests with coverage
         run: |

@@ -2,8 +2,8 @@
 
 ## Architecture
 
-- Add `outlook_web.services.external_api_contract_check` as the service owner for the admin validation report.
-- Add `api_external_api_contract_check()` to `outlook_web.controllers.settings` and mount it under `outlook_web.routes.settings` at `/api/settings/external-api/contract-check` with `login_required`.
+- Add `mailops.services.external_api_contract_check` as the service owner for the admin validation report.
+- Add `api_external_api_contract_check()` to `mailops.controllers.settings` and mount it under `mailops.routes.settings` at `/api/settings/external-api/contract-check` with `login_required`.
 - Keep `/api/v1/external/*` unchanged. This is an admin readiness surface, not a new external API contract.
 - Update `static/js/main.js` and `static/css/main.css` inside the existing External API command center block.
 

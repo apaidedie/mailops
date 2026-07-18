@@ -566,8 +566,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--base-url", required=True, help="Outlook Email Plus instance base URL")
     parser.add_argument(
         "--api-key",
-        default=os.environ.get("MAILOPS_API_KEY") or os.environ.get("OUTLOOK_EMAIL_PLUS_API_KEY", ""),
-        help="External API key. Defaults to MAILOPS_API_KEY (legacy: OUTLOOK_EMAIL_PLUS_API_KEY).",
+        default=os.environ.get("MAILOPS_API_KEY", ""),
+        help="External API key. Defaults to MAILOPS_API_KEY.",
     )
     parser.add_argument("--timeout", type=float, default=20.0, help="HTTP timeout in seconds")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -605,7 +605,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if not args.api_key:
-        parser.error("--api-key or MAILOPS_API_KEY is required " "(legacy env: OUTLOOK_EMAIL_PLUS_API_KEY)")
+        parser.error("--api-key or MAILOPS_API_KEY is required")
     client = MailOpsClient(args.base_url, args.api_key, timeout=args.timeout)
     try:
         if args.command == "discover":

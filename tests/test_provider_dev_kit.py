@@ -32,14 +32,14 @@ class ProviderDevKitTests(unittest.TestCase):
         self.assertIn("provider_dev_kit.py validate sample_bridge", "\n".join(payload["next_steps"]))
 
     def test_validate_command_is_offline_by_default_and_outputs_contract_json(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
         from scripts import provider_dev_kit
 
         provider_key = "offline_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
 
-        plugin_source = """from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = """from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class OfflineContractProvider(TempMailProviderBase):
@@ -78,14 +78,14 @@ class OfflineContractProvider(TempMailProviderBase):
         self.assertEqual(payload["secret_scan"], {"ok": True, "hits": []})
 
     def test_validate_command_fails_on_secret_scan_without_leaking_value(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
         from scripts import provider_dev_kit
 
         provider_key = "secret_scan_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
         secret_value = "dk_" + "a" * 64
-        plugin_source = f"""from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = f"""from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 TOKEN_EXAMPLE = "{secret_value}"
 
@@ -126,13 +126,13 @@ class SecretScanContractProvider(TempMailProviderBase):
         self.assertNotIn(secret_value, output)
 
     def test_probe_options_is_explicit(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_provider_base import _REGISTRY
         from scripts import provider_dev_kit
 
         provider_key = "probe_contract"
         previous_provider = _REGISTRY.get(provider_key)
         _REGISTRY.pop(provider_key, None)
-        plugin_source = """from outlook_web.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+        plugin_source = """from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
 
 @register_provider
 class ProbeContractProvider(TempMailProviderBase):

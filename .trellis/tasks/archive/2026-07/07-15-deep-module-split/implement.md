@@ -9,7 +9,7 @@
 ### Backend
 
 1. [x] Snapshot baseline on `custom`; splitter at `scripts/_split_module_package.py`
-2. [x] Split `outlook_web/db.py` → `outlook_web/db/` (`constants`, `connection`, `schema`, `sensitive`)
+2. [x] Split `mailops/db.py` → `mailops/db/` (`constants`, `connection`, `schema`, `sensitive`)
 3. [x] Split `controllers/accounts.py` → `controllers/accounts/` (+ import/export re-exports)
 4. [x] Split `controllers/settings.py` → `controllers/settings/`
 5. [x] Split `controllers/emails.py` → `controllers/emails/`
@@ -49,8 +49,8 @@ git diff --check
 
 ## Risky files
 
-- `outlook_web/db.py` (wide import fan-out)
-- `outlook_web/routes/*` (must only rebind callables)
+- `mailops/db.py` (wide import fan-out)
+- `mailops/routes/*` (must only rebind callables)
 - `services/external_api*.py` (contract surface)
 - `static/js/core/state.js` + `scripts.html` (boot order)
 - `tests/frontend_js_bundle.py`, `tests/test_module_boundaries.py`

@@ -12,7 +12,7 @@
 
 ```powershell
 python -m pytest tests/test_settings_tab_refactor_frontend.py -q -rs
-python -m py_compile outlook_web\controllers\accounts.py outlook_web\services\provider_catalog.py
+python -m py_compile mailops\controllers\accounts.py mailops\services\provider_catalog.py
 git diff --check
 git diff | Select-String -Pattern 'dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN=|Bearer\s+[A-Za-z0-9_.-]+' -CaseSensitive:$false
 ```

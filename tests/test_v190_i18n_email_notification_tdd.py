@@ -12,8 +12,8 @@ import os
 import unittest
 from unittest.mock import patch
 
-from outlook_web.repositories import settings as settings_repo
-from outlook_web.security.crypto import encrypt_data
+from mailops.repositories import settings as settings_repo
+from mailops.security.crypto import encrypt_data
 from tests._import_app import clear_login_attempts, import_web_app_module
 
 
@@ -389,7 +389,7 @@ class V190ApiContractRedTests(unittest.TestCase):
         self._set_setting("telegram_chat_id", "123456")
 
         with patch(
-            "outlook_web.services.telegram_push._send_telegram_message",
+            "mailops.services.telegram_push._send_telegram_message",
             return_value=True,
         ):
             resp = client.post("/api/settings/telegram-test", json={})
@@ -406,7 +406,7 @@ class V190ApiContractRedTests(unittest.TestCase):
         self._set_setting("telegram_chat_id", "123456")
 
         with patch(
-            "outlook_web.services.telegram_push._send_telegram_message",
+            "mailops.services.telegram_push._send_telegram_message",
             return_value=False,
         ):
             resp = client.post("/api/settings/telegram-test", json={})
@@ -452,7 +452,7 @@ class V190NotificationSchemaRedTests(unittest.TestCase):
 
     def test_schema_version_upgraded_to_15(self):
         """TDD-00010 §6：schema 已包含 v15 变更（version >= 15 即满足，当前允许继续升级）"""
-        from outlook_web.db import DB_SCHEMA_VERSION
+        from mailops.db import DB_SCHEMA_VERSION
 
         conn = self.module.create_sqlite_connection()
         try:

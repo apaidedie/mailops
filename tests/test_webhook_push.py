@@ -17,7 +17,7 @@ class WebhookPushServiceTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("webhook_notification_enabled", "false")
             settings_repo.set_setting("webhook_notification_url", "")
@@ -30,10 +30,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         return resp
 
     def test_send_webhook_message_success_on_2xx(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             return_value=self._resp(204),
         ) as post_mock:
             webhook_push.send_webhook_message(
@@ -51,10 +51,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertNotIn("X-Webhook-Token", kwargs.get("headers", {}))
 
     def test_send_webhook_message_retries_once_then_success(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             side_effect=[self._resp(500, "err"), self._resp(200, "ok")],
         ) as post_mock:
             webhook_push.send_webhook_message(
@@ -68,10 +68,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertEqual(post_mock.call_count, 2)
 
     def test_send_webhook_message_retries_once_then_fail(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             side_effect=[self._resp(500, "err"), self._resp(500, "err2")],
         ) as post_mock:
             with self.assertRaises(webhook_push.WebhookPushError) as ctx:
@@ -87,10 +87,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertEqual(ctx.exception.code, "WEBHOOK_SEND_FAILED")
 
     def test_send_webhook_message_timeout_uses_10_seconds(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             side_effect=requests.Timeout("timeout"),
         ) as post_mock:
             with self.assertRaises(webhook_push.WebhookPushError):
@@ -106,10 +106,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertEqual(post_mock.call_args.kwargs.get("timeout"), 10)
 
     def test_send_webhook_message_without_token_omits_header(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             return_value=self._resp(200),
         ) as post_mock:
             webhook_push.send_webhook_message(
@@ -122,10 +122,10 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertNotIn("X-Webhook-Token", headers)
 
     def test_send_webhook_message_with_token_sets_header(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         with patch(
-            "outlook_web.services.webhook_push.requests.post",
+            "mailops.services.webhook_push.requests.post",
             return_value=self._resp(200),
         ) as post_mock:
             webhook_push.send_webhook_message(
@@ -138,7 +138,7 @@ class WebhookPushServiceTests(unittest.TestCase):
         self.assertEqual(headers.get("X-Webhook-Token"), "token-123")
 
     def test_build_business_webhook_text_contains_minimum_fields(self):
-        from outlook_web.services import webhook_push
+        from mailops.services import webhook_push
 
         source = {
             "source_type": "account",

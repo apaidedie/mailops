@@ -61,7 +61,7 @@ class TempMailServiceTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_email_messages WHERE email_address LIKE '%@service.test'")
@@ -70,7 +70,7 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_generate_user_mailbox_persists_prefix_domain_and_visibility(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.services.temp_mail_service import TempMailService
 
             provider = _FakeTempMailProvider()
             service = TempMailService(provider=provider)
@@ -85,8 +85,8 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_apply_and_finish_task_mailbox_records_task_fields(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailService
 
             provider = _FakeTempMailProvider()
             service = TempMailService(provider=provider)
@@ -111,7 +111,7 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_extract_verification_returns_shared_extractor_fields(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_service import TempMailService
+            from mailops.services.temp_mail_service import TempMailService
 
             provider = _FakeTempMailProvider()
             provider.list_payload = [
@@ -142,9 +142,9 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_list_messages_does_not_mask_upstream_failure_as_cached_result(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_provider_custom import TempMailProviderReadError
-            from outlook_web.services.temp_mail_service import TempMailError, TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_provider_custom import TempMailProviderReadError
+            from mailops.services.temp_mail_service import TempMailError, TempMailService
 
             provider = _FakeTempMailProvider()
             provider.list_exception = TempMailProviderReadError(
@@ -177,8 +177,8 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_get_message_detail_does_not_map_upstream_failure_to_not_found(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import TempMailProviderReadError
-            from outlook_web.services.temp_mail_service import TempMailError, TempMailService
+            from mailops.services.temp_mail_provider_custom import TempMailProviderReadError
+            from mailops.services.temp_mail_service import TempMailError, TempMailService
 
             provider = _FakeTempMailProvider()
             provider.detail_exception = TempMailProviderReadError(
@@ -199,8 +199,8 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_refresh_message_detail_surfaces_upstream_failure(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_custom import TempMailProviderReadError
-            from outlook_web.services.temp_mail_service import TempMailError, TempMailService
+            from mailops.services.temp_mail_provider_custom import TempMailProviderReadError
+            from mailops.services.temp_mail_service import TempMailError, TempMailService
 
             provider = _FakeTempMailProvider()
             provider.detail_exception = TempMailProviderReadError(
@@ -220,8 +220,8 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_delete_message_keeps_local_cache_when_provider_delete_fails(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailError, TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailError, TempMailService
 
             provider = _FakeTempMailProvider()
             provider.delete_result = False
@@ -253,8 +253,8 @@ class TempMailServiceTests(unittest.TestCase):
 
     def test_clear_messages_keeps_local_cache_when_provider_clear_fails(self):
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
-            from outlook_web.services.temp_mail_service import TempMailError, TempMailService
+            from mailops.repositories import temp_emails as temp_emails_repo
+            from mailops.services.temp_mail_service import TempMailError, TempMailService
 
             provider = _FakeTempMailProvider()
             provider.clear_result = False

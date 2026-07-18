@@ -2,7 +2,7 @@
 """Release alignment checks for CI tag builds.
 
 When GITHUB_REF is refs/tags/vX.Y.Z, verifies:
-  - outlook_web.__version__ matches the tag (without ``v`` prefix)
+  - mailops.__version__ matches the tag (without ``v`` prefix)
   - CHANGELOG.md contains ``## [vX.Y.Z] - ...``
 
 Non-tag refs (main/dev/PR) exit 0 without checks.
@@ -33,10 +33,10 @@ def _expected_version_from_ref(ref: str) -> str | None:
 
 
 def check_app_version(expected: str) -> list[str]:
-    from outlook_web import __version__
+    from mailops import __version__
 
     if __version__ != expected:
-        return [f"outlook_web.__version__ is {__version__!r}, expected {expected!r} (from git tag)"]
+        return [f"mailops.__version__ is {__version__!r}, expected {expected!r} (from git tag)"]
     return []
 
 

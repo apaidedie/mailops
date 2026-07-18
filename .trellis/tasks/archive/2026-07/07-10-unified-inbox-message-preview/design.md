@@ -2,9 +2,9 @@
 
 ## Architecture
 
-Add `outlook_web/services/unified_mailbox_messages.py` as the service owner for internal unified message preview. It composes existing repositories and read services without exposing the external API auth surface to the admin browser.
+Add `mailops/services/unified_mailbox_messages.py` as the service owner for internal unified message preview. It composes existing repositories and read services without exposing the external API auth surface to the admin browser.
 
-Add thin controller handlers in `outlook_web/controllers/mailboxes.py` and URL registrations in `outlook_web/routes/mailboxes.py`:
+Add thin controller handlers in `mailops/controllers/mailboxes.py` and URL registrations in `mailops/routes/mailboxes.py`:
 
 - `GET /api/mailboxes/<kind>/<int:source_id>/messages`
 - `GET /api/mailboxes/<kind>/<int:source_id>/messages/<path:message_id>`

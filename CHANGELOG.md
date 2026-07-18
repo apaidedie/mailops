@@ -4,6 +4,12 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ## [Unreleased]
 
+### 重要变更 / Important Changes
+
+- **包名与测试隔离前缀统一为 mailops**：Python 包目录 `outlook_web/` 重命名为 `mailops/`（import 路径同步为 `mailops.*`）；测试临时目录前缀改为 `mailops-tests-`；coverage omit 路径同步。
+- **移除旧环境变量兼容**：示例客户端与 `scripts/external_api_smoke.py` 仅认 `MAILOPS_API_KEY`（不再读取 `OUTLOOK_EMAIL_PLUS_API_KEY`）。
+- 兼容入口 `web_outlook_app.py` / `outlook_mail_reader.py` 文件名保留（部署 gunicorn 入口不变），内部已全部 import `mailops`。
+
 ## [v2.7.1] - 2026-07-18
 
 ### 改进 / Improvements
@@ -24,7 +30,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- 版本号从 `2.7.0` 升级至 `2.7.1`（`outlook_web.__version__` / `package.json`）。
+- 版本号从 `2.7.0` 升级至 `2.7.1`（`mailops.__version__` / `package.json`）。
 
 ### 测试/验证 / Testing & Verification
 
@@ -49,11 +55,11 @@ All notable changes to OutlookMail Plus are documented in this file.
 ### 修复 / Bug Fixes
 
 - **Issue #70 Figma 邮件展示修复**：修复 Figma 验证邮件在前端的展示问题。
-- **Issue #71 版本号与发版一致性**：`outlook_web.__version__` 与 Git tag / GitHub Release 对齐为 `2.7.0`；CI tag 构建新增 `scripts/check_release_version.py` 门禁（校验 `__version__` + `CHANGELOG.md`）。
+- **Issue #71 版本号与发版一致性**：`mailops.__version__` 与 Git tag / GitHub Release 对齐为 `2.7.0`；CI tag 构建新增 `scripts/check_release_version.py` 门禁（校验 `__version__` + `CHANGELOG.md`）。
 
 ### 重要变更 / Important Changes
 
-- 版本号从 `2.6.0` 升级至 `2.7.0`（`outlook_web.__version__`）。
+- 版本号从 `2.6.0` 升级至 `2.7.0`（`mailops.__version__`）。
 - Docker 发版：`docker-build-push.yml` 在 push `v*.*.*` tag 时强制版本与 CHANGELOG 一致。
 
 ## [v2.6.0] - 2026-05-19
@@ -83,7 +89,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 修复 / Bug Fixes
 
-- **Issue #57 批量刷新卡 12/50**：`outlook_web/services/graph.py` 刷新链路增加指数退避 + 抖动 + 超时组合策略，避免大批量刷新时因个别账号超时导致整体卡住。
+- **Issue #57 批量刷新卡 12/50**：`mailops/services/graph.py` 刷新链路增加指数退避 + 抖动 + 超时组合策略，避免大批量刷新时因个别账号超时导致整体卡住。
 - CI 环境自动跳过 `test_pool_cf_real_e2e` 外部 E2E 测试（`@unittest.skipIf(os.environ.get("CI") == "true")`），解除 Docker 构建阻塞。
 
 ### 重要变更 / Important Changes
@@ -147,12 +153,12 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 - **CI 质量门禁彻底修复**：
   - `isort` 排序失败：修复 `tests/test_settings_dynamic_provider_names.py` 内部 import 顺序，通过 `isort --check-only`。
-  - `coverage` 报告失败：在 `pyproject.toml` 中配置 `[tool.coverage.run]`，omit 测试期间动态创建的临时插件文件（`*/outlookEmail-tests-*/plugins/temp_mail_providers/*.py`），解决 `No source for code` 错误。
+  - `coverage` 报告失败：在 `pyproject.toml` 中配置 `[tool.coverage.run]`，omit 测试期间动态创建的临时插件文件（`*/mailops-tests-*/plugins/temp_mail_providers/*.py`），解决 `No source for code` 错误。
   - 插件测试文件泄漏：将 `test_temp_mail_plugin_manager.py` 与 `test_temp_mail_plugin_api.py` 的 `tearDown` 中文件清理模式从 `mock_*.py` 放宽为 `*.py`，防止 `custom_one.py` 等临时文件残留。
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `2.2.1` 升级为 `2.2.2`。
+- **版本升级**：`mailops.__version__` 从 `2.2.1` 升级为 `2.2.2`。
 
 ## [v2.2.1] - 2026-04-22
 
@@ -162,7 +168,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `2.2.0` 升级为 `2.2.1`。
+- **版本升级**：`mailops.__version__` 从 `2.2.0` 升级为 `2.2.1`。
 
 ## [v2.2.0] - 2026-04-22
 
@@ -182,11 +188,11 @@ All notable changes to OutlookMail Plus are documented in this file.
 ### 修复 / Bug Fixes
 
 - **发布质量门禁修复**：对新增插件化模块及既有文件执行 `black` / `isort` 对齐，修复 `Code Quality` / `Build and Push Docker Image` 链路被质量门禁阻断的问题；本地复测确认 `Code Quality` 等效命令已全部通过。
-- **版本测试动态化**：`tests/test_version_update.py` 改为跟随 `outlook_web.__version__` 动态断言，避免仅因版本号 bump 导致全量回归误报。
+- **版本测试动态化**：`tests/test_version_update.py` 改为跟随 `mailops.__version__` 动态断言，避免仅因版本号 bump 导致全量回归误报。
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `2.1.0` 升级为 `2.2.0`。
+- **版本升级**：`mailops.__version__` 从 `2.1.0` 升级为 `2.2.0`。
 - **扩展版本同步**：`browser-extension/manifest.json` 从 `0.2.0` 升级为 `0.3.0`，与扩展新增能力一并发布。
 - **发布口径保持不变**：当前仓库继续采用 **Python + Docker** 发布链路，正式产物以 Docker 镜像 tar 与源码 zip 为主，不引入 Tauri / Cargo / MSI / NSIS 构建链路。
 
@@ -220,7 +226,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `2.0.0` 升级为 `2.1.0`。
+- **版本升级**：`mailops.__version__` 从 `2.0.0` 升级为 `2.1.0`。
 - **扩展版本同步**：`browser-extension/manifest.json` 从 `0.1.0` 升级为 `0.2.0`，与本次扩展可用性修复一并发布。
 - **数据库升级**：schema 升级到 `v23`，新增 `verification_extract_logs` 表；其中 `account_id > 0` 表示 `accounts.id`，`account_id < 0` 表示负数编码后的 `temp_emails.id`。
 - **发布口径保持不变**：当前仓库继续采用 **Python + Docker** 发布链路，正式产物仍以 Docker 镜像 tar 与源码 zip 为主，不引入 Tauri / Cargo / MSI / NSIS 构建链路。
@@ -276,7 +282,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `1.18.0` 升级为 `1.19.0`。
+- **版本升级**：`mailops.__version__` 从 `1.18.0` 升级为 `1.19.0`。
 - **版本口径同步**：`README.md`、`README.en.md`、`tests/test_version_update.py`、`docs/DEVLOG.md` 同步更新到 `v1.19.0`。
 - **发布口径说明**：当前仓库继续采用 Python + Docker 发布链路，不含 Tauri/Cargo/NPM/MSI/NSIS 构建链路；本次发布产物继续使用 Docker 镜像 tar 与源码 zip。
 
@@ -312,7 +318,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `1.17.0` 升级为 `1.18.0`。
+- **版本升级**：`mailops.__version__` 从 `1.17.0` 升级为 `1.18.0`。
 - **数据库升级**：数据库 schema 升级到 `v22`，新增 `accounts.claimed_project_key` 与 `account_project_usage.first_success_at / last_success_at / success_count`。
 - **迁移边界**：历史长期邮箱 `used -> available` 只在升级到 `v22` 时执行；`cloudflare_temp_mail` / `temp_mail` 不进入该迁移语义，也不伪造历史 success 数据。
 - **发布产物口径**：当前仓库仍不是 Tauri 工程，不包含 `Cargo.toml`、`package.json`、MSI 或 NSIS 构建链路；本次发布继续沿用 Docker 镜像 tar 与源码 zip 作为正式产物。
@@ -349,7 +355,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `1.16.0` 升级为 `1.17.0`。
+- **版本升级**：`mailops.__version__` 从 `1.16.0` 升级为 `1.17.0`。
 - **版本口径同步**：`README.md`、`README.en.md`、`tests/test_version_update.py` 同步更新到 `v1.17.0`。
 - Webhook Token 作为可选头处理：仅在 token 非空时发送 `X-Webhook-Token`。
 - Webhook 投递策略固定：10 秒超时、失败立即重试 1 次、2xx 视为成功。
@@ -396,7 +402,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ### 重要变更 / Important Changes
 
-- **版本升级**：`outlook_web.__version__` 从 `1.15.0` 升级到 `1.16.0`。
+- **版本升级**：`mailops.__version__` 从 `1.15.0` 升级到 `1.16.0`。
 - **版本显示同步**：同步更新 `tests/test_version_update.py`、`README.md`、`README.en.md` 中的版本展示与断言口径。
 - **文档现状同步**：同步更新 `.kiro/steering/*` 与 `CLAUDE.md` 的架构/测试口径描述（授权链接模式、本地 pytest 与 CI unittest 双口径）。
 
@@ -406,7 +412,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 - 关键回归：
   - `python -m pytest tests/test_version_update.py -v` → 51 passed
   - `python -m pytest tests/test_oauth_tool.py -v` → 71 passed
-- 语法校验：`python -m py_compile outlook_web/services/oauth_tool.py outlook_web/controllers/token_tool.py outlook_web/routes/token_tool.py` 通过。
+- 语法校验：`python -m py_compile mailops/services/oauth_tool.py mailops/controllers/token_tool.py mailops/routes/token_tool.py` 通过。
 
 ## [v1.15.0] - 2026-04-12
 
@@ -458,7 +464,7 @@ All notable changes to OutlookMail Plus are documented in this file.
 - 修复本地镜像检测 `_looks_like_local_image_ref()` 误判远程镜像
 - 修复 `docker_api_available` 仅检查 Watchtower 不检查 Docker API
 - 修复 Docker API 自更新同步调用导致容器停止时响应中断（改为后台线程 + 立即返回）
-- 修复 `ModuleNotFoundError: outlook_web.models.AuditLog` 导致更新接口 500
+- 修复 `ModuleNotFoundError: mailops.models.AuditLog` 导致更新接口 500
 - 修复前端 `waitForRestart()` 无法检测容器真正重启（新增 boot_id 变化检测）
 
 ### i18n

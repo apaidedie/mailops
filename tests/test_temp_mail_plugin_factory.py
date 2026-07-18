@@ -21,10 +21,10 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-01
     def test_factory_returns_cf_provider(self):
         """查询 CF provider 返回 CloudflareTempMailProvider 实例"""
-        from outlook_web.services.temp_mail_provider_cf import CloudflareTempMailProvider
-        from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
+        from mailops.services.temp_mail_provider_cf import CloudflareTempMailProvider
+        from mailops.services.temp_mail_provider_factory import get_temp_mail_provider
 
-        with patch("outlook_web.services.temp_mail_provider_factory.settings_repo") as mock_repo:
+        with patch("mailops.services.temp_mail_provider_factory.settings_repo") as mock_repo:
             mock_repo.get_temp_mail_runtime_provider_name.return_value = "cloudflare_temp_mail"
             provider = get_temp_mail_provider("cloudflare_temp_mail")
             self.assertIsInstance(provider, CloudflareTempMailProvider)
@@ -32,10 +32,10 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-02
     def test_factory_returns_custom_provider(self):
         """查询兼容临时邮箱桥接 provider 返回 CustomTempMailProvider 实例"""
-        from outlook_web.services.temp_mail_provider_custom import CustomTempMailProvider
-        from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
+        from mailops.services.temp_mail_provider_custom import CustomTempMailProvider
+        from mailops.services.temp_mail_provider_factory import get_temp_mail_provider
 
-        with patch("outlook_web.services.temp_mail_provider_factory.settings_repo") as mock_repo:
+        with patch("mailops.services.temp_mail_provider_factory.settings_repo") as mock_repo:
             mock_repo.get_temp_mail_runtime_provider_name.return_value = "custom_domain_temp_mail"
             provider = get_temp_mail_provider("custom_domain_temp_mail")
             self.assertIsInstance(provider, CustomTempMailProvider)
@@ -43,12 +43,12 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-03
     def test_factory_raises_on_unknown_provider(self):
         """查询不存在的 provider 抛出 TEMP_MAIL_PROVIDER_INVALID"""
-        from outlook_web.services.temp_mail_provider_factory import (
+        from mailops.services.temp_mail_provider_factory import (
             TempMailProviderFactoryError,
             get_temp_mail_provider,
         )
 
-        with patch("outlook_web.services.temp_mail_provider_factory.settings_repo") as mock_repo:
+        with patch("mailops.services.temp_mail_provider_factory.settings_repo") as mock_repo:
             mock_repo.get_temp_mail_runtime_provider_name.return_value = "nonexistent_provider"
             with self.assertRaises(TempMailProviderFactoryError) as ctx:
                 get_temp_mail_provider("nonexistent_provider")
@@ -57,12 +57,12 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-04
     def test_factory_raises_on_not_configured(self):
         """未配置 provider（返回空）抛出 TEMP_MAIL_PROVIDER_NOT_CONFIGURED"""
-        from outlook_web.services.temp_mail_provider_factory import (
+        from mailops.services.temp_mail_provider_factory import (
             TempMailProviderFactoryError,
             get_temp_mail_provider,
         )
 
-        with patch("outlook_web.services.temp_mail_provider_factory.settings_repo") as mock_repo:
+        with patch("mailops.services.temp_mail_provider_factory.settings_repo") as mock_repo:
             mock_repo.get_temp_mail_runtime_provider_name.return_value = ""
             with self.assertRaises(TempMailProviderFactoryError) as ctx:
                 get_temp_mail_provider()
@@ -71,10 +71,10 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-05
     def test_factory_resolves_via_settings(self):
         """通过 settings 表解析 provider 名并返回对应实例"""
-        from outlook_web.services.temp_mail_provider_cf import CloudflareTempMailProvider
-        from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
+        from mailops.services.temp_mail_provider_cf import CloudflareTempMailProvider
+        from mailops.services.temp_mail_provider_factory import get_temp_mail_provider
 
-        with patch("outlook_web.services.temp_mail_provider_factory.settings_repo") as mock_repo:
+        with patch("mailops.services.temp_mail_provider_factory.settings_repo") as mock_repo:
             mock_repo.get_temp_mail_runtime_provider_name.return_value = "cloudflare_temp_mail"
             provider = get_temp_mail_provider(provider_name="cloudflare_temp_mail")
             self.assertIsInstance(provider, CloudflareTempMailProvider)
@@ -83,8 +83,8 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-06
     def test_get_available_providers_includes_all(self):
         """获取可用列表包含所有已注册 provider（含内置 + 插件）"""
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         @register_provider
         class TestAvailProvider:
@@ -116,7 +116,7 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-07
     def test_get_available_providers_sorted(self):
         """列表按 provider_name 字母序排列"""
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         providers = get_available_providers()
         names = [p["name"] for p in providers]
@@ -125,7 +125,7 @@ class TestPluginFactory(unittest.TestCase):
     # B-FAC-08
     def test_get_available_providers_captures_metadata(self):
         """每项包含 name、label、version、author、capabilities 元信息"""
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         providers = get_available_providers()
         self.assertTrue(len(providers) > 0)
@@ -141,8 +141,8 @@ class TestPluginFactory(unittest.TestCase):
             )
 
     def test_get_available_providers_defaults_capabilities_for_legacy_plugins(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         @register_provider
         class LegacyShapeProvider:
@@ -162,8 +162,8 @@ class TestPluginFactory(unittest.TestCase):
             _REGISTRY.pop("legacy_shape_provider", None)
 
     def test_get_available_providers_normalizes_string_capabilities(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         @register_provider
         class StringCapabilityProvider:
@@ -180,8 +180,8 @@ class TestPluginFactory(unittest.TestCase):
             _REGISTRY.pop("string_capability_provider", None)
 
     def test_get_available_providers_includes_contract_validation(self):
-        from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers
+        from mailops.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
+        from mailops.services.temp_mail_provider_factory import get_available_providers
 
         @register_provider
         class ContractReadyProvider(TempMailProviderBase):

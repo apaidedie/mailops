@@ -33,8 +33,8 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
 
     def _insert_account_direct(self, email=None):
         """直接向 DB 插入一个 Outlook 账号，返回 (account_id, email)。"""
-        from outlook_web.db import get_db
-        from outlook_web.security.crypto import encrypt_data
+        from mailops.db import get_db
+        from mailops.security.crypto import encrypt_data
 
         suffix = uuid.uuid4().hex[:8]
         email = email or f"govtest_{suffix}@outlook.com"
@@ -51,7 +51,7 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
 
     def _insert_refresh_log(self, account_id, account_email, status, error_message, refresh_type="manual"):
         """直接向 account_refresh_logs 插入一条记录。"""
-        from outlook_web.db import get_db
+        from mailops.db import get_db
 
         db = get_db()
         db.execute(
@@ -68,7 +68,7 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
 
     def test_classify_invalid_grant_error(self):
         """invalid_grant 错误应被分类为 invalid_token。"""
-        from outlook_web.services.refresh import _classify_refresh_failure
+        from mailops.services.refresh import _classify_refresh_failure
 
         result = _classify_refresh_failure("AADSTS70000: invalid_grant - token expired")
         self.assertTrue(result.get("is_invalid_token"))
@@ -76,7 +76,7 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
 
     def test_classify_aadsts70000_error(self):
         """AADSTS70000 错误应被分类为 invalid_token。"""
-        from outlook_web.services.refresh import _classify_refresh_failure
+        from mailops.services.refresh import _classify_refresh_failure
 
         result = _classify_refresh_failure("AADSTS70000: The token has been revoked")
         self.assertTrue(result.get("is_invalid_token"))
@@ -84,21 +84,21 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
 
     def test_classify_normal_error_not_invalid_token(self):
         """普通网络错误不应被分类为 invalid_token。"""
-        from outlook_web.services.refresh import _classify_refresh_failure
+        from mailops.services.refresh import _classify_refresh_failure
 
         result = _classify_refresh_failure("ConnectionTimeout: failed to connect to graph.microsoft.com")
         self.assertFalse(result.get("is_invalid_token"))
 
     def test_classify_none_error(self):
         """None error_message 应返回非 invalid_token。"""
-        from outlook_web.services.refresh import _classify_refresh_failure
+        from mailops.services.refresh import _classify_refresh_failure
 
         result = _classify_refresh_failure(None)
         self.assertFalse(result.get("is_invalid_token"))
 
     def test_classify_empty_error(self):
         """空字符串应返回非 invalid_token。"""
-        from outlook_web.services.refresh import _classify_refresh_failure
+        from mailops.services.refresh import _classify_refresh_failure
 
         result = _classify_refresh_failure("")
         self.assertFalse(result.get("is_invalid_token"))

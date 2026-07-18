@@ -16,8 +16,8 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@extapi.test'")
@@ -34,7 +34,7 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
 
     def _create_group_with_policy(self, *, length="6-6", regex="", ai_enabled=0, ai_model="") -> int:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             cols = {str(r["name"]) for r in db.execute("PRAGMA table_info(groups)").fetchall()}
@@ -47,7 +47,7 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
         self.assertTrue(required.issubset(cols), f"groups 表缺少策略字段: {sorted(required - cols)}")
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             name = f"ext_pol_{uuid.uuid4().hex[:8]}"
@@ -68,7 +68,7 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
     def _insert_outlook_account(self, group_id: int) -> str:
         email_addr = f"{uuid.uuid4().hex}@extapi.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -104,9 +104,9 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
             "body": {"content": body_text, "contentType": "text"},
         }
 
-    @patch("outlook_web.services.graph.get_email_raw_graph")
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_raw_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_extract_uses_group_regex_priority(self, mock_list, mock_detail, mock_raw):
         gid = self._create_group_with_policy(length="6-6", regex=r"\b[A-Z]{4}\d{2}\b")
         email_addr = self._insert_outlook_account(gid)
@@ -124,9 +124,9 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
         code = (resp.get_json().get("data") or {}).get("verification_code")
         self.assertEqual(code, "CODE12")
 
-    @patch("outlook_web.services.graph.get_email_raw_graph")
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_raw_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_extract_request_override_group(self, mock_list, mock_detail, mock_raw):
         gid = self._create_group_with_policy(length="6-6", regex=r"\b[A-Z]{4}\d{2}\b")
         email_addr = self._insert_outlook_account(gid)
@@ -144,7 +144,7 @@ class ExternalVerificationGroupPolicyTests(unittest.TestCase):
         code = (resp.get_json().get("data") or {}).get("verification_code")
         self.assertEqual(code, "1234")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_external_extract_group_ai_legacy_fields_do_not_block(self, mock_list):
         gid = self._create_group_with_policy(length="6-6", regex="", ai_enabled=1, ai_model="")
         email_addr = self._insert_outlook_account(gid)

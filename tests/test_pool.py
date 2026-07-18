@@ -8,8 +8,8 @@ class PoolRepositoryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = import_web_app_module()
-        from outlook_web.db import create_sqlite_connection
-        from outlook_web.repositories import pool as pool_repo
+        from mailops.db import create_sqlite_connection
+        from mailops.repositories import pool as pool_repo
 
         cls.pool_repo = pool_repo
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
@@ -744,8 +744,8 @@ class PoolServiceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = import_web_app_module()
-        from outlook_web.db import create_sqlite_connection
-        from outlook_web.services import pool as pool_service
+        from mailops.db import create_sqlite_connection
+        from mailops.services import pool as pool_service
 
         cls.pool_service = pool_service
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
@@ -983,14 +983,14 @@ class PoolApiTests(unittest.TestCase):
         cls.module = import_web_app_module()
         cls.app = cls.module.app
         cls.client = cls.app.test_client()
-        from outlook_web.db import create_sqlite_connection
+        from mailops.db import create_sqlite_connection
 
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
 
     def setUp(self):
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM external_api_keys")

@@ -26,7 +26,7 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def setUp(self):
         """每个测试前清空 verification_extract_logs 表"""
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM verification_extract_logs")
@@ -37,8 +37,8 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_inserts_correct_fields_on_code_success(self):
         """L-01: 提取成功（code）时写入 account_id/channel/duration_ms/result_type/code_found/used_ai"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.external_api import _write_extract_log
+            from mailops.db import get_db
+            from mailops.services.external_api import _write_extract_log
 
             started_at = time.time()
             finished_at = started_at + 0.5
@@ -75,8 +75,8 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_inserts_correct_fields_on_link_success(self):
         """L-02: 提取成功（link）时 result_type='link'，code_found 为链接"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.external_api import _write_extract_log
+            from mailops.db import get_db
+            from mailops.services.external_api import _write_extract_log
 
             _write_extract_log(
                 account_id=998,
@@ -103,8 +103,8 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_inserts_correct_fields_on_failure(self):
         """L-03: 提取失败（none）时 result_type='none'，error_code 非空"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.external_api import _write_extract_log
+            from mailops.db import get_db
+            from mailops.services.external_api import _write_extract_log
 
             _write_extract_log(
                 account_id=997,
@@ -131,8 +131,8 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_calculates_duration_ms_correctly(self):
         """L-01: duration_ms = int((finished_at - started_at) * 1000)，精确到整数毫秒"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.external_api import _write_extract_log
+            from mailops.db import get_db
+            from mailops.services.external_api import _write_extract_log
 
             started_at = 1_000_000.000
             finished_at = 1_000_002.345  # 精确 2345 ms
@@ -159,8 +159,8 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_sets_used_ai_flag_for_ai_fallback(self):
         """L-04: AI fallback 时 channel='ai_fallback'，used_ai=1"""
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.services.external_api import _write_extract_log
+            from mailops.db import get_db
+            from mailops.services.external_api import _write_extract_log
 
             _write_extract_log(
                 account_id=995,
@@ -185,10 +185,10 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_write_extract_log_exception_does_not_propagate_to_caller(self):
         """L-05: _write_extract_log 内部抛异常时，不向调用方传播"""
         with self.app.app_context():
-            from outlook_web.services import external_api as ext_api
+            from mailops.services import external_api as ext_api
 
             # 通过 patch db 写入让其抛出异常
-            with patch("outlook_web.services.external_api._get_db_for_log", side_effect=RuntimeError("inject db error")):
+            with patch("mailops.services.external_api._get_db_for_log", side_effect=RuntimeError("inject db error")):
                 # 即使内部 db 获取失败，_write_extract_log 也应吞掉异常
                 try:
                     ext_api._write_extract_log(
@@ -208,9 +208,9 @@ class VerificationExtractLogWriteTests(unittest.TestCase):
     def test_main_flow_returns_business_error_when_account_not_found(self):
         """L-05: get_verification_result 在账号不存在时返回业务错误（非日志写入错误）"""
         with self.app.app_context():
-            from outlook_web.services.external_api import ExternalApiError, get_verification_result
+            from mailops.services.external_api import ExternalApiError, get_verification_result
 
-            with patch("outlook_web.repositories.accounts.get_account_by_email", return_value=None):
+            with patch("mailops.repositories.accounts.get_account_by_email", return_value=None):
                 with self.assertRaises(ExternalApiError):
                     get_verification_result(email_addr="nonexistent@example.com")
 
@@ -228,7 +228,7 @@ class VerificationChannelRoutingLogChannelTests(unittest.TestCase):
     def test_extract_verification_outlook_returns_log_channel_field(self):
         """L-06: 无论提取成功或失败，返回 dict 中包含 _log_channel 字段"""
         with self.app.app_context():
-            from outlook_web.services import verification_channel_routing as vcr
+            from mailops.services import verification_channel_routing as vcr
 
             fake_account = {
                 "id": 1,
@@ -245,7 +245,7 @@ class VerificationChannelRoutingLogChannelTests(unittest.TestCase):
             with (
                 patch.object(vcr, "build_verification_channel_plan", return_value=[]),
                 patch(
-                    "outlook_web.services.graph.get_access_token_graph_result",
+                    "mailops.services.graph.get_access_token_graph_result",
                     return_value={"success": False},
                 ),
             ):
@@ -265,7 +265,7 @@ class VerificationChannelRoutingLogChannelTests(unittest.TestCase):
     def test_log_channel_is_ai_fallback_when_ai_is_used(self):
         """L-04: AI fallback 成功时 _log_channel 值为 'ai_fallback'"""
         with self.app.app_context():
-            from outlook_web.services import verification_channel_routing as vcr
+            from mailops.services import verification_channel_routing as vcr
 
             fake_account = {
                 "id": 2,
@@ -302,19 +302,19 @@ class VerificationChannelRoutingLogChannelTests(unittest.TestCase):
                 patch.object(vcr, "fetch_email_detail_for_channel", return_value={"body": "888888"}),
                 patch.object(vcr, "_build_email_obj_from_channel_detail", return_value=fake_email_obj),
                 patch(
-                    "outlook_web.services.graph.get_access_token_graph_result",
+                    "mailops.services.graph.get_access_token_graph_result",
                     return_value={"success": True, "scope": "Mail.Read"},
                 ),
                 patch(
-                    "outlook_web.services.verification_extractor.extract_verification_info_with_options",
+                    "mailops.services.verification_extractor.extract_verification_info_with_options",
                     return_value={"verification_code": None},
                 ),
                 patch(
-                    "outlook_web.services.verification_extractor.enhance_verification_with_ai_fallback",
+                    "mailops.services.verification_extractor.enhance_verification_with_ai_fallback",
                     return_value={"verification_code": "888888", "_used_ai": True},
                 ),
                 patch(
-                    "outlook_web.services.verification_extractor.apply_confidence_gate",
+                    "mailops.services.verification_extractor.apply_confidence_gate",
                     return_value={"verification_code": "888888", "_used_ai": True},
                 ),
                 patch.object(vcr, "_is_extraction_success", return_value=True),

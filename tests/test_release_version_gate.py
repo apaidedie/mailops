@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from outlook_web import __version__ as APP_VERSION
+from mailops import __version__ as APP_VERSION
 from scripts import check_release_version as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

@@ -2,7 +2,7 @@
 
 ## Checklist
 
-- Add a shared provider documentation contract helper in `outlook_web.services.provider_catalog`.
+- Add a shared provider documentation contract helper in `mailops.services.provider_catalog`.
 - Embed the documentation contract in provider integration guide, external integration manifest, and mailbox provider context.
 - Add OpenAPI schema coverage for the documentation contract and reference it from affected schemas.
 - Create a concise onboarding guide under `docs/` that connects external discovery, env/config selection, example files, health checks, and plugin extension.
@@ -17,7 +17,7 @@
 python -m pytest tests/test_external_api.py tests/test_multi_mailbox.py tests/test_unified_mailbox_catalog.py -q -rs
 node --check static/js/main.js
 node --check static/js/i18n.js
-rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml outlook_web
+rg -n "dk_[0-9a-fA-F]{20,}|DUCKMAIL_BEARER_TOKEN\s*=\s*dk_|Bearer\s+dk_" templates static tests .trellis docs README.md README.en.md .env.example docker-compose.yml mailops
 git diff --check
 ```
 

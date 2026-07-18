@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The provider catalog remains the owner of external discovery data. Add `get_external_api_integration_bundle()` to `outlook_web.services.provider_catalog` and make it compose:
+The provider catalog remains the owner of external discovery data. Add `get_external_api_integration_bundle()` to `mailops.services.provider_catalog` and make it compose:
 
 - `get_external_api_capabilities_contract()` for endpoint maps, compatibility, provider selection, quickstart, documentation, and integration manifest.
 - `get_external_api_readiness_summary()` for local operational readiness.

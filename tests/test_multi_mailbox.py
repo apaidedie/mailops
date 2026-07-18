@@ -47,7 +47,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_public_mode", "false")
             settings_repo.set_setting("external_api_disable_pool_claim_random", "false")
@@ -108,7 +108,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_providers_api_includes_unified_mailbox_catalog(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
             settings_repo.set_setting("emailnator_api_key", "")
@@ -399,8 +399,8 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_gptmail_provider_reports_needs_config_without_db_or_env_api_key(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.provider_catalog import get_mailbox_provider_diagnostics
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.provider_catalog import get_mailbox_provider_diagnostics
 
             settings_repo.set_setting("temp_mail_api_key", "")
             settings_repo.set_setting("gptmail_api_key", "")
@@ -415,7 +415,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
     def test_bridge_dual_register_collapsed_in_diagnostics_and_integration_guide(self):
         """Operator diagnostics/guide must not double Compatible Temp Mail Bridge rows."""
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import (
+            from mailops.services.provider_catalog import (
                 get_mailbox_provider_catalog,
                 get_mailbox_provider_diagnostics,
                 get_provider_integration_guide,
@@ -450,7 +450,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_providers_api_reflects_active_mailbox_provider_filter(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
@@ -470,7 +470,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_providers_api_reports_unknown_active_mailbox_provider_filter_entries(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail,not_a_provider,gptmail")
 
@@ -623,7 +623,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_providers_api_reports_default_provider_entries_excluded_by_allowlist(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
@@ -665,7 +665,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_providers_api_does_not_report_auto_pool_default_as_inactive(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("active_mailbox_providers", "duckmail")
 
@@ -694,11 +694,11 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_unified_mailbox_catalog_uses_plugin_label(self):
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import (
+            from mailops.services.provider_catalog import (
                 get_mailbox_provider_catalog,
                 get_mailbox_provider_deployment_profile,
             )
-            from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
+            from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
 
             @register_provider
             class FancyTempMail:
@@ -785,7 +785,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_builtin_temp_provider_settings_ui_contract(self):
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import get_mailbox_provider_catalog
+            from mailops.services.provider_catalog import get_mailbox_provider_catalog
 
             catalog = get_mailbox_provider_catalog(include_inactive=True, strict=False)
             by_provider = {item["provider"]: item for item in catalog if item.get("kind") == "temp"}
@@ -837,7 +837,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_plugin_schema_settings_round_trip_through_generic_settings_api(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_base import _REGISTRY, register_provider
+            from mailops.services.temp_mail_provider_base import _REGISTRY, register_provider
 
             @register_provider
             class GenericSettingsTempMail:
@@ -873,15 +873,15 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_plugin_contract_validation_flows_into_provider_guide_and_manifest(self):
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import (
+            from mailops.services.provider_catalog import (
                 get_external_integration_manifest,
                 get_mailbox_provider_catalog,
                 get_mailbox_provider_deployment_profile,
                 get_mailbox_provider_selection_policy,
                 get_provider_integration_guide,
             )
-            from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
-            from outlook_web.services.temp_mail_provider_factory import get_available_providers
+            from mailops.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
+            from mailops.services.temp_mail_provider_factory import get_available_providers
 
             @register_provider
             class FlowContractTempMail(TempMailProviderBase):
@@ -944,8 +944,8 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_plugin_provider_default_health_check_does_not_claim_network_probe(self):
         with self.app.app_context():
-            from outlook_web.services.provider_catalog import get_mailbox_provider_health
-            from outlook_web.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
+            from mailops.services.provider_catalog import get_mailbox_provider_health
+            from mailops.services.temp_mail_provider_base import _REGISTRY, TempMailProviderBase, register_provider
 
             @register_provider
             class HealthyOptionsTempMail(TempMailProviderBase):
@@ -1008,14 +1008,14 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_provider_health_api_reports_local_readiness_without_network_probe(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
 
         client = self.app.test_client()
         self._login(client)
 
-        with patch("outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
             resp = client.get("/api/providers/temp/duckmail/health")
 
         self.assertEqual(resp.status_code, 200)
@@ -1036,7 +1036,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider",
+            "mailops.services.temp_mail_provider_factory.get_temp_mail_provider",
             return_value=_HealthCheckTempMailProvider("mail_tm"),
         ) as provider_factory:
             resp = client.get("/api/providers/temp/mail_tm/health?probe_network=true")
@@ -1084,14 +1084,14 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_provider_preflight_api_reports_batch_local_readiness_without_network_probe(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("duckmail_bearer_token", "")
 
         client = self.app.test_client()
         self._login(client)
 
-        with patch("outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
+        with patch("mailops.services.temp_mail_provider_factory.get_temp_mail_provider") as provider_factory:
             resp = client.get("/api/providers/preflight")
 
         self.assertEqual(resp.status_code, 200)
@@ -1123,7 +1123,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self._login(client)
 
         with patch(
-            "outlook_web.services.temp_mail_provider_factory.get_temp_mail_provider",
+            "mailops.services.temp_mail_provider_factory.get_temp_mail_provider",
             return_value=_HealthCheckTempMailProvider("mail_tm"),
         ) as provider_factory:
             resp = client.get("/api/providers/preflight?probe_network=true")
@@ -1154,9 +1154,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
 
     def test_external_api_capabilities_contract_uses_current_consumer_and_settings(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.mailbox_directory_contract import get_mailbox_catalog_contract
-            from outlook_web.services.provider_catalog import get_external_api_capabilities_contract
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.mailbox_directory_contract import get_mailbox_catalog_contract
+            from mailops.services.provider_catalog import get_external_api_capabilities_contract
 
             settings_repo.set_setting("pool_external_enabled", "true")
             settings_repo.set_setting("external_api_public_mode", "true")
@@ -1215,7 +1215,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         )
 
     def test_provider_folder_candidates_contains_utf7_for_qq_junk(self):
-        from outlook_web.services.providers import get_imap_folder_candidates
+        from mailops.services.providers import get_imap_folder_candidates
 
         candidates = get_imap_folder_candidates("qq", "junkemail")
         self.assertIn("&V4NXPpCuTvY-", candidates)
@@ -1323,7 +1323,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         }
 
         with patch(
-            "outlook_web.controllers.emails.get_emails_imap_generic",
+            "mailops.controllers.emails.get_emails_imap_generic",
             return_value=fake_result,
         ):
             resp = client.get(f"/api/emails/{email_addr}?folder=inbox&skip=0&top=20")
@@ -1339,7 +1339,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertIn("不支持远程删除", err.get("message", ""))
 
     def test_imap_generic_connect_error_does_not_leak_password(self):
-        from outlook_web.services.imap_generic import get_emails_imap_generic
+        from mailops.services.imap_generic import get_emails_imap_generic
 
         secret_pwd = "top-secret-imap-password"
         result = get_emails_imap_generic(
@@ -1359,7 +1359,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         self.assertNotIn(secret_pwd, str(result))
 
     def test_scheduler_skips_imap_accounts(self):
-        from outlook_web.services.scheduler import scheduled_refresh_task
+        from mailops.services.scheduler import scheduled_refresh_task
 
         unique = uuid.uuid4().hex
         outlook_email = f"out_{unique}@outlook.com"
@@ -1415,12 +1415,12 @@ class MultiMailboxSupportTests(unittest.TestCase):
             return True, "ok", "rt_new_" + unique
 
         with (
-            patch("outlook_web.services.scheduler.time.sleep", return_value=None),
+            patch("mailops.services.scheduler.time.sleep", return_value=None),
             patch(
-                "outlook_web.services.scheduler.acquire_distributed_lock",
+                "mailops.services.scheduler.acquire_distributed_lock",
                 return_value=(True, {}),
             ),
-            patch("outlook_web.services.scheduler.release_distributed_lock", return_value=None),
+            patch("mailops.services.scheduler.release_distributed_lock", return_value=None),
         ):
             scheduled_refresh_task(self.app, fake_test_refresh_token)
 

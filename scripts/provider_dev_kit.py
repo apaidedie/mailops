@@ -11,8 +11,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from outlook_web.services.temp_mail_plugin_cli import validate_provider_contract
-from outlook_web.services.temp_mail_plugin_manager import PluginManagerError, scaffold_provider_plugin
+from mailops.services.temp_mail_plugin_cli import validate_provider_contract
+from mailops.services.temp_mail_plugin_manager import PluginManagerError, scaffold_provider_plugin
 from scripts.project_readiness_check import SECRET_PATTERNS
 
 

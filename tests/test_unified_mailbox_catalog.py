@@ -26,7 +26,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
     def _clean_test_records(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM temp_emails WHERE email LIKE '%@unified-mailbox.test'")
@@ -47,7 +47,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def _default_group_id(self) -> int:
         with self.app.app_context():
-            from outlook_web.repositories import groups as groups_repo
+            from mailops.repositories import groups as groups_repo
 
             return int(groups_repo.get_default_group_id())
 
@@ -61,8 +61,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         temp_email = f"temp-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -152,7 +152,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        from outlook_web.services.mailbox_directory_contract import (
+        from mailops.services.mailbox_directory_contract import (
             get_mailbox_catalog_contract,
         )
 
@@ -455,7 +455,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         finished_temp = f"finished-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             self.assertTrue(
                 temp_emails_repo.create_temp_email(email_addr=active_temp, provider_name="mail_tm", status="active")
@@ -495,8 +495,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         temp_email = f"temp-capability-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -563,8 +563,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         temp_email = f"action-temp-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -668,7 +668,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         mailtm_email = f"mailtm-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             self.assertTrue(
                 temp_emails_repo.create_temp_email(
@@ -731,7 +731,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         newer_email = f"b-newer-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -799,7 +799,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         tag_name = "unified-tag-search-" + unique
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             group_cursor = db.execute(
@@ -908,7 +908,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         email = f"preview-account-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -929,7 +929,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
         client = self.app.test_client()
         self._login(client)
-        with patch("outlook_web.services.external_api.list_messages_for_external") as list_mock:
+        with patch("mailops.services.external_api.list_messages_for_external") as list_mock:
             list_mock.return_value = (
                 [
                     {
@@ -965,8 +965,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         email = f"preview-temp-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             self.assertTrue(
                 temp_emails_repo.create_temp_email(
@@ -1005,9 +1005,9 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with (
-            patch("outlook_web.services.external_api.list_messages_for_external") as external_mock,
+            patch("mailops.services.external_api.list_messages_for_external") as external_mock,
             patch(
-                "outlook_web.services.temp_mail_service.get_temp_mail_service",
+                "mailops.services.temp_mail_service.get_temp_mail_service",
                 return_value=fake_service,
             ),
         ):
@@ -1032,8 +1032,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         email = f"preview-cache-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
-            from outlook_web.repositories import temp_emails as temp_emails_repo
+            from mailops.db import get_db
+            from mailops.repositories import temp_emails as temp_emails_repo
 
             self.assertTrue(
                 temp_emails_repo.create_temp_email(
@@ -1049,7 +1049,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         class CachedFallbackTempMailService:
             def list_messages(self, target, *, sync_remote=True):
                 if sync_remote:
-                    from outlook_web.services.temp_mail_service import TempMailError
+                    from mailops.services.temp_mail_service import TempMailError
 
                     raise TempMailError(
                         "TEMP_EMAIL_UPSTREAM_READ_FAILED",
@@ -1068,7 +1068,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
                 ]
 
             def refresh_message_detail(self, target, message_id):
-                from outlook_web.services.temp_mail_service import TempMailError
+                from mailops.services.temp_mail_service import TempMailError
 
                 raise TempMailError(
                     "TEMP_EMAIL_UPSTREAM_READ_FAILED",
@@ -1090,7 +1090,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with patch(
-            "outlook_web.services.temp_mail_service.get_temp_mail_service",
+            "mailops.services.temp_mail_service.get_temp_mail_service",
             return_value=fake_service,
         ):
             list_resp = client.get(f"/api/mailboxes/temp/{temp_id}/messages")
@@ -1112,7 +1112,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         email = f"preview-detail-{unique}@unified-mailbox.test"
 
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             default_group_id = self._default_group_id()
@@ -1134,8 +1134,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         client = self.app.test_client()
         self._login(client)
         with (
-            patch("outlook_web.services.external_api.get_message_detail_for_external") as detail_mock,
-            patch("outlook_web.services.external_api.get_verification_result") as verification_mock,
+            patch("mailops.services.external_api.get_message_detail_for_external") as detail_mock,
+            patch("mailops.services.external_api.get_verification_result") as verification_mock,
         ):
             detail_mock.return_value = {
                 "id": "detail-1",
@@ -1188,7 +1188,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_service_mailboxes_coerces_invalid_pagination_values(self):
         with self.app.app_context():
-            from outlook_web.services.mailbox_catalog import list_unified_mailboxes
+            from mailops.services.mailbox_catalog import list_unified_mailboxes
 
             data = list_unified_mailboxes(page="bad", page_size="also-bad")
 
@@ -1196,8 +1196,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
         self.assertEqual(data["pagination"]["page_size"], 50)
 
     def test_mailbox_source_registry_tracks_directory_contract_kinds(self):
-        from outlook_web.services.mailbox_catalog import get_mailbox_source_loader_kinds
-        from outlook_web.services.mailbox_directory_contract import (
+        from mailops.services.mailbox_catalog import get_mailbox_source_loader_kinds
+        from mailops.services.mailbox_directory_contract import (
             get_mailbox_catalog_contract,
         )
 
@@ -1206,7 +1206,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
     def test_mailbox_catalog_contract_exposes_provider_agnostic_quick_view_presets(
         self,
     ):
-        from outlook_web.services.mailbox_directory_contract import (
+        from mailops.services.mailbox_directory_contract import (
             get_mailbox_catalog_contract,
         )
 
@@ -1252,7 +1252,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_service_mailboxes_loads_items_through_source_registry(self):
         with self.app.app_context():
-            from outlook_web.services import mailbox_catalog
+            from mailops.services import mailbox_catalog
 
             registry_email = "registry-source@unified-mailbox.test"
             registry_item = {
@@ -1309,7 +1309,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_bridge_dual_register_inventory_and_facets_collapse(self):
         """custom_domain_temp_mail + legacy_bridge must collapse in facets/inventory."""
-        from outlook_web.services.mailbox_catalog import (
+        from mailops.services.mailbox_catalog import (
             _apply_provider_filter,
             _canonical_inventory_provider,
             _mailbox_provider_inventory,
@@ -1359,7 +1359,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_bridge_allowlist_family_activates_dual_register_twins(self):
         """Allowlisting either bridge catalog key keeps the twin active."""
-        from outlook_web.services import provider_catalog as provider_catalog_mod
+        from mailops.services import provider_catalog as provider_catalog_mod
 
         original = provider_catalog_mod._active_provider_names
         try:
@@ -1387,8 +1387,8 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_operator_default_temp_provider_matches_collapsed_guide(self):
         """Discovery defaults project bridge dual-register keys to legacy_bridge."""
-        from outlook_web.repositories import settings as settings_repo
-        from outlook_web.services.provider_catalog import (
+        from mailops.repositories import settings as settings_repo
+        from mailops.services.provider_catalog import (
             get_external_api_capabilities_contract,
             get_operator_temp_mail_default_provider,
             get_provider_integration_guide,
@@ -1418,7 +1418,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
 
     def test_bridge_dual_register_diagnostics_and_guide_collapse(self):
         """Diagnostics and integration guide collapse bridge dual-register rows."""
-        from outlook_web.services.provider_catalog import (
+        from mailops.services.provider_catalog import (
             get_mailbox_provider_catalog,
             get_mailbox_provider_diagnostics,
             get_provider_integration_guide,

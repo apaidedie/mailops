@@ -32,7 +32,7 @@ class ParseMimeRawTests(unittest.TestCase):
     """测试 _parse_mime_raw 的 MIME 解析逻辑。"""
 
     def setUp(self):
-        from outlook_web.services.temp_mail_provider_cf import _parse_mime_raw
+        from mailops.services.temp_mail_provider_cf import _parse_mime_raw
 
         self._parse = _parse_mime_raw
 
@@ -120,7 +120,7 @@ class IsoToTimestampTests(unittest.TestCase):
     """测试 _iso_to_timestamp 的时间戳转换逻辑。"""
 
     def setUp(self):
-        from outlook_web.services.temp_mail_provider_cf import _iso_to_timestamp
+        from mailops.services.temp_mail_provider_cf import _iso_to_timestamp
 
         self._convert = _iso_to_timestamp
 
@@ -164,7 +164,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "cloudflare_temp_mail")
             # CF Worker 使用独立配置键（与兼容临时邮箱桥接隔离）
@@ -188,7 +188,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
             settings_repo.set_setting("temp_mail_prefix_rules", "")
 
     def _make_provider(self):
-        from outlook_web.services.temp_mail_provider_cf import (
+        from mailops.services.temp_mail_provider_cf import (
             CloudflareTempMailProvider,
         )
 
@@ -224,7 +224,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
 
     def test_cf_worker_config_can_come_from_environment(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("cf_worker_base_url", "")
             settings_repo.set_setting("cf_worker_admin_key", "")
@@ -244,7 +244,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
     def test_get_options_auto_sync_writes_cf_worker_domains_when_empty(self):
         """v0.3.1: 当 cf_worker_domains 为空但 base_url 已配置时，应自动同步并写回 cf_worker_domains。"""
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             # 清空 cf_worker_domains，模拟“配置了 base_url 但未点同步”的真实场景
             settings_repo.set_setting("cf_worker_domains", "[]")
@@ -442,7 +442,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
 
     def test_list_messages_raises_error_when_jwt_missing(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProviderError,
             )
 
@@ -455,7 +455,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
 
     def test_list_messages_raises_error_on_http_403(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProviderError,
             )
 
@@ -472,7 +472,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
 
     def test_list_messages_raises_error_on_server_error(self):
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProviderError,
             )
 
@@ -491,7 +491,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
         import requests as req
 
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProviderError,
             )
 
@@ -505,7 +505,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
     def test_list_messages_skips_unparseable_items_and_continues(self):
         """解析单封邮件失败时应跳过该封，不影响其他邮件。"""
         with self.app.app_context():
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProvider,
             )
 
@@ -706,11 +706,11 @@ class CfProviderFactoryRoutingTests(unittest.TestCase):
 
     def test_factory_routes_cloudflare_provider_to_cf_implementation(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.temp_mail_provider_cf import (
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_provider_cf import (
                 CloudflareTempMailProvider,
             )
-            from outlook_web.services.temp_mail_provider_factory import (
+            from mailops.services.temp_mail_provider_factory import (
                 get_temp_mail_provider,
             )
 
@@ -722,11 +722,11 @@ class CfProviderFactoryRoutingTests(unittest.TestCase):
 
     def test_factory_still_routes_custom_provider_correctly(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.temp_mail_provider_custom import (
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_provider_custom import (
                 CustomTempMailProvider,
             )
-            from outlook_web.services.temp_mail_provider_factory import (
+            from mailops.services.temp_mail_provider_factory import (
                 get_temp_mail_provider,
             )
 
@@ -736,15 +736,15 @@ class CfProviderFactoryRoutingTests(unittest.TestCase):
         self.assertIsInstance(provider, CustomTempMailProvider)
 
     def test_cloudflare_provider_name_is_in_supported_set(self):
-        from outlook_web.repositories import settings as settings_repo
+        from mailops.repositories import settings as settings_repo
 
         supported = settings_repo.get_supported_temp_mail_provider_names()
         self.assertIn("cloudflare_temp_mail", supported)
 
     def test_factory_rejects_unknown_provider_name(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.temp_mail_provider_factory import (
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_provider_factory import (
                 TempMailProviderFactoryError,
                 get_temp_mail_provider,
             )

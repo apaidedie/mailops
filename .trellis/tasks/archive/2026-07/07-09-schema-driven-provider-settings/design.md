@@ -6,8 +6,8 @@ This slice touches the Settings Temp Mail configuration UI and the metadata proj
 
 Primary files:
 
-- `outlook_web/services/provider_catalog.py`
-- `outlook_web/controllers/settings.py`
+- `mailops/services/provider_catalog.py`
+- `mailops/controllers/settings.py`
 - `templates/index.html`
 - `static/js/main.js`
 - `static/js/features/plugins.js` only if reuse or compatibility requires a small shared behavior adjustment

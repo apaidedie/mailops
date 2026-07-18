@@ -8,7 +8,7 @@ This increment supports the long-term product goal by improving first-run confid
 
 ## Confirmed Facts
 
-- The app stores runtime data in SQLite via `outlook_web.db.init_db()` and the `DATABASE_PATH` environment variable.
+- The app stores runtime data in SQLite via `mailops.db.init_db()` and the `DATABASE_PATH` environment variable.
 - Current schema includes the demo-relevant tables: `accounts`, `temp_emails`, `temp_email_messages`, `account_claim_logs`, `account_project_usage`, `verification_extract_logs`, `external_api_consumer_usage_daily`, `audit_logs`, and `refresh_runs`.
 - `docs/project-launchpad.md` is the current two-minute onboarding map and is validated by `scripts/project_readiness_check.py`.
 - The local readiness gate is read-only; demo seeding must remain a separate explicit command.

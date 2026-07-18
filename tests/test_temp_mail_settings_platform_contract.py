@@ -17,7 +17,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             settings_repo.set_setting("pool_default_provider", "")
@@ -61,24 +61,24 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_api_key"), "platform-secret")
             self.assertEqual(settings_repo.get_setting("gptmail_api_key"), "legacy-secret")
 
     def test_db_settings_take_priority_over_env_fallback(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
-            with patch("outlook_web.config.get_temp_mail_api_key_default", return_value="env-secret"):
+            with patch("mailops.config.get_temp_mail_api_key_default", return_value="env-secret"):
                 value = settings_repo.get_temp_mail_api_key()
 
         self.assertEqual(value, "platform-secret")
 
     def test_runtime_provider_selection_matches_saved_formal_provider(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
-            from outlook_web.services.temp_mail_provider_factory import get_temp_mail_provider
+            from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_provider_factory import get_temp_mail_provider
 
             provider = get_temp_mail_provider()
             self.assertEqual(settings_repo.get_temp_mail_provider(), "custom_domain_temp_mail")
@@ -98,7 +98,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
 
     def test_temp_mail_provider_environment_override_normalizes_legacy_alias(self):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             with patch.dict("os.environ", {"TEMP_MAIL_PROVIDER": "gptmail"}):
                 provider = settings_repo.get_temp_mail_provider()
@@ -114,7 +114,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
             )
 
             with self.app.app_context():
-                from outlook_web.repositories import settings as settings_repo
+                from mailops.repositories import settings as settings_repo
 
                 with patch.dict("os.environ", {"OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE": str(config_path)}, clear=False):
                     self.assertEqual(settings_repo.get_temp_mail_provider(), "mail_tm")
@@ -130,7 +130,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
             )
 
             with self.app.app_context():
-                from outlook_web.repositories import settings as settings_repo
+                from mailops.repositories import settings as settings_repo
 
                 with patch.dict(
                     "os.environ",
@@ -150,7 +150,7 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
             config_path.write_text('{"providers":{"active_mailbox_providers":[]}}', encoding="utf-8")
 
             with self.app.app_context():
-                from outlook_web.repositories import settings as settings_repo
+                from mailops.repositories import settings as settings_repo
 
                 settings_repo.set_setting("active_mailbox_providers", "duckmail")
                 with patch.dict("os.environ", {"OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE": str(config_path)}, clear=False):
@@ -161,8 +161,8 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
             missing_config_path = Path(tmpdir) / "missing-providers.json"
 
             with self.app.app_context():
-                from outlook_web import config
-                from outlook_web.repositories import settings as settings_repo
+                from mailops import config
+                from mailops.repositories import settings as settings_repo
 
                 settings_repo.set_setting("active_mailbox_providers", "duckmail")
                 with patch.dict(
@@ -222,6 +222,6 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
         self.assertEqual(data["error"]["code"], "TEMP_MAIL_PROVIDER_INVALID")
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             self.assertEqual(settings_repo.get_setting("temp_mail_provider"), "custom_domain_temp_mail")

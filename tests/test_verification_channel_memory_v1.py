@@ -15,8 +15,8 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@vcm.test'")
@@ -39,7 +39,7 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
     def _insert_outlook_account(self, *, preferred_channel: str | None = None) -> str:
         email_addr = f"{uuid.uuid4().hex}@vcm.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -67,7 +67,7 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
     def _insert_imap_account(self, *, preferred_channel: str | None = None) -> str:
         email_addr = f"{uuid.uuid4().hex}@vcm.test"
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute(
@@ -98,7 +98,7 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
 
     def _get_preferred_channel(self, email_addr: str) -> str | None:
         with self.app.app_context():
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             row = db.execute(
@@ -112,7 +112,7 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
 
     def _set_external_api_key(self, value: str):
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("external_api_key", value)
 
@@ -151,9 +151,9 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
             "body": {"content": body_text, "contentType": "text"},
         }
 
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_prefers_remembered_channel(
         self,
         mock_imap_list,
@@ -195,9 +195,9 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         mock_graph_list.assert_not_called()
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_new")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_empty_or_invalid_preferred_keeps_legacy_behavior(
         self,
         mock_imap_list,
@@ -236,10 +236,10 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
                 mock_imap_list.assert_not_called()
                 self.assertEqual(self._get_preferred_channel(email_addr), "graph_inbox")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_fallback_overwrites_channel(
         self,
         mock_imap_list,
@@ -291,8 +291,8 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertNotIn("_matched_channel", resp.get_json().get("data", {}))
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_old")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_failure_keeps_channel(
         self,
         mock_imap_list,
@@ -320,9 +320,9 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertEqual(resp.get_json().get("code"), "UPSTREAM_READ_FAILED")
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_new")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_web_prefers_remembered_channel(
         self,
         mock_imap_list,
@@ -360,10 +360,10 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         mock_graph_list.assert_not_called()
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_new")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_web_fallback_overwrites_channel(
         self,
         mock_imap_list,
@@ -412,8 +412,8 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertEqual(resp.get_json().get("data", {}).get("verification_code"), "778899")
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_old")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_web_failure_keeps_channel(self, mock_imap_list, mock_graph_list):
         email_addr = self._insert_outlook_account(preferred_channel="imap_new")
 
@@ -434,10 +434,10 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertEqual(resp.get_json().get("error", {}).get("code"), "EMAIL_NOT_FOUND")
         self.assertEqual(self._get_preferred_channel(email_addr), "imap_new")
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_verification_link_prefers_memory_and_no_private_field(
         self,
         mock_imap_list,
@@ -480,9 +480,9 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertNotIn("_matched_channel", data)
         mock_graph_list.assert_not_called()
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_external_folder_explicit_bypasses_memory(
         self,
         mock_imap_list,
@@ -527,8 +527,8 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertTrue(mock_graph_list.called)
         mock_imap_list.assert_not_called()
 
-    @patch("outlook_web.services.graph.get_email_detail_graph")
-    @patch("outlook_web.services.graph.get_emails_graph")
+    @patch("mailops.services.graph.get_email_detail_graph")
+    @patch("mailops.services.graph.get_emails_graph")
     def test_web_empty_preferred_keeps_existing_behavior(self, mock_graph_list, mock_graph_detail):
         email_addr = self._insert_outlook_account(preferred_channel=None)
 
@@ -546,9 +546,9 @@ class VerificationChannelMemoryV1Tests(unittest.TestCase):
         self.assertEqual(resp.get_json().get("data", {}).get("verification_code"), "123456")
         self.assertEqual(self._get_preferred_channel(email_addr), "graph_inbox")
 
-    @patch("outlook_web.services.graph.get_emails_graph")
-    @patch("outlook_web.services.imap.get_email_detail_imap_with_server")
-    @patch("outlook_web.services.imap.get_emails_imap_with_server")
+    @patch("mailops.services.graph.get_emails_graph")
+    @patch("mailops.services.imap.get_email_detail_imap_with_server")
+    @patch("mailops.services.imap.get_emails_imap_with_server")
     def test_imap_generic_account_not_using_channel_memory(
         self,
         mock_imap_list,

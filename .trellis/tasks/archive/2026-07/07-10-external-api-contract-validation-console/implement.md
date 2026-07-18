@@ -2,7 +2,7 @@
 
 ## Steps
 
-1. Add backend service `outlook_web/services/external_api_contract_check.py`.
+1. Add backend service `mailops/services/external_api_contract_check.py`.
 2. Add settings controller and route for `/api/settings/external-api/contract-check`.
 3. Add backend tests for auth, schema, pass/fail mapping, local-only posture, and secret safety.
 4. Add frontend state/fetch/render helpers in `static/js/main.js`.

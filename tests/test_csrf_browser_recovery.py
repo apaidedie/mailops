@@ -179,7 +179,7 @@ class CsrfBrowserRecoveryTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.db import get_db
+            from mailops.db import get_db
 
             db = get_db()
             db.execute("DELETE FROM accounts WHERE email LIKE '%@csrf-browser.test'")

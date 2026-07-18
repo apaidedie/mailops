@@ -29,7 +29,7 @@ class MoemailProviderPluginTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("plugin.moemail.base_url", "https://moemail.example.com")
             settings_repo.set_setting("plugin.moemail.api_key", "test-api-key")
@@ -38,13 +38,13 @@ class MoemailProviderPluginTests(unittest.TestCase):
             settings_repo.set_setting("plugin.moemail.default_expiry_ms", "3600000")
             settings_repo.set_setting("plugin.moemail.request_timeout", "30")
 
-        from outlook_web.temp_mail_registry import _REGISTRY
+        from mailops.temp_mail_registry import _REGISTRY
 
         self._registry = _REGISTRY
         self._initial_keys = set(_REGISTRY.keys())
 
     def tearDown(self):
-        from outlook_web.services import temp_mail_provider_factory as factory
+        from mailops.services import temp_mail_provider_factory as factory
 
         for key in set(self._registry.keys()) - self._initial_keys:
             self._registry.pop(key, None)
@@ -57,8 +57,8 @@ class MoemailProviderPluginTests(unittest.TestCase):
         factory._PLUGIN_LOAD_STATE.clear()
 
     def test_provider_can_be_registered_and_discovered(self):
-        from outlook_web.services import temp_mail_provider_factory as factory
-        from outlook_web.services.temp_mail_provider_factory import get_available_providers, reload_plugins
+        from mailops.services import temp_mail_provider_factory as factory
+        from mailops.services.temp_mail_provider_factory import get_available_providers, reload_plugins
 
         plugin_dir = Path(__file__).resolve().parents[1] / "plugins" / "temp_mail_providers" / "test_plugin"
         with patch.object(factory, "_get_plugin_dir", return_value=plugin_dir):
@@ -106,7 +106,7 @@ class MoemailProviderPluginTests(unittest.TestCase):
         self.assertEqual(success["meta"]["provider_mailbox_id"], "mailbox_1")
 
         with self.app.app_context():
-            from outlook_web.repositories import settings as settings_repo
+            from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("plugin.moemail.base_url", "")
             provider_without_base = provider_cls(provider_name="moemail")
