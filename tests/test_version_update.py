@@ -291,7 +291,7 @@ class VersionCheckAPITests(unittest.TestCase):
             system_constants._VERSION_CACHE_TTL = original_ttl
 
     def test_github_api_url_correct(self):
-        """GitHub API URL 使用 ZeroPointSix/outlookEmailPlus"""
+        """GitHub API URL 使用 apaidedie/mailops"""
         client = self.app.test_client()
         self._login(client)
         with patch(URLOPEN_PATH) as mock_urlopen:
@@ -310,7 +310,7 @@ class VersionCheckAPITests(unittest.TestCase):
             # 验证请求 URL
             args = mock_urlopen.call_args
             req_obj = args[0][0]
-            self.assertIn("ZeroPointSix/outlookEmailPlus", req_obj.full_url)
+            self.assertIn("apaidedie/mailops", req_obj.full_url)
 
     def test_github_user_agent_header(self):
         """GitHub API 请求包含 User-Agent"""
@@ -330,7 +330,7 @@ class VersionCheckAPITests(unittest.TestCase):
             client.get("/api/system/version-check")
 
             req_obj = mock_urlopen.call_args[0][0]
-            self.assertEqual(req_obj.get_header("User-agent"), "outlook-email-plus")
+            self.assertEqual(req_obj.get_header("User-agent"), "mailops")
 
 
 class TriggerUpdateAPITests(unittest.TestCase):

@@ -570,7 +570,7 @@ def _readiness_warnings(
 def get_external_api_integration_bundle(
     *,
     consumer: dict[str, Any] | None = None,
-    service: str = "outlook-email-plus",
+    service: str = "mailops",
     version: str = "",
     database_ok: bool = True,
     upstream_probe_ok: bool | None = None,
@@ -625,7 +625,7 @@ def get_external_api_integration_bundle(
     )
     return {
         "version": 1,
-        "service": str(service or "outlook-email-plus"),
+        "service": str(service or "mailops"),
         "app_version": str(version or ""),
         "status": status,
         "generated_at": _external_bundle_now(),

@@ -12,8 +12,8 @@ from unittest.mock import patch
 from examples.external_api_python_client import (
     CANONICAL_EXTERNAL_PREFIX,
     HttpResponse,
-    OutlookEmailPlusApiError,
-    OutlookEmailPlusClient,
+    MailOpsApiError,
+    MailOpsClient,
     build_integration_bundle,
     main,
     summarize_integration_bundle_action_plan,
@@ -39,7 +39,7 @@ class FakeTransport:
         self.calls.append((method, url, api_key, body, timeout))
         key = (method, url)
         if self.fail_on == key:
-            raise OutlookEmailPlusApiError(
+            raise MailOpsApiError(
                 "read failed",
                 status=self.fail_status,
                 code=self.fail_code,
@@ -126,7 +126,7 @@ def _discovery_responses() -> dict[tuple[str, str], dict]:
 def _live_integration_bundle_data() -> dict:
     return {
         "version": 1,
-        "service": "outlook-email-plus",
+        "service": "mailops",
         "status": "ready",
         "auth": {"header": "X-API-Key", "placeholder": "<your-api-key>"},
         "endpoints": {
@@ -170,7 +170,7 @@ def _live_integration_bundle_data() -> dict:
 class ExternalApiPythonClientTests(unittest.TestCase):
     def test_discover_reads_canonical_endpoints_and_caches_endpoint_map(self):
         transport = FakeTransport(_discovery_responses())
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
 
         data = client.discover()
 
@@ -201,7 +201,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
             {"session_type": "pool_claim", "status": "closed"}
         )
         transport = FakeTransport(responses)
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
         client.discover()
 
         result = client.verification_flow(
@@ -229,7 +229,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
             )
         }
         transport = FakeTransport(responses)
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
 
         session = client.start_mailbox_session(caller_id="worker", task_id="task", source_strategy="task_temp_only")
 
@@ -248,10 +248,10 @@ class ExternalApiPythonClientTests(unittest.TestCase):
             responses,
             fail_on=("POST", _url(f"{CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read")),
         )
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
         client.discover()
 
-        with self.assertRaises(OutlookEmailPlusApiError):
+        with self.assertRaises(MailOpsApiError):
             client.verification_flow(caller_id="worker", task_id="task", source_strategy="task_temp_only")
 
         close_calls = [call for call in transport.calls if call[1].endswith("/mailbox-sessions/close")]
@@ -266,13 +266,13 @@ class ExternalApiPythonClientTests(unittest.TestCase):
                 "message": "forbidden",
             }
         }
-        client = OutlookEmailPlusClient(
+        client = MailOpsClient(
             "https://mailbox.example.test",
             "test-key",
             transport=FakeTransport(responses),
         )
 
-        with self.assertRaises(OutlookEmailPlusApiError) as ctx:
+        with self.assertRaises(MailOpsApiError) as ctx:
             client.get("capabilities")
 
         self.assertEqual(ctx.exception.code, "FORBIDDEN")
@@ -283,10 +283,10 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
         with patch.dict(os.environ, {"OUTLOOK_EMAIL_PLUS_API_KEY": "env-key"}, clear=False):
-            with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+            with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
                 buffer = io.StringIO()
                 with redirect_stdout(buffer):
                     exit_code = main(["--base-url", "https://mailbox.example.test", "discover"])
@@ -298,7 +298,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
 
     def test_build_integration_bundle_summarizes_live_discovery(self):
         transport = FakeTransport(_discovery_responses())
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
 
         bundle = build_integration_bundle("https://mailbox.example.test/", client.discover())
 
@@ -320,9 +320,9 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
-        with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+        with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
                 exit_code = main(["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"])
@@ -368,9 +368,9 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
-        with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+        with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
                 exit_code = main(
@@ -397,9 +397,9 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         )
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
-        with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+        with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
                 exit_code = main(["--base-url", "https://mailbox.example.test", "--api-key", "test-key", "integration-bundle"])
@@ -425,7 +425,7 @@ class ExternalApiPythonClientTests(unittest.TestCase):
             fail_status=404,
             fail_code="NOT_FOUND",
         )
-        client = OutlookEmailPlusClient("https://mailbox.example.test", "test-key", transport=transport)
+        client = MailOpsClient("https://mailbox.example.test", "test-key", transport=transport)
 
         summary = summarize_integration_bundle_action_plan(client.integration_bundle())
 
@@ -439,11 +439,11 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "integration-summary.json"
-            with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+            with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
                 buffer = io.StringIO()
                 with redirect_stdout(buffer):
                     exit_code = main(
@@ -471,11 +471,11 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            return OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            return MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "integration-bundle.json"
-            with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+            with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
                 buffer = io.StringIO()
                 with redirect_stdout(buffer):
                     exit_code = main(
@@ -515,11 +515,11 @@ class ExternalApiPythonClientTests(unittest.TestCase):
         transport = FakeTransport(responses)
 
         def build_client(base_url: str, api_key: str, *, timeout: float = 20.0):
-            client = OutlookEmailPlusClient(base_url, api_key, timeout=timeout, transport=transport)
+            client = MailOpsClient(base_url, api_key, timeout=timeout, transport=transport)
             client.discover()
             return client
 
-        with patch("examples.external_api_python_client.OutlookEmailPlusClient", side_effect=build_client):
+        with patch("examples.external_api_python_client.MailOpsClient", side_effect=build_client):
             buffer = io.StringIO()
             with redirect_stdout(buffer):
                 exit_code = main(

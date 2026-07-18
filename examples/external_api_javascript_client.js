@@ -41,10 +41,10 @@ const SECRET_TARGET_PATTERNS = Object.freeze([
   /bearer\s+(?!<)[A-Za-z0-9._~+/=-]{12,}/i,
 ]);
 
-class OutlookEmailPlusApiError extends Error {
+class MailOpsApiError extends Error {
   constructor(message, { status = null, code = null, payload = {} } = {}) {
     super(message);
-    this.name = "OutlookEmailPlusApiError";
+    this.name = "MailOpsApiError";
     this.status = status;
     this.code = code;
     this.payload = payload || {};
@@ -76,7 +76,7 @@ async function fetchTransport(method, url, apiKey, body, timeoutSeconds) {
     const raw = await response.text();
     const payload = parseJsonObject(raw || "{}");
     if (!response.ok) {
-      throw new OutlookEmailPlusApiError(`${method.toUpperCase()} ${url} failed with HTTP ${response.status}`, {
+      throw new MailOpsApiError(`${method.toUpperCase()} ${url} failed with HTTP ${response.status}`, {
         status: response.status,
         code: String(payload.code || "HTTP_ERROR"),
         payload,
@@ -84,10 +84,10 @@ async function fetchTransport(method, url, apiKey, body, timeoutSeconds) {
     }
     return { status: response.status, payload };
   } catch (error) {
-    if (error instanceof OutlookEmailPlusApiError) {
+    if (error instanceof MailOpsApiError) {
       throw error;
     }
-    throw new OutlookEmailPlusApiError(`${method.toUpperCase()} ${url} failed: ${error.message}`);
+    throw new MailOpsApiError(`${method.toUpperCase()} ${url} failed: ${error.message}`);
   } finally {
     if (timeoutId !== null) {
       clearTimeout(timeoutId);
@@ -100,10 +100,10 @@ function parseJsonObject(raw) {
   try {
     payload = JSON.parse(raw || "{}");
   } catch (error) {
-    throw new OutlookEmailPlusApiError("response was not valid JSON");
+    throw new MailOpsApiError("response was not valid JSON");
   }
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    throw new OutlookEmailPlusApiError("response JSON was not an object");
+    throw new MailOpsApiError("response JSON was not an object");
   }
   return payload;
 }
@@ -338,7 +338,7 @@ function buildIntegrationBundle(baseUrl, discovery) {
 }
 
 function shouldFallbackToLocalBundle(error) {
-  if (!(error instanceof OutlookEmailPlusApiError)) {
+  if (!(error instanceof MailOpsApiError)) {
     return false;
   }
   return [404, 405, 501].includes(error.status) || ["NOT_FOUND", "METHOD_NOT_ALLOWED", "NOT_IMPLEMENTED"].includes(error.code);
@@ -351,7 +351,7 @@ function requireText(value, name) {
   return value;
 }
 
-class OutlookEmailPlusClient {
+class MailOpsClient {
   constructor(baseUrl, apiKey, { timeoutSeconds = 20, transport = fetchTransport } = {}) {
     this.baseUrl = requireText(baseUrl, "baseUrl").replace(/\/+$/, "");
     this.apiKey = requireText(apiKey, "apiKey");
@@ -531,7 +531,7 @@ class OutlookEmailPlusClient {
     if (payload.success === false) {
       const code = String(payload.code || "API_ERROR");
       const message = String(payload.message || code);
-      throw new OutlookEmailPlusApiError(message, { status: response.status, code, payload });
+      throw new MailOpsApiError(message, { status: response.status, code, payload });
     }
     return payload;
   }
@@ -617,7 +617,7 @@ function buildClient(baseUrl, apiKey, options, clientFactory) {
   if (clientFactory) {
     return clientFactory(baseUrl, apiKey, options);
   }
-  return new OutlookEmailPlusClient(baseUrl, apiKey, options);
+  return new MailOpsClient(baseUrl, apiKey, options);
 }
 
 async function main(argv = process.argv.slice(2), { env = process.env, stdout = console.log, stderr = console.error, clientFactory = null } = {}) {
@@ -660,7 +660,7 @@ async function main(argv = process.argv.slice(2), { env = process.env, stdout = 
     stderr(`unsupported command: ${parsed.command}`);
     return 2;
   } catch (error) {
-    if (error instanceof OutlookEmailPlusApiError) {
+    if (error instanceof MailOpsApiError) {
       stderr(`External API error: ${error.message}`);
       if (error.payload && Object.keys(error.payload).length > 0) {
         stderr(compactJson(error.payload));
@@ -675,8 +675,8 @@ module.exports = {
   buildIntegrationBundle,
   CANONICAL_EXTERNAL_PREFIX,
   DEFAULT_ENDPOINTS,
-  OutlookEmailPlusApiError,
-  OutlookEmailPlusClient,
+  MailOpsApiError,
+  MailOpsClient,
   main,
   summarizeIntegrationBundleActionPlan,
 };

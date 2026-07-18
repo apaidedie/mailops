@@ -144,13 +144,13 @@ web_outlook_app.py    Backward-compatible entrypoint
 
 ```bash
 docker run -d \
-  --name outlook-email-plus \
+  --name mailops \
   -p 5000:5000 \
   -v $(pwd)/data:/app/data \
   -e SECRET_KEY=your-secret-key-here \
   -e LOGIN_PASSWORD=your-login-password \
   -e ALLOW_LOGIN_PASSWORD_CHANGE=false \
-  guangshanshui/outlook-email-plus:latest
+  ghcr.io/apaidedie/mailops:latest
 ```
 
 **Option 2: docker-compose (recommended, includes one-click update)**
@@ -160,9 +160,9 @@ Save the following as `docker-compose.yml`, then run `docker-compose up -d`:
 ```yaml
 services:
   app:
-    image: ghcr.io/zeropointsix/outlook-email-plus:latest   # Recommended (more stable in some regions)
-    # image: guangshanshui/outlook-email-plus:latest         # Docker Hub alternative
-    container_name: outlook-email-plus
+    image: ghcr.io/apaidedie/mailops:latest   # Recommended (more stable in some regions)
+    # image: ghcr.io/apaidedie/mailops:latest         # Docker Hub alternative
+    container_name: mailops
     restart: unless-stopped
     ports:
       - "5001:5000"           # Change to 5000:5000 or any other port
@@ -251,10 +251,10 @@ If you do not have real Outlook/IMAP or temp-mail provider credentials yet, seed
 python scripts/seed_demo_workspace.py --reset
 ```
 
-Then start the app with the generated `output/demo/outlook-email-plus-demo.db` database:
+Then start the app with the generated `output/demo/mailops-demo.db` database:
 
 ```powershell
-$env:DATABASE_PATH="output/demo/outlook-email-plus-demo.db"
+$env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
 python web_outlook_app.py
 ```

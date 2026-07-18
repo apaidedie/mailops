@@ -182,10 +182,10 @@ python web_outlook_app.py
 python scripts/seed_demo_workspace.py --reset
 ```
 
-然后使用生成的 `output/demo/outlook-email-plus-demo.db` 启动：
+然后使用生成的 `output/demo/mailops-demo.db` 启动：
 
 ```powershell
-$env:DATABASE_PATH="output/demo/outlook-email-plus-demo.db"
+$env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
 python web_outlook_app.py
 ```

@@ -161,7 +161,7 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
                 "task_temp_mailbox",
             ],
             "properties": {
-                "service": {"type": "string", "example": "outlook-email-plus"},
+                "service": {"type": "string", "example": "mailops"},
                 "version": {"type": "string"},
                 "public_mode": {"type": "boolean"},
                 "features": _string_array_schema(),
@@ -663,7 +663,7 @@ def _schemas(capabilities: dict[str, Any]) -> dict[str, Any]:
             ],
             "properties": {
                 "version": {"type": "integer", "example": 1},
-                "service": {"type": "string", "example": "outlook-email-plus"},
+                "service": {"type": "string", "example": "mailops"},
                 "app_version": {"type": "string"},
                 "status": {"type": "string", "enum": ["ready", "needs_config", "degraded"]},
                 "generated_at": {"type": "string", "format": "date-time"},

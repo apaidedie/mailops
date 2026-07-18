@@ -68,10 +68,10 @@ def api_version_check() -> Any:
     current = APP_VERSION
 
     try:
-        GITHUB_API = "https://api.github.com/repos/ZeroPointSix/outlookEmailPlus/releases/latest"
+        GITHUB_API = "https://api.github.com/repos/apaidedie/mailops/releases/latest"
         req = urllib.request.Request(
             GITHUB_API,
-            headers={"User-Agent": "outlook-email-plus"},
+            headers={"User-Agent": "mailops"},
         )
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = _json.loads(resp.read())
@@ -147,7 +147,7 @@ def api_deployment_info() -> Any:  # noqa: C901
     {
         "success": true,
         "deployment": {
-            "image": "guangshanshui/outlook-email-plus:latest",
+            "image": "ghcr.io/apaidedie/mailops:latest",
             "is_local_build": false,
             "uses_fixed_tag": false,
             "update_method": "watchtower",
@@ -209,7 +209,7 @@ def api_deployment_info() -> Any:  # noqa: C901
                 # 简单判断：如果包含 docker 关键字，说明在容器内运行
                 if "docker" in cgroup_content.lower() or "containerd" in cgroup_content.lower():
                     # 无法直接从 cgroup 读取镜像名，使用默认值
-                    image_name = "outlook-email-plus:unknown"
+                    image_name = "mailops:unknown"
         except Exception:
             pass
 
@@ -240,10 +240,10 @@ def api_deployment_info() -> Any:  # noqa: C901
                 is_local = True
 
         # 2.2 兜底：基于镜像名结构判断
-        # 无 namespace（如 outlook-email-plus:latest）通常是本地构建或非官方镜像
+        # 无 namespace（如 mailops:latest）通常是本地构建或非官方镜像
         if not is_local:
             lower_image = image_name.lower()
-            if "/" not in image_name or lower_image.startswith("outlook-email"):
+            if "/" not in image_name:
                 is_local = True
             else:
                 tag = _parse_tag(image_name).lower()
@@ -325,10 +325,8 @@ def api_deployment_info() -> Any:  # noqa: C901
                 "severity": "warning",
                 "message": "当前为本地构建模式，一键更新将无法工作",
                 "message_en": "Local build detected. Auto-update is not available",
-                "suggestion": "请使用远程镜像部署（如 guangshanshui/outlook-email-plus:latest）以支持一键更新",
-                "suggestion_en": (
-                    "Please use remote image (e.g., guangshanshui/outlook-email-plus:latest) for auto-update support"
-                ),
+                "suggestion": "请使用远程镜像部署（如 ghcr.io/apaidedie/mailops:latest）以支持一键更新",
+                "suggestion_en": ("Please use remote image (e.g., ghcr.io/apaidedie/mailops:latest) for auto-update support"),
             }
         )
 

@@ -89,7 +89,7 @@ def _build_local_contract_payloads() -> dict[str, dict[str, Any]]:
     readiness = get_external_api_readiness_summary(consumer=None, database_ok=True, upstream_probe_ok=None)
     health_data = {
         "status": "ok",
-        "service": "outlook-email-plus",
+        "service": "mailops",
         "version": APP_VERSION,
         "server_time_utc": _utc_now(),
         "database": "ok",
@@ -99,14 +99,14 @@ def _build_local_contract_payloads() -> dict[str, dict[str, Any]]:
         "readiness": readiness,
     }
     capabilities = {
-        "service": "outlook-email-plus",
+        "service": "mailops",
         "version": APP_VERSION,
         **get_external_api_capabilities_contract(consumer=None),
     }
     openapi = get_external_api_openapi_contract(consumer=None)
     integration_bundle = get_external_api_integration_bundle(
         consumer=None,
-        service="outlook-email-plus",
+        service="mailops",
         version=APP_VERSION,
         database_ok=True,
         upstream_probe_ok=None,

@@ -50,7 +50,7 @@ python web_outlook_app.py
 
 To try the unified workspace before configuring real providers, seed the local
 demo database. It writes synthetic Outlook, IMAP, temp-mail, pool, verification,
-and external-API activity to `output/demo/outlook-email-plus-demo.db`:
+and external-API activity to `output/demo/mailops-demo.db`:
 
 ```bash
 python scripts/seed_demo_workspace.py --reset
@@ -59,7 +59,7 @@ python scripts/seed_demo_workspace.py --reset
 Then start the app against that generated database:
 
 ```powershell
-$env:DATABASE_PATH="output/demo/outlook-email-plus-demo.db"
+$env:DATABASE_PATH="output/demo/mailops-demo.db"
 $env:SCHEDULER_AUTOSTART="false"
 python web_outlook_app.py
 ```

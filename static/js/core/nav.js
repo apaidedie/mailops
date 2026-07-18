@@ -47,7 +47,7 @@
                 return;
             }
 
-            const databaseLabel = String(demo.database || 'output/demo/outlook-email-plus-demo.db');
+            const databaseLabel = String(demo.database || 'output/demo/mailops-demo.db');
             const actionButtons = DEMO_WORKSPACE_ACTIONS.map(action => {
                 const label = translateAppTextLocal(action.label);
                 return `<button type="button" class="demo-workspace-action" data-demo-workspace-action="${escapeHtml(action.key)}">${escapeHtml(label)}</button>`;

@@ -368,7 +368,7 @@ def api_external_health() -> Any:
 
         data = {
             "status": "ok",
-            "service": "outlook-email-plus",
+            "service": "mailops",
             "version": APP_VERSION,
             "server_time_utc": utcnow().isoformat() + "Z",
             "database": "ok" if db_ok else "error",

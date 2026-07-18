@@ -49,7 +49,7 @@ SECRET_TARGET_PATTERNS = (
 )
 
 
-class OutlookEmailPlusApiError(RuntimeError):
+class MailOpsApiError(RuntimeError):
     def __init__(
         self,
         message: str,
@@ -91,14 +91,14 @@ def _urllib_transport(method: str, url: str, api_key: str, body: dict[str, Any] 
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", errors="replace")
         payload = _parse_json_object(raw)
-        raise OutlookEmailPlusApiError(
+        raise MailOpsApiError(
             f"{method.upper()} {url} failed with HTTP {exc.code}",
             status=exc.code,
             code=str(payload.get("code") or "HTTP_ERROR"),
             payload=payload,
         ) from exc
     except urllib.error.URLError as exc:
-        raise OutlookEmailPlusApiError(f"{method.upper()} {url} failed: {exc.reason}") from exc
+        raise MailOpsApiError(f"{method.upper()} {url} failed: {exc.reason}") from exc
     payload = _parse_json_object(raw)
     return HttpResponse(status=status, payload=payload)
 
@@ -107,9 +107,9 @@ def _parse_json_object(raw: str) -> dict[str, Any]:
     try:
         payload = json.loads(raw or "{}")
     except json.JSONDecodeError as exc:
-        raise OutlookEmailPlusApiError("response was not valid JSON") from exc
+        raise MailOpsApiError("response was not valid JSON") from exc
     if not isinstance(payload, dict):
-        raise OutlookEmailPlusApiError("response JSON was not an object")
+        raise MailOpsApiError("response JSON was not an object")
     return payload
 
 
@@ -338,11 +338,11 @@ def build_integration_bundle(base_url: str, discovery: dict[str, Any]) -> dict[s
     }
 
 
-def _should_fallback_to_local_bundle(exc: OutlookEmailPlusApiError) -> bool:
+def _should_fallback_to_local_bundle(exc: MailOpsApiError) -> bool:
     return exc.status in {404, 405, 501} or exc.code in {"NOT_FOUND", "METHOD_NOT_ALLOWED", "NOT_IMPLEMENTED"}
 
 
-class OutlookEmailPlusClient:
+class MailOpsClient:
     def __init__(
         self,
         base_url: str,
@@ -387,7 +387,7 @@ class OutlookEmailPlusClient:
             return _data_or_payload(self.get("integration_bundle"))
         except ValueError:
             return build_integration_bundle(self.base_url, self.discover())
-        except OutlookEmailPlusApiError as exc:
+        except MailOpsApiError as exc:
             if not _should_fallback_to_local_bundle(exc):
                 raise
             return build_integration_bundle(self.base_url, self.discover())
@@ -549,7 +549,7 @@ class OutlookEmailPlusClient:
         if payload.get("success") is False:
             code = str(payload.get("code") or "API_ERROR")
             message = str(payload.get("message") or code)
-            raise OutlookEmailPlusApiError(message, status=response.status, code=code, payload=payload)
+            raise MailOpsApiError(message, status=response.status, code=code, payload=payload)
         return payload
 
 
@@ -609,7 +609,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if not args.api_key:
         parser.error("--api-key or OUTLOOK_EMAIL_PLUS_API_KEY is required")
-    client = OutlookEmailPlusClient(args.base_url, args.api_key, timeout=args.timeout)
+    client = MailOpsClient(args.base_url, args.api_key, timeout=args.timeout)
     try:
         if args.command == "discover":
             print(_compact_json(client.discover()))
@@ -642,7 +642,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(_compact_json(result))
             return 0
-    except OutlookEmailPlusApiError as exc:
+    except MailOpsApiError as exc:
         print(f"External API error: {exc}", file=sys.stderr)
         if exc.payload:
             print(_compact_json(exc.payload), file=sys.stderr)

@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-DEFAULT_DB_PATH = REPO_ROOT / "output" / "demo" / "outlook-email-plus-demo.db"
+DEFAULT_DB_PATH = REPO_ROOT / "output" / "demo" / "mailops-demo.db"
 DEMO_SECRET_KEY = "demo-local-secret-key-32bytes-minimum-0000000000000000"
 DEMO_LOGIN_PASSWORD = "demo-admin-123"
 DEMO_GROUP_NAME = "Demo Workspace"
@@ -565,7 +565,7 @@ def _collect_counts(conn: sqlite3.Connection) -> dict[str, int]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Seed a local-only demo workspace database for Outlook Email Plus.")
-    parser.add_argument("--database", "--db", dest="database", default="", help="Target SQLite database path. Defaults to output/demo/outlook-email-plus-demo.db.")
+    parser.add_argument("--database", "--db", dest="database", default="", help="Target SQLite database path. Defaults to output/demo/mailops-demo.db.")
     parser.add_argument("--reset", action="store_true", help="Remove the target SQLite database before seeding it.")
     parser.add_argument("--dry-run", action="store_true", help="Print the planned target and row counts without touching the database.")
     parser.add_argument("--format", choices=("text", "json"), default="text", help="Output format. Default: text.")

@@ -280,7 +280,7 @@ def _health_payload() -> dict:
         "success": True,
         "data": {
             "status": "ready",
-            "service": "outlook-email-plus",
+            "service": "mailops",
             "readiness": {
                 "status": "ready",
                 "database": "ok",
@@ -374,7 +374,7 @@ def _integration_bundle_payload() -> dict:
         "success": True,
         "data": {
             "version": 1,
-            "service": "outlook-email-plus",
+            "service": "mailops",
             "app_version": "test",
             "status": "ready",
             "generated_at": "2026-07-09T00:00:00Z",

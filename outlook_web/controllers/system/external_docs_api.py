@@ -42,7 +42,7 @@ def api_external_capabilities() -> Any:
     """对外能力说明接口"""
     consumer = get_external_api_consumer() or {}
     data = {
-        "service": "outlook-email-plus",
+        "service": "mailops",
         "version": APP_VERSION,
         **get_external_api_capabilities_contract(consumer=consumer),
     }
@@ -76,7 +76,7 @@ def api_external_integration_bundle() -> Any:
         openapi_contract = get_external_api_openapi_contract(consumer=consumer)
         data = get_external_api_integration_bundle(
             consumer=consumer,
-            service="outlook-email-plus",
+            service="mailops",
             version=APP_VERSION,
             database_ok=db_ok,
             upstream_probe_ok=None,

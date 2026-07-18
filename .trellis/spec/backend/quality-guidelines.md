@@ -143,7 +143,7 @@ def api_get_overview_summary() -> Any:
 - Scope: `scripts/seed_demo_workspace.py`, `docs/project-launchpad.md`, README first-run sections, `scripts/project_readiness_check.py`, and focused demo-seed tests.
 
 #### 2. Contracts
-The local demo workspace must stay an explicit operator command, not an app startup side effect. The default target database is `output/demo/outlook-email-plus-demo.db`; the script must not write to `data/outlook_accounts.db` unless an operator explicitly passes that path.
+The local demo workspace must stay an explicit operator command, not an app startup side effect. The default target database is `output/demo/mailops-demo.db`; the script must not write to `data/outlook_accounts.db` unless an operator explicitly passes that path.
 
 Demo seeding must call the real `init_db(database_path=...)` migration path, then write only synthetic, clearly tagged rows. Repeated runs must be deterministic by deleting or replacing only rows that match stable demo markers before inserting fresh demo rows.
 
@@ -169,7 +169,7 @@ This can mutate the production database during ordinary startup.
 
 ##### Correct
 ```python
-db_path = Path("output/demo/outlook-email-plus-demo.db")
+db_path = Path("output/demo/mailops-demo.db")
 init_db(database_path=str(db_path))
 ```
 
@@ -183,7 +183,7 @@ Keep demo data isolated behind an explicit script and an explicit database path.
 
 #### 2. Signatures
 - `GET /api/bootstrap -> { success: true, bootstrap: { demo_workspace: {...} } }`
-- Demo database path: `output/demo/outlook-email-plus-demo.db`.
+- Demo database path: `output/demo/mailops-demo.db`.
 
 #### 3. Contracts
 `/api/bootstrap` may expose `demo_workspace` only as secret-safe page-shell metadata. For the default local demo database it returns `enabled=true`, `label`, relative `database`, `synthetic=true`, and quick-action descriptors with `key`, `label`, `page`, and optional `tab`. For ordinary databases it returns exactly `{"enabled": false}`.
@@ -191,15 +191,15 @@ Keep demo data isolated behind an explicit script and an explicit database path.
 The detector must compare the configured `DATABASE_PATH` to the default demo database without creating the database, seeding rows, starting schedulers, or probing provider networks. The payload must never include absolute filesystem paths, provider bearer tokens, API keys, task tokens, claim tokens, mailbox passwords, refresh tokens, or live mailbox content.
 
 #### 4. Validation & Error Matrix
-- `DATABASE_PATH=output/demo/outlook-email-plus-demo.db` -> `demo_workspace.enabled=true` with relative database label and quick actions.
+- `DATABASE_PATH=output/demo/mailops-demo.db` -> `demo_workspace.enabled=true` with relative database label and quick actions.
 - `DATABASE_PATH=data/outlook_accounts.db` or any other ordinary path -> `demo_workspace={"enabled": false}`.
 - Path resolution fails -> treat as disabled rather than raising during bootstrap.
 - Future quick actions are added -> keep them navigation descriptors only; no credentials or provider-specific routing logic in bootstrap.
 
 #### 5. Good/Base/Bad Cases
-- Good: bootstrap returns `database: "output/demo/outlook-email-plus-demo.db"` and `quick_actions: [{"key":"external_api","page":"dashboard","tab":"external-api"}]`.
+- Good: bootstrap returns `database: "output/demo/mailops-demo.db"` and `quick_actions: [{"key":"external_api","page":"dashboard","tab":"external-api"}]`.
 - Base: a non-demo deployment still includes a disabled `demo_workspace` object so frontend code can stay defensive and simple.
-- Bad: returning `E:\...\output\demo\outlook-email-plus-demo.db`, environment variables, provider tokens, or seeded mailbox message bodies.
+- Bad: returning `E:\...\output\demo\mailops-demo.db`, environment variables, provider tokens, or seeded mailbox message bodies.
 - Bad: automatically calling `seed_demo_workspace.py` during app startup or bootstrap.
 
 #### 6. Tests Required
@@ -215,7 +215,7 @@ return {"demo_workspace": {"enabled": True, "database": config.get_database_path
 
 ##### Correct
 ```python
-return {"demo_workspace": {"enabled": True, "database": "output/demo/outlook-email-plus-demo.db", "synthetic": True}}
+return {"demo_workspace": {"enabled": True, "database": "output/demo/mailops-demo.db", "synthetic": True}}
 ```
 
 ### Scenario: Baseline Security Response Headers

@@ -716,11 +716,11 @@ Trigger: backend, docs, smoke-checker, or starter-client changes that add or mod
 
 ### 2. Signatures
 
-- `outlook_web.services.provider_catalog.get_external_api_integration_bundle(*, consumer: dict[str, Any] | None = None, service: str = "outlook-email-plus", version: str = "", database_ok: bool = True, upstream_probe_ok: bool | None = None, openapi_metadata: dict[str, Any] | None = None) -> dict[str, Any]`
+- `outlook_web.services.provider_catalog.get_external_api_integration_bundle(*, consumer: dict[str, Any] | None = None, service: str = "mailops", version: str = "", database_ok: bool = True, upstream_probe_ok: bool | None = None, openapi_metadata: dict[str, Any] | None = None) -> dict[str, Any]`
 - `GET /api/v1/external/integration-bundle`
 - `GET /api/external/integration-bundle`
-- `examples/external_api_python_client.py -> OutlookEmailPlusClient.integration_bundle()`
-- `examples/external_api_javascript_client.js -> OutlookEmailPlusClient.integrationBundle()`
+- `examples/external_api_python_client.py -> MailOpsClient.integration_bundle()`
+- `examples/external_api_javascript_client.js -> MailOpsClient.integrationBundle()`
 - `scripts/external_api_smoke.py -> validate_contracts(..., integration_bundle_payload=...)`
 - `docs/project-launchpad.md`
 - `scripts/project_readiness_check.py -> _project_launchpad(root: Path) -> CheckResult`

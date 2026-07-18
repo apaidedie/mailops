@@ -64,7 +64,7 @@ def _minimal_ready_repo(root: Path) -> None:
                 "TEMP_MAIL_PROVIDER EXTERNAL_POOL_DEFAULT_PROVIDER ACTIVE_MAILBOX_PROVIDERS OUTLOOK_EMAIL_PROVIDER_CONFIG_FILE",
                 "python scripts/project_readiness_check.py",
                 "python scripts/seed_demo_workspace.py --reset",
-                "output/demo/outlook-email-plus-demo.db",
+                "output/demo/mailops-demo.db",
                 "scripts/external_api_smoke.py",
                 "X-API-Key: <your-api-key>",
                 canonical["integration_bundle"],
@@ -200,7 +200,7 @@ def _minimal_ready_repo(root: Path) -> None:
     _write(
         root,
         "scripts/seed_demo_workspace.py",
-        "DEFAULT_DB_PATH output demo outlook-email-plus-demo.db --dry-run --reset --format seed_demo_workspace init_db SCHEDULER_AUTOSTART DATABASE_PATH web_outlook_app.py\n",
+        "DEFAULT_DB_PATH output demo mailops-demo.db --dry-run --reset --format seed_demo_workspace init_db SCHEDULER_AUTOSTART DATABASE_PATH web_outlook_app.py\n",
     )
     _write(
         root,

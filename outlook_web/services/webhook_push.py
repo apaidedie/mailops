@@ -188,7 +188,7 @@ def send_test_webhook_message() -> dict[str, Any]:
     test_message = {
         "message_id": "webhook-test-message",
         "subject": "[Outlook Email Plus] Webhook 测试消息",
-        "sender": "system@outlook-email-plus.local",
+        "sender": "system@mailops.local",
         "received_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
         "preview": "如果你收到这条消息，说明 Webhook 通知配置正确。",
         "content": "如果你收到这条消息，说明 Webhook 通知配置正确。",

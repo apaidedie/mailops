@@ -38,12 +38,12 @@ class DemoWorkspaceBootstrapTests(unittest.TestCase):
         return data.get("bootstrap") or {}
 
     def test_bootstrap_marks_default_local_demo_database(self):
-        demo_path = self.repo_root / "output" / "demo" / "outlook-email-plus-demo.db"
+        demo_path = self.repo_root / "output" / "demo" / "mailops-demo.db"
         bootstrap = self._bootstrap_payload(configured_database_path=demo_path)
         demo = bootstrap.get("demo_workspace") or {}
 
         self.assertTrue(demo.get("enabled"))
-        self.assertEqual(demo.get("database"), "output/demo/outlook-email-plus-demo.db")
+        self.assertEqual(demo.get("database"), "output/demo/mailops-demo.db")
         self.assertTrue(demo.get("synthetic"))
 
         actions = {item.get("key"): item for item in demo.get("quick_actions") or []}

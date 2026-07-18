@@ -104,7 +104,7 @@ OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
 python examples/external_api_python_client.py \
   --base-url https://mailbox.example.com \
   integration-bundle \
-  --output ./outlook-email-plus.integration.json
+  --output ./mailops.integration.json
 ```
 
 JavaScript services can generate the same bundle without installing packages:
@@ -114,7 +114,7 @@ OUTLOOK_EMAIL_PLUS_API_KEY=<your-api-key> \
 node examples/external_api_javascript_client.js \
   --base-url https://mailbox.example.com \
   integration-bundle \
-  --output ./outlook-email-plus.integration.json
+  --output ./mailops.integration.json
 ```
 
 For CI logs or a quick operator check, ask either starter client for only the action-plan summary:

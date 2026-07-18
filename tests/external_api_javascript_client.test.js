@@ -7,8 +7,8 @@ const test = require("node:test");
 const {
   buildIntegrationBundle,
   CANONICAL_EXTERNAL_PREFIX,
-  OutlookEmailPlusApiError,
-  OutlookEmailPlusClient,
+  MailOpsApiError,
+  MailOpsClient,
   main,
   summarizeIntegrationBundleActionPlan,
 } = require("../examples/external_api_javascript_client");
@@ -88,7 +88,7 @@ function discoveryResponses() {
 function liveIntegrationBundleData() {
   return {
     version: 1,
-    service: "outlook-email-plus",
+    service: "mailops",
     status: "ready",
     auth: { header: "X-API-Key", placeholder: "<your-api-key>" },
     endpoints: {
@@ -136,7 +136,7 @@ function makeTransport(responses, { failOn = null, failStatus = 500, failCode = 
     calls.push({ method, url: requestUrl, apiKey, body, timeoutSeconds });
     const key = `${method} ${requestUrl}`;
     if (failOn === key) {
-      throw new OutlookEmailPlusApiError("read failed", {
+      throw new MailOpsApiError("read failed", {
         status: failStatus,
         code: failCode,
         payload: { success: false, code: failCode },
@@ -153,7 +153,7 @@ function makeTransport(responses, { failOn = null, failStatus = 500, failCode = 
 
 test("discover reads canonical endpoints and caches endpoint map", async () => {
   const transport = makeTransport(discoveryResponses());
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
 
   const data = await client.discover();
 
@@ -188,7 +188,7 @@ test("start, read, and close use session endpoints and expected bodies", async (
     ok({ session_type: "pool_claim", status: "closed" }),
   );
   const transport = makeTransport(responses);
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
   await client.discover();
 
   const result = await client.verificationFlow({
@@ -218,7 +218,7 @@ test("start uses canonical fallback without discovery", async () => {
     ],
   ]);
   const transport = makeTransport(responses);
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
 
   const session = await client.startMailboxSession({ callerId: "worker", taskId: "task", sourceStrategy: "task_temp_only" });
 
@@ -238,12 +238,12 @@ test("verification flow closes started session when read fails", async () => {
   );
   const failOn = `POST ${url(`${CANONICAL_EXTERNAL_PREFIX}/mailbox-sessions/read`)}`;
   const transport = makeTransport(responses, { failOn });
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
   await client.discover();
 
   await assert.rejects(
     () => client.verificationFlow({ callerId: "worker", taskId: "task", sourceStrategy: "task_temp_only" }),
-    OutlookEmailPlusApiError,
+    MailOpsApiError,
   );
 
   const closeCalls = transport.calls.filter((call) => call.url.endsWith("/mailbox-sessions/close"));
@@ -255,7 +255,7 @@ test("envelope failure raises API error", async () => {
   const responses = new Map([
     [`GET ${url(`${CANONICAL_EXTERNAL_PREFIX}/capabilities`)}`, { success: false, code: "FORBIDDEN", message: "forbidden" }],
   ]);
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", {
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", {
     transport: makeTransport(responses),
   });
 
@@ -268,7 +268,7 @@ test("envelope failure raises API error", async () => {
 
 test("unsupported read filters are rejected before request", async () => {
   const transport = makeTransport(new Map());
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
 
   await assert.rejects(
     () =>
@@ -291,7 +291,7 @@ test("CLI discover uses API key from environment", async () => {
     env: { OUTLOOK_EMAIL_PLUS_API_KEY: "env-key" },
     stdout: () => {},
     stderr: () => {},
-    clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+    clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
   });
 
   assert.equal(exitCode, 0);
@@ -301,7 +301,7 @@ test("CLI discover uses API key from environment", async () => {
 
 test("buildIntegrationBundle summarizes live discovery without secrets", async () => {
   const transport = makeTransport(discoveryResponses());
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
 
   const bundle = buildIntegrationBundle("https://mailbox.example.test/", await client.discover());
   const serialized = JSON.stringify(bundle);
@@ -330,7 +330,7 @@ test("CLI integration-bundle outputs JSON and uses only readonly discovery", asy
       stdoutText += text;
     },
     stderr: () => {},
-    clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+    clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
   });
 
   const bundle = JSON.parse(stdoutText);
@@ -389,7 +389,7 @@ test("CLI integration-bundle summary outputs action plan projection", async () =
         stdoutText += text;
       },
       stderr: () => {},
-      clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+      clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
     },
   );
 
@@ -422,7 +422,7 @@ test("CLI integration-bundle falls back to local discovery for older service", a
       stdoutText += text;
     },
     stderr: () => {},
-    clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+    clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
   });
 
   const bundle = JSON.parse(stdoutText);
@@ -443,7 +443,7 @@ test("CLI integration-bundle falls back to local discovery for older service", a
 test("action plan summary handles older service fallback bundle", async () => {
   const failOn = `GET ${url(`${CANONICAL_EXTERNAL_PREFIX}/integration-bundle`)}`;
   const transport = makeTransport(discoveryResponses(), { failOn, failStatus: 404, failCode: "NOT_FOUND" });
-  const client = new OutlookEmailPlusClient("https://mailbox.example.test", "test-key", { transport });
+  const client = new MailOpsClient("https://mailbox.example.test", "test-key", { transport });
 
   const summary = summarizeIntegrationBundleActionPlan(await client.integrationBundle());
 
@@ -455,7 +455,7 @@ test("action plan summary handles older service fallback bundle", async () => {
 
 test("CLI integration-bundle summary can write output file", async () => {
   const transport = makeTransport(discoveryResponses());
-  const outputPath = "output/test-js-integration-summary/outlook-email-plus.summary.json";
+  const outputPath = "output/test-js-integration-summary/mailops.summary.json";
   fs.rmSync("output/test-js-integration-summary", { recursive: true, force: true });
   let stdoutText = "";
 
@@ -477,7 +477,7 @@ test("CLI integration-bundle summary can write output file", async () => {
           stdoutText += text;
         },
         stderr: () => {},
-        clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+        clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
       },
     );
 
@@ -497,7 +497,7 @@ test("CLI integration-bundle summary can write output file", async () => {
 
 test("CLI integration-bundle can write output file", async () => {
   const transport = makeTransport(discoveryResponses());
-  const outputPath = "output/test-js-integration-bundle/outlook-email-plus.integration.json";
+  const outputPath = "output/test-js-integration-bundle/mailops.integration.json";
   fs.rmSync("output/test-js-integration-bundle", { recursive: true, force: true });
   let stdoutText = "";
 
@@ -518,7 +518,7 @@ test("CLI integration-bundle can write output file", async () => {
           stdoutText += text;
         },
         stderr: () => {},
-        clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+        clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
       },
     );
 
@@ -583,7 +583,7 @@ test("CLI verification-code forwards start selection fields", async () => {
       env: {},
       stdout: () => {},
       stderr: () => {},
-      clientFactory: (baseUrl, apiKey, options) => new OutlookEmailPlusClient(baseUrl, apiKey, { ...options, transport }),
+      clientFactory: (baseUrl, apiKey, options) => new MailOpsClient(baseUrl, apiKey, { ...options, transport }),
     },
   );
 

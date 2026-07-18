@@ -1793,7 +1793,7 @@
         'Docker API 更新失败：': 'Docker API update failed: ',
 
         // ── Token 工具页面 ──
-        'Token 获取工具 - OutlookEmailPlus': 'Token Tool - OutlookEmailPlus',
+        'Token 获取工具 - MailOps': 'Token Tool - MailOps',
         '🔑 OAuth Token 工具': '🔑 OAuth Token Tool',
         '通过 Microsoft OAuth 获取 Token 并写入账号。支持个人 Microsoft 账号（Public Client、IMAP / Graph）。': 'Obtain tokens via Microsoft OAuth and save them to accounts. Supports personal Microsoft accounts (Public Client, IMAP / Graph).',
         '关闭': 'Close',

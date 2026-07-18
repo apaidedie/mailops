@@ -9,8 +9,8 @@
 - **代码版本**：以 Git Tag 为准，格式 `vX.Y.Z`（例如 `v1.11.0`）
 - **发布说明**：`CHANGELOG.md` 中对应版本段落（`## [vX.Y.Z] - YYYY-MM-DD`）
 - **Docker 镜像**：
-  - DockerHub：`guangshanshui/outlook-email-plus`（常用：`latest` / `vX.Y.Z`）
-  - GHCR：`ghcr.io/zeropointsix/outlook-email-plus`（常用：`latest` / `main` / `vX.Y.Z`）
+  - DockerHub：`ghcr.io/apaidedie/mailops`（常用：`latest` / `vX.Y.Z`）
+  - GHCR：`ghcr.io/apaidedie/mailops`（常用：`latest` / `main` / `vX.Y.Z`）
 
 > 说明：镜像以 GitHub Actions 工作流 `.github/workflows/docker-build-push.yml` 为准。
 
@@ -129,10 +129,10 @@ git push origin vX.Y.Z
 
 ```bash
 # 验证稳定版本镜像
-docker pull guangshanshui/outlook-email-plus:vX.Y.Z
+docker pull ghcr.io/apaidedie/mailops:vX.Y.Z
 
 # 验证 latest（main/master）
-docker pull guangshanshui/outlook-email-plus:latest
+docker pull ghcr.io/apaidedie/mailops:latest
 ```
 
 验证点：
@@ -156,7 +156,7 @@ push `vX.Y.Z` tag 后，会由工作流 `.github/workflows/create-github-release
 - 生产回滚优先使用 **明确版本标签**（例如回滚到 `v1.10.1`）
 
 ```bash
-docker pull guangshanshui/outlook-email-plus:v1.10.1
+docker pull ghcr.io/apaidedie/mailops:v1.10.1
 # 将部署配置中的镜像标签改回 v1.10.1 并重启
 ```
 
