@@ -9,10 +9,11 @@
 
         function getBuiltinTempSettingsSchemaFallbackProviders() {
             // Startup / offline classification before /api/providers settles.
-            // Keep in sync with built-in temp providers that own schema fields.
+            // Built-in: Cloudflare only. Others (incl. GPTMail) are plugins.
             return [
-                'legacy_bridge',
                 'cloudflare_temp_mail',
+                'legacy_bridge',
+                'custom_domain_temp_mail',
                 'mail_tm',
                 'duckmail',
                 'tempmail_lol',
@@ -21,9 +22,8 @@
         }
 
         function getSettingsVisibleBuiltinTempProviders() {
-            // Operator settings list: Cloudflare + GPTMail only.
-            // Mail.tm / DuckMail / TempMail.lol / Emailnator appear after plugin install.
-            return new Set(['cloudflare_temp_mail', 'legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail']);
+            // Only Cloudflare is always shown. GPTMail / Mail.tm / … appear after install.
+            return new Set(['cloudflare_temp_mail']);
         }
 
         function shouldShowTempMailSettingsProviderOption(option, selectedProvider = '') {
@@ -810,9 +810,9 @@
         }
 
         function getOperatorDefaultTempMailProvider() {
-            // Prefer discovery default from /api/providers; fall back to operator-canonical bridge key.
+            // Prefer discovery default from /api/providers; fall back to Cloudflare built-in.
             const cached = normalizeTempMailSettingsProviderName(mailboxProviderDefaultTempMailProvider);
-            return cached || 'legacy_bridge';
+            return cached || 'cloudflare_temp_mail';
         }
 
         function getCurrentTempMailSettingsProviderSelection(mount) {

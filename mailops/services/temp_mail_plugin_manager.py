@@ -167,6 +167,16 @@ def _official_bundled_plugin_catalog() -> list[dict[str, Any]]:
     """In-repo installable plugins (no network required)."""
     return [
         {
+            "name": "gptmail",
+            "display_name": "GPTMail",
+            "description": "GPTMail 临时邮箱 API（mail.chatgpt.org.uk 兼容）",
+            "description_en": "GPTMail temporary-mail API (mail.chatgpt.org.uk compatible)",
+            "version": "1.0.0",
+            "author": "MailOps",
+            "bundled": True,
+            "bundled_file": "gptmail.py",
+        },
+        {
             "name": "mail_tm",
             "display_name": "Mail.tm",
             "description": "公开 Mail.tm 临时邮箱服务",

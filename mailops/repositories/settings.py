@@ -9,7 +9,7 @@ from mailops import config
 from mailops.db import create_sqlite_connection, get_db
 from mailops.security.crypto import decrypt_data
 
-DEFAULT_TEMP_MAIL_PROVIDER = "custom_domain_temp_mail"
+DEFAULT_TEMP_MAIL_PROVIDER = "cloudflare_temp_mail"
 LEGACY_TEMP_MAIL_PROVIDER = "legacy_bridge"
 CLOUDFLARE_TEMP_MAIL_PROVIDER = "cloudflare_temp_mail"
 MAIL_TM_TEMP_MAIL_PROVIDER = "mail_tm"

@@ -5,7 +5,7 @@ from typing import Any
 
 from mailops.repositories import settings as settings_repo
 from mailops.services import gptmail
-from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import TempMailProviderBase
 
 DEFAULT_PREFIX_RULES = {
     "min_length": 1,
@@ -79,7 +79,7 @@ def _normalize_domain_entries(raw_domains: Any, default_domain: str) -> list[dic
     return domains
 
 
-@register_provider
+# Registered only when the GPTMail plugin is installed (or tests call register_official_public_providers).
 class CustomTempMailProvider(TempMailProviderBase):
     provider_name = "custom_domain_temp_mail"
     provider_label = "GPTMail"
@@ -252,7 +252,7 @@ class CustomTempMailProvider(TempMailProviderBase):
         }
 
 
-@register_provider
+# Registered only when the GPTMail plugin is installed (or tests call register_official_public_providers).
 class LegacyBridgeTempMailProvider(CustomTempMailProvider):
     """兼容历史 provider 名称 legacy_bridge。"""
 

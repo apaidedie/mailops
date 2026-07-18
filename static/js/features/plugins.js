@@ -228,7 +228,7 @@ const PluginManager = (() => {
             html += '<div class="plugin-empty">'
                 + plT('暂无已安装插件')
                 + '<div class="form-hint" style="margin-top:0.55rem;text-align:left;">'
-                + plT('内置仅 Cloudflare / GPTMail。Mail.tm / DuckMail / TempMail.lol / Emailnator 可在列表中点「安装」（官方捆绑包，无需外网）；也可「自定义安装」上传自己的 .py。')
+                + plT('内置仅 Cloudflare Temp Mail。GPTMail / Mail.tm / DuckMail / TempMail.lol / Emailnator 可在列表中点「安装」（官方捆绑包，无需外网）；也可「自定义安装」上传自己的 .py。')
                 + '</div></div>';
         } else {
             html += '<div class="plugin-list">';

@@ -17,11 +17,9 @@ logger = logging.getLogger(__name__)
 _FAILED_PLUGIN_MTIMES: dict[str, int] = {}
 _PLUGIN_LOAD_STATE: dict[str, dict[str, Any]] = {}
 
-# 热刷新保护：核心内置 provider 不清空（公共服务改为插件安装）
+# 热刷新保护：仅 Cloudflare 为真正内置；GPTMail / 公共服务走插件安装
 _BUILTIN_PROVIDERS = {
     settings_repo.CLOUDFLARE_TEMP_MAIL_PROVIDER,
-    settings_repo.DEFAULT_TEMP_MAIL_PROVIDER,
-    settings_repo.LEGACY_TEMP_MAIL_PROVIDER,
 }
 
 # 触发内置 provider 装饰器注册
