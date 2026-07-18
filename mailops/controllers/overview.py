@@ -28,6 +28,35 @@ def api_get_overview_summary() -> Any:
         result["command_center"] = get_overview_command_center()
     except Exception:
         result["command_center"] = get_overview_command_center_degraded()
+
+    try:
+        from mailops.services.setup_first_run import build_ops_health_snapshot, build_setup_first_run_guide
+
+        result["setup_guide"] = build_setup_first_run_guide()
+    except Exception:
+        result["setup_guide"] = {"version": 1, "show": False, "steps": [], "examples": []}
+
+    try:
+        from mailops.services.setup_first_run import build_ops_health_snapshot
+
+        api_stats = overview_repo.get_external_api_stats()
+        result["ops_health"] = build_ops_health_snapshot(
+            account_status=result.get("account_status"),
+            refresh_health=result.get("refresh_health"),
+            command_center=result.get("command_center"),
+            external_api_stats=api_stats,
+        )
+        # Lightweight KPI for summary strip (avoid full external-api tab payload on summary).
+        kpi = api_stats.get("kpi") if isinstance(api_stats.get("kpi"), dict) else {}
+        result["external_api_today"] = {
+            "today_calls": int(kpi.get("today_calls") or 0),
+            "error_count": int(kpi.get("error_count") or 0),
+            "success_rate": kpi.get("success_rate"),
+        }
+    except Exception:
+        result["ops_health"] = {}
+        result["external_api_today"] = {"today_calls": 0, "error_count": 0}
+
     _OVERVIEW_SUMMARY_CACHE = result
     _OVERVIEW_SUMMARY_CACHE_AT = now
     return jsonify(result)

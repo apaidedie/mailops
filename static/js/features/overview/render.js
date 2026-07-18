@@ -34,6 +34,8 @@ function renderOverviewSummary(data) {
 
     const nextAction = renderOverviewSimpleNextAction(data.command_center || {});
     container.innerHTML = `
+        ${renderOverviewSetupGuide(data.setup_guide || {})}
+        ${renderOverviewOpsHealth(data.ops_health || {}, data.external_api_today || {})}
         <div class="kpi-row kpi-row--simple">
             ${renderKpiCard('账号', formatNumber(accountStatus.total || 0), ovLabelValue('活跃', formatNumber(accountStatus.active || 0)), 'kpi-primary')}
             ${renderKpiCard('今日验证码', formatNumber(kpi.verification_extracted || 0), ovLabelValue('临时邮箱', formatNumber(kpi.temp_emails_active || 0)), 'kpi-accent')}
@@ -63,7 +65,175 @@ function renderOverviewSummary(data) {
                 `
             })}
         </div>
+        ${renderOverviewApiExamples(data.setup_guide && data.setup_guide.examples)}
     `;
+    bindOverviewSetupGuideActions(container);
+}
+
+function renderOverviewSetupGuide(guide) {
+    const data = guide && typeof guide === 'object' ? guide : {};
+    if (!data.show) return '';
+    const steps = Array.isArray(data.steps) ? data.steps : [];
+    const stepHtml = steps.map((step) => {
+        const done = !!step.done;
+        const optional = !!step.optional;
+        const action = String(step.action || '');
+        const btnLabel = done
+            ? ovT('已完成')
+            : (action.startsWith('copy:') ? ovT('复制命令') : ovT('去处理'));
+        return `
+            <div class="ov-setup-step" data-done="${done ? '1' : '0'}" data-optional="${optional ? '1' : '0'}">
+                <div class="ov-setup-step-main">
+                    <strong>${esc(ovT(step.title || step.key || ''))}</strong>
+                    <span>${esc(ovT(step.detail || ''))}</span>
+                    ${optional ? `<em class="ov-setup-optional">${esc(ovT('可选'))}</em>` : ''}
+                </div>
+                <button type="button" class="btn btn-sm ${done ? 'btn-secondary' : 'btn-primary'}" data-ov-setup-action="${esc(action)}" ${done && !action.startsWith('copy:') ? 'disabled' : ''}>
+                    ${esc(btnLabel)}
+                </button>
+            </div>
+        `;
+    }).join('');
+    return `
+        <section class="ov-setup-guide" aria-label="${esc(ovT('新装快速路径'))}">
+            <div class="ov-setup-guide-head">
+                <div>
+                    <div class="ov-setup-kicker">${esc(ovT('默认路径'))}</div>
+                    <h3>${esc(ovT(data.title || '新装快速路径'))}</h3>
+                    <p>${esc(ovT(data.subtitle || ''))}</p>
+                </div>
+            </div>
+            <div class="ov-setup-steps">${stepHtml}</div>
+        </section>
+    `;
+}
+
+function renderOverviewOpsHealth(opsHealth, externalToday) {
+    const health = opsHealth && typeof opsHealth === 'object' ? opsHealth : {};
+    const token = health.token || {};
+    const temp = health.temp_provider || {};
+    const api = health.external_api || {};
+    const today = externalToday && typeof externalToday === 'object' ? externalToday : {};
+    const todayCalls = today.today_calls != null ? today.today_calls : api.today_calls;
+    const weekErrors = today.error_count != null ? today.error_count : api.week_errors;
+    return `
+        <div class="ov-ops-health" aria-label="${esc(ovT('运行健康'))}">
+            <div class="ov-ops-health-item" data-status="${esc(token.status || 'ok')}">
+                <span>${esc(ovT('Token / 账号'))}</span>
+                <strong>${esc(ovT('失败'))} ${formatNumber(token.last_fail_count || 0)} · ${esc(ovT('异常'))} ${formatNumber(token.error_accounts || 0)} · ${esc(ovT('过期'))} ${formatNumber(token.expired_accounts || 0)}</strong>
+            </div>
+            <div class="ov-ops-health-item" data-status="${esc(temp.status || 'ok')}">
+                <span>${esc(ovT('临时邮箱 Provider'))}</span>
+                <strong>${esc(ovT('缺配置'))} ${formatNumber(temp.needs_config || 0)} · ${esc(ovT('就绪'))} ${formatNumber(temp.ready || 0)}</strong>
+            </div>
+            <div class="ov-ops-health-item" data-status="${esc((Number(weekErrors || 0) > 0) ? 'warn' : 'ok')}">
+                <span>${esc(ovT('对外 API 今日'))}</span>
+                <strong>${esc(ovT('调用'))} ${formatNumber(todayCalls || 0)} · ${esc(ovT('7 日错误'))} ${formatNumber(weekErrors || 0)}</strong>
+            </div>
+        </div>
+    `;
+}
+
+function renderOverviewApiExamples(examples) {
+    const list = Array.isArray(examples) ? examples : [];
+    if (!list.length) return '';
+    return `
+        <section class="ov-api-examples" aria-label="${esc(ovT('对外 API 三例上手'))}">
+            <div class="ov-api-examples-head">
+                <h3>${esc(ovT('对外 API 三例上手'))}</h3>
+                <p>${esc(ovT('领临时邮箱 · 读验证码 · Claim Outlook 号池'))}</p>
+            </div>
+            <div class="ov-api-examples-grid">
+                ${list.map((item) => `
+                    <article class="ov-api-example-card">
+                        <div class="ov-api-example-title">${esc(ovT(item.title || item.key || ''))}</div>
+                        <div class="ov-api-example-detail">${esc(ovT(item.detail || ''))}</div>
+                        <div class="ov-api-example-meta"><span class="ov-api-method">${esc(item.method || 'POST')}</span><code>${esc(item.path || '')}</code></div>
+                        <pre class="ov-api-example-snippet">${esc(item.snippet || '')}</pre>
+                        <button type="button" class="btn btn-sm btn-secondary" data-ov-copy-snippet="${esc(item.key || '')}">${esc(ovT('复制示例'))}</button>
+                    </article>
+                `).join('')}
+            </div>
+        </section>
+    `;
+}
+
+function bindOverviewSetupGuideActions(container) {
+    if (!container || container.dataset.boundOvSetup === 'true') return;
+    container.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!target || !target.closest) return;
+        const setupBtn = target.closest('[data-ov-setup-action]');
+        if (setupBtn) {
+            handleOverviewSetupAction(setupBtn.getAttribute('data-ov-setup-action') || '');
+            return;
+        }
+        const copyBtn = target.closest('[data-ov-copy-snippet]');
+        if (copyBtn) {
+            const card = copyBtn.closest('.ov-api-example-card');
+            const pre = card ? card.querySelector('.ov-api-example-snippet') : null;
+            const text = pre ? pre.textContent : '';
+            if (text && typeof copyTextToClipboard === 'function') {
+                copyTextToClipboard(text).then(() => {
+                    if (typeof showToast === 'function') showToast(ovT('已复制示例'), 'success');
+                }).catch(() => {});
+            }
+        }
+    });
+    container.dataset.boundOvSetup = 'true';
+}
+
+function handleOverviewSetupAction(action) {
+    const key = String(action || '').trim();
+    if (!key) return;
+    if (key === 'copy:smoke') {
+        const cmd = (typeof getExternalApiSmokeCommand === 'function')
+            ? getExternalApiSmokeCommand()
+            : 'MAILOPS_API_KEY=<your-api-key> python scripts/external_api_smoke.py --base-url <your-base-url>';
+        if (typeof copyTextToClipboard === 'function') {
+            copyTextToClipboard(cmd).then(() => {
+                if (typeof showToast === 'function') showToast(ovT('已复制 Smoke 命令'), 'success');
+            }).catch(() => {});
+        }
+        return;
+    }
+    if (key === 'mailbox:import') {
+        if (typeof navigate === 'function') navigate('mailbox');
+        return;
+    }
+    if (key.startsWith('settings:')) {
+        if (typeof navigate === 'function') navigate('settings');
+        const parts = key.split(':');
+        const tab = parts[1] || 'basic';
+        const focus = parts[2] || '';
+        setTimeout(() => {
+            if (typeof switchSettingsTab === 'function') switchSettingsTab(tab);
+            if (tab === 'temp-mail') {
+                if (focus === 'plugins') {
+                    try {
+                        const body = document.getElementById('pluginManagerBody');
+                        if (body && body.style.display === 'none' && window.PluginManager && typeof window.PluginManager.toggleCard === 'function') {
+                            window.PluginManager.toggleCard();
+                        }
+                    } catch (_e) { /* ignore */ }
+                }
+                if (focus === 'cloudflare') {
+                    try {
+                        const radio = document.querySelector('input[name="tempMailProvider"][value="cloudflare_temp_mail"]');
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    } catch (_e) { /* ignore */ }
+                }
+            }
+            if (tab === 'api-security' && focus === 'generate-key') {
+                if (typeof generateExternalApiKey === 'function') generateExternalApiKey();
+                const input = document.getElementById('settingsExternalApiKey');
+                if (input) input.focus();
+            }
+        }, 80);
+    }
 }
 
 function renderOverviewSimpleNextAction(commandCenter) {
@@ -310,8 +480,12 @@ function renderExternalApiStats(data) {
     const byEndpoint = Array.isArray(data.by_endpoint) ? data.by_endpoint : [];
     const endpointHealth = Array.isArray(data.endpoint_health) ? data.endpoint_health : byEndpoint;
     const hasUsage = Number(kpi.week_calls || 0) > 0 || callerRank.length > 0 || endpointHealth.length > 0;
+    // Prefer warm summary cache examples when available.
+    const summaryCache = (typeof __overviewState !== 'undefined' && __overviewState.cache && __overviewState.cache.summary) || {};
+    const examples = (summaryCache.setup_guide && summaryCache.setup_guide.examples) || [];
 
     container.innerHTML = `
+        ${examples.length ? renderOverviewApiExamples(examples) : ''}
         <div class="kpi-row">
             ${renderKpiCard('今日调用量', formatNumber(kpi.today_calls || 0), ovLabelValue('7 日', formatNumber(kpi.week_calls || 0)), 'kpi-primary')}
             ${renderKpiCard('调用波动', formatPercent(kpi.today_vs_yesterday_rate || 0), '对比昨日', 'kpi-accent')}
@@ -369,6 +543,7 @@ function renderExternalApiStats(data) {
         })}
     `;
     renderBarChart(document.getElementById('ov-external-chart'), dailySeries);
+    bindOverviewSetupGuideActions(container);
 }
 
 function renderExternalApiHealthStrip(health, kpi) {
