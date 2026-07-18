@@ -784,7 +784,7 @@ _TEMP_POOL_MAILBOX_TYPE = "user"
 
 def _temp_mailbox_provider_name(mailbox: sqlite3.Row) -> str:
     meta = temp_emails_repo.deserialize_temp_email_meta(mailbox["meta_json"], source=mailbox["source"])
-    return str(meta.get("provider_name") or mailbox["source"] or "custom_domain_temp_mail").strip()
+    return str(meta.get("provider_name") or mailbox["source"] or "cloudflare_temp_mail").strip()
 
 
 def claim_temp_mailbox_atomic(

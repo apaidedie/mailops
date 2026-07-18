@@ -151,17 +151,40 @@ def validate_temp_mail_provider_name(value: str | None) -> str:
     return normalized
 
 
+def _resolve_registered_temp_mail_provider(normalized: str) -> str:
+    """Return a provider that exists in the runtime registry.
+
+    After GPTMail / public services moved to plugins, DB may still store
+    ``legacy_bridge`` while the plugin is not installed. Falling back avoids
+    empty UI shells and factory TEMP_MAIL_PROVIDER_INVALID errors.
+    """
+    name = str(normalized or "").strip() or DEFAULT_TEMP_MAIL_PROVIDER
+    try:
+        supported = get_supported_temp_mail_provider_names()
+    except Exception:
+        supported = set()
+    if name in supported:
+        return name
+    if DEFAULT_TEMP_MAIL_PROVIDER in supported:
+        return DEFAULT_TEMP_MAIL_PROVIDER
+    if supported:
+        return sorted(supported)[0]
+    return DEFAULT_TEMP_MAIL_PROVIDER
+
+
 def get_temp_mail_provider(*, strict: bool = True) -> str:
     provider_override = config.get_temp_mail_provider_override_info(strict=strict)
     override_value = str(provider_override.get("value") or "").strip()
     if override_value:
-        return normalize_temp_mail_provider_name(override_value)
-    return normalize_temp_mail_provider_name(get_setting("temp_mail_provider", DEFAULT_TEMP_MAIL_PROVIDER))
+        return _resolve_registered_temp_mail_provider(normalize_temp_mail_provider_name(override_value))
+    return _resolve_registered_temp_mail_provider(
+        normalize_temp_mail_provider_name(get_setting("temp_mail_provider", DEFAULT_TEMP_MAIL_PROVIDER))
+    )
 
 
 def get_temp_mail_runtime_provider_name(provider_name: str | None = None, *, strict: bool = True) -> str:
     if provider_name is not None:
-        return normalize_temp_mail_provider_name(provider_name)
+        return _resolve_registered_temp_mail_provider(normalize_temp_mail_provider_name(provider_name))
     return get_temp_mail_provider(strict=strict)
 
 

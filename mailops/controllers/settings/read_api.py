@@ -80,8 +80,16 @@ def api_get_settings() -> Any:
     safe_settings["login_password_set"] = bool(login_password_value)
     safe_settings["allow_login_password_change"] = config.get_allow_login_password_change()
     safe_settings["provider_config_file"] = config.get_provider_config_file_status()
+    # Runtime-resolved provider (falls back if saved GPTMail/plugin key is not installed).
     safe_settings["temp_mail_provider"] = settings_repo.get_temp_mail_provider(strict=False)
     safe_settings["temp_mail_provider_label"] = temp_mail_provider_label(safe_settings["temp_mail_provider"])
+    # Surface raw stored value so UI can detect stale legacy keys without using them as radios.
+    try:
+        safe_settings["temp_mail_provider_stored"] = str(
+            settings_repo.get_setting("temp_mail_provider", settings_repo.DEFAULT_TEMP_MAIL_PROVIDER) or ""
+        ).strip()
+    except Exception:
+        safe_settings["temp_mail_provider_stored"] = safe_settings["temp_mail_provider"]
     safe_settings["temp_mail_api_base_url"] = settings_repo.get_temp_mail_api_base_url()
     safe_settings["temp_mail_api_key_set"] = bool(temp_mail_api_key_value)
     safe_settings["temp_mail_api_key_masked"] = _mask_secret_value(temp_mail_api_key_value) if temp_mail_api_key_value else ""

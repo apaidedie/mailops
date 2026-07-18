@@ -20,9 +20,10 @@ _TEMP_EMAIL_RICH_KEYS = (
 
 TEMP_MAIL_KIND = "temp"
 TEMP_MAIL_READ_CAPABILITY = "temp_provider"
-DEFAULT_TEMP_MAIL_SOURCE = "custom_domain_temp_mail"
+# New temp-mail rows default to the built-in Cloudflare source after plugin split.
+DEFAULT_TEMP_MAIL_SOURCE = "cloudflare_temp_mail"
 LEGACY_TEMP_MAIL_SOURCE = "legacy_gptmail"
-DEFAULT_TEMP_MAIL_PROVIDER_NAME = "custom_domain_temp_mail"
+DEFAULT_TEMP_MAIL_PROVIDER_NAME = "cloudflare_temp_mail"
 LEGACY_TEMP_MAIL_PROVIDER_NAME = "legacy_bridge"
 
 DEFAULT_PROVIDER_CAPABILITIES = {

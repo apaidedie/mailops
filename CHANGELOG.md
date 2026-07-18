@@ -13,6 +13,7 @@ All notable changes to MailOps are documented in this file.
 - **公共服务插件化**：GPTMail / Mail.tm / DuckMail / TempMail.lol / Emailnator 不再默认注册为内置 Provider；**仅 Cloudflare Temp Mail 内置**。其余通过插件管理一键安装（仓库内 `bundled_plugins/`，无需外网下载）。默认临时邮箱 Provider 改为 `cloudflare_temp_mail`。
 - **新装默认路径**：概览页展示「Cloudflare → 插件 → 生成 API Key → 复制 Smoke」快速路径；对外 API 固定三例（领临时邮箱 / 读验证码 / claim Outlook）；概览健康条汇总 Token 失败、临时邮箱缺配置、今日 API 调用与 7 日错误。
 - **布局均衡**：去掉页面/设置表单/Provider 网格过窄 `max-width`，宽屏设置改为双列字段；工作区与统一邮箱铺满主栏，避免内容挤在左侧、右侧大片留白。
+- **Provider 空壳修复**：未安装 GPTMail 时不再渲染 `legacy_bridge` 空卡片；后端对失效的已保存 Provider 回退到 Cloudflare；设置列表折叠 GPTMail 双注册 key。
 
 ## [v2.7.2] - 2026-07-18
 

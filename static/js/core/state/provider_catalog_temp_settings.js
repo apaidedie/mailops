@@ -827,9 +827,21 @@
                 }, 'saved'));
             }
 
-            return Array.from(optionMap.values())
-                .filter(option => shouldShowTempMailSettingsProviderOption(option, selectedProvider))
-                .sort((a, b) => {
+            let options = Array.from(optionMap.values())
+                .filter(option => shouldShowTempMailSettingsProviderOption(option, selectedProvider));
+            // GPTMail dual-register keys collapse to one operator card (legacy_bridge).
+            const providers = new Set(options.map(item => item.provider));
+            if (providers.has('legacy_bridge') && providers.has('custom_domain_temp_mail')) {
+                options = options.filter(item => item.provider !== 'custom_domain_temp_mail');
+            }
+            // Prefer human label GPTMail over raw key leftovers.
+            options = options.map(item => {
+                if (['legacy_bridge', 'custom_domain_temp_mail', 'gptmail'].includes(item.provider)) {
+                    return { ...item, label: item.label && item.label !== item.provider ? item.label : 'GPTMail' };
+                }
+                return item;
+            });
+            return options.sort((a, b) => {
                 const orderDelta = (a.sortOrder ?? 1000) - (b.sortOrder ?? 1000);
                 if (orderDelta !== 0) return orderDelta;
                 return String(a.label || a.provider).localeCompare(String(b.label || b.provider));
