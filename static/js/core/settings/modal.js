@@ -819,6 +819,13 @@
                                 && typeof renderTempMailProviderConfigPanel === 'function') {
                                 renderTempMailProviderConfigPanel(pending);
                             }
+                            // Expand plugin manager so “自定义安装” is discoverable.
+                            try {
+                                const body = document.getElementById('pluginManagerBody');
+                                if (body && body.style.display === 'none' && window.PluginManager && typeof window.PluginManager.toggleCard === 'function') {
+                                    window.PluginManager.toggleCard();
+                                }
+                            } catch (_pluginUiErr) { /* non-blocking */ }
                         })
                         .catch(() => {});
                 }

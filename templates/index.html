@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='vendor/dompurify.min.js') }}?v=3.0.8"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core/tokens.css') }}?v={{ APP_VERSION }}-resp">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ APP_VERSION }}-resp">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui245">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/ui-modern.css') }}?v={{ APP_VERSION }}-ui246">
 </head>
 
 <body>
@@ -649,6 +649,7 @@
                             <div class="card-body settings-card-body-compact">
                                 <div class="form-group form-group--flush">
                                     <label class="form-label">全局临时邮箱 Provider</label>
+                                    <div class="form-hint" id="tempMailProviderListHint">内置仅 Cloudflare；GPTMail 为官方内置可选。Mail.tm / DuckMail 等请通过下方插件管理安装后使用。</div>
                                     <div class="provider-radio-group" id="tempMailProviderOptions" aria-live="polite">
                                         <div class="provider-radio-loading">正在读取 Provider 目录…</div>
                                     </div>
@@ -670,9 +671,6 @@
                         </div>
 
                         <!-- Legacy specialized mounts kept hidden for compatibility with older scripts/tests. -->
-                        <div class="form-hint settings-legacy-hint">
-                            用于临时邮箱能力。旧版临时邮箱 API Key 字段仅保留兼容读取与迁移，不再作为正式配置字段。
-                        </div>
                         <div id="gptmailConfigPanel" style="display:none;" aria-hidden="true"></div>
                         <div id="cfWorkerConfigPanel" style="display:none;" aria-hidden="true"></div>
 
@@ -695,7 +693,7 @@
                                     </div>
                                     <div>
                                         <div class="card-title">插件管理</div>
-                                        <div class="plugin-manager-sub">安装与管理第三方 Provider 插件；运行参数请在上方来源配置区填写</div>
+                                        <div class="plugin-manager-sub">扩展更多临时邮箱 Provider（自定义安装 .py 插件后会出现在上方列表）</div>
                                     </div>
                                 </div>
                                 <div class="plugin-manager-head-side">
@@ -708,6 +706,11 @@
                                     <div class="plugin-manager-placeholder">点击上方标题展开插件管理…</div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="settings-actions settings-actions--sticky" id="tempMailSettingsActions">
+                            <div class="form-hint settings-save-hint">修改 Provider / API Key / 域名后请保存</div>
+                            <button class="btn btn-primary" type="button" onclick="saveSettings()">💾 保存设置</button>
                         </div>
                     </div>
 
@@ -941,6 +944,9 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="settings-actions settings-actions--sticky">
+                            <button class="btn btn-primary" type="button" onclick="saveSettings()">💾 保存设置</button>
                         </div>
                     </div>
 
@@ -1225,6 +1231,9 @@
                         </div>
                         
                         <!-- 更新方式切换（Watchtower/Docker API）的显隐逻辑已迁移到 static/js/main.js -->
+                        <div class="settings-actions settings-actions--sticky">
+                            <button class="btn btn-primary" type="button" onclick="saveSettings()">💾 保存设置</button>
+                        </div>
                     </div>
 
                 </div>

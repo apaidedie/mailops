@@ -9,6 +9,7 @@ All notable changes to MailOps are documented in this file.
 - **临时邮箱产品名**：内置 GPTMail 兼容通道对外展示由 `Compatible Temp Mail Bridge` / `兼容临时邮箱桥接` 统一为 **GPTMail**（内部 key `legacy_bridge` / `gptmail` 不变）；配置字段文案改为 GPTMail API Base URL / API Key。
 - **GPTMail 用量**：设置页 GPTMail 配置支持查看 `usage`（`GET /api/stats` / 业务响应附带的限额字段）；提供「刷新用量」并在已配置时自动探测一次。
 - **细节**：Base URL 归一会去掉文档语言路径（如 `/zh`）；配置表单隐藏内部 setting key 提示。
+- **设置 / 临时邮箱 UX**：各 Tab 增加显式「保存设置」；Provider 卡片去掉长描述、收紧布局；默认列表仅展示 Cloudflare + GPTMail（及已装插件），Mail.tm/DuckMail 等改走插件管理；插件区默认展开并补充空状态说明。
 
 ## [v2.7.2] - 2026-07-18
 

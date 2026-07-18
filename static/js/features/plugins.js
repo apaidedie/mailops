@@ -225,7 +225,11 @@ const PluginManager = (() => {
             </div>`;
 
         if (_plugins.length === 0) {
-            html += '<div class="plugin-empty">' + plT('暂无可用插件') + '</div>';
+            html += '<div class="plugin-empty">'
+                + plT('暂无已安装插件')
+                + '<div class="form-hint" style="margin-top:0.55rem;text-align:left;">'
+                + plT('内置仅 Cloudflare / GPTMail。Mail.tm、DuckMail 等请点「自定义安装」上传 Provider 插件（.py），安装后会出现在上方 Provider 列表。')
+                + '</div></div>';
         } else {
             html += '<div class="plugin-list">';
             [...installed, ...failed, ...available].forEach(p => { html += _renderPluginItem(p); });

@@ -20,6 +20,24 @@
             ];
         }
 
+        function getSettingsVisibleBuiltinTempProviders() {
+            // Operator settings list: keep Cloudflare as the only generic built-in,
+            // plus GPTMail (official API bridge). Other public services should arrive
+            // via plugin management instead of cluttering the global selector.
+            return new Set(['cloudflare_temp_mail', 'legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail']);
+        }
+
+        function shouldShowTempMailSettingsProviderOption(option, selectedProvider = '') {
+            if (!option || !option.provider) return false;
+            const provider = normalizeTempMailSettingsProviderName(option.provider) || option.provider;
+            const selected = normalizeTempMailSettingsProviderName(selectedProvider);
+            if (selected && provider === selected) return true;
+            if (option.configSource === 'plugin' || option.source === 'plugin') return true;
+            if (getSettingsVisibleBuiltinTempProviders().has(provider)) return true;
+            // Hide Mail.tm / DuckMail / TempMail.lol / Emailnator from default built-in grid.
+            return false;
+        }
+
         function providerUsesTempSettingsSchemaPanel(providerName) {
             const normalizedProvider = normalizeTempMailSettingsProviderName(providerName) || getOperatorDefaultTempMailProvider();
             const item = getMailboxProviderCatalogItem(normalizedProvider, 'temp');
@@ -544,17 +562,13 @@
 
             const isGptmail = ['legacy_bridge', 'custom_domain_temp_mail', 'gptmail', 'legacy_gptmail', 'temp_mail']
                 .includes(normalizedProvider);
-            const description = getUiLanguage() === 'en'
-                ? String(item?.settings_ui?.description || item?.description || '').trim()
-                : String(item?.settings_ui?.description_zh || item?.settings_ui?.description || item?.description_zh || item?.description || '').trim();
             body.innerHTML = [
                 '<div class="temp-provider-config-summary">',
                     '<div>',
                         `<div class="temp-provider-config-title">${escapeHtml(translateAppTextLocal(label))}</div>`,
-                        description
-                            ? `<div class="temp-provider-config-detail">${escapeHtml(translateAppTextLocal(description))}</div>`
+                        missing.length
+                            ? `<div class="temp-provider-config-detail">${escapeHtml(translateAppTextLocal('缺失项'))}: ${escapeHtml(missingText)}</div>`
                             : '',
-                        `<div class="temp-provider-config-detail">${escapeHtml(translateAppTextLocal('缺失项'))}: ${escapeHtml(missingText)}</div>`,
                     '</div>',
                     statusBadge,
                 '</div>',
@@ -759,7 +773,9 @@
                 }, 'saved'));
             }
 
-            return Array.from(optionMap.values()).sort((a, b) => {
+            return Array.from(optionMap.values())
+                .filter(option => shouldShowTempMailSettingsProviderOption(option, selectedProvider))
+                .sort((a, b) => {
                 const orderDelta = (a.sortOrder ?? 1000) - (b.sortOrder ?? 1000);
                 if (orderDelta !== 0) return orderDelta;
                 return String(a.label || a.provider).localeCompare(String(b.label || b.provider));
@@ -772,6 +788,7 @@
             const sourceBadge = option.configSource === 'plugin'
                 ? `<span class="provider-source-badge">${escapeHtml(translateAppTextLocal('插件'))}</span>`
                 : '';
+            // Compact cards: name + status only (no long marketing descriptions).
             return [
                 `<label class="provider-radio" data-provider-option="${escapeHtml(provider)}" data-provider-source="${escapeHtml(option.source || 'catalog')}">`,
                     `<input type="radio" name="tempMailProvider" value="${escapeHtml(provider)}"${checked}>`,
@@ -780,7 +797,6 @@
                             `<span class="provider-name">${escapeHtml(translateAppTextLocal(option.label || provider))}</span>`,
                             sourceBadge,
                         '</span>',
-                        `<span class="provider-desc">${escapeHtml(translateAppTextLocal(option.description || '临时邮箱 Provider'))}</span>`,
                         `<span class="provider-config-status" data-provider-status="${escapeHtml(provider)}"></span>`,
                     '</span>',
                 '</label>'
