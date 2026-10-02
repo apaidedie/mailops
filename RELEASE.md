@@ -8,9 +8,9 @@
 
 - **代码版本**：以 Git Tag 为准，格式 `vX.Y.Z`（例如 `v1.11.0`）
 - **发布说明**：`CHANGELOG.md` 中对应版本段落（`## [vX.Y.Z] - YYYY-MM-DD`）
-- **Docker 镜像**：
-  - DockerHub：`ghcr.io/apaidedie/mailops`（常用：`latest` / `vX.Y.Z`）
-  - GHCR：`ghcr.io/apaidedie/mailops`（常用：`latest` / `main` / `vX.Y.Z`）
+- **Docker 镜像**（GHCR，GitHub Container Registry）：
+  - `ghcr.io/apaidedie/mailops:latest` —— main 分支最新构建
+  - `ghcr.io/apaidedie/mailops:vX.Y.Z` —— 发版 tag 对应镜像
 
 > 说明：镜像以 GitHub Actions 工作流 `.github/workflows/docker-build-push.yml` 为准。
 
