@@ -5,7 +5,12 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch
 
-from tests._import_app import clear_login_attempts, import_web_app_module
+from tests._import_app import (
+    clear_login_attempts,
+    import_web_app_module,
+    register_official_plugins,
+    unregister_official_plugins,
+)
 
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 
@@ -45,6 +50,9 @@ class MultiMailboxSupportTests(unittest.TestCase):
         cls.app = cls.module.app
 
     def setUp(self):
+        # provider 诊断 / 健康检查 / catalog 用例需要公共插件处于已安装状态。
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         with self.app.app_context():
             clear_login_attempts()
             from mailops.repositories import settings as settings_repo
@@ -113,6 +121,8 @@ class MultiMailboxSupportTests(unittest.TestCase):
             settings_repo.set_setting("duckmail_bearer_token", "")
             settings_repo.set_setting("emailnator_api_key", "")
             settings_repo.set_setting("pool_default_provider", "duckmail")
+            # 用 GPTMail 家族别名验证默认 provider 的折叠展示（legacy_* → legacy_bridge）。
+            settings_repo.set_setting("temp_mail_provider", "legacy_gptmail")
 
         client = self.app.test_client()
         self._login(client)

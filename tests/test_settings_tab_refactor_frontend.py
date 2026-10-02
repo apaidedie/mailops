@@ -676,7 +676,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
             "normalizeTempMailSettingsProviderName(provider) || getOperatorDefaultTempMailProvider()",
             js_text,
         )
-        self.assertEqual(js_text.count("|| 'legacy_bridge'"), 1)
+        # provider 名回退已全部收敛到 getOperatorDefaultTempMailProvider()。
+        self.assertEqual(js_text.count("|| 'legacy_bridge'"), 0)
         # Catalog-driven re-render skips the hidden mount until Settings has bound it.
         render_opts_start = js_text.index("function renderTempMailProviderOptions")
         render_opts_end = js_text.index("function initTempMailProviderOptions", render_opts_start)
@@ -2076,6 +2077,11 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
 
     def test_api_providers_guide_is_available_and_secret_free_for_ui(self):
         """设置页使用的 /api/providers 应返回 secret-free 接入指南。"""
+        from tests._import_app import register_official_plugins, unregister_official_plugins
+
+        # DuckMail 等公共 provider 的 env 提示只在插件安装后出现在接入指南里。
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         client = self.app.test_client()
         self._login(client)
         with patch.dict(

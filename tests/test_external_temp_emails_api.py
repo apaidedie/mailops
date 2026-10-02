@@ -6,7 +6,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tests._import_app import clear_login_attempts, import_web_app_module
+from tests._import_app import (
+    clear_login_attempts,
+    import_web_app_module,
+    register_official_plugins,
+    unregister_official_plugins,
+)
 
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 
@@ -78,6 +83,9 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         cls.app = cls.module.app
 
     def setUp(self):
+        # provider 目录 / 健康检查 / 显式 provider 领取用例需要公共插件处于已安装状态。
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         with self.app.app_context():
             clear_login_attempts()
             from mailops.db import get_db

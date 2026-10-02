@@ -12,6 +12,11 @@ class ExternalApiKeySettingsTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
+            from tests._import_app import register_official_plugins, unregister_official_plugins
+
+            # pool_default_provider / active_mailbox_providers 用例按 catalog 校验，需要插件已安装。
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
             from mailops.db import get_db
             from mailops.repositories import settings as settings_repo
 

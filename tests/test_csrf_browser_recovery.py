@@ -1,3 +1,4 @@
+import os
 import re
 import threading
 import unittest
@@ -124,6 +125,10 @@ class _LiveServerThread(threading.Thread):
 class CsrfBrowserRecoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Playwright 的 wait_for_function 依赖页面内 eval，默认开启的 CSP 会拒绝。
+        # 浏览器链路用例局部关闭安全响应头，tearDownClass 恢复。
+        cls._previous_security_headers = os.environ.get("SECURITY_HEADERS_ENABLED")
+        os.environ["SECURITY_HEADERS_ENABLED"] = "false"
         cls.module = import_web_app_module()
         cls.app = cls.module.app
         cls._original_csrf_enabled = cls.app.config.get("WTF_CSRF_ENABLED")
@@ -175,6 +180,10 @@ class CsrfBrowserRecoveryTests(unittest.TestCase):
                     WTF_CSRF_ENABLED=cls._original_csrf_enabled,
                     WTF_CSRF_CHECK_DEFAULT=cls._original_csrf_check_default,
                 )
+                if cls._previous_security_headers is None:
+                    os.environ.pop("SECURITY_HEADERS_ENABLED", None)
+                else:
+                    os.environ["SECURITY_HEADERS_ENABLED"] = cls._previous_security_headers
 
     def setUp(self):
         with self.app.app_context():
@@ -230,6 +239,9 @@ class CsrfBrowserRecoveryTests(unittest.TestCase):
                 }""",
                 timeout=15_000,
             )
+            # updateGroupSelects 只会填充「已打开弹窗」内的下拉（软加载可见性门控），
+            # 因此先打开 add-account 弹窗，再等待分组选项填充。
+            page.evaluate("() => showAddAccountModal()")
             page.wait_for_function("""() => {
                     const select = document.getElementById('importGroupSelect');
                     return select && select.options.length > 0;
@@ -252,10 +264,17 @@ class CsrfBrowserRecoveryTests(unittest.TestCase):
             )
 
             page.locator("#toast-container .toast.success").filter(has_text="导入完成").wait_for(timeout=15000)
+            # 导入链路只失效统一目录缓存，不主动重载；默认视图为 unified，
+            # 显式强制重载后等待统一目录卡片出现。
+            page.evaluate("""() => {
+                    if (typeof loadUnifiedMailboxes === 'function') {
+                        loadUnifiedMailboxes(true);
+                    }
+                }""")
             page.wait_for_function(
                 """(targetEmail) => {
-                    const cards = Array.from(document.querySelectorAll('.account-card .account-email'));
-                    return cards.some((node) => (node.textContent || '').includes(targetEmail));
+                    const cards = Array.from(document.querySelectorAll('.unified-mailbox-card'));
+                    return cards.some((node) => (node.dataset.email || node.textContent || '').includes(targetEmail));
                 }""",
                 arg=email_addr,
                 timeout=15000,

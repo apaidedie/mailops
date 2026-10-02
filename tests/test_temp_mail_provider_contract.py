@@ -3,7 +3,12 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from tests._import_app import clear_login_attempts, import_web_app_module
+from tests._import_app import (
+    clear_login_attempts,
+    import_web_app_module,
+    register_official_plugins,
+    unregister_official_plugins,
+)
 
 
 class TempMailProviderContractTests(unittest.TestCase):
@@ -15,6 +20,9 @@ class TempMailProviderContractTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
+            # 用例依赖官方公共 provider（含 GPTMail bridge）处于已安装状态。
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
             from mailops.repositories import settings as settings_repo
 
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")

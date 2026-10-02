@@ -3,7 +3,7 @@ import secrets
 import unittest
 from unittest.mock import patch
 
-from tests._import_app import import_web_app_module
+from tests._import_app import import_web_app_module, register_official_plugins, unregister_official_plugins
 
 
 class TempMailboxPoolTests(unittest.TestCase):
@@ -21,6 +21,9 @@ class TempMailboxPoolTests(unittest.TestCase):
         cls.create_conn = staticmethod(lambda: create_sqlite_connection())
 
     def setUp(self):
+        # 池领取用例覆盖显式 provider / 动态创建，需要公共插件处于已安装状态。
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         # 与共享临时 DB 的其它用例隔离：清理 accounts + temp_emails 池状态
         conn = self.create_conn()
         try:

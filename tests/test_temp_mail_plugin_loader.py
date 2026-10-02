@@ -146,6 +146,10 @@ class TestPluginLoader(unittest.TestCase):
         """插件文件有语法错误时返回失败项，内置 provider 不受影响"""
         from mailops.services.temp_mail_provider_factory import load_plugins
 
+        from tests._import_app import register_official_plugins, unregister_official_plugins
+
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         self._write_plugin("bad_syntax", BAD_SYNTAX_PLUGIN)
         results = load_plugins()
 
@@ -222,12 +226,12 @@ class TestPluginLoader(unittest.TestCase):
 
     # C-REL-01
     def test_reload_preserves_builtin_providers(self):
-        """热刷新后内置 provider 仍在注册表"""
+        """热刷新后内置 provider 仍在注册表；未安装的插件条目被清空重扫"""
         from mailops.services.temp_mail_provider_factory import reload_plugins
 
         result = reload_plugins()
         self.assertIn("cloudflare_temp_mail", self._registry)
-        self.assertIn("custom_domain_temp_mail", self._registry)
+        self.assertNotIn("custom_domain_temp_mail", self._registry)
 
     # C-REL-02
     def test_reload_clears_third_party_before_scan(self):

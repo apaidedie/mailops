@@ -7,7 +7,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tests._import_app import clear_login_attempts, import_web_app_module
+from tests._import_app import (
+    clear_login_attempts,
+    import_web_app_module,
+    register_official_plugins,
+    unregister_official_plugins,
+)
 from tests.frontend_js_bundle import load_feature_package_js, load_frontend_app_js
 
 
@@ -25,6 +30,9 @@ class TempMailTargetContractTests(unittest.TestCase):
     def setUp(self):
         with self.app.app_context():
             clear_login_attempts()
+            # 用例依赖官方公共 provider（含 GPTMail bridge）处于已安装状态。
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
             from mailops.db import get_db
             from mailops.repositories import settings as settings_repo
 
@@ -542,7 +550,10 @@ class TempMailTargetContractTests(unittest.TestCase):
         index_html = self._get_text(client, "/")
 
         self.assertNotIn("gptmail_api_key", index_html)
-        self.assertIn("旧版临时邮箱 API Key 字段", index_html)
+        # 旧版提示文案已随 provider 插件化收口移除；页面只保留隐藏兼容挂载点。
+        self.assertNotIn("旧版临时邮箱 API Key 字段", index_html)
+        self.assertIn('id="gptmailConfigPanel"', index_html)
+        self.assertIn('id="cfWorkerConfigPanel"', index_html)
 
     def test_temp_email_frontend_uses_temp_email_extract_endpoint(self):
         client = self.app.test_client()

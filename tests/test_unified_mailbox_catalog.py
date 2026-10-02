@@ -8,6 +8,20 @@ from unittest.mock import patch
 
 from tests._import_app import clear_login_attempts, import_web_app_module
 
+
+def setUpModule():
+    # 模块级用例依赖官方公共 provider（含 GPTMail bridge）处于已安装状态。
+    from tests._import_app import register_official_plugins
+
+    register_official_plugins()
+
+
+def tearDownModule():
+    from tests._import_app import unregister_official_plugins
+
+    unregister_official_plugins()
+
+
 CANONICAL_EXTERNAL_PREFIX = "/api/v1/external"
 
 

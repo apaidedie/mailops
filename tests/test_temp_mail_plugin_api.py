@@ -77,8 +77,10 @@ class TestPluginAPI(unittest.TestCase):
     def setUp(self):
         from mailops.config import get_database_path
         from mailops.services import temp_mail_provider_factory as factory
-        from tests._import_app import import_web_app_module
+        from tests._import_app import import_web_app_module, register_official_plugins, unregister_official_plugins
 
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         self._app_mod = import_web_app_module()
         self._app = self._app_mod.app
         self._client = self._app.test_client()
@@ -519,12 +521,12 @@ class TestPluginAPI(unittest.TestCase):
 
     # E-API-19
     def test_reload_plugins_preserves_builtin(self):
-        """内置 provider 在刷新后仍在注册表"""
+        """内置 provider 在刷新后仍在注册表；未安装的插件条目被清空重扫"""
         from mailops.services.temp_mail_provider_base import _REGISTRY
 
         self._client.post("/api/system/reload-plugins")
         self.assertIn("cloudflare_temp_mail", _REGISTRY)
-        self.assertIn("custom_domain_temp_mail", _REGISTRY)
+        self.assertNotIn("custom_domain_temp_mail", _REGISTRY)
 
 
 if __name__ == "__main__":

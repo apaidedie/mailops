@@ -224,10 +224,18 @@ class TestPluginRegistry(unittest.TestCase):
 
     # A-REG-06
     def test_builtin_providers_auto_registered(self):
-        """内置 provider 通过 import 自动注册到 _REGISTRY"""
+        """仅 Cloudflare 通过 import 自动注册；官方公共 provider 需插件安装"""
         from mailops.services.temp_mail_provider_base import _REGISTRY
+        from mailops.services.temp_mail_public_plugins import OFFICIAL_PUBLIC_PROVIDER_NAMES
 
         self.assertIn("cloudflare_temp_mail", _REGISTRY)
+        for name in OFFICIAL_PUBLIC_PROVIDER_NAMES:
+            self.assertNotIn(name, _REGISTRY)
+
+        from tests._import_app import register_official_plugins, unregister_official_plugins
+
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         self.assertIn("custom_domain_temp_mail", _REGISTRY)
 
 

@@ -18,7 +18,13 @@ class TempEmailImageSupportTests(unittest.TestCase):
         with self.app.app_context():
             clear_login_attempts()
             from mailops.db import get_db
+            from mailops.repositories import settings as settings_repo
+            from tests._import_app import register_official_plugins, unregister_official_plugins
 
+            # 用例 patch gptmail bridge：需 GPTMail 插件已安装且运行时 provider 指向它。
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
+            settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             db = get_db()
             db.execute("DELETE FROM temp_email_messages")
             db.execute("DELETE FROM temp_emails")
@@ -34,7 +40,10 @@ class TempEmailImageSupportTests(unittest.TestCase):
             from mailops.db import get_db
 
             db = get_db()
-            db.execute("INSERT INTO temp_emails (email, status) VALUES (?, 'active')", (email_addr,))
+            db.execute(
+                "INSERT INTO temp_emails (email, status, source) VALUES (?, 'active', 'custom_domain_temp_mail')",
+                (email_addr,),
+            )
             db.commit()
 
     def test_save_temp_email_messages_preserves_raw_payload_for_inline_images(self):

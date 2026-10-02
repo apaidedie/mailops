@@ -183,8 +183,14 @@ class CoreFeatureTests(unittest.TestCase):
 
         email_addr = f"temp_{uuid.uuid4().hex}@example.com"
         # Mock legacy bridge 返回元组 (email_addr, None)
-        # 当前正式入口经 temp mail provider 间接调用兼容 bridge，因此这里仍 patch gptmail 模块。
+        # 正式入口经 temp mail provider 间接调用兼容 bridge；插件化后需先安装
+        # GPTMail 插件并把运行时 provider 指向它，patch 才会生效。
+        from mailops.repositories import settings as settings_repo
         from mailops.services import gptmail as gptmail_service
+        from mailops.services.temp_mail_public_plugins import register_official_public_providers
+
+        register_official_public_providers(["custom_domain_temp_mail", "legacy_bridge"])
+        settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
 
         with patch.object(gptmail_service, "generate_temp_email", return_value=(email_addr, None)):
             created = client.post("/api/temp-emails/generate", json={"prefix": "x", "domain": "y"})

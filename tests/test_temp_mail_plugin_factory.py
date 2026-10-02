@@ -13,8 +13,10 @@ class TestPluginFactory(unittest.TestCase):
     """TDD-B: 工厂改造"""
 
     def setUp(self):
-        from tests._import_app import import_web_app_module
+        from tests._import_app import import_web_app_module, register_official_plugins, unregister_official_plugins
 
+        register_official_plugins()
+        self.addCleanup(unregister_official_plugins)
         self._app_mod = import_web_app_module()
         self._app = self._app_mod.app
 

@@ -18,7 +18,10 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
         with self.app.app_context():
             clear_login_attempts()
             from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_public_plugins import register_official_public_providers
 
+            # 这些用例验证 env > 配置文件 > 设置页的选择契约，需要公共插件处于已安装状态。
+            register_official_public_providers()
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             settings_repo.set_setting("pool_default_provider", "")
             settings_repo.set_setting("active_mailbox_providers", "")
@@ -34,6 +37,14 @@ class TempMailSettingsPlatformContractTests(unittest.TestCase):
                 "temp_mail_prefix_rules",
                 '{"min_length":2,"max_length":20,"pattern":"^[a-z0-9-]+$"}',
             )
+
+    def tearDown(self):
+        with self.app.app_context():
+            from mailops.services.temp_mail_public_plugins import OFFICIAL_PUBLIC_PROVIDER_NAMES
+            from mailops.temp_mail_registry import _REGISTRY
+
+            for name in OFFICIAL_PUBLIC_PROVIDER_NAMES:
+                _REGISTRY.pop(name, None)
 
     def _login(self, client):
         resp = client.post("/login", json={"password": "testpass123"})

@@ -44,3 +44,19 @@ def clear_login_attempts():
         db.commit()
     except Exception:
         pass
+
+
+def register_official_plugins():
+    """把官方公共临时邮箱 provider 注册进运行时注册表（模拟插件已安装）。"""
+    from mailops.services.temp_mail_public_plugins import register_official_public_providers
+
+    return register_official_public_providers()
+
+
+def unregister_official_plugins():
+    """从运行时注册表移除官方公共 provider（恢复插件未安装的默认测试环境）。"""
+    from mailops.services.temp_mail_public_plugins import OFFICIAL_PUBLIC_PROVIDER_NAMES
+    from mailops.temp_mail_registry import _REGISTRY
+
+    for name in OFFICIAL_PUBLIC_PROVIDER_NAMES:
+        _REGISTRY.pop(name, None)

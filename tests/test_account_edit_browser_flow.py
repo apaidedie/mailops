@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import threading
 import unittest
@@ -125,6 +126,10 @@ class _LiveServerThread(threading.Thread):
 class AccountEditBrowserFlowTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Playwright 的 wait_for_function 依赖页面内 eval，默认开启的 CSP 会拒绝。
+        # 浏览器链路用例局部关闭安全响应头，tearDownClass 恢复。
+        cls._previous_security_headers = os.environ.get("SECURITY_HEADERS_ENABLED")
+        os.environ["SECURITY_HEADERS_ENABLED"] = "false"
         cls.module = import_web_app_module()
         cls.app = cls.module.app
         cls._server = None
@@ -159,6 +164,10 @@ class AccountEditBrowserFlowTests(unittest.TestCase):
             finally:
                 cls._server.shutdown()
                 cls._server.join(timeout=5)
+                if cls._previous_security_headers is None:
+                    os.environ.pop("SECURITY_HEADERS_ENABLED", None)
+                else:
+                    os.environ["SECURITY_HEADERS_ENABLED"] = cls._previous_security_headers
 
     def setUp(self):
         with self.app.app_context():
@@ -234,6 +243,9 @@ class AccountEditBrowserFlowTests(unittest.TestCase):
         new_remark = f"browser_new_{uuid.uuid4().hex[:8]}"
 
         context = self._browser.new_context(locale="zh-CN")
+        # 编辑账号入口位于标准邮箱视图（unified 目录卡片不提供编辑按钮）；
+        # 视图模式是产品提供的用户开关，这里固定为 standard 再走编辑流程。
+        context.add_init_script("try { localStorage.setItem('ol_mailbox_view_mode', 'standard'); } catch (e) {}")
         page = context.new_page()
         try:
             page.goto(f"{self.base_url}/login")

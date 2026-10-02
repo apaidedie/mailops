@@ -729,7 +729,11 @@ class CfProviderFactoryRoutingTests(unittest.TestCase):
             from mailops.services.temp_mail_provider_factory import (
                 get_temp_mail_provider,
             )
+            from tests._import_app import register_official_plugins, unregister_official_plugins
 
+            # GPTMail 插件化后需先安装，factory 才能把 bridge 名路由到实现类。
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
             settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
             provider = get_temp_mail_provider()
 

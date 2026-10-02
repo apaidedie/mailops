@@ -18,7 +18,10 @@ class TempEmailsApiRegressionTests(unittest.TestCase):
             clear_login_attempts()
             from mailops.db import get_db
             from mailops.repositories import settings as settings_repo
+            from mailops.services.temp_mail_public_plugins import register_official_public_providers
 
+            # 本模块回归 bridge 路由的读/写行为，需先安装 GPTMail 插件再 patch gptmail。
+            register_official_public_providers(["custom_domain_temp_mail", "legacy_bridge"])
             db = get_db()
             db.execute("DELETE FROM temp_email_messages")
             db.execute("DELETE FROM temp_emails")
@@ -31,6 +34,14 @@ class TempEmailsApiRegressionTests(unittest.TestCase):
                 '{"min_length":1,"max_length":32,"pattern":"^[a-z0-9][a-z0-9._-]*$"}',
             )
 
+    def tearDown(self):
+        with self.app.app_context():
+            from mailops.services.temp_mail_public_plugins import GPTMAIL_PLUGIN_PROVIDER_NAMES
+            from mailops.temp_mail_registry import _REGISTRY
+
+            for name in GPTMAIL_PLUGIN_PROVIDER_NAMES:
+                _REGISTRY.pop(name, None)
+
     def _login(self, client):
         resp = client.post("/login", json={"password": "testpass123"})
         self.assertEqual(resp.status_code, 200)
@@ -41,8 +52,9 @@ class TempEmailsApiRegressionTests(unittest.TestCase):
             from mailops.db import get_db
 
             db = get_db()
+            # 本模块回归 bridge 路由：显式声明 source，避免依赖 DDL 默认值。
             db.execute(
-                "INSERT INTO temp_emails (email, status) VALUES (?, 'active')",
+                "INSERT INTO temp_emails (email, status, source) VALUES (?, 'active', 'custom_domain_temp_mail')",
                 (email_addr,),
             )
             db.commit()

@@ -15,6 +15,14 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         # 每个测试前清理登录限制记录，避免测试间互相影响
         with self.app.app_context():
             clear_login_attempts()
+            # 临时邮箱链路用例 patch gptmail bridge，需要 GPTMail 插件已安装
+            # 且运行时 provider 指向 bridge，generate 才会路由进被 patch 的实现。
+            from mailops.repositories import settings as settings_repo
+            from tests._import_app import register_official_plugins, unregister_official_plugins
+
+            register_official_plugins()
+            self.addCleanup(unregister_official_plugins)
+            settings_repo.set_setting("temp_mail_provider", "custom_domain_temp_mail")
 
     def _login(self, client):
         resp = client.post("/login", json={"password": "testpass123"})
