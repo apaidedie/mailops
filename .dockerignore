@@ -61,3 +61,17 @@ cf-deploy/
 .github/
 .opencode/
 exeample/
+
+# 密钥与本地状态（绝不进镜像层）
+.env
+.env.*
+.trellis/
+.output/
+.runtime/
+.playwright-cli/
+output/
+sonar-project.properties
+
+# 前端 bundle 由 Dockerfile 构建阶段重新生成，排除本地旧产物
+static/js/bundles/
+templates/partials/scripts.html
