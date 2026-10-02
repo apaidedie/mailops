@@ -210,3 +210,39 @@ Completed sequential UI polish A-E: mailbox empty CTAs, import/group collapsible
 ### Next Steps
 
 - None - task complete
+
+
+## Session 160: Temp-mail provider pluginization batch (retro entry)
+
+**Date**: 2026-07-19
+**Task**: GPTMail/public providers pluginized, UI polish batch
+**Branch**: `main`
+
+### Summary
+
+Shipped installable bundled plugins (GPTMail/Mail.tm/DuckMail/TempMail.lol/Emailnator; only Cloudflare stays builtin), stale-provider fallback, GPTMail dual-key collapse, dashboard first-run path and layout balancing. Journal not updated at the time; details captured in CHANGELOG [v2.7.3] Improvements. Full-suite tail (132 red) left for a follow-up session.
+
+### Status
+
+[OK] **Completed** (with known test debt)
+
+
+## Session 161: Pluginization test-debt cleanup + legacy mailbox read 500 fix
+
+**Date**: 2026-10-02
+**Task**: Full-suite green, v2.7.3 release prep
+**Branch**: `main`
+
+### Summary
+
+Fixed the legacy-mailbox read 500 (stale source silently swapped to Cloudflare provider raising untyped errors): added `TempMailProviderError` base, `_resolve_existing_mailbox_provider` source-first routing (GPTMail-family rows always use builtin bridge), `_call_provider_method` boundary folding plugin exceptions into structured errors, cache-degrade reads, explicit-refresh 503. Principled provider-name resolution: official-family uninstalled names fall back to Cloudflare, unknown names raise `TEMP_MAIL_PROVIDER_INVALID`. Fresh-DB seed + DDL defaults aligned to `cloudflare_temp_mail`. Creation paths now stamp `source` from the creating provider. Fixed a frontend boot blocker found by browser tests (TDZ on `request` in `loadProviders` warm path). Updated ~30 test modules to plugin-model semantics via shared `register_official_plugins`/`unregister_official_plugins` helpers; browser tests now disable CSP locally (Playwright eval) and account for the unified mailbox default view. Version bumped to v2.7.3, CHANGELOG finalized.
+
+### Testing
+
+- [OK] Full suite: 1911 tests green (was 111 failures + 21 errors)
+- [OK] Browser flows (csrf recovery, account edit) green
+- [OK] black formatted; readiness gate green
+
+### Status
+
+[OK] **Completed**

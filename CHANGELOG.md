@@ -2,7 +2,16 @@
 
 All notable changes to MailOps are documented in this file.
 
-## [Unreleased]
+## [v2.7.3] - 2026-10-02
+
+### 修复 / Bug Fixes
+
+- **存量临时邮箱读取 500（重要）**：Provider 插件化后，`source` 指向未安装插件（如历史 GPTMail 行）的存量邮箱在读取时被静默替换成 Cloudflare 实现，因缺少 `provider_jwt` 抛出未收编异常，外部读信接口返回 500 `INTERNAL_ERROR`。现在：Provider 异常统一收敛到公共基类 `TempMailProviderError`（内置与插件实现共用，调用边界把任意插件异常折叠为结构化错误）；存量邮箱读取按 `source` 路由到「创建它的 provider 家族」——GPTMail 系存量行走内置 bridge 实现，绝不静默换实现；真正无法识别的来源降级为本地缓存归档读（`list` / `detail`），显式刷新返回结构化 `TEMP_MAIL_PROVIDER_UNAVAILABLE`（503）。
+- **Provider 名解析语义收口**：已保存 / 环境变量 / 配置文件中的 **官方插件家族名**（`legacy_bridge` / `mail_tm` 等，未安装）继续按既有约定回退到 Cloudflare；**从未见过的名称** 原样透传，由工厂抛 `TEMP_MAIL_PROVIDER_INVALID` 显式暴露配置错误（`/api/temp-emails/options` 回归 503 结构化错误契约）。
+- **新建邮箱 source 归属**：`generate_user_mailbox` / 任务邮箱申请 / 导入探测落库的 `source` 改为取「真正创建它的 provider 身份」（`_provider_source_name`），不再硬编码全局默认——修复 GPTMail 插件安装后生成邮箱被误标为 `cloudflare_temp_mail`。
+- **新装种子值对齐**：新库 `temp_mail_provider` 设置种子与 `temp_emails.source` DDL 默认从 `custom_domain_temp_mail` 对齐为 `cloudflare_temp_mail`（与 `DEFAULT_TEMP_MAIL_PROVIDER` 一致，新装不再出生即指向未安装插件）。
+- **前端启动阻断（浏览器测试发现）**：`accounts/data.js` 的 `loadProviders` 在 async IIFE **同步段**引用 `const request`（TDZ），目录缓存预热路径抛 `Cannot access 'request' before initialization`，中断分组下拉初始化。已移除同步段冗余身份检查（单线程下赋值前不可能有并发替换）。
+- **options / 创建 / 删除边界**：`get_options`、`create_mailbox`、`delete_mailbox`、`delete_message`、`clear_messages` 的 provider 调用统一包边界，插件抛出的任意异常折叠为对应结构化错误码（503 / 502），不再穿透为 500。
 
 ### 改进 / Improvements
 
@@ -14,6 +23,7 @@ All notable changes to MailOps are documented in this file.
 - **新装默认路径**：概览页展示「Cloudflare → 插件 → 生成 API Key → 复制 Smoke」快速路径；对外 API 固定三例（领临时邮箱 / 读验证码 / claim Outlook）；概览健康条汇总 Token 失败、临时邮箱缺配置、今日 API 调用与 7 日错误。
 - **布局均衡**：去掉页面/设置表单/Provider 网格过窄 `max-width`，宽屏设置改为双列字段；工作区与统一邮箱铺满主栏，避免内容挤在左侧、右侧大片留白。
 - **Provider 空壳修复**：未安装 GPTMail 时不再渲染 `legacy_bridge` 空卡片；后端对失效的已保存 Provider 回退到 Cloudflare；设置列表折叠 GPTMail 双注册 key。
+- **测试体系追平插件化语义**：全量 1911 用例对齐新契约（插件安装态用例统一走 `tests/_import_app` 注册助手；浏览器用例局部关闭 CSP 并按 unified 视图 / 标准视图分别对齐选择器）；`reload_plugins` 语义断言更新为「保留内置 Cloudflare，未安装插件条目清空重扫」。
 
 ## [v2.7.2] - 2026-07-18
 

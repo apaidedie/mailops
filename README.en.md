@@ -40,7 +40,7 @@ The repository already includes some screenshots, and more can be added later.
 
 ## Version Highlights
 
-Current stable version: `v2.7.2`
+Current stable version: `v2.7.3`
 
 ### Recent Version Overview
 
