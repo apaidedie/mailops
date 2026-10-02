@@ -119,3 +119,6 @@ cookies.txt
 # Generated frontend bundle (built in Docker)
 static/js/bundles/
 
+
+# Local Playwright CLI artifacts
+.playwright-cli/
