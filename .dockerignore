@@ -72,6 +72,6 @@ exeample/
 output/
 sonar-project.properties
 
-# 前端 bundle 由 Dockerfile 构建阶段重新生成，排除本地旧产物
+# 前端 bundle 由 Dockerfile 构建阶段重新生成，排除本地旧产物；
+# 注意 templates/partials/scripts.html 是打包输入（声明脚本清单），必须保留在上下文。
 static/js/bundles/
-templates/partials/scripts.html

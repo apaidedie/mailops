@@ -1,0 +1,47 @@
+# MailOps 一键演示栈
+#
+# 启动：docker compose -f docker-compose.demo.yml up -d
+# 访问：http://localhost:5001 ，登录密码 demo-admin-123
+#
+# 行为说明：
+# - `demo-seed` 是一次性容器：每次 `up` 都会把 data/mailops-demo.db 重置为
+#   内置演示工作区（演示账号 / 临时邮箱 / 邮箱池 / 审计轨迹），随后退出。
+# - 应用容器等待种子完成后启动，只读写 data/mailops-demo.db，
+#   与 docker-compose.yml 生产库（data/outlook_accounts.db）互不影响。
+# - 容器重启（restart / 宿主机重启）不会重新播种，数据保留；
+#   想恢复到全新演示状态，重新执行上面的 `up` 命令即可。
+# - 演示密钥为公开常量（同 scripts/seed_demo_workspace.py），仅供本地体验，
+#   生产部署请使用 docker-compose.yml 并更换 SECRET_KEY。
+services:
+  demo-seed:
+    image: ghcr.io/apaidedie/mailops:latest
+    container_name: mailops-demo-seed
+    restart: "no"
+    volumes:
+      - ./data:/app/data
+    environment:
+      SECRET_KEY: "demo-local-secret-key-32bytes-minimum-0000000000000000"
+      LOGIN_PASSWORD: "demo-admin-123"
+    command:
+      - python
+      - scripts/seed_demo_workspace.py
+      - --database
+      - data/mailops-demo.db
+      - --reset
+
+  mailops:
+    image: ghcr.io/apaidedie/mailops:latest
+    container_name: mailops-demo
+    restart: always
+    depends_on:
+      demo-seed:
+        condition: service_completed_successfully
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      SECRET_KEY: "demo-local-secret-key-32bytes-minimum-0000000000000000"
+      LOGIN_PASSWORD: "demo-admin-123"
+      DATABASE_PATH: "data/mailops-demo.db"
+      ALLOW_LOGIN_PASSWORD_CHANGE: "false"

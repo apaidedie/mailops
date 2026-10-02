@@ -18,6 +18,7 @@
 
 - [Project Launchpad](./docs/project-launchpad.md)：两分钟了解项目定位、支持邮箱来源、启动路径、外部接入与验证门禁。
 - [Runtime Readiness](./docs/runtime-readiness.md)：当前版本的本地启动、Provider 配置、外部 API 和页面检查交付说明。
+- [5 分钟一键演示](#5-分钟一键演示无需任何邮箱凭据)：无凭据也能先体验完整工作台。
 - [快速开始](#快速开始)：用 Docker 或本地 Python 跑起来。
 - [外部接口与邮箱池集成](#外部接口与邮箱池集成)：给注册机、批量任务或其他服务接入统一邮箱能力。
 - [External Integration Quickstart](./docs/external-integration-quickstart.md)：外部服务接入、只读 smoke 检查和统一邮箱会话流程。
@@ -143,6 +144,17 @@ web_mailops_app.py    应用入口
 ```
 
 ## 快速开始
+
+### 5 分钟一键演示（无需任何邮箱凭据）
+
+还没有真实的 Outlook/IMAP 或临时邮箱 Provider 凭据？先一键启动内置演示工作台：
+
+```bash
+docker compose -f docker-compose.demo.yml up -d
+# 打开 http://localhost:5001 ，使用密码 demo-admin-123 登录
+```
+
+演示栈会自动注入一套可重置的合成工作区（演示 Outlook/IMAP 账号、临时邮箱、邮箱池与审计轨迹）。数据只写入 `data/mailops-demo.db`，与生产库（`data/outlook_accounts.db`）完全隔离，可共用同一个 `./data` 卷；重新执行上面的 `up` 命令即可恢复全新演示状态。
 
 ### Docker 部署（推荐）
 

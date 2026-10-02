@@ -201,6 +201,7 @@ The detector must compare the configured `DATABASE_PATH` to the default demo dat
 - Base: a non-demo deployment still includes a disabled `demo_workspace` object so frontend code can stay defensive and simple.
 - Bad: returning `E:\...\output\demo\mailops-demo.db`, environment variables, provider tokens, or seeded mailbox message bodies.
 - Bad: automatically calling `seed_demo_workspace.py` during app startup or bootstrap.
+- Good: demo seeding stays out of the app bootstrap entirely; orchestrate it as a one-shot compose service (see `docker-compose.demo.yml`) that runs `scripts/seed_demo_workspace.py` against a dedicated demo database and exits before the app container starts.
 
 #### 6. Tests Required
 - API tests must cover enabled and disabled bootstrap payloads.

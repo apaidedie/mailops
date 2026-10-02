@@ -17,10 +17,12 @@ ENV PYTHONUNBUFFERED=1 \
 # 复制依赖文件
 COPY requirements.txt .
 
-# 安装依赖（pip 走国内镜像加速）
-RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install gunicorn -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 安装依赖。pip 源可用 --build-arg PIP_INDEX_URL=... 覆盖；
+# 默认官方 PyPI，国内网络建议传清华镜像加速（CI 发布流程已内置）。
+ARG PIP_INDEX_URL=https://pypi.org/simple
+RUN pip install --upgrade pip -i "${PIP_INDEX_URL}" && \
+    pip install -r requirements.txt -i "${PIP_INDEX_URL}" && \
+    pip install gunicorn -i "${PIP_INDEX_URL}"
 
 # 复制应用代码
 COPY . .

@@ -18,6 +18,7 @@ Repo: https://github.com/apaidedie/mailops
 
 - [Project Launchpad](./docs/project-launchpad.md): understand the product shape, supported mailbox sources, run path, external integration path, and readiness gates in two minutes.
 - [Runtime Readiness](./docs/runtime-readiness.md): current local run, provider configuration, external API, and browser-check handoff.
+- [5-Minute Demo](#5-minute-one-command-demo-no-mailbox-credentials-needed): try the full workspace without any credentials.
 - [Quick Start](#quick-start): run it with Docker or local Python.
 - [External API and Mail Pool Integration](#external-api-and-mail-pool-integration): connect registration workers, batch jobs, or other services.
 - [External Integration Quickstart](./docs/external-integration-quickstart.md): smoke-check a running instance and start unified mailbox sessions.
@@ -142,6 +143,17 @@ web_mailops_app.py    Application entrypoint
 ```
 
 ## Quick Start
+
+### 5-Minute One-Command Demo (no mailbox credentials needed)
+
+No real Outlook/IMAP or temp-mail provider credentials yet? Boot the built-in demo workspace first:
+
+```bash
+docker compose -f docker-compose.demo.yml up -d
+# Open http://localhost:5001 and sign in with demo-admin-123
+```
+
+The demo stack seeds a resettable synthetic workspace (demo Outlook/IMAP accounts, temp mailboxes, pool and audit activity). Data lands only in `data/mailops-demo.db`, fully isolated from the production database while sharing the same `./data` volume; re-running the `up` command restores a pristine demo state.
 
 ### Docker Deployment
 
