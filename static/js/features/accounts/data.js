@@ -107,10 +107,11 @@
             const request = (async () => {
                 try {
                     // Prefer warm shared cache (boot preload / settings / plugin lifecycle).
+                    // 注意：IIFE 同步段不能引用 request（TDZ）——赋值完成前不可能有并发替换，
+                    // 身份检查只在首个 await 之后才有意义。
                     if (!force) {
                         const cachedOptions = optionsFromSharedCatalogCache();
                         if (cachedOptions) {
-                            if (providersLoadPromise !== request) return providerOptions;
                             applyImportProviderOptions(cachedOptions);
                             return providerOptions;
                         }
