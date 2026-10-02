@@ -2,7 +2,7 @@
 
 ## What changed
 
-Outlook Email Plus external automation APIs are **v1-only**:
+MailOps external automation APIs are **v1-only**:
 
 | Before | After |
 |--------|--------|

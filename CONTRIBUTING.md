@@ -1,6 +1,6 @@
-# Contributing to Outlook Email Plus
+# Contributing to MailOps
 
-Thanks for improving Outlook Email Plus. This project is focused on registration and verification workflows, so changes should keep the app operational, automation-friendly, and safe around credentials.
+Thanks for improving MailOps. This project is focused on registration and verification workflows, so changes should keep the app operational, automation-friendly, and safe around credentials.
 
 ## Start with the right path
 

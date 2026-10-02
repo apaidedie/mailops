@@ -1,10 +1,10 @@
 # Provider Onboarding Guide
 
-This guide is the shortest path for connecting external automation projects to Outlook Email Plus and for adding future temp-mail providers without changing the core API routes.
+This guide is the shortest path for connecting external automation projects to MailOps and for adding future temp-mail providers without changing the core API routes.
 
 ## Integration model
 
-Outlook Email Plus exposes Outlook, IMAP, pool inventory, and provider-backed temp mailboxes through one provider catalog and one unified mailbox directory. External projects should discover the current instance first, then choose a mailbox source through the provider selection contract.
+MailOps exposes Outlook, IMAP, pool inventory, and provider-backed temp mailboxes through one provider catalog and one unified mailbox directory. External projects should discover the current instance first, then choose a mailbox source through the provider selection contract.
 
 The stable discovery sequence is:
 

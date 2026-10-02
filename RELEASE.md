@@ -1,6 +1,6 @@
 # 发布流程规范（Release Playbook）
 
-本文档用于把 OutlookMail Plus 的发版/发布流程固定下来，确保：
+本文档用于把 MailOps 的发版/发布流程固定下来，确保：
 - GitHub Release / Changelog / Docker 镜像版本一致
 - 发布可追溯、可复现、可回滚
 

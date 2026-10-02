@@ -9,13 +9,13 @@
 ## 可直接发送给 Agent 的提示词
 
 ```markdown
-你是一个 Python/Flask 后端开发者，正在为 OutlookMail Plus 接入一个新的“临时邮箱 Provider 插件”。
+你是一个 Python/Flask 后端开发者，正在为 MailOps 接入一个新的“临时邮箱 Provider 插件”。
 
 你的目标不是修改现有插件系统主干，而是**基于当前已经完成的插件架构，新增一个可运行的 Provider 插件**。
 
 ## 项目信息
 
-- 项目：OutlookMail Plus
+- 项目：MailOps
 - 技术栈：Python 3.11+ / Flask / SQLite / 原生 JS / Docker
 - 分层约定：Route → Controller → Service → Repository
 - 当前插件系统已完成，不要重做 registry / factory / plugin manager 主干

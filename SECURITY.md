@@ -1,6 +1,6 @@
 # Security Policy
 
-Outlook Email Plus handles mailbox accounts, API keys, provider credentials, OAuth refresh tokens, task lifecycle handles, and message content. Treat reports and reproduction material accordingly.
+MailOps handles mailbox accounts, API keys, provider credentials, OAuth refresh tokens, task lifecycle handles, and message content. Treat reports and reproduction material accordingly.
 
 ## Reporting a vulnerability
 

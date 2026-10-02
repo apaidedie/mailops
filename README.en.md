@@ -46,6 +46,14 @@ Current stable version: `v2.7.3`
 
 | Version | Date | Key New Features |
 |---------|------|-----------------|
+| **v2.7.3** | 2026-10 | 🛠 **Legacy mailbox read fix**: provider errors folded into one contract, existing temp mailboxes routed by their creating provider (GPTMail rows use the builtin bridge, no more 500); fresh-DB seed aligned to `cloudflare_temp_mail`; full suite back to 1911 green |
+| **v2.7.2** | 2026-07 | 📦 **Brand & package rename**: package unified as `mailops/`, entrypoint renamed `web_mailops_app.py`, legacy env vars removed |
+| **v2.7.1** | 2026-07 | 🧭 **UI workflow slimming**: admin defaults to daily ops with advanced tools folded away; Watchtower stale-image fix (Issue #65) |
+| **v2.7.0** | 2026-05 | ⚡ **Performance** (Issue #69): first-paint load shedding plus API caching/query consolidation; release-version gate `check_release_version` |
+| **v2.6.0** | 2026-05 | 🗃 **Pool Admin UI MVP** (Issue #60): four-layer module (routes/controllers/services/repositories) + full i18n |
+| **v2.5.0** | 2026-05 | 📥 **CF temp-mail JWT bulk import** (Issue #58); exponential-backoff batch refresh fix (Issue #57) |
+| **v2.4.0** | 2026-05 | 📄 **Server-side account pagination** (Issue #56): 10k-account lists stay smooth; batch fetch UI (Issue #55) |
+| **v2.3.0** | 2026-04 | 🧹 **Stale-account detection & governance loop** (Issue #49); email list sort/scroll fixes (Issue #52) |
 | **v2.2.0** | 2026-04 | 🔌 **Temp Mail Provider Plugin System**: dynamic install/unload/configure/hot-reload for third-party providers; built-in Cloudflare / GPTMail / Moemail; provider settings decoupled from domain selection; browser extension adds local personal-info generator and full Jest coverage |
 | **v2.1.0** | 2026-04 | 📊 **Overview Dashboard**: a 5-tab unified board (Summary / Verification / External API / Mailbox Pool / Activity), plus `verification_extract_logs` for shared observability, browser-extension API-key copy fix, and overview real-time/i18n polish |
 | **v2.0.0** | 2026-04 | 🌐 **Browser Extension** (Chrome/Edge MV3): one-click claim → auto-extract verification code/link → complete/release, no tab-switching needed; backend adds `chrome-extension://` CORS support |

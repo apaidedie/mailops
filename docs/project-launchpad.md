@@ -1,11 +1,11 @@
 # Project Launchpad
 
-Use this page when you need the fastest map of what Outlook Email Plus is, how to
+Use this page when you need the fastest map of what MailOps is, how to
 try it, and how another service should integrate with it.
 
 ## Product Shape
 
-Outlook Email Plus is a unified mailbox workspace for registration and
+MailOps is a unified mailbox workspace for registration and
 verification workflows. It aggregates long-lived accounts, temporary mailboxes,
 mailbox-pool inventory, and external automation APIs behind one provider catalog
 and one mailbox directory contract.

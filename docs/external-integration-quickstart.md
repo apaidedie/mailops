@@ -1,16 +1,16 @@
 # External Integration Quickstart
 
-This is the shortest path for connecting a registration worker, batch job, or another service to Outlook Email Plus.
+This is the shortest path for connecting a registration worker, batch job, or another service to MailOps.
 
-Use this guide when you want to consume mailbox sessions from an existing Outlook Email Plus instance. Use [Provider Onboarding Guide](./provider-onboarding.md) when you are adding or configuring mailbox providers.
+Use this guide when you want to consume mailbox sessions from an existing MailOps instance. Use [Provider Onboarding Guide](./provider-onboarding.md) when you are adding or configuring mailbox providers.
 
 ## Prerequisites
 
-- A running Outlook Email Plus instance, for example `https://mailbox.example.com`.
+- A running MailOps instance, for example `https://mailbox.example.com`.
 - An external API key. Send it as `X-API-Key`.
 - If you need pool-backed sessions from a multi-key consumer, that key must have pool access enabled. Keys without pool access can still use `source_strategy=task_temp_only`.
 
-Do not put provider secrets in client code. Keep provider credentials such as `DUCKMAIL_BEARER_TOKEN`, `GPTMAIL_API_KEY`, `TEMPMAIL_LOL_API_KEY`, or `EMAILNATOR_API_KEY` in the Outlook Email Plus deployment environment or settings.
+Do not put provider secrets in client code. Keep provider credentials such as `DUCKMAIL_BEARER_TOKEN`, `GPTMAIL_API_KEY`, `TEMPMAIL_LOL_API_KEY`, or `EMAILNATOR_API_KEY` in the MailOps deployment environment or settings.
 
 Browser clients also require an explicit server allowlist. Configure
 `EXTERNAL_API_CORS_ORIGINS=https://console.example.com` with exact HTTP(S)
