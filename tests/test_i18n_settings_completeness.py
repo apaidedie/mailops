@@ -40,6 +40,30 @@ class SettingsI18nCompletenessTests(unittest.TestCase):
 
     # ── AI 增强配置区 ──
 
+    def test_brand_titles_are_translated(self):
+        """品牌改名后，登录页/工作台标题与标语必须进入 exactMap（防回归）。"""
+        js = self._get_i18n_js()
+        for zh, en in (
+            ("登录 - MailOps", "Login - MailOps"),
+            ("MailOps · 统一邮箱工作台", "MailOps · Unified Mailbox Workspace"),
+            ("安全登录", "Secure Sign-In"),
+            ("MailOps · 注册与验证场景邮箱运维", "MailOps · Mailbox ops for signup & verification workflows"),
+            ("统一邮箱工作台", "Unified Mailbox Workspace"),
+        ):
+            with self.subTest(zh=zh):
+                self._assert_exact_map_entry(js, zh, en)
+
+    def test_stale_brand_keys_are_gone(self):
+        """旧品牌键已废弃，不得回潮。"""
+        js = self._get_i18n_js()
+        for stale in (
+            "登录 - Outlook 邮件管理",
+            "OutlookMail Plus · 统一邮箱服务",
+            "Outlook 邮件管理工具 · 安全访问",
+        ):
+            with self.subTest(stale=stale):
+                self.assertNotIn(f"'{stale}'", js)
+
     def test_basic_settings_has_translation(self):
         js = self._get_i18n_js()
         self._assert_exact_map_entry(js, "基础设置", "Basic Settings")

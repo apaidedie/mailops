@@ -1,0 +1,19 @@
+# 本地提交门禁：与 .github/workflows/code-quality.yml 保持同一套检查。
+# 启用：pip install pre-commit && pre-commit install
+repos:
+  - repo: https://github.com/psf/black
+    rev: 25.9.0
+    hooks:
+      - id: black
+        args: ["--check"]
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        args: ["--check-only", "--profile", "black"]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        args: ["--select=E9,F63,F7,F82"]
+        exclude: ^(static/|templates/|data/|output/)/

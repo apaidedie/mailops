@@ -27,7 +27,7 @@ class _HealthCheckTempMailProvider:
             "details": {
                 "domain_count": 1,
                 "api_base_url": "https://api.example.test",
-                "author": "OutlookMail Plus",
+                "author": "MailOps",
                 "notes": ["bearer should-not-leak-lowercase", "safe note"],
                 "supported_modes": {"domains"},
                 "bearer_token": "should-not-leak",

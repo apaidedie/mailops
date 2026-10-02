@@ -1,10 +1,11 @@
 (function () {
     const STORAGE_KEY = 'ui_language';
     const exactMap = {
-        '登录 - Outlook 邮件管理': 'Login - Outlook Email Management',
-        'Outlook 邮件管理': 'Outlook Email Management',
-        'OutlookMail Plus · 统一邮箱服务': 'OutlookMail Plus · Unified Mailbox Service',
-        'OutlookMail Plus': 'OutlookMail Plus',
+        '登录 - MailOps': 'Login - MailOps',
+        'MailOps · 统一邮箱工作台': 'MailOps · Unified Mailbox Workspace',
+        '安全登录': 'Secure Sign-In',
+        'MailOps · 注册与验证场景邮箱运维': 'MailOps · Mailbox ops for signup & verification workflows',
+        '统一邮箱工作台': 'Unified Mailbox Workspace',
         '安全登录以管理您的邮箱账号': 'Secure sign-in to manage your mail accounts',
         '登录密码': 'Login Password',
         '请输入密码': 'Please enter your password',
@@ -13,8 +14,6 @@
         '⏳ 发送中…': '⏳ Sending...',
         '登录失败': 'Login failed',
         '网络错误，请重试': 'Network error. Please try again.',
-        'Outlook 邮件管理工具 · 安全访问': 'Outlook Email Management Tool · Secure Access',
-        'Outlook 邮件': 'Outlook Mail',
         '概览': 'Overview',
         '仪表盘': 'Dashboard',
         '数据概览': 'Overview',

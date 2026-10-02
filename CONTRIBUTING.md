@@ -21,6 +21,13 @@ Use `.env.example` as the configuration template. Keep real secrets in your loca
 
 ## Before opening a pull request
 
+Install the local commit gate once — it runs the same checks as the Code Quality workflow:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
 Run the checks that match your change. At minimum for integration/provider/docs changes:
 
 ```bash

@@ -226,7 +226,7 @@ class CloudflareTempMailProvider(TempMailProviderBase):
     provider_name = "cloudflare_temp_mail"
     provider_label = "Cloudflare Worker"
     provider_version = "1.0.0"
-    provider_author = "OutlookMail Plus"
+    provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": True, "delete_message": True, "clear_messages": True}
 
     def __init__(self, *, provider_name: str | None = None):

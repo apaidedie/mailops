@@ -40,7 +40,7 @@ def main():
     }""")
         page.goto(f"{BASE}/", wait_until="networkidle", timeout=15000)
         page.wait_for_timeout(800)
-        log("Login", page.title() != "登录 - Outlook 邮件管理", f"title={page.title()}")
+        log("Login", page.title() != "登录 - MailOps", f"title={page.title()}")
 
         # ---- NAVIGATE TO POOL ADMIN ----
         print("\n=== NAVIGATE ===")

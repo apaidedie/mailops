@@ -65,7 +65,7 @@ class _HealthCheckTempMailProvider(_ProviderNameRecordingTempMailProvider):
             "details": {
                 "domain_count": 1,
                 "api_base_url": "https://api.example.test",
-                "author": "OutlookMail Plus",
+                "author": "MailOps",
                 "notes": ["bearer should-not-leak-lowercase", "safe note"],
                 "supported_modes": {"domains"},
                 "bearer_token": "should-not-leak",
@@ -335,7 +335,7 @@ class ExternalTempEmailsApiTests(unittest.TestCase):
         self.assertEqual(data["probe"]["status"], "ok")
         self.assertEqual(data["probe"]["method"], "mock_health_check")
         self.assertEqual(data["probe"]["details"]["domain_count"], 1)
-        self.assertEqual(data["probe"]["details"]["author"], "OutlookMail Plus")
+        self.assertEqual(data["probe"]["details"]["author"], "MailOps")
         self.assertEqual(data["probe"]["details"]["notes"], ["[redacted]", "safe note"])
         self.assertEqual(data["probe"]["details"]["supported_modes"], ["domains"])
         self.assertNotIn("bearer_token", data["probe"]["details"])
