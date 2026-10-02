@@ -80,6 +80,21 @@ def get_registry() -> dict[str, type["TempMailProviderBase"]]:
     return get_registry_snapshot()
 
 
+class TempMailProviderError(Exception):
+    """临时邮箱 Provider 异常的公共基类。
+
+    内置与插件 Provider 的可预期错误都应继承本类并携带
+    (code, message, data) 三元组；插件实现抛出的任意其它异常由
+    服务层在调用边界包装为本类型，保证上层只处理结构化错误。
+    """
+
+    def __init__(self, code: str, message: str, *, data: dict[str, Any] | None = None):
+        super().__init__(message)
+        self.code = str(code or "TEMP_MAIL_PROVIDER_ERROR")
+        self.message = str(message or "")
+        self.data = data or {}
+
+
 class TempMailProviderBase(ABC):
     provider_name: str = ""
     provider_label: str = ""

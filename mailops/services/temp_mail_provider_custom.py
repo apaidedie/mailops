@@ -5,7 +5,7 @@ from typing import Any
 
 from mailops.repositories import settings as settings_repo
 from mailops.services import gptmail
-from mailops.services.temp_mail_provider_base import TempMailProviderBase
+from mailops.services.temp_mail_provider_base import TempMailProviderBase, TempMailProviderError
 
 DEFAULT_PREFIX_RULES = {
     "min_length": 1,
@@ -39,12 +39,8 @@ def _build_bridge_error_message(error: Any, details: Any = None) -> str:
     return message
 
 
-class TempMailProviderReadError(Exception):
-    def __init__(self, code: str, message: str, *, data: dict[str, Any] | None = None):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.data = data or {}
+class TempMailProviderReadError(TempMailProviderError):
+    """Provider 读信链路的结构化错误（上游失败 / 配置缺失 / 载荷非法）。"""
 
 
 def _normalize_domain_entries(raw_domains: Any, default_domain: str) -> list[dict[str, Any]]:
@@ -87,8 +83,13 @@ class CustomTempMailProvider(TempMailProviderBase):
     provider_author = "MailOps"
     provider_capabilities = {"delete_mailbox": False, "delete_message": True, "clear_messages": True}
 
-    def __init__(self, *, provider_name: str | None = None):
-        self.provider_name = settings_repo.get_temp_mail_runtime_provider_name(provider_name)
+    def __init__(self, *, provider_name: str | None = None, resolved_name: str | None = None):
+        if resolved_name:
+            # 存量邮箱读取时固定其创建时的 provider 身份；
+            # 未安装插件的存量名不得静默回退到默认 provider（那是换一个读不了它的实现）。
+            self.provider_name = str(resolved_name)
+        else:
+            self.provider_name = settings_repo.get_temp_mail_runtime_provider_name(provider_name)
 
     def _coerce_email(self, mailbox: dict[str, Any] | str) -> str:
         if isinstance(mailbox, dict):

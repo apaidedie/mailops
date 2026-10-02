@@ -17,6 +17,21 @@ TEMPMAIL_LOL_TEMP_MAIL_PROVIDER = "tempmail_lol"
 EMAILNATOR_TEMP_MAIL_PROVIDER = "emailnator"
 DUCKMAIL_TEMP_MAIL_PROVIDER = "duckmail"
 LEGACY_TEMP_MAIL_PROVIDER_NAMES = {"legacy_bridge", "legacy_gptmail", "gptmail", "temp_mail"}
+
+# 官方公共 provider 家族的稳定身份名（含未安装插件）。
+# 存储/配置层的恒定事实，供「失效已保存配置回退默认」判定使用；
+# 与 services.temp_mail_public_plugins.OFFICIAL_PUBLIC_PROVIDER_NAMES 保持一致
+# （services 允许反向引用 repositories，注册表实现类仍以插件模块为准）。
+OFFICIAL_PUBLIC_PROVIDER_NAMES = frozenset(
+    {
+        "custom_domain_temp_mail",
+        "legacy_bridge",
+        "mail_tm",
+        "duckmail",
+        "tempmail_lol",
+        "emailnator",
+    }
+)
 MAILTM_DEFAULT_API_BASE = "https://api.mail.tm"
 DUCKMAIL_DEFAULT_API_BASE = "https://api.duckmail.sbs"
 EMAILNATOR_DEFAULT_EMAIL_TYPES = ("public_gmail_plus",)
@@ -151,6 +166,16 @@ def validate_temp_mail_provider_name(value: str | None) -> str:
     return normalized
 
 
+def _is_known_official_provider_name(name: str) -> bool:
+    """名称属于官方 provider 家族（含未安装的插件 / 历史别名）。
+
+    未安装的官方插件名按「失效已保存配置」回退到默认 provider，
+    避免空 UI 壳与 TEMP_MAIL_PROVIDER_INVALID；从未见过的名称则
+    原样返回，让工厂显式报错暴露配置错误。
+    """
+    return name in OFFICIAL_PUBLIC_PROVIDER_NAMES or name in LEGACY_TEMP_MAIL_PROVIDER_NAMES
+
+
 def _resolve_registered_temp_mail_provider(normalized: str) -> str:
     """Return a provider that exists in the runtime registry.
 
@@ -164,6 +189,9 @@ def _resolve_registered_temp_mail_provider(normalized: str) -> str:
     except Exception:
         supported = set()
     if name in supported:
+        return name
+    if not _is_known_official_provider_name(name):
+        # 未知名称：保持原样，交由工厂抛 TEMP_MAIL_PROVIDER_INVALID 暴露配置错误。
         return name
     if DEFAULT_TEMP_MAIL_PROVIDER in supported:
         return DEFAULT_TEMP_MAIL_PROVIDER

@@ -81,10 +81,17 @@ def _choose_richer_temp_email_payload(existing_payload: Any, incoming_payload: A
 
 
 def _default_provider_name_for_source(source: str | None) -> str:
+    """存量行的 source 即其创建时的 provider 身份（插件化后 source 与 provider key 同名）。
+
+    历史遗留来源归一到 legacy bridge；空 source（理论不存在）才落到当前默认。
+    未知 source 原样透传，由服务层决定是否可读，绝不静默替换成默认 provider。
+    """
     normalized_source = str(source or "").strip().lower()
-    if normalized_source == LEGACY_TEMP_MAIL_SOURCE:
+    if not normalized_source:
+        return DEFAULT_TEMP_MAIL_PROVIDER_NAME
+    if normalized_source in ("legacy_gptmail", "legacy_bridge", "gptmail", "temp_mail"):
         return LEGACY_TEMP_MAIL_PROVIDER_NAME
-    return DEFAULT_TEMP_MAIL_PROVIDER_NAME
+    return normalized_source
 
 
 def deserialize_temp_email_meta(raw_meta: Any, *, source: str | None = None) -> Dict[str, Any]:

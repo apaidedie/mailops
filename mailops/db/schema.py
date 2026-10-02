@@ -184,7 +184,7 @@ def init_db(database_path: Optional[str] = None):
                 status TEXT DEFAULT 'active',
                 mailbox_type TEXT NOT NULL DEFAULT 'user',
                 visible_in_ui INTEGER NOT NULL DEFAULT 1,
-                source TEXT NOT NULL DEFAULT 'custom_domain_temp_mail',
+                source TEXT NOT NULL DEFAULT 'cloudflare_temp_mail',
                 prefix TEXT,
                 domain TEXT,
                 task_token TEXT UNIQUE,
@@ -427,7 +427,7 @@ def init_db(database_path: Optional[str] = None):
         for col_def in [
             ("mailbox_type", "TEXT NOT NULL DEFAULT 'user'"),
             ("visible_in_ui", "INTEGER NOT NULL DEFAULT 1"),
-            ("source", "TEXT NOT NULL DEFAULT 'custom_domain_temp_mail'"),
+            ("source", "TEXT NOT NULL DEFAULT 'cloudflare_temp_mail'"),
             ("prefix", "TEXT"),
             ("domain", "TEXT"),
             ("task_token", "TEXT"),
@@ -628,7 +628,7 @@ def init_db(database_path: Optional[str] = None):
         )
         cursor.execute("""
             INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_provider', 'custom_domain_temp_mail')
+            VALUES ('temp_mail_provider', 'cloudflare_temp_mail')
             """)
         cursor.execute(
             """

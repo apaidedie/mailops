@@ -33,7 +33,11 @@ from typing import Any
 import requests
 
 from mailops.repositories import settings as settings_repo
-from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+from mailops.services.temp_mail_provider_base import (
+    TempMailProviderBase,
+    TempMailProviderError,
+    register_provider,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +55,8 @@ DEFAULT_PREFIX_RULES = {
 # ---------------------------------------------------------------------------
 
 
-class CloudflareTempMailProviderError(Exception):
-    def __init__(self, code: str, message: str, *, data: dict[str, Any] | None = None):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.data = data or {}
+class CloudflareTempMailProviderError(TempMailProviderError):
+    pass
 
 
 # ---------------------------------------------------------------------------

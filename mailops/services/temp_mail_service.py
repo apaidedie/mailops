@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 import secrets
 import time
@@ -7,6 +8,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 from mailops.repositories import temp_emails as temp_emails_repo
+from mailops.repositories.settings import (
+    get_supported_temp_mail_provider_names,
+    normalize_temp_mail_provider_name,
+)
 from mailops.services.external_request_limits import (
     CALLER_ID_MAX_LEN,
     EMAIL_DOMAIN_MAX_LEN,
@@ -18,11 +23,13 @@ from mailops.services.provider_catalog import (
     is_mailbox_provider_active,
     temp_mail_provider_label,
 )
-from mailops.services.temp_mail_provider_custom import TempMailProviderReadError
+from mailops.services.temp_mail_provider_base import TempMailProviderError
+from mailops.services.temp_mail_provider_custom import CustomTempMailProvider, TempMailProviderReadError
 from mailops.services.temp_mail_provider_factory import (
     TempMailProviderFactoryError,
     get_temp_mail_provider,
 )
+from mailops.services.temp_mail_public_plugins import OFFICIAL_PUBLIC_PROVIDER_CLASSES
 from mailops.services.verification_extract_log import (
     encode_temp_mail_log_account_id,
     resolve_extract_log_outcome,
@@ -38,6 +45,14 @@ from mailops.services.verification_extractor import (
 
 TEMP_MAIL_SOURCE = temp_emails_repo.DEFAULT_TEMP_MAIL_SOURCE
 TEMP_MAIL_METHOD = "Temp Mail"
+
+logger = logging.getLogger(__name__)
+
+
+def _provider_source_name(provider: Any) -> str:
+    """创建邮箱行的 source 必须是真正创建它的 provider 身份，而非全局默认。"""
+    name = str(getattr(provider, "provider_name", "") or "").strip()
+    return name or TEMP_MAIL_SOURCE
 
 
 class TempMailError(Exception):
@@ -184,6 +199,86 @@ class TempMailService:
             data=data,
         )
 
+    def _resolve_existing_mailbox_provider(self, mailbox: dict[str, Any]):
+        """解析「存量邮箱行」所属的 provider 实例。
+
+        与新建邮箱的 runtime 默认解析不同：存量行必须由创建它的 provider
+        家族读取。已注册名直接走 provider 工厂（保持工厂是唯一实例化缝隙，
+        也让测试替身可注入）；未注册但属于官方插件家族的名，先试工厂并校验
+        身份一致性——runtime 名字回退会让真实工厂返回默认实现（身份不符），
+        此时固定身份实例化官方内置实现类（插件未安装不影响存量行可读性）；
+        source / provider_name 都无法对应时才抛 TEMP_MAIL_PROVIDER_UNAVAILABLE。
+        """
+        if self._provider is not None:
+            return self._provider
+        meta = mailbox.get("meta") or {}
+        candidates: list[str] = []
+        for raw in (mailbox.get("source"), meta.get("provider_name"), mailbox.get("provider_name")):
+            name = str(normalize_temp_mail_provider_name(raw) or "").strip()
+            if name and name not in candidates:
+                candidates.append(name)
+
+        registered = get_supported_temp_mail_provider_names()
+        for name in candidates:
+            if name in registered:
+                return self._get_provider(provider_name=name)
+
+        official = [
+            (name, OFFICIAL_PUBLIC_PROVIDER_CLASSES[name]) for name in candidates if name in OFFICIAL_PUBLIC_PROVIDER_CLASSES
+        ]
+        for name, _provider_cls in official:
+            if not is_mailbox_provider_active("temp", name):
+                raise TempMailError(
+                    "MAILBOX_PROVIDER_NOT_ACTIVE",
+                    f"临时邮箱 Provider 未启用: {name}",
+                    status=400,
+                    data={"provider_name": name},
+                )
+        for name, provider_cls in official:
+            try:
+                provider = self._provider_factory(name)
+            except Exception:
+                provider = None
+            # 身份一致性仅在实现报告了 provider_name 时可判；无该属性的实例
+            # （如测试替身）视为工厂本身的选择，直接信任。
+            resolved_name = str(getattr(provider, "provider_name", "") or "").strip()
+            if provider is not None and (not resolved_name or resolved_name == name):
+                return provider
+            if issubclass(provider_cls, CustomTempMailProvider):
+                # 只有 bridge 家族的 __init__ 会做 runtime 名字回退，需要固定身份。
+                return provider_cls(resolved_name=name)
+            return provider_cls(provider_name=name)
+
+        provider_label = candidates[0] if candidates else ""
+        raise TempMailError(
+            "TEMP_MAIL_PROVIDER_UNAVAILABLE",
+            f"临时邮箱 Provider 不可用: {provider_label}" if provider_label else "临时邮箱 Provider 不可用",
+            status=503,
+            data={"provider_name": provider_label},
+        )
+
+    def _call_provider_method(
+        self,
+        mailbox: dict[str, Any],
+        *,
+        operation: str,
+        call,
+        message_id: str | None = None,
+    ):
+        """调用 provider 方法并把任意异常折叠为结构化错误。
+
+        插件 provider 可能抛出任意异常类型（官方公共实现就会抛裸 RuntimeError），
+        调用边界统一收编，保证上层只处理 TempMailError。
+        """
+        try:
+            return call()
+        except TempMailProviderError as exc:
+            raise self._provider_read_failed(exc, mailbox=mailbox, operation=operation, message_id=message_id) from exc
+        except Exception as exc:
+            logger.exception("temp mail provider %s raised unexpected error", operation)
+            surrogate = TempMailProviderError("PROVIDER_UNEXPECTED_ERROR", str(exc) or type(exc).__name__)
+            raise self._provider_read_failed(surrogate, mailbox=mailbox, operation=operation, message_id=message_id) from exc
+
     def _create_mailbox(self, provider: Any, *, prefix: str | None, domain: str | None) -> dict[str, Any]:
         if hasattr(provider, "create_mailbox"):
             return provider.create_mailbox(prefix=prefix, domain=domain)
@@ -235,6 +330,23 @@ class TempMailService:
             raise TempMailError(failure_code, failure_message, status=failure_status)
         return _mailbox_from_record(self.get_mailbox(normalized_email))
 
+    def _provider_options(self, provider: Any, *, provider_name: str | None) -> dict[str, Any]:
+        try:
+            options = provider.get_options()
+        except TempMailError:
+            raise
+        except Exception as exc:
+            logger.exception("temp mail provider get_options raised unexpected error")
+            raise TempMailError(
+                "TEMP_MAIL_OPTIONS_UNAVAILABLE",
+                str(exc) or "临时邮箱 options 获取失败",
+                status=503,
+                data={"provider_name": str(provider_name or "")},
+            ) from exc
+        options.setdefault("provider_name", str(options.get("provider") or ""))
+        options.setdefault("provider_label", temp_mail_provider_label(options.get("provider_name")))
+        return options
+
     def get_options(self, *, provider_name: str | None = None) -> dict[str, Any]:
         """获取临时邮箱 provider 的 options。
 
@@ -243,10 +355,7 @@ class TempMailService:
         """
         normalized_pn = str(provider_name or "").strip() or None
         provider = self._get_provider(provider_name=normalized_pn, purpose="options")
-        options = provider.get_options()
-        options.setdefault("provider_name", str(options.get("provider") or ""))
-        options.setdefault("provider_label", temp_mail_provider_label(options.get("provider_name")))
-        return options
+        return self._provider_options(provider, provider_name=normalized_pn)
 
     def _validate_prefix_and_domain(
         self,
@@ -261,9 +370,7 @@ class TempMailService:
         if provider_name:
             # 指定了特定 provider：使用该 provider 的域名配置进行校验
             target_provider = self._get_provider(provider_name=provider_name, purpose="options")
-            options = target_provider.get_options()
-            options.setdefault("provider_name", str(options.get("provider") or ""))
-            options.setdefault("provider_label", temp_mail_provider_label(options.get("provider_name")))
+            options = self._provider_options(target_provider, provider_name=provider_name)
         else:
             options = self.get_options()
 
@@ -307,7 +414,22 @@ class TempMailService:
         capabilities = (mailbox.get("meta") or {}).get("provider_capabilities") or {}
         if bool(capabilities.get("delete_mailbox")):
             provider = self._get_provider(mailbox=mailbox)
-            if not provider.delete_mailbox(mailbox):
+            try:
+                deleted = provider.delete_mailbox(mailbox)
+            except TempMailProviderError as exc:
+                raise TempMailError(
+                    "TEMP_EMAIL_DELETE_FAILED",
+                    exc.message,
+                    status=502,
+                    data={
+                        "provider_name": str(getattr(provider, "provider_name", "") or ""),
+                        "provider_error_code": exc.code,
+                    },
+                ) from exc
+            except Exception as exc:
+                logger.exception("temp mail provider delete_mailbox raised unexpected error")
+                raise TempMailError("TEMP_EMAIL_DELETE_FAILED", str(exc) or "删除失败", status=502) from exc
+            if not deleted:
                 raise TempMailError("TEMP_EMAIL_DELETE_FAILED", "删除失败", status=502)
         email_addr = str(mailbox.get("email") or "")
         if not temp_emails_repo.delete_temp_email(email_addr):
@@ -325,7 +447,18 @@ class TempMailService:
         normalized_pn = str(provider_name or "").strip() or None
         normalized_prefix, normalized_domain = self._validate_prefix_and_domain(prefix, domain, provider_name=normalized_pn)
         provider = self._get_provider(provider_name=normalized_pn, purpose="runtime")
-        result = self._create_mailbox(provider, prefix=normalized_prefix, domain=normalized_domain)
+        try:
+            result = self._create_mailbox(provider, prefix=normalized_prefix, domain=normalized_domain)
+        except TempMailError:
+            raise
+        except Exception as exc:
+            logger.exception("temp mail provider create_mailbox raised unexpected error")
+            raise TempMailError(
+                "TEMP_EMAIL_CREATE_FAILED",
+                str(exc) or "临时邮箱创建失败",
+                status=502,
+                data={"provider_name": str(getattr(provider, "provider_name", "") or "")},
+            ) from exc
         if not result.get("success"):
             error_code = str(result.get("error_code") or "TEMP_EMAIL_CREATE_FAILED").strip() or "TEMP_EMAIL_CREATE_FAILED"
             raise TempMailError(
@@ -340,7 +473,7 @@ class TempMailService:
             email_addr=email_addr,
             mailbox_type="user",
             visible_in_ui=True,
-            source=TEMP_MAIL_SOURCE,
+            source=_provider_source_name(provider),
             prefix=normalized_prefix,
             domain=normalized_domain,
             meta=result.get("meta"),
@@ -400,7 +533,7 @@ class TempMailService:
                         email_addr=normalized_email,
                         mailbox_type="user",
                         visible_in_ui=True,
-                        source=TEMP_MAIL_SOURCE,
+                        source=_provider_source_name(provider),
                         prefix=prefix,
                         domain=domain,
                         meta=probe_mailbox["meta"],
@@ -417,7 +550,7 @@ class TempMailService:
                     email_addr=created_email,
                     mailbox_type="user",
                     visible_in_ui=True,
-                    source=TEMP_MAIL_SOURCE,
+                    source=_provider_source_name(provider),
                     meta=create_result.get("meta"),
                     provider_name=create_result.get("provider_name") or provider_name,
                 )
@@ -429,7 +562,7 @@ class TempMailService:
             email_addr=normalized_email,
             mailbox_type="user",
             visible_in_ui=True,
-            source=TEMP_MAIL_SOURCE,
+            source=_provider_source_name(provider),
             prefix=prefix,
             domain=domain,
             meta={"provider_name": provider_name} if provider_name else None,
@@ -472,7 +605,18 @@ class TempMailService:
         normalized_pn = str(provider_name or "").strip() or None
         normalized_prefix, normalized_domain = self._validate_prefix_and_domain(prefix, domain, provider_name=normalized_pn)
         provider = self._get_provider(provider_name=normalized_pn, purpose="runtime")
-        result = self._create_mailbox(provider, prefix=normalized_prefix, domain=normalized_domain)
+        try:
+            result = self._create_mailbox(provider, prefix=normalized_prefix, domain=normalized_domain)
+        except TempMailError:
+            raise
+        except Exception as exc:
+            logger.exception("temp mail provider create_mailbox raised unexpected error")
+            raise TempMailError(
+                "TEMP_EMAIL_CREATE_FAILED",
+                str(exc) or "临时邮箱创建失败",
+                status=502,
+                data={"provider_name": str(getattr(provider, "provider_name", "") or "")},
+            ) from exc
         if not result.get("success"):
             error_code = str(result.get("error_code") or "TEMP_EMAIL_CREATE_FAILED").strip() or "TEMP_EMAIL_CREATE_FAILED"
             raise TempMailError(
@@ -488,7 +632,7 @@ class TempMailService:
             email_addr=email_addr,
             mailbox_type="task",
             visible_in_ui=False,
-            source=TEMP_MAIL_SOURCE,
+            source=_provider_source_name(provider),
             prefix=normalized_prefix,
             domain=normalized_domain,
             task_token=task_token,
@@ -542,14 +686,23 @@ class TempMailService:
         email_addr = str(mailbox.get("email") or "")
         if sync_remote:
             # BUG-03: cache-only 场景（sync_remote=False）不得依赖 provider 初始化。
-            provider = self._get_provider(mailbox=mailbox)
             try:
-                api_messages = provider.list_messages(mailbox)
-            except TempMailProviderReadError as exc:
-                raise self._provider_read_failed(exc, mailbox=mailbox, operation="list_messages") from exc
-            if api_messages is None:
-                raise self._provider_read_failed(None, mailbox=mailbox, operation="list_messages")
-            temp_emails_repo.save_temp_email_messages(email_addr, api_messages)
+                provider = self._resolve_existing_mailbox_provider(mailbox)
+            except TempMailError as exc:
+                if exc.code == "TEMP_MAIL_PROVIDER_UNAVAILABLE":
+                    # 无法定位可用的 provider：降级为本地缓存归档读，而不是 500/502。
+                    provider = None
+                else:
+                    raise
+            if provider is not None:
+                api_messages = self._call_provider_method(
+                    mailbox,
+                    operation="list_messages",
+                    call=lambda: provider.list_messages(mailbox),
+                )
+                if api_messages is None:
+                    raise self._provider_read_failed(None, mailbox=mailbox, operation="list_messages")
+                temp_emails_repo.save_temp_email_messages(email_addr, api_messages)
         rows = temp_emails_repo.get_temp_email_messages(email_addr)
         return [_message_summary(email_addr, row) for row in rows]
 
@@ -565,19 +718,23 @@ class TempMailService:
         row = temp_emails_repo.get_temp_email_message_by_id(message_id, email_addr=email_addr)
         if refresh_if_missing and row is None:
             # BUG-03: cache-only 场景（refresh_if_missing=False）不得依赖 provider 初始化。
-            provider = self._get_provider(mailbox=mailbox)
             try:
-                api_row = provider.get_message_detail(mailbox, message_id)
-            except TempMailProviderReadError as exc:
-                raise self._provider_read_failed(
-                    exc,
-                    mailbox=mailbox,
+                provider = self._resolve_existing_mailbox_provider(mailbox)
+            except TempMailError as exc:
+                if exc.code == "TEMP_MAIL_PROVIDER_UNAVAILABLE":
+                    provider = None
+                else:
+                    raise
+            if provider is not None:
+                api_row = self._call_provider_method(
+                    mailbox,
                     operation="get_message_detail",
                     message_id=message_id,
-                ) from exc
-            if api_row:
-                temp_emails_repo.save_temp_email_messages(email_addr, [api_row])
-                row = temp_emails_repo.get_temp_email_message_by_id(message_id, email_addr=email_addr)
+                    call=lambda: provider.get_message_detail(mailbox, message_id),
+                )
+                if api_row:
+                    temp_emails_repo.save_temp_email_messages(email_addr, [api_row])
+                    row = temp_emails_repo.get_temp_email_message_by_id(message_id, email_addr=email_addr)
         if not row:
             raise TempMailError("TEMP_EMAIL_MESSAGE_NOT_FOUND", "邮件不存在", status=404)
         return _message_detail(email_addr, row)
@@ -590,16 +747,14 @@ class TempMailService:
     def refresh_message_detail(self, email_or_mailbox: str | dict[str, Any], message_id: str) -> dict[str, Any]:
         mailbox = self._get_mailbox_descriptor(email_or_mailbox)
         email_addr = str(mailbox.get("email") or "")
-        provider = self._get_provider(mailbox=mailbox)
-        try:
-            api_row = provider.get_message_detail(mailbox, message_id)
-        except TempMailProviderReadError as exc:
-            raise self._provider_read_failed(
-                exc,
-                mailbox=mailbox,
-                operation="refresh_message_detail",
-                message_id=message_id,
-            ) from exc
+        # 显式刷新必须失败得响亮：provider 不可用返回结构化 503，而不是静默用缓存假装成功。
+        provider = self._resolve_existing_mailbox_provider(mailbox)
+        api_row = self._call_provider_method(
+            mailbox,
+            operation="refresh_message_detail",
+            message_id=message_id,
+            call=lambda: provider.get_message_detail(mailbox, message_id),
+        )
         if api_row:
             temp_emails_repo.save_temp_email_messages(email_addr, [api_row])
         row = temp_emails_repo.get_temp_email_message_by_id(message_id, email_addr=email_addr)
@@ -612,9 +767,21 @@ class TempMailService:
         email_addr = str(mailbox.get("email") or "")
         capabilities = (mailbox.get("meta") or {}).get("provider_capabilities") or {}
         if bool(capabilities.get("delete_message", True)):
-            provider = self._get_provider(mailbox=mailbox)
-            if not provider.delete_message(mailbox, message_id):
-                raise TempMailError("TEMP_EMAIL_MESSAGE_DELETE_FAILED", "删除失败", status=502)
+            try:
+                provider = self._resolve_existing_mailbox_provider(mailbox)
+            except TempMailError as exc:
+                if exc.code != "TEMP_MAIL_PROVIDER_UNAVAILABLE":
+                    raise
+                provider = None
+            if provider is not None:
+                deleted = self._call_provider_method(
+                    mailbox,
+                    operation="delete_message",
+                    message_id=message_id,
+                    call=lambda: provider.delete_message(mailbox, message_id),
+                )
+                if not deleted:
+                    raise TempMailError("TEMP_EMAIL_MESSAGE_DELETE_FAILED", "删除失败", status=502)
         return temp_emails_repo.delete_temp_email_message(message_id, email_addr=email_addr)
 
     def clear_messages(self, email_or_mailbox: str | dict[str, Any]) -> bool:
@@ -622,9 +789,19 @@ class TempMailService:
         email_addr = str(mailbox.get("email") or "")
         capabilities = (mailbox.get("meta") or {}).get("provider_capabilities") or {}
         if bool(capabilities.get("clear_messages", True)):
-            provider = self._get_provider(mailbox=mailbox)
-            if not provider.clear_messages(mailbox):
-                raise TempMailError("TEMP_EMAIL_MESSAGES_CLEAR_FAILED", "清空失败", status=502)
+            try:
+                provider = self._resolve_existing_mailbox_provider(mailbox)
+            except TempMailError as exc:
+                if exc.code != "TEMP_MAIL_PROVIDER_UNAVAILABLE":
+                    raise
+                provider = None
+            if provider is not None:
+                if not self._call_provider_method(
+                    mailbox,
+                    operation="clear_messages",
+                    call=lambda: provider.clear_messages(mailbox),
+                ):
+                    raise TempMailError("TEMP_EMAIL_MESSAGES_CLEAR_FAILED", "清空失败", status=502)
         from mailops.db import get_db
 
         db = get_db()

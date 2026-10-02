@@ -74,11 +74,7 @@ def build_setup_first_run_guide() -> dict[str, Any]:
         _step(
             key="cloudflare",
             title="配置 Cloudflare 临时邮箱",
-            detail=(
-                "内置唯一默认源。填写 Worker 地址与 Admin Key。"
-                if not cf_ready
-                else "Cloudflare Temp Mail 已就绪。"
-            )
+            detail=("内置唯一默认源。填写 Worker 地址与 Admin Key。" if not cf_ready else "Cloudflare Temp Mail 已就绪。")
             + (f" 缺失：{', '.join(cf_missing)}" if cf_missing and not cf_ready else ""),
             done=cf_ready,
             action="settings:temp-mail:cloudflare",
@@ -153,7 +149,7 @@ def get_external_api_three_examples(*, base_url: str = "http://127.0.0.1:5000") 
                 f"curl -s -X POST '{root}/api/v1/external/mailbox-sessions/start' \\\n"
                 "  -H 'X-API-Key: <your-api-key>' \\\n"
                 "  -H 'Content-Type: application/json' \\\n"
-                "  -d '{\"caller_id\":\"demo\",\"task_id\":\"job-1\",\"task_temp_only\":true}'"
+                '  -d \'{"caller_id":"demo","task_id":"job-1","task_temp_only":true}\''
             ),
         },
         {
@@ -166,7 +162,7 @@ def get_external_api_three_examples(*, base_url: str = "http://127.0.0.1:5000") 
                 f"curl -s -X POST '{root}/api/v1/external/mailbox-sessions/read' \\\n"
                 "  -H 'X-API-Key: <your-api-key>' \\\n"
                 "  -H 'Content-Type: application/json' \\\n"
-                "  -d '{\"session_token\":\"<session_token>\",\"read_action\":\"verification_code\"}'"
+                '  -d \'{"session_token":"<session_token>","read_action":"verification_code"}\''
             ),
         },
         {
@@ -179,7 +175,7 @@ def get_external_api_three_examples(*, base_url: str = "http://127.0.0.1:5000") 
                 f"curl -s -X POST '{root}/api/v1/external/pool/claim-random' \\\n"
                 "  -H 'X-API-Key: <your-api-key>' \\\n"
                 "  -H 'Content-Type: application/json' \\\n"
-                "  -d '{\"caller_id\":\"demo\",\"task_id\":\"job-1\",\"project_key\":\"app-a\"}'"
+                '  -d \'{"caller_id":"demo","task_id":"job-1","project_key":"app-a"}\''
             ),
         },
     ]
