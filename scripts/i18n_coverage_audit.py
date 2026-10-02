@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -43,7 +44,14 @@ def audit() -> int:
     # 1) JS 显式翻译调用
     call_pattern = re.compile(r"translate(?:AppTextLocal|UnifiedText|AppText)\(\s*'([^']*)'")
     calls: set[str] = set()
-    for path in sorted((ROOT / "static" / "js").rglob("*.js")):
+    js_files: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(ROOT / "static" / "js"):
+        # pathlib.rglob 在 Python 3.13.15 存在 _glob_list 兼容性回归，改用 os.walk
+        dirnames[:] = [d for d in dirnames if d != "bundles" and d != "__pycache__"]
+        for filename in filenames:
+            if filename.endswith(".js") and filename != "i18n.js":
+                js_files.append(Path(dirpath) / filename)
+    for path in sorted(js_files):
         parts = path.parts
         if "bundles" in parts or path.name == "i18n.js":
             continue
