@@ -59,10 +59,16 @@ class DemoComposeContractTests(unittest.TestCase):
         # 生产编排未显式设置 DATABASE_PATH，走应用默认 data/outlook_accounts.db；
         # 两个文件名必须始终错开，演示与生产可共用 ./data 卷。
         self.assertNotIn(DEMO_DB, self.prod_text, "生产编排不得引用演示库文件")
+        import os
+        from unittest.mock import patch
+
         from mailops import config
 
-        self.assertEqual(config.get_database_path(), "data/outlook_accounts.db")
-        self.assertNotEqual(DEMO_DB, config.get_database_path())
+        # 全量套件会把 DATABASE_PATH 指到临时目录；本断言只关心出厂默认值。
+        with patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("DATABASE_PATH", None)
+            self.assertEqual(config.get_database_path(), "data/outlook_accounts.db")
+            self.assertNotEqual(DEMO_DB, config.get_database_path())
 
     def test_demo_secret_is_the_public_seed_constant(self):
         # 演示密钥与 scripts/seed_demo_workspace.py 的公开常量一致，属演示专用；
