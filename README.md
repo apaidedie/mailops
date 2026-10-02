@@ -2,6 +2,12 @@
 
 [English](./README.en.md) · [Docker 部署](./DEPLOY.md) · [贡献指南](./CONTRIBUTING.md) · [安全策略](./SECURITY.md) · [支持](./SUPPORT.md)
 
+[![Python Tests](https://github.com/apaidedie/mailops/actions/workflows/python-tests.yml/badge.svg)](https://github.com/apaidedie/mailops/actions/workflows/python-tests.yml)
+[![Code Quality](https://github.com/apaidedie/mailops/actions/workflows/code-quality.yml/badge.svg)](https://github.com/apaidedie/mailops/actions/workflows/code-quality.yml)
+[![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Fapaidedie%2Fmailops-2496ED?logo=docker&logoColor=white)](https://github.com/apaidedie/mailops/pkgs/container/mailops)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+
 **MailOps**（前身 Outlook Email Plus）是一款面向个人与团队的**注册 / 验证场景**邮箱运维工作台。
 
 与通用邮箱客户端不同，它聚焦注册机、验证码提取、邮箱池与外部 API。你可以把 Outlook OAuth、普通 IMAP、邮箱池、Provider 临时邮箱和自动化接口放在同一套目录与契约下；其它项目可通过 `X-API-Key`、OpenAPI 与 `integration_manifest` 接入。

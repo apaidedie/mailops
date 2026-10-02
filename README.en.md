@@ -2,6 +2,12 @@
 
 [中文 README](./README.md) · [Docker Deploy](./DEPLOY.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md) · [Support](./SUPPORT.md)
 
+[![Python Tests](https://github.com/apaidedie/mailops/actions/workflows/python-tests.yml/badge.svg)](https://github.com/apaidedie/mailops/actions/workflows/python-tests.yml)
+[![Code Quality](https://github.com/apaidedie/mailops/actions/workflows/code-quality.yml/badge.svg)](https://github.com/apaidedie/mailops/actions/workflows/code-quality.yml)
+[![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Fapaidedie%2Fmailops-2496ED?logo=docker&logoColor=white)](https://github.com/apaidedie/mailops/pkgs/container/mailops)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+
 **MailOps** (formerly Outlook Email Plus) is a mailbox **ops** workspace for registration and verification workflows.
 
 Unlike general-purpose clients, it focuses on signup automation, verification extract, mailbox pools, and external APIs. Outlook OAuth, IMAP, pools, provider temp mail, and automation APIs share one directory and contract.
