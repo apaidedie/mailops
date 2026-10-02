@@ -145,7 +145,6 @@ class TestPluginLoader(unittest.TestCase):
     def test_load_plugins_syntax_error(self):
         """插件文件有语法错误时返回失败项，内置 provider 不受影响"""
         from mailops.services.temp_mail_provider_factory import load_plugins
-
         from tests._import_app import register_official_plugins, unregister_official_plugins
 
         register_official_plugins()
