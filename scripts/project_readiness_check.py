@@ -40,6 +40,7 @@ REQUIRED_ASSETS = (
     ".runtime/providers.example.toml",
     "examples/external_api_python_client.py",
     "examples/external_api_javascript_client.js",
+    "examples/external_api_go_client/main.go",
     "examples/temp_mail_provider_plugin_template.py",
     "scripts/provider_dev_kit.py",
     "scripts/seed_demo_workspace.py",
@@ -382,6 +383,7 @@ def _starter_clients(root: Path) -> list[CheckResult]:
     js_required = python_required
     py_missing = _missing(_read(root, "examples/external_api_python_client.py"), python_required)
     js_missing = _missing(_read(root, "examples/external_api_javascript_client.js"), js_required)
+    go_missing = _missing(_read(root, "examples/external_api_go_client/main.go"), js_required)
     return [
         _check(
             not py_missing,
@@ -394,6 +396,12 @@ def _starter_clients(root: Path) -> list[CheckResult]:
             "examples.javascript_client",
             "JavaScript starter client uses canonical discovery and session workflow",
             {"missing": js_missing},
+        ),
+        _check(
+            not go_missing,
+            "examples.go_client",
+            "Go starter client uses canonical discovery and session workflow",
+            {"missing": go_missing},
         ),
     ]
 

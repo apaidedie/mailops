@@ -40,7 +40,7 @@ In short, MailOps is a mailbox ops workspace designed specifically for registrat
 
 ## UI Preview
 
-The repository already includes some screenshots, and more can be added later.
+Visual assets are regenerated from the demo stack via `scripts/record_demo_assets.py` and follow the current release UI.
 
 ![Dashboard](img/仪表盘.png)
 ![Mailbox View](img/邮箱界面.png)

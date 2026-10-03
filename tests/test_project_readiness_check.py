@@ -191,6 +191,18 @@ def _minimal_ready_repo(root: Path) -> None:
             ]
         ),
     )
+    _write(
+        root,
+        "examples/external_api_go_client/main.go",
+        " ".join(
+            [
+                project_readiness_check.CANONICAL_EXTERNAL_PREFIX,
+                "/integration-bundle",
+                "mailbox-sessions/start mailbox-sessions/read mailbox-sessions/close",
+                "MAILOPS_API_KEY X-API-Key integration-bundle provider_name",
+            ]
+        ),
+    )
     _write(root, "examples/temp_mail_provider_plugin_template.py")
     _write(
         root,
