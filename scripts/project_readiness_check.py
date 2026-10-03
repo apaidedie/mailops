@@ -472,7 +472,8 @@ def _dependency_security_automation(root: Path) -> CheckResult:
         "pip-audit -r requirements.txt",
         "--format json",
         "--output pip-audit-report.json",
-        "actions/upload-artifact@v4",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4",
+        # actions 引用必须钉完整 SHA（S7637 供应链卫生）；升级时替换 SHA 并同步注释版本。
         "if: always()",
         "steps.audit.outputs.exit_code",
     )

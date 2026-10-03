@@ -238,7 +238,7 @@ def _minimal_ready_repo(root: Path) -> None:
                 "pip-audit -r requirements.txt",
                 "--format json",
                 "--output pip-audit-report.json",
-                "actions/upload-artifact@v4",
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4",
                 "if: always()",
                 "steps.audit.outputs.exit_code",
             ]
@@ -333,7 +333,10 @@ class ProjectReadinessCheckTests(unittest.TestCase):
         self.assertFalse(report["success"])
         failure = next(item for item in report["failures"] if item["name"] == "security.dependency_automation")
         self.assertIn("pip-audit==2.10.1", failure["details"]["workflow_missing"])
-        self.assertIn("actions/upload-artifact@v4", failure["details"]["workflow_missing"])
+        self.assertIn(
+            "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4",
+            failure["details"]["workflow_missing"],
+        )
 
     def test_missing_demo_seed_script_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
