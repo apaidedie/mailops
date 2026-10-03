@@ -3,6 +3,16 @@
 // 全局状态
 // 全局兜底：fire-and-forget 调用的同步异常与 Promise rejection 统一记录，
 // 防止后台加载失败静默中断页面初始化（S9383 的体系化出口）。
+        // 键盘等价物：Escape 关闭最顶层打开的模态框（复用各模态既有的背景点击关闭逻辑）。
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            const openModals = Array.from(document.querySelectorAll('.modal.show, .fullscreen-email-modal.show'));
+            const topmost = openModals[openModals.length - 1];
+            if (!topmost || typeof topmost.onclick !== 'function') return;
+            event.preventDefault();
+            topmost.onclick({ target: topmost, preventDefault() {}, stopPropagation() {} });
+        });
+
         function runSafely(task) {
             try {
                 const result = task();
