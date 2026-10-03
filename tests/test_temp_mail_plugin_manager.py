@@ -397,7 +397,7 @@ class TestPluginManagerUninstall(unittest.TestCase):
 
         result = uninstall_plugin("mock_cc", clean_config=True)
         self.assertEqual(result["plugin_name"], "mock_cc")
-        self.assertTrue(len(result.get("cleaned_keys", [])) > 0)
+        self.assertGreater(len(result.get("cleaned_keys", [])), 0)
 
         # 验证配置被清除
         self.assertEqual(settings_repo.get_setting("plugin.mock_cc.base_url"), "")

@@ -901,9 +901,9 @@ def release_temp_mailbox(
     conn: sqlite3.Connection,
     temp_id: int,
     claim_token: str,
-    caller_id: str,
-    task_id: str,
-    reason: Optional[str],
+    _caller_id: str,
+    _task_id: str,
+    _reason: Optional[str],
 ) -> None:
     """释放已领取的临时邮箱，恢复为 available。"""
     now_str = _utcnow().isoformat() + "Z"
@@ -928,10 +928,10 @@ def complete_temp_mailbox(
     conn: sqlite3.Connection,
     temp_id: int,
     claim_token: str,
-    caller_id: str,
-    task_id: str,
+    _caller_id: str,
+    _task_id: str,
     result: str,
-    detail: Optional[str],
+    _detail: Optional[str],
 ) -> str:
     """完成临时邮箱领取流程。临时邮箱为一次性资源，直接套用 RESULT_TO_POOL_STATUS。"""
     new_pool_status = RESULT_TO_POOL_STATUS[result]

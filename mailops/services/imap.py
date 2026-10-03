@@ -756,7 +756,7 @@ def delete_emails_imap(
     email_addr: str,
     client_id: str,
     refresh_token: str,
-    message_ids: List[str],
+    _message_ids: List[str],
     server: str,
 ) -> Dict[str, Any]:
     """通过 IMAP 删除邮件（永久删除）"""

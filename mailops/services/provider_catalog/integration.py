@@ -577,7 +577,7 @@ def _provider_routing_endpoint_for_scope(scope_name: str, scope: dict[str, Any],
     return ""
 
 
-def _provider_routing_base_lookup(guide: dict[str, Any], aliases: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def _provider_routing_base_lookup(guide: dict[str, Any], _aliases: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         _normalize_provider_name(item.get("provider")): item
         for item in (guide.get("providers") or [])

@@ -161,7 +161,7 @@ class PoolAdminClaimedFieldsTests(PoolAdminRepositoryBase):
 
         result = repo.list_accounts(self.conn, in_pool="true", pool_status="claimed")
         items = result.get("items", [])
-        self.assertTrue(len(items) > 0, "至少应返回一条 claimed 记录")
+        self.assertGreater(len(items), 0, "至少应返回一条 claimed 记录")
 
         claimed_item = None
         for item in items:

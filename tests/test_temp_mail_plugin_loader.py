@@ -153,7 +153,7 @@ class TestPluginLoader(unittest.TestCase):
         results = load_plugins()
 
         failed = [r for r in results if r["status"] == "failed"]
-        self.assertTrue(len(failed) > 0)
+        self.assertGreater(len(failed), 0)
         self.assertIn("bad_syntax", failed[0]["name"])
         self.assertIn("SyntaxError", failed[0]["error"])
         # 内置 provider 仍在
@@ -169,7 +169,7 @@ class TestPluginLoader(unittest.TestCase):
         results = load_plugins()
 
         failed = [r for r in results if r["status"] == "failed"]
-        self.assertTrue(len(failed) > 0)
+        self.assertGreater(len(failed), 0)
         self.assertIn("import_err", failed[0]["name"])
 
     # C-LOAD-05

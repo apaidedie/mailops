@@ -81,8 +81,8 @@ class MoemailProviderPluginTests(unittest.TestCase):
         self.assertEqual(options["provider"], "moemail")
         self.assertEqual(options["provider_name"], "moemail")
         self.assertEqual(options["provider_label"], "Moemail")
-        self.assertTrue(isinstance(options["domains"], list))
-        self.assertTrue(isinstance(options["prefix_rules"], dict))
+        self.assertIsInstance(options["domains"], list)
+        self.assertIsInstance(options["prefix_rules"], dict)
 
     def test_create_mailbox_success_and_failure_branches(self):
         module = _load_moemail_module()

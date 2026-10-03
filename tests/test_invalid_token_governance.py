@@ -226,7 +226,7 @@ class InvalidTokenGovernanceTests(unittest.TestCase):
         self.assertTrue(data.get("success"))
         candidates = data.get("candidates", [])
         found = [c for c in candidates if c["account_id"] == account_id]
-        self.assertTrue(len(found) > 0, f"应能查到候选 account_id={account_id}")
+        self.assertGreater(len(found), 0, f"应能查到候选 account_id={account_id}")
         self.assertTrue(found[0].get("is_invalid_token"))
 
         # 3) 批量停用

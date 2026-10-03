@@ -134,7 +134,7 @@ class RealCFWorkerE2ETests(unittest.TestCase):
             # 验证 temp_mail_meta 中有 JWT
             meta = json.loads(row["temp_mail_meta"] or "{}")
             self.assertIn("provider_jwt", meta)
-            self.assertTrue(len(meta["provider_jwt"]) > 20, "JWT should be non-trivial")
+        self.assertGreater(len(meta["provider_jwt"]), 20, "JWT should be non-trivial")
 
         print(f"  ✅ 创建成功: {data['email']} (account_id={data['account_id']})")
 

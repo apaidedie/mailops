@@ -64,7 +64,7 @@ class CloudflareTempMailProviderError(TempMailProviderError):
 # ---------------------------------------------------------------------------
 
 
-def _map_cf_http_error(status_code: int, text: str = "") -> str:
+def _map_cf_http_error(status_code: int, _text: str = "") -> str:
     if status_code in (401, 403):
         return "UNAUTHORIZED"
     if status_code == 404:

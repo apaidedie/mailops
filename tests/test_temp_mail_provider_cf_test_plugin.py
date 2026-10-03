@@ -89,8 +89,8 @@ class CloudflareTempMailTestPluginTests(unittest.TestCase):
 
         self.assertEqual(options["provider"], "cloudflare_temp_mail_test_plugin")
         self.assertEqual(options["provider_name"], "cloudflare_temp_mail_test_plugin")
-        self.assertTrue(isinstance(options["domains"], list))
-        self.assertTrue(isinstance(options["prefix_rules"], dict))
+        self.assertIsInstance(options["domains"], list)
+        self.assertIsInstance(options["prefix_rules"], dict)
         self.assertGreaterEqual(len(options["domains"]), 1)
 
     def test_create_mailbox_success_and_failure(self):

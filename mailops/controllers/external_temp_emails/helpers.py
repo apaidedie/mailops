@@ -275,7 +275,7 @@ def _session_read_params(body: dict[str, Any], *, default_since_minutes: int | N
     }
 
 
-def _resolve_session_read_target(body: dict[str, Any], consumer: dict[str, Any], endpoint: str) -> tuple[str, int | None]:
+def _resolve_session_read_target(body: dict[str, Any], consumer: dict[str, Any], _endpoint: str) -> tuple[str, int | None]:
     session_type = str(body.get("session_type") or "").strip().lower()
     email_addr = str(body.get("email") or "").strip() or None
     if session_type == "pool_claim":

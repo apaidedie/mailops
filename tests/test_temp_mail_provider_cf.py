@@ -365,7 +365,7 @@ class CloudflareTempMailProviderTests(unittest.TestCase):
         # payload 中应包含 name（非空随机前缀）和 domain（来自配置的默认域名）。
         payload = post_mock.call_args[1]["json"]
         self.assertIn("name", payload)
-        self.assertTrue(len(payload["name"]) > 0)
+        self.assertGreater(len(payload["name"]), 0)
         # 有 domain 配置时应传入 domain 字段
         self.assertIn("domain", payload)
         self.assertEqual(payload["domain"], "cf-mail.example.com")

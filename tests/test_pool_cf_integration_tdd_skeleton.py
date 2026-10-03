@@ -401,8 +401,8 @@ class PoolCFTddSkeletonTests(unittest.TestCase):
                 "SELECT * FROM account_project_usage WHERE project_key = ?",
                 ("project_A",),
             ).fetchall()
-            self.assertTrue(len(rows) >= 1)
-            self.assertIn("id", account)
+        self.assertGreaterEqual(len(rows), 1)
+        self.assertIn("id", rows[0])
 
     def test_release_keeps_project_usage_without_success(self):
         """R-CF-PROJ-02: release 后保留 usage 行，但不应形成 success 阻断"""

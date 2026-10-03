@@ -130,7 +130,7 @@ class TestPluginFactory(unittest.TestCase):
         from mailops.services.temp_mail_provider_factory import get_available_providers
 
         providers = get_available_providers()
-        self.assertTrue(len(providers) > 0)
+        self.assertGreater(len(providers), 0)
         for p in providers:
             self.assertIn("name", p)
             self.assertIn("label", p)

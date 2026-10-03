@@ -951,7 +951,7 @@ class TestImapTimezoneAndCursor(unittest.TestCase):
         """游标之前的邮件应被过滤（received_iso <= since → continue）"""
         cursor = "2026-03-05T09:30:00"
         email_time = "2026-03-05T09:20:00"  # 在游标之前
-        self.assertTrue(email_time <= cursor, "游标之前的邮件应被过滤")
+        self.assertLessEqual(email_time, cursor, "游标之前的邮件应被过滤")
 
     def test_cursor_filter_after_cursor_included(self):
         """游标之后的邮件应通过过滤"""
@@ -963,7 +963,7 @@ class TestImapTimezoneAndCursor(unittest.TestCase):
         """恰好等于游标时间的邮件应被过滤（<= 比较）"""
         cursor = "2026-03-05T09:30:00"
         email_time = "2026-03-05T09:30:00"
-        self.assertTrue(email_time <= cursor, "等于游标的邮件应被过滤")
+        self.assertLessEqual(email_time, cursor, "等于游标的邮件应被过滤")
 
     def test_cst_email_vs_utc_cursor_correct_after_fix(self):
         """BUG-TG-006 核心场景：CST 邮件转 UTC 后应被正确过滤"""

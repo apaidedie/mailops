@@ -1714,7 +1714,7 @@ def _provider_readiness_status(item: dict[str, Any]) -> str:
     return "ready"
 
 
-def _provider_readiness_reason(item: dict[str, Any], status: str) -> str:
+def _provider_readiness_reason(_item: dict[str, Any], status: str) -> str:
     if status == "inactive":
         return "not_in_active_allowlist"
     if status == "needs_config":
