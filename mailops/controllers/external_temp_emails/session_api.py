@@ -45,6 +45,8 @@ from mailops.services.provider_catalog import (
 from mailops.services.temp_mail_service import TempMailError, get_temp_mail_service
 
 from .constants import MAILBOX_SESSION_CLOSE_TYPES, MAILBOX_SESSION_READ_ACTIONS, MAILBOX_SESSION_STRATEGIES
+
+_MSG_INTERNAL_ERROR = "服务内部错误"
 from .helpers import (
     _audit,
     _close_pool_session,
