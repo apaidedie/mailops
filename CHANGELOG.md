@@ -2,6 +2,25 @@
 
 All notable changes to MailOps are documented in this file.
 
+## [Unreleased]
+
+### 新增 / Added
+
+- **一键演示栈**：`docker compose -f docker-compose.demo.yml up -d` 即可启动内置演示工作台（演示账号 / 临时邮箱 / 邮箱池 / 审计轨迹），一次性 seeder 容器完成初始化后退出，演示库 `data/mailops-demo.db` 与生产库完全隔离。
+- **Go 外部接入示例**：`examples/external_api_go_client/main.go`（纯标准库），与 Python/JS starter 同构的 discover + verification-code CLI，覆盖认领 / 读取 / 关闭 / 释放完整生命周期；已纳入就绪门禁 `examples.go_client`。
+- **README 视觉资产管线**：`scripts/record_demo_assets.py` 一条命令基于演示栈生成双语首屏 GIF（`img/demo.gif` / `img/demo-en.gif`）与四张界面截图。
+
+### 变更 / Changed
+
+- **README 首屏**：新增演示动图；界面预览截图全部更新为 v2.7.3 实拍（验证码提取面板入镜）。
+- **i18n**：补齐 118 条前端翻译缺口 + 11 条动态消息正则 pattern + 12 条属性（placeholder/title）翻译；新增覆盖率回归门禁 `test_i18n_coverage`（JS 调用 / 模板文本 / 模板属性三层，当前缺口为 0）。
+
+### 修复 / Fixed
+
+- **镜像安全**：`.dockerignore` 此前未排除 `.env`，真实 `SECRET_KEY`/`LOGIN_PASSWORD` 会进入镜像层；已排除并同步排除本地工作区状态。
+- **Windows 构建**：`.gitattributes` 强制 `*.sh` 为 LF——CRLF 检出会让 `start-gunicorn.sh` 的 shebang 携带 `` 导致容器 crash-loop。
+- **Dockerfile 可移植性**：pip 源参数化（`ARG PIP_INDEX_URL`，默认官方 PyPI；CI 发布流程经 build-arg 保留清华镜像）。
+
 ## [v2.7.3] - 2026-10-02
 
 ### 修复 / Bug Fixes
