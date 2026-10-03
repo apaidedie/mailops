@@ -339,6 +339,8 @@ EMAIL_NOTIFICATION_SMTP_TIMEOUT=15
 
 需要直接嵌入外部服务时，可以从 [`examples/external_api_python_client.py`](./examples/external_api_python_client.py) 开始。它是零第三方依赖的可复制 Python starter，支持 discovery、统一 mailbox session 启动、验证码读取和 finally 生命周期关闭；CLI 的 `discover` 子命令只读，`verification-code` 子命令会启动并关闭一次邮箱会话。
 
+Go 团队可以用零依赖的 [`examples/external_api_go_client/main.go`](./examples/external_api_go_client/main.go)：同样支持 discovery 与 verification-code 两个子命令（`go run main.go verification-code -strategy pool_only`），完整覆盖认领、读取、关闭与释放生命周期。
+
 - 路径前缀：`/api/v1/external/*`（`/api/external/*` 保留为 legacy alias）
 - 鉴权头：`X-API-Key`
 - 邮箱池接口：`/api/v1/external/pool/*`

@@ -410,6 +410,8 @@ For the shortest working path, start with [External Integration Quickstart](./do
 
 For code you can embed into another service, start with [`examples/external_api_python_client.py`](./examples/external_api_python_client.py). It is a zero-dependency copyable Python starter for discovery, unified mailbox-session start, verification-code reads, and finally-based lifecycle close-out; its CLI `discover` command is read-only, while `verification-code` starts and closes one mailbox session.
 
+Go teams can use the zero-dependency [`examples/external_api_go_client/main.go`](./examples/external_api_go_client/main.go): the same `discover` and `verification-code` subcommands (`go run main.go verification-code -strategy pool_only`), covering the full claim, read, close, and release lifecycle.
+
 - path prefix: `/api/v1/external/*` (`/api/external/*` remains as a legacy alias)
 - auth header: `X-API-Key`
 - mail-pool endpoints: `/api/v1/external/pool/*`
