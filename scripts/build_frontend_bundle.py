@@ -20,9 +20,13 @@ MARKER_END = "'"
 def script_paths_from_html() -> list[Path]:
     text = SCRIPTS_HTML.read_text(encoding="utf-8")
     paths: list[Path] = []
+    static_root = (ROOT / "static").resolve()
     for match in re.finditer(r"filename='(js/[^']+)'", text):
         rel = match.group(1)
-        path = ROOT / "static" / rel
+        path = (static_root / rel).resolve()
+        # 路径守卫：scripts.html 解析出的相对路径不得逃逸 static 根目录（S2083）
+        if not path.is_relative_to(static_root):
+            raise ValueError(f"script path escapes static root: {rel}")
         if not path.is_file():
             raise FileNotFoundError(path)
         paths.append(path)
