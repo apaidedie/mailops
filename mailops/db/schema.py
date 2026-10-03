@@ -25,6 +25,10 @@ from .constants import (
 )
 from .sensitive import migrate_sensitive_data
 
+# 迁移辅助常量（S1192：SQL 片段字面量收敛）。
+_PRAGMA_TABLE_INFO_ACCOUNTS = "PRAGMA table_info(accounts)"
+_SQL_TEXT_DEFAULT_NULL = "TEXT DEFAULT NULL"
+
 # 数据库 Schema 版本（用于升级可验证/可诊断）
 # v3：对齐 PRD-00005 / FD-00005 / TDD-00005（accounts 表新增多邮箱字段：account_type/provider/imap_host/imap_port/imap_password）
 # v5：BUG-00011 P2 — Message-ID 去重防止重复推送
@@ -346,7 +350,7 @@ def init_db(database_path: Optional[str] = None):
             """)
 
         # 兼容旧 schema：补齐缺失列
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         columns = [col[1] for col in cursor.fetchall()]
 
         if "password" not in columns:
@@ -991,17 +995,17 @@ def init_db(database_path: Optional[str] = None):
             """)
 
         # v11: 邮箱池字段 + account_claim_logs 表（PRD-00009 MT-1）
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         accounts_columns_v11 = [col[1] for col in cursor.fetchall()]
         for col_def in [
-            ("pool_status", "TEXT DEFAULT NULL"),
-            ("claimed_by", "TEXT DEFAULT NULL"),
-            ("claimed_at", "TEXT DEFAULT NULL"),
-            ("lease_expires_at", "TEXT DEFAULT NULL"),
-            ("claim_token", "TEXT DEFAULT NULL"),
-            ("last_claimed_at", "TEXT DEFAULT NULL"),
-            ("last_result", "TEXT DEFAULT NULL"),
-            ("last_result_detail", "TEXT DEFAULT NULL"),
+            ("pool_status", _SQL_TEXT_DEFAULT_NULL),
+            ("claimed_by", _SQL_TEXT_DEFAULT_NULL),
+            ("claimed_at", _SQL_TEXT_DEFAULT_NULL),
+            ("lease_expires_at", _SQL_TEXT_DEFAULT_NULL),
+            ("claim_token", _SQL_TEXT_DEFAULT_NULL),
+            ("last_claimed_at", _SQL_TEXT_DEFAULT_NULL),
+            ("last_result", _SQL_TEXT_DEFAULT_NULL),
+            ("last_result_detail", _SQL_TEXT_DEFAULT_NULL),
             ("success_count", "INTEGER DEFAULT 0"),
             ("fail_count", "INTEGER DEFAULT 0"),
         ]:
@@ -1053,7 +1057,7 @@ def init_db(database_path: Optional[str] = None):
         cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('pool_default_lease_seconds', '600')")
 
         # v17: project-scoped pool reuse — email_domain 列 + account_project_usage 表
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         accounts_columns_v17 = [col[1] for col in cursor.fetchall()]
         if "email_domain" not in accounts_columns_v17:
             cursor.execute("ALTER TABLE accounts ADD COLUMN email_domain TEXT DEFAULT NULL")
@@ -1100,13 +1104,13 @@ def init_db(database_path: Optional[str] = None):
             cursor.execute("ALTER TABLE external_probe_cache ADD COLUMN baseline_timestamp INTEGER DEFAULT NULL")
 
         # v18: CF临时邮箱接入邮箱池 — accounts 表新增 temp_mail_meta 列
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         accounts_columns_v18 = [col[1] for col in cursor.fetchall()]
         if "temp_mail_meta" not in accounts_columns_v18:
             cursor.execute("ALTER TABLE accounts ADD COLUMN temp_mail_meta TEXT")
 
         # v21: Outlook OAuth 验证码提取渠道记忆
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         accounts_columns_v21 = [col[1] for col in cursor.fetchall()]
         if "preferred_verification_channel" not in accounts_columns_v21:
             cursor.execute("ALTER TABLE accounts ADD COLUMN preferred_verification_channel TEXT")
@@ -1114,7 +1118,7 @@ def init_db(database_path: Optional[str] = None):
         # v22: 邮箱池项目维度成功复用 (FD: docs/FD/2026-04-16-邮箱池项目维度成功复用FD.md)
         # 核心语义：长期邮箱 success 后回 available 而非 used，同 caller+project 只防成功不防失败
         # claimed_project_key：claim 时写入、complete/release/expire 时清除，用于 complete 阶段自动判定复用路径
-        cursor.execute("PRAGMA table_info(accounts)")
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
         accounts_columns_v22 = [col[1] for col in cursor.fetchall()]
         if "claimed_project_key" not in accounts_columns_v22:
             cursor.execute("ALTER TABLE accounts ADD COLUMN claimed_project_key TEXT DEFAULT NULL")
@@ -1179,13 +1183,13 @@ def init_db(database_path: Optional[str] = None):
         cursor.execute("PRAGMA table_info(temp_emails)")
         temp_email_columns_v24 = [col[1] for col in cursor.fetchall()]
         for col_def in [
-            ("pool_status", "TEXT DEFAULT NULL"),
-            ("claimed_by", "TEXT DEFAULT NULL"),
-            ("claimed_at", "TEXT DEFAULT NULL"),
-            ("lease_expires_at", "TEXT DEFAULT NULL"),
-            ("claim_token", "TEXT DEFAULT NULL"),
-            ("last_claimed_at", "TEXT DEFAULT NULL"),
-            ("last_result", "TEXT DEFAULT NULL"),
+            ("pool_status", _SQL_TEXT_DEFAULT_NULL),
+            ("claimed_by", _SQL_TEXT_DEFAULT_NULL),
+            ("claimed_at", _SQL_TEXT_DEFAULT_NULL),
+            ("lease_expires_at", _SQL_TEXT_DEFAULT_NULL),
+            ("claim_token", _SQL_TEXT_DEFAULT_NULL),
+            ("last_claimed_at", _SQL_TEXT_DEFAULT_NULL),
+            ("last_result", _SQL_TEXT_DEFAULT_NULL),
         ]:
             if col_def[0] not in temp_email_columns_v24:
                 cursor.execute(f"ALTER TABLE temp_emails ADD COLUMN {col_def[0]} {col_def[1]}")

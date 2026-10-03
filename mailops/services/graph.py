@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
+_MSG_TOKEN_FETCH_FAILED = "获取访问令牌失败"
 
 from mailops.errors import build_error_payload
 from mailops.services.http import get_response_details
@@ -52,7 +53,7 @@ def get_access_token_graph_result(client_id: str, refresh_token: str, proxy_url:
                 "success": False,
                 "error": build_error_payload(
                     "GRAPH_TOKEN_FAILED",
-                    "获取访问令牌失败",
+                    _MSG_TOKEN_FETCH_FAILED,
                     "GraphAPIError",
                     res.status_code,
                     details,
@@ -66,7 +67,7 @@ def get_access_token_graph_result(client_id: str, refresh_token: str, proxy_url:
                 "success": False,
                 "error": build_error_payload(
                     "GRAPH_TOKEN_MISSING",
-                    "获取访问令牌失败",
+                    _MSG_TOKEN_FETCH_FAILED,
                     "GraphAPIError",
                     res.status_code,
                     payload,
@@ -87,7 +88,7 @@ def get_access_token_graph_result(client_id: str, refresh_token: str, proxy_url:
             "success": False,
             "error": build_error_payload(
                 "GRAPH_TOKEN_EXCEPTION",
-                "获取访问令牌失败",
+                _MSG_TOKEN_FETCH_FAILED,
                 type(exc).__name__,
                 500,
                 str(exc),
@@ -349,7 +350,7 @@ def delete_emails_graph(
             "success": False,
             "error": build_error_payload(
                 "GRAPH_TOKEN_FAILED",
-                "获取访问令牌失败",
+                _MSG_TOKEN_FETCH_FAILED,
                 "GraphAPIError",
                 500,
                 "empty_access_token",

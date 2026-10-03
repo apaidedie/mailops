@@ -3,6 +3,10 @@ from __future__ import annotations
 import email
 import hashlib
 import imaplib
+_MSG_TOKEN_FETCH_FAILED = "获取访问令牌失败"
+_MSG_UNKNOWN_SENDER = "未知发件人"
+_IMAP_RFC822 = "(RFC822)"
+_HTML_CONTENT_TYPE = "text/html"
 import logging
 import threading
 import time
@@ -74,7 +78,7 @@ def get_email_body(msg) -> str:
                     plain_text = payload.decode(charset, errors="replace")
                 except Exception:
                     continue
-            elif content_type == "text/html" and not html_text:
+            elif content_type == _HTML_CONTENT_TYPE and not html_text:
                 try:
                     payload = part.get_payload(decode=True)
                     charset = part.get_content_charset() or "utf-8"
@@ -89,7 +93,7 @@ def get_email_body(msg) -> str:
             payload = msg.get_payload(decode=True)
             charset = msg.get_content_charset() or "utf-8"
             content = payload.decode(charset, errors="replace")
-            if msg.get_content_type() == "text/html":
+            if msg.get_content_type() == _HTML_CONTENT_TYPE:
                 html_text = content
             else:
                 plain_text = content
@@ -128,7 +132,7 @@ def get_email_body_and_type(msg) -> tuple:
                     plain_text = payload.decode(charset, errors="replace")
                 except Exception:
                     continue
-            elif content_type == "text/html" and not html_text:
+            elif content_type == _HTML_CONTENT_TYPE and not html_text:
                 try:
                     payload = part.get_payload(decode=True)
                     charset = part.get_content_charset() or "utf-8"
@@ -143,7 +147,7 @@ def get_email_body_and_type(msg) -> tuple:
             payload = msg.get_payload(decode=True)
             charset = msg.get_content_charset() or "utf-8"
             content = payload.decode(charset, errors="replace")
-            if msg.get_content_type() == "text/html":
+            if msg.get_content_type() == _HTML_CONTENT_TYPE:
                 html_text = content
             else:
                 plain_text = content
@@ -179,13 +183,13 @@ def _select_folder(connection, folder: str) -> Optional[str]:
 def _get_html_body(msg) -> str:
     if msg.is_multipart():
         for part in msg.walk():
-            if part.get_content_type() == "text/html":
+            if part.get_content_type() == _HTML_CONTENT_TYPE:
                 payload = part.get_payload(decode=True)
                 if payload:
                     charset = part.get_content_charset() or "utf-8"
                     return payload.decode(charset, errors="replace")
     else:
-        if msg.get_content_type() == "text/html":
+        if msg.get_content_type() == _HTML_CONTENT_TYPE:
             payload = msg.get_payload(decode=True)
             if payload:
                 return payload.decode(msg.get_content_charset() or "utf-8", errors="replace")
@@ -262,7 +266,7 @@ def get_access_token_imap_result(client_id: str, refresh_token: str) -> Dict[str
                 "success": False,
                 "error": build_error_payload(
                     "IMAP_TOKEN_FAILED",
-                    "获取访问令牌失败",
+                    _MSG_TOKEN_FETCH_FAILED,
                     "IMAPError",
                     res.status_code,
                     details,
@@ -276,7 +280,7 @@ def get_access_token_imap_result(client_id: str, refresh_token: str) -> Dict[str
                 "success": False,
                 "error": build_error_payload(
                     "IMAP_TOKEN_MISSING",
-                    "获取访问令牌失败",
+                    _MSG_TOKEN_FETCH_FAILED,
                     "IMAPError",
                     res.status_code,
                     payload,
@@ -294,7 +298,7 @@ def get_access_token_imap_result(client_id: str, refresh_token: str) -> Dict[str
             "success": False,
             "error": build_error_payload(
                 "IMAP_TOKEN_EXCEPTION",
-                "获取访问令牌失败",
+                _MSG_TOKEN_FETCH_FAILED,
                 type(exc).__name__,
                 500,
                 str(exc),
@@ -431,7 +435,7 @@ def get_emails_imap_with_server(
         emails_data = []
 
         ids_str = b",".join(paged_ids)
-        status, all_data = connection.fetch(ids_str, "(RFC822)")
+        status, all_data = connection.fetch(ids_str, _IMAP_RFC822)
         if status != "OK":
             _LOGGER.debug(
                 "[PERF] imap_fetch | account=%s | batch fetch失败 status=%s",
@@ -448,7 +452,7 @@ def get_emails_imap_with_server(
                     {
                         "id": msg_id_str,
                         "subject": decode_header_value(msg.get("Subject", "无主题")),
-                        "from": decode_header_value(msg.get("From", "未知发件人")),
+                        "from": decode_header_value(msg.get("From", _MSG_UNKNOWN_SENDER)),
                         "date": msg.get("Date", "未知时间"),
                         "body_preview": (body_preview[:200] + "..." if len(body_preview) > 200 else body_preview),
                     }
@@ -541,7 +545,7 @@ def fetch_and_detail_imap_with_server(
         detail = None
 
         ids_str = b",".join(paged_ids)
-        status, all_data = connection.fetch(ids_str, "(RFC822)")
+        status, all_data = connection.fetch(ids_str, _IMAP_RFC822)
         if status != "OK":
             return {"success": True, "emails": [], "detail": None}
 
@@ -551,7 +555,7 @@ def fetch_and_detail_imap_with_server(
             email_item = {
                 "id": msg_id_str,
                 "subject": decode_header_value(msg.get("Subject", "无主题")),
-                "from": decode_header_value(msg.get("From", "未知发件人")),
+                "from": decode_header_value(msg.get("From", _MSG_UNKNOWN_SENDER)),
                 "date": msg.get("Date", "未知时间"),
                 "body_preview": body_preview[:200] + "..." if len(body_preview) > 200 else body_preview,
             }
@@ -712,7 +716,7 @@ def get_email_detail_imap_with_server(
             return None
 
         fetch_id = message_id.encode() if isinstance(message_id, str) else message_id
-        status, msg_data = connection.fetch(fetch_id, "(RFC822)")
+        status, msg_data = connection.fetch(fetch_id, _IMAP_RFC822)
         if status != "OK" or not msg_data or not msg_data[0]:
             return None
 
@@ -729,7 +733,7 @@ def get_email_detail_imap_with_server(
         return {
             "id": message_id,
             "subject": decode_header_value(msg.get("Subject", "无主题")),
-            "from": decode_header_value(msg.get("From", "未知发件人")),
+            "from": decode_header_value(msg.get("From", _MSG_UNKNOWN_SENDER)),
             "to": decode_header_value(msg.get("To", "")),
             "cc": decode_header_value(msg.get("Cc", "")),
             "date": msg.get("Date", "未知时间"),

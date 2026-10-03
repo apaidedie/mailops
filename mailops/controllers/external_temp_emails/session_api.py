@@ -132,7 +132,7 @@ def api_external_start_mailbox_session():
         return jsonify(external_api_service.fail(exc.code, exc.message, data=exc.data)), exc.status
     except Exception as exc:
         _audit(endpoint, "error", details={"code": "INTERNAL_ERROR", "err": type(exc).__name__}, email_addr="")
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -233,7 +233,7 @@ def api_external_read_mailbox_session():
             },
             email_addr=str(body.get("email") or ""),
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -271,4 +271,4 @@ def api_external_close_mailbox_session():
         return jsonify(external_api_service.fail(exc.code, exc.message, data=exc.data)), exc.status
     except Exception as exc:
         _audit(endpoint, "error", details={"code": "INTERNAL_ERROR", "err": type(exc).__name__}, email_addr="")
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500

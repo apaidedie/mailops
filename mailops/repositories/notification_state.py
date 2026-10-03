@@ -7,6 +7,8 @@ from typing import Any
 
 from mailops.db import get_db
 
+_ISO_TS_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 DELIVERY_STATUS_PROCESSING = "processing"
 DELIVERY_STATUS_SENT = "sent"
 DELIVERY_STATUS_FAILED = "failed"
@@ -14,7 +16,7 @@ DEFAULT_PROCESSING_TIMEOUT_SECONDS = 300
 
 
 def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    return datetime.now(timezone.utc).strftime(_ISO_TS_FORMAT)
 
 
 def get_cursor(channel: str, source_type: str, source_key: str) -> str | None:
@@ -95,7 +97,7 @@ def claim_delivery_attempt(
     db = get_db()
     now_iso = _utc_now_iso()
     stale_cutoff = (datetime.now(timezone.utc) - timedelta(seconds=max(int(processing_timeout_seconds), 1))).strftime(
-        "%Y-%m-%dT%H:%M:%S"
+        _ISO_TS_FORMAT
     )
 
     cur = db.execute(
@@ -248,7 +250,7 @@ def complete_delivery_attempt(
 
 def cleanup_delivery_logs(*, retention_days: int = 14) -> None:
     db = get_db()
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=retention_days)).strftime("%Y-%m-%dT%H:%M:%S")
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=retention_days)).strftime(_ISO_TS_FORMAT)
     db.execute("DELETE FROM notification_delivery_logs WHERE delivered_at < ?", (cutoff,))
     db.commit()
 

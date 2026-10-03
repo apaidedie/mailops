@@ -6,6 +6,8 @@ from typing import Any
 from mailops.services.external_api_openapi import get_external_api_openapi_contract
 from mailops.services.provider_catalog import EXTERNAL_API_V1_PREFIX
 
+_CONTENT_TYPE_JSON = "application/json"
+
 
 def render_external_api_docs_html(*, consumer: dict[str, Any] | None = None) -> str:
     """Render a self-contained external API documentation page from OpenAPI."""
@@ -474,7 +476,7 @@ def _group_label(path: str) -> str:
 def _request_schema(operation: dict[str, Any]) -> dict[str, Any]:
     body = operation.get("requestBody") if isinstance(operation.get("requestBody"), dict) else {}
     content = body.get("content") if isinstance(body.get("content"), dict) else {}
-    json_content = content.get("application/json") if isinstance(content.get("application/json"), dict) else {}
+    json_content = content.get(_CONTENT_TYPE_JSON) if isinstance(content.get(_CONTENT_TYPE_JSON), dict) else {}
     schema = json_content.get("schema") if isinstance(json_content.get("schema"), dict) else {}
     return schema
 
@@ -483,7 +485,7 @@ def _response_schema(operation: dict[str, Any]) -> dict[str, Any]:
     responses = operation.get("responses") if isinstance(operation.get("responses"), dict) else {}
     ok = responses.get("200") if isinstance(responses.get("200"), dict) else {}
     content = ok.get("content") if isinstance(ok.get("content"), dict) else {}
-    json_content = content.get("application/json") if isinstance(content.get("application/json"), dict) else {}
+    json_content = content.get(_CONTENT_TYPE_JSON) if isinstance(content.get(_CONTENT_TYPE_JSON), dict) else {}
     schema = json_content.get("schema") if isinstance(json_content.get("schema"), dict) else {}
     return schema
 

@@ -10,6 +10,8 @@ import re
 from datetime import datetime, timezone
 from typing import List
 
+_ISO_TS_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 import requests
 
 from mailops.repositories import notification_state as notification_state_repo
@@ -268,7 +270,7 @@ def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> 
                 tt = Internaldate2tuple(b'"' + date_match.group(1) + b'"')
                 if tt:
                     ts = calendar.timegm(tt)
-                    idate_iso = dt.utcfromtimestamp(ts).strftime("%Y-%m-%dT%H:%M:%S")
+                    idate_iso = dt.utcfromtimestamp(ts).strftime(_ISO_TS_FORMAT)
                     if idate_iso <= since:
                         continue
             except Exception:
@@ -299,7 +301,7 @@ def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> 
                     received_dt = parsedate_to_datetime(date_str)
                     if received_dt.tzinfo is not None:
                         received_dt = received_dt.astimezone(timezone.utc)
-                    received_iso = received_dt.strftime("%Y-%m-%dT%H:%M:%S")
+                    received_iso = received_dt.strftime(_ISO_TS_FORMAT)
                 except Exception:
                     received_iso = date_str
 
@@ -454,7 +456,7 @@ def _record_pushed_message(db, account_id: int, message_id: str) -> None:
             (
                 account_id,
                 message_id,
-                datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
+                datetime.now(timezone.utc).strftime(_ISO_TS_FORMAT),
             ),
         )
         db.commit()
@@ -467,7 +469,7 @@ def _cleanup_push_log(db) -> None:
     try:
         from datetime import timedelta
 
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=PUSH_LOG_RETENTION_DAYS)).strftime("%Y-%m-%dT%H:%M:%S")
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=PUSH_LOG_RETENTION_DAYS)).strftime(_ISO_TS_FORMAT)
         db.execute("DELETE FROM telegram_push_log WHERE pushed_at < ?", (cutoff,))
         db.commit()
     except Exception:
@@ -604,7 +606,7 @@ def run_telegram_push_job(app) -> None:
             account_copy["notification_cursor"] = notification_cursor
             normalized_accounts.append(account_copy)
 
-        job_start_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        job_start_time = datetime.now(timezone.utc).strftime(_ISO_TS_FORMAT)
         sent_count = 0
         dedup_skipped = 0
 

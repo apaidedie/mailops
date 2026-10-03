@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+_SSE_DATA_PREFIX = "data: "
+
 import json
 import random
 import time
@@ -93,7 +95,7 @@ def stream_refresh_selected_accounts(
         invalid_token_failed_list: List[Dict[str, Any]] = []
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "start",
@@ -147,7 +149,7 @@ def stream_refresh_selected_accounts(
                 except Exception:
                     pass
                 yield (
-                    "data: "
+                    _SSE_DATA_PREFIX
                     + json.dumps(
                         {
                             "type": "progress",
@@ -168,7 +170,7 @@ def stream_refresh_selected_accounts(
                 continue
 
             yield (
-                "data: "
+                _SSE_DATA_PREFIX
                 + json.dumps(
                     {
                         "type": "progress",
@@ -260,7 +262,7 @@ def stream_refresh_selected_accounts(
 
             # 发送带 account_id 和 result 的完整 progress 事件
             yield (
-                "data: "
+                _SSE_DATA_PREFIX
                 + json.dumps(
                     {
                         "type": "progress",
@@ -296,7 +298,7 @@ def stream_refresh_selected_accounts(
         )
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "complete",

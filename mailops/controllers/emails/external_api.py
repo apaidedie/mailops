@@ -27,6 +27,19 @@ from mailops.services.mailbox_resolver import normalize_alias_email
 
 from .helpers import _external_error_response, _parse_external_common_args, _resolve_external_error
 
+# 审计/错误上下文用的 endpoint 路径标签（S1192：重复字面量收敛为常量）。
+_ENDPOINT_MESSAGES = "/api/v1/external/messages"
+_ENDPOINT_MESSAGES_LATEST = "/api/v1/external/messages/latest"
+_ENDPOINT_MESSAGES_BY_ID = "/api/v1/external/messages/{message_id}"
+_ENDPOINT_MESSAGES_RAW = "/api/v1/external/messages/{message_id}/raw"
+_ENDPOINT_VERIFICATION_CODE = "/api/v1/external/verification-code"
+_ENDPOINT_VERIFICATION_LINK = "/api/v1/external/verification-link"
+_ENDPOINT_WAIT_MESSAGE = "/api/v1/external/wait-message"
+_ENDPOINT_PROBE = "/api/v1/external/probe/{probe_id}"
+_CONTENT_TYPE_JSON = "application/json"
+
+_MSG_INTERNAL_ERROR = "服务内部错误"
+
 
 @api_key_required
 @external_api_guards()
@@ -54,7 +67,7 @@ def api_external_get_messages() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/messages",
+            endpoint=_ENDPOINT_MESSAGES,
             status="ok",
             details={"method": method, "count": len(filtered)},
         )
@@ -64,7 +77,7 @@ def api_external_get_messages() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages",
+            endpoint=_ENDPOINT_MESSAGES,
             status="error",
             details={"code": exc.code},
         )
@@ -73,11 +86,11 @@ def api_external_get_messages() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages",
+            endpoint=_ENDPOINT_MESSAGES,
             status="error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -100,7 +113,7 @@ def api_external_get_latest_message() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/messages/latest",
+            endpoint=_ENDPOINT_MESSAGES_LATEST,
             status="ok",
             details={"method": latest.get("method")},
         )
@@ -109,7 +122,7 @@ def api_external_get_latest_message() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/latest",
+            endpoint=_ENDPOINT_MESSAGES_LATEST,
             status="error",
             details={"code": exc.code},
         )
@@ -118,11 +131,11 @@ def api_external_get_latest_message() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/latest",
+            endpoint=_ENDPOINT_MESSAGES_LATEST,
             status="error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -138,7 +151,7 @@ def api_external_get_message_detail(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/messages/{message_id}",
+            endpoint=_ENDPOINT_MESSAGES_BY_ID,
             status="ok",
             details={"method": detail.get("method")},
         )
@@ -148,7 +161,7 @@ def api_external_get_message_detail(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/{message_id}",
+            endpoint=_ENDPOINT_MESSAGES_BY_ID,
             status="error",
             details={"code": resolved["code"]},
         )
@@ -157,11 +170,11 @@ def api_external_get_message_detail(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/{message_id}",
+            endpoint=_ENDPOINT_MESSAGES_BY_ID,
             status="error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -177,7 +190,7 @@ def api_external_get_message_raw(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/messages/{message_id}/raw",
+            endpoint=_ENDPOINT_MESSAGES_RAW,
             status="ok",
             details={"method": detail.get("method")},
         )
@@ -196,7 +209,7 @@ def api_external_get_message_raw(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/{message_id}/raw",
+            endpoint=_ENDPOINT_MESSAGES_RAW,
             status="error",
             details={"code": resolved["code"]},
         )
@@ -205,11 +218,11 @@ def api_external_get_message_raw(message_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/messages/{message_id}/raw",
+            endpoint=_ENDPOINT_MESSAGES_RAW,
             status="error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -241,7 +254,7 @@ def api_external_get_verification_code() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/verification-code",
+            endpoint=_ENDPOINT_VERIFICATION_CODE,
             status="ok",
             details={
                 "matched_email_id": result.get("matched_email_id"),
@@ -254,7 +267,7 @@ def api_external_get_verification_code() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/verification-code",
+            endpoint=_ENDPOINT_VERIFICATION_CODE,
             status="error",
             details={"code": resolved["code"]},
         )
@@ -263,7 +276,7 @@ def api_external_get_verification_code() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/verification-code",
+            endpoint=_ENDPOINT_VERIFICATION_CODE,
             status="error",
             details={"code": "INVALID_PARAM"},
         )
@@ -272,11 +285,11 @@ def api_external_get_verification_code() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/verification-code",
+            endpoint=_ENDPOINT_VERIFICATION_CODE,
             status="error",
             details={"code": "INTERNAL_ERROR"},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -300,7 +313,7 @@ def api_external_get_verification_link() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=args["email"] or "",
-            endpoint="/api/v1/external/verification-link",
+            endpoint=_ENDPOINT_VERIFICATION_LINK,
             status="ok",
             details={
                 "matched_email_id": result.get("matched_email_id"),
@@ -312,7 +325,7 @@ def api_external_get_verification_link() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/verification-link",
+            endpoint=_ENDPOINT_VERIFICATION_LINK,
             status="error",
             details={"code": exc.code},
         )
@@ -321,11 +334,11 @@ def api_external_get_verification_link() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/verification-link",
+            endpoint=_ENDPOINT_VERIFICATION_LINK,
             status="error",
             details={"code": "INTERNAL_ERROR"},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -372,7 +385,7 @@ def api_external_wait_message() -> Any:
             external_api_service.audit_external_api_access(
                 action="external_api_access",
                 email_addr=args["email"] or "",
-                endpoint="/api/v1/external/wait-message",
+                endpoint=_ENDPOINT_WAIT_MESSAGE,
                 status="ok",
                 details={
                     "matched_email_id": result.get("id"),
@@ -384,7 +397,7 @@ def api_external_wait_message() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/wait-message",
+            endpoint=_ENDPOINT_WAIT_MESSAGE,
             status="error",
             details={"code": exc.code},
         )
@@ -393,11 +406,11 @@ def api_external_wait_message() -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=(request.args.get("email") or "").strip(),
-            endpoint="/api/v1/external/wait-message",
+            endpoint=_ENDPOINT_WAIT_MESSAGE,
             status="error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -411,7 +424,7 @@ def api_external_get_probe_status(probe_id: str) -> Any:
             external_api_service.audit_external_api_access(
                 action="external_api_access",
                 email_addr=result.get("email") or "",
-                endpoint="/api/v1/external/probe/{probe_id}",
+                endpoint=_ENDPOINT_PROBE,
                 status="error",
                 details={
                     "code": result.get("error_code") or "PROBE_CANCELLED",
@@ -432,7 +445,7 @@ def api_external_get_probe_status(probe_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr=result.get("email") or "",
-            endpoint="/api/v1/external/probe/{probe_id}",
+            endpoint=_ENDPOINT_PROBE,
             status="ok",
             details={"probe_id": probe_id, "probe_status": result.get("status")},
         )
@@ -441,7 +454,7 @@ def api_external_get_probe_status(probe_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr="",
-            endpoint="/api/v1/external/probe/{probe_id}",
+            endpoint=_ENDPOINT_PROBE,
             status="error",
             details={"code": exc.code, "probe_id": probe_id},
         )
@@ -450,8 +463,8 @@ def api_external_get_probe_status(probe_id: str) -> Any:
         external_api_service.audit_external_api_access(
             action="external_api_access",
             email_addr="",
-            endpoint="/api/v1/external/probe/{probe_id}",
+            endpoint=_ENDPOINT_PROBE,
             status="error",
             details={"code": "INTERNAL_ERROR", "probe_id": probe_id},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500

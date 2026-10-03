@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+_SSE_DATA_PREFIX = "data: "
+
 import json
 import random
 import time
@@ -79,7 +81,7 @@ def stream_refresh_all_accounts(
         invalid_token_failed_list: List[Dict[str, Any]] = []
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "start",
@@ -134,7 +136,7 @@ def stream_refresh_all_accounts(
                 continue
 
             yield (
-                "data: "
+                _SSE_DATA_PREFIX
                 + json.dumps(
                     {
                         "type": "progress",
@@ -229,7 +231,7 @@ def stream_refresh_all_accounts(
         )
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "complete",

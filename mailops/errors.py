@@ -4,6 +4,16 @@ import json
 import logging
 import re
 import uuid
+
+# 二次验证消息常量：security/auth.py 的校验返回与本文件的映射表共用，
+# 避免字面量在两个文件间漂移（S1192）。
+MSG_VERIFY_REQUIRED = "需要二次验证"
+MSG_VERIFY_EXPIRED = "验证已过期，请重新验证"
+MSG_VERIFY_FAILED_RETRY = "验证失败，请重试"
+MSG_VERIFY_CLIENT_MISMATCH = "验证失败：客户端不匹配"
+MSG_VERIFY_IP_MISMATCH = "验证失败：IP 不匹配"
+MSG_REQUEST_FAILED = "Request failed"
+MASK_REDACT_REPLACEMENT = r"***"
 from typing import Any, Dict, Optional
 
 from flask import current_app, g, jsonify
@@ -44,9 +54,9 @@ ERROR_MESSAGE_EN_MAP = {
     "GROUP_AI_MODEL_REQUIRED": "Group AI model ID is required",
     "VERIFICATION_AI_CONFIG_INCOMPLETE": "Verification AI configuration is incomplete",
     "GROUP_UPDATE_FAILED": "Failed to update group",
-    "HTTP_ERROR": "Request failed",
+    "HTTP_ERROR": MSG_REQUEST_FAILED,
     "INTERNAL_ERROR": "Internal server error",
-    "LEGACY_ERROR": "Request failed",
+    "LEGACY_ERROR": MSG_REQUEST_FAILED,
     "WEBHOOK_URL_REQUIRED": "Webhook URL is required when webhook notification is enabled",
     "WEBHOOK_URL_INVALID": "Webhook URL must start with http:// or https://",
     "WEBHOOK_NOT_CONFIGURED": "Webhook notification is not configured",
@@ -89,8 +99,8 @@ ERROR_MESSAGE_MAP = {
     "EMAIL_NOTIFICATION_SMTP_PORT_INVALID": "邮件通知 SMTP 端口配置无效",
     "EMAIL_NOTIFICATION_SMTP_TIMEOUT_INVALID": "邮件通知 SMTP 超时配置无效",
     "EMAIL_TEST_SEND_FAILED": "测试邮件发送失败",
-    "EXPORT_VERIFY_REQUIRED": "需要二次验证",
-    "EXPORT_VERIFY_EXPIRED": "验证已过期，请重新验证",
+    "EXPORT_VERIFY_REQUIRED": MSG_VERIFY_REQUIRED,
+    "EXPORT_VERIFY_EXPIRED": MSG_VERIFY_EXPIRED,
     "EXPORT_VERIFY_IP_MISMATCH": "验证失败：IP 不匹配",
     "EXPORT_VERIFY_CLIENT_MISMATCH": "验证失败：客户端不匹配",
     "EXPORT_VERIFY_FAILED": "验证失败，请重试",
@@ -130,14 +140,14 @@ ERROR_MESSAGE_MAP = {
 def build_export_verify_failure_response(error_message: str):
     normalized = str(error_message or "").strip()
     mapping = {
-        "需要二次验证": (
+        MSG_VERIFY_REQUIRED: (
             "EXPORT_VERIFY_REQUIRED",
-            "需要二次验证",
+            MSG_VERIFY_REQUIRED,
             "Additional verification is required",
         ),
-        "验证已过期，请重新验证": (
+        MSG_VERIFY_EXPIRED: (
             "EXPORT_VERIFY_EXPIRED",
-            "验证已过期，请重新验证",
+            MSG_VERIFY_EXPIRED,
             "Verification expired. Please verify again",
         ),
         "验证失败：IP 不匹配": (
@@ -197,7 +207,7 @@ def resolve_message_en(code: Optional[str], status: int = 500) -> str:
         mapped = ERROR_MESSAGE_EN_MAP.get(str(code).strip())
         if mapped:
             return mapped
-    return STATUS_MESSAGE_EN_MAP.get(status, "Request failed")
+    return STATUS_MESSAGE_EN_MAP.get(status, MSG_REQUEST_FAILED)
 
 
 def resolve_message(code: Optional[str], default_message: str = "请求失败") -> str:

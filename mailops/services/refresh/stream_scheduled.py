@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+_SSE_DATA_PREFIX = "data: "
+
 import json
 import random
 import time
@@ -89,7 +91,7 @@ def stream_trigger_scheduled_refresh(
                             f"距离上次刷新未满 {refresh_interval_days} 天，下次最早：{next_due.strftime('%Y-%m-%d %H:%M:%S')}",
                         )
                         yield (
-                            "data: "
+                            _SSE_DATA_PREFIX
                             + json.dumps(
                                 {
                                     "type": "skipped",
@@ -127,7 +129,7 @@ def stream_trigger_scheduled_refresh(
         invalid_token_failed_list: List[Dict[str, Any]] = []
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "start",
@@ -182,7 +184,7 @@ def stream_trigger_scheduled_refresh(
                 continue
 
             yield (
-                "data: "
+                _SSE_DATA_PREFIX
                 + json.dumps(
                     {
                         "type": "progress",
@@ -275,7 +277,7 @@ def stream_trigger_scheduled_refresh(
         )
 
         yield (
-            "data: "
+            _SSE_DATA_PREFIX
             + json.dumps(
                 {
                     "type": "complete",

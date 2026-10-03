@@ -12,6 +12,8 @@ import requests
 
 from mailops.repositories import settings as settings_repo
 from mailops.services.temp_mail_provider_base import TempMailProviderBase, register_provider
+
+_CONTENT_TYPE_JSON = "application/json"
 from mailops.services.temp_mail_provider_custom import TempMailProviderReadError
 
 _REQUEST_TIMEOUT = 30
@@ -182,7 +184,7 @@ class MailTmTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderBase)
 
     def _json_headers(self, token: str | None = None) -> dict[str, str]:
         headers = self._headers(token)
-        headers["Content-Type"] = "application/json"
+        headers["Content-Type"] = _CONTENT_TYPE_JSON
         return headers
 
     def _fetch_domains(self) -> list[dict[str, Any]]:
@@ -677,7 +679,7 @@ class TempMailLolProvider(_PublicTempMailProviderMixin, TempMailProviderBase):
         self._api_key = settings_repo.get_tempmail_lol_api_key()
 
     def _headers(self) -> dict[str, str]:
-        headers = {"Accept": "application/json", "User-Agent": "OutlookMailPlusTempMailProvider/1.0"}
+        headers = {"Accept": _CONTENT_TYPE_JSON, "User-Agent": "OutlookMailPlusTempMailProvider/1.0"}
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"
         return headers
@@ -895,8 +897,8 @@ class EmailnatorTempMailProvider(_PublicTempMailProviderMixin, TempMailProviderB
 
     def _headers(self) -> dict[str, str]:
         return {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
+            "Accept": _CONTENT_TYPE_JSON,
+            "Content-Type": _CONTENT_TYPE_JSON,
             "X-RapidAPI-Key": self._api_key(),
             "X-RapidAPI-Host": "gmailnator.p.rapidapi.com",
         }

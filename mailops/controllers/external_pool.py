@@ -176,7 +176,7 @@ def api_external_pool_claim_random():
             "error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -225,7 +225,7 @@ def api_external_pool_claim_release():
             "error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -284,7 +284,7 @@ def api_external_pool_claim_complete():
             "error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500
 
 
 @api_key_required
@@ -307,4 +307,4 @@ def api_external_pool_stats():
             "error",
             details={"code": "INTERNAL_ERROR", "err": type(exc).__name__},
         )
-        return jsonify(external_api_service.fail("INTERNAL_ERROR", "服务内部错误")), 500
+        return jsonify(external_api_service.fail("INTERNAL_ERROR", _MSG_INTERNAL_ERROR)), 500

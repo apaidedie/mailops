@@ -8,7 +8,14 @@ from typing import Optional
 from flask import g, jsonify, redirect, request, session, url_for
 
 from mailops.db import get_db
-from mailops.errors import build_error_payload
+from mailops.errors import (
+    MSG_VERIFY_CLIENT_MISMATCH,
+    MSG_VERIFY_EXPIRED,
+    MSG_VERIFY_FAILED_RETRY,
+    MSG_VERIFY_IP_MISMATCH,
+    MSG_VERIFY_REQUIRED,
+    build_error_payload,
+)
 
 # 速率限制配置
 MAX_LOGIN_ATTEMPTS = 5  # 最大失败次数
@@ -366,7 +373,7 @@ def consume_export_verify_token(verify_token: str, client_ip: str = "", user_age
     - 验证 User-Agent 绑定：增加 token 被盗用的难度
     """
     if not verify_token:
-        return False, "需要二次验证"
+        return False, MSG_VERIFY_REQUIRED
 
     db = get_db()
     now_ts = time.time()
@@ -384,25 +391,25 @@ def consume_export_verify_token(verify_token: str, client_ip: str = "", user_age
 
         if not row:
             db.rollback()
-            return False, "需要二次验证"
+            return False, MSG_VERIFY_REQUIRED
 
         expires_at = row["expires_at"] or 0
         if float(expires_at) < now_ts:
             db.execute("DELETE FROM export_verify_tokens WHERE token = ?", (verify_token,))
             db.commit()
-            return False, "验证已过期，请重新验证"
+            return False, MSG_VERIFY_EXPIRED
 
         # 验证 IP 绑定（如果生成时记录了 IP）
         stored_ip = row["ip"] or ""
         if stored_ip and client_ip and stored_ip != client_ip:
             db.rollback()
-            return False, "验证失败：IP 不匹配"
+            return False, MSG_VERIFY_IP_MISMATCH
 
         # 验证 User-Agent 绑定（如果生成时记录了）
         stored_ua = row["user_agent"] or ""
         if stored_ua and user_agent and stored_ua != user_agent:
             db.rollback()
-            return False, "验证失败：客户端不匹配"
+            return False, MSG_VERIFY_CLIENT_MISMATCH
 
         db.execute("DELETE FROM export_verify_tokens WHERE token = ?", (verify_token,))
         db.commit()
@@ -412,13 +419,13 @@ def consume_export_verify_token(verify_token: str, client_ip: str = "", user_age
             db.rollback()
         except Exception:
             pass
-        return False, "验证失败，请重试"
+        return False, MSG_VERIFY_FAILED_RETRY
 
 
 def check_export_verify_token(verify_token: str) -> tuple[bool, str]:
     """校验一次性导出验证 token（不消费）"""
     if not verify_token:
-        return False, "需要二次验证"
+        return False, MSG_VERIFY_REQUIRED
 
     db = get_db()
     now_ts = time.time()
@@ -432,18 +439,18 @@ def check_export_verify_token(verify_token: str) -> tuple[bool, str]:
             (verify_token,),
         ).fetchone()
         if not row:
-            return False, "需要二次验证"
+            return False, MSG_VERIFY_REQUIRED
         if float(row["expires_at"] or 0) < now_ts:
-            return False, "验证已过期，请重新验证"
+            return False, MSG_VERIFY_EXPIRED
         return True, ""
     except Exception:
-        return False, "验证失败，请重试"
+        return False, MSG_VERIFY_FAILED_RETRY
 
 
 def check_export_verify_token_bound(verify_token: str, client_ip: str = "", user_agent: str = "") -> tuple[bool, str]:
     """校验一次性导出验证 token，并验证 IP / User-Agent 绑定，但不消费。"""
     if not verify_token:
-        return False, "需要二次验证"
+        return False, MSG_VERIFY_REQUIRED
 
     db = get_db()
     now_ts = time.time()
@@ -457,18 +464,18 @@ def check_export_verify_token_bound(verify_token: str, client_ip: str = "", user
             (verify_token,),
         ).fetchone()
         if not row:
-            return False, "需要二次验证"
+            return False, MSG_VERIFY_REQUIRED
         if float(row["expires_at"] or 0) < now_ts:
-            return False, "验证已过期，请重新验证"
+            return False, MSG_VERIFY_EXPIRED
 
         stored_ip = row["ip"] or ""
         if stored_ip and client_ip and stored_ip != client_ip:
-            return False, "验证失败：IP 不匹配"
+            return False, MSG_VERIFY_IP_MISMATCH
 
         stored_ua = row["user_agent"] or ""
         if stored_ua and user_agent and stored_ua != user_agent:
-            return False, "验证失败：客户端不匹配"
+            return False, MSG_VERIFY_CLIENT_MISMATCH
 
         return True, ""
     except Exception:
-        return False, "验证失败，请重试"
+        return False, MSG_VERIFY_FAILED_RETRY
