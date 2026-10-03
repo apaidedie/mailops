@@ -50,7 +50,14 @@ class DependencySecurityAutomationTests(unittest.TestCase):
         self.assertIn("--output pip-audit-report.json", workflow)
         self.assertIn('echo "exit_code=$audit_status" >> "$GITHUB_OUTPUT"', workflow)
         self.assertIn("if: always()", workflow)
-        self.assertIn("uses: actions/upload-artifact@v4", workflow)
+        self.assertIn("uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4", workflow)
+        self.assertNotIn(
+            "uses: actions/",
+            workflow.replace("actions/checkout@", "")
+            .replace("actions/setup-python@", "")
+            .replace("actions/upload-artifact@", ""),
+        )
+        # actions 必须钉到完整 commit SHA（S7637 供应链卫生）
         self.assertIn("path: pip-audit-report.json", workflow)
         self.assertIn("retention-days: 14", workflow)
         self.assertIn("steps.audit.outputs.exit_code", workflow)
