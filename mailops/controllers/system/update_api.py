@@ -225,7 +225,7 @@ def api_deployment_info() -> Any:  # noqa: C901
             ref = ref.split("@", 1)[0]
         # tag 形式：repo:tag（仅当最后一个 ':' 之后不包含 '/' 才视为 tag）
         if ":" in ref:
-            left, right = ref.rsplit(":", 1)
+            _, right = ref.rsplit(":", 1)
             if "/" not in right:
                 return right
         return ""
@@ -242,7 +242,7 @@ def api_deployment_info() -> Any:  # noqa: C901
         # 2.2 兜底：基于镜像名结构判断
         # 无 namespace（如 mailops:latest）通常是本地构建或非官方镜像
         if not is_local:
-            lower_image = image_name.lower()
+            _ = image_name.lower()
             if "/" not in image_name:
                 is_local = True
             else:

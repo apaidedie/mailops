@@ -689,7 +689,7 @@ def _integration_bundle_provider_selection(
 ) -> dict[str, Any]:
     defaults = capabilities.get("defaults") if isinstance(capabilities.get("defaults"), dict) else {}
     if isinstance(capabilities.get("cors"), dict):
-        cors_contract = capabilities["cors"]
+        _ = capabilities["cors"]
     return {
         "source_priority": list(selection_policy.get("source_priority") or PROVIDER_SELECTION_SOURCE_PRIORITY),
         "selector_fields": copy.deepcopy(provider_readiness.get("provider_selector_fields") or {}),

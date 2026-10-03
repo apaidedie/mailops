@@ -262,7 +262,7 @@ def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> 
                 continue
 
             mid = mid_match.group(1)
-            idate_str = date_match.group(1).decode("ascii", errors="replace")
+            _ = date_match.group(1).decode("ascii", errors="replace")
             try:
                 import calendar
                 from imaplib import Internaldate2tuple

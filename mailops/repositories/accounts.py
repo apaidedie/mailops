@@ -561,7 +561,7 @@ def delete_account_by_id(account_id: int) -> bool:
     try:
         db.execute("DELETE FROM account_claim_logs WHERE account_id = ?", (account_id,))
         db.execute("DELETE FROM account_project_usage WHERE account_id = ?", (account_id,))
-        cursor = db.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
+        _ = db.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
         db.commit()
         return True
     except Exception:

@@ -599,7 +599,7 @@ def start_new_container(container: Any) -> Tuple[bool, str]:
         container.start()
 
         # 等待容器启动（最多 10 秒）
-        for i in range(10):
+        for _ in range(10):
             container.reload()
             if container.status == "running":
                 logger.info(f"新容器已启动: {container.short_id}")
@@ -914,7 +914,7 @@ def self_update(
         {
             "step": "compare_digest",
             "success": True,
-            "message": f"检测到新版本镜像 (digest 不同)",
+            "message": "检测到新版本镜像 (digest 不同)",
         }
     )
 

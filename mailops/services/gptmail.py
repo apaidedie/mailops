@@ -157,7 +157,7 @@ def gptmail_request(
         else:
             return {
                 "success": False,
-                "error": f"API 请求失败",
+                "error": "API 请求失败",
                 "error_type": "HTTP_ERROR",
                 "details": f"HTTP {response.status_code}: {response.text[:200]}",
             }
@@ -223,7 +223,7 @@ def generate_temp_email(prefix: str = None, domain: str = None) -> Tuple[Optiona
     else:
         # 返回详细的错误信息
         error = result.get("error", "未知错误")
-        error_type = result.get("error_type", "UNKNOWN")
+        _ = result.get("error_type", "UNKNOWN")
         details = result.get("details", "")
 
         # 组合错误信息

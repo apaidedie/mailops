@@ -458,7 +458,7 @@ def scheduled_refresh_task(app, test_refresh_token):
         ttl_seconds = max(60 * 60 * 2, estimated)
         ttl_seconds = min(ttl_seconds, 60 * 60 * 24)
 
-        ok, lock_info = acquire_distributed_lock(conn, REFRESH_LOCK_NAME, lock_owner_id, ttl_seconds)
+        ok, _ = acquire_distributed_lock(conn, REFRESH_LOCK_NAME, lock_owner_id, ttl_seconds)
         if not ok:
             finish_refresh_run(conn, run_id, "skipped", total, 0, 0, "刷新任务冲突：已有刷新在执行")
             return

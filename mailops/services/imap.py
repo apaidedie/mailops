@@ -706,7 +706,7 @@ def get_email_detail_imap_with_server(
         selected_folder = None
         for imap_folder in possible_folders:
             try:
-                status, response = connection.select(imap_folder, readonly=True)
+                status, _ = connection.select(imap_folder, readonly=True)
                 if status == "OK":
                     selected_folder = imap_folder
                     break
