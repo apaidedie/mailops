@@ -83,6 +83,22 @@ def audit() -> int:
         print("  -", s[:72])
     missing_total += len(missing_tpl)
 
+    # 3) 模板可见属性（placeholder/title/aria-label）
+    attr_texts: set[str] = set()
+    attr_pattern = re.compile(r'(?:placeholder|title|aria-label)="([^"]*)"[^>]*>')
+    for name in ("templates/index.html", "templates/login.html"):
+        text = (ROOT / name).read_text(encoding="utf-8")
+        text = script_pattern.sub("", text)
+        for raw in attr_pattern.findall(text):
+            s = " ".join(raw.split())
+            if CHINESE.search(s) and "{{" not in s:
+                attr_texts.add(s)
+    missing_attrs = sorted(s for s in attr_texts if s not in keys and s not in ALLOWED_MISSING)
+    print(f"[模板属性] 中文属性 {len(attr_texts)} 个，缺 {len(missing_attrs)} 个")
+    for s in missing_attrs[:200]:
+        print("  -", s[:72])
+    missing_total += len(missing_attrs)
+
     print(f"合计缺口：{missing_total}")
     return 0 if missing_total == 0 else 1
 

@@ -10,6 +10,8 @@
 
 **MailOps** (formerly Outlook Email Plus) is a mailbox **ops** workspace for registration and verification workflows.
 
+![MailOps demo](./img/demo-en.gif)
+
 Unlike general-purpose clients, it focuses on signup automation, verification extract, mailbox pools, and external APIs. Outlook OAuth, IMAP, pools, provider temp mail, and automation APIs share one directory and contract.
 
 Repo: https://github.com/apaidedie/mailops

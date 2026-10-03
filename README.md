@@ -10,6 +10,8 @@
 
 **MailOps**（前身 Outlook Email Plus）是一款面向个人与团队的**注册 / 验证场景**邮箱运维工作台。
 
+![MailOps 一键演示](./img/demo.gif)
+
 与通用邮箱客户端不同，它聚焦注册机、验证码提取、邮箱池与外部 API。你可以把 Outlook OAuth、普通 IMAP、邮箱池、Provider 临时邮箱和自动化接口放在同一套目录与契约下；其它项目可通过 `X-API-Key`、OpenAPI 与 `integration_manifest` 接入。
 
 仓库：https://github.com/apaidedie/mailops
