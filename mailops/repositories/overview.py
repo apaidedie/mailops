@@ -53,42 +53,38 @@ def _action_group(action: str) -> str:
     return "other"
 
 
-def get_overview_summary(conn: sqlite3.Connection | None = None) -> Dict[str, Any]:
-    # 概览大盘入口：聚合账号状态、邮箱池快照、刷新健康度、今日 KPI，供前端 dashboard 一次性加载
-    db = _db(conn)
-
-    account_rows = db.execute("""
+def _summarize_account_status(db: sqlite3.Connection) -> Dict[str, Any]:
+    """按状态聚合账号数量（expired/active 等归一映射）。"""
+    rows = db.execute("""
         SELECT COALESCE(status, '') AS status, COUNT(*) AS cnt
         FROM accounts
         GROUP BY COALESCE(status, '')
         """).fetchall()
-    account_status = {
-        "total": 0,
-        "active": 0,
-        "expired": 0,
-        "pending_refresh": 0,
-        "error": 0,
-    }
-    for row in account_rows:
+    summary = {"total": 0, "active": 0, "expired": 0, "pending_refresh": 0, "error": 0}
+    for row in rows:
         status = str(row["status"] or "").strip().lower()
         count = int(row["cnt"] or 0)
-        account_status["total"] += count
+        summary["total"] += count
         if status == "active":
-            account_status["active"] += count
+            summary["active"] += count
         elif status in {"expired", "inactive", "disabled"}:
-            account_status["expired"] += count
+            summary["expired"] += count
         elif status in {"pending_refresh", "refresh_required"}:
-            account_status["pending_refresh"] += count
+            summary["pending_refresh"] += count
         elif status in {"error", "failed"}:
-            account_status["error"] += count
+            summary["error"] += count
+    return summary
 
-    pool_rows = db.execute("""
+
+def _summarize_pool_snapshot(db: sqlite3.Connection) -> Dict[str, Any]:
+    """按池状态聚合账号数量，附使用率。"""
+    rows = db.execute("""
         SELECT COALESCE(pool_status, '') AS pool_status, COUNT(*) AS cnt
         FROM accounts
         WHERE pool_status IS NOT NULL
         GROUP BY COALESCE(pool_status, '')
         """).fetchall()
-    pool_snapshot = {
+    snapshot = {
         "available": 0,
         "in_use": 0,
         "cooldown": 0,
@@ -97,22 +93,26 @@ def get_overview_summary(conn: sqlite3.Connection | None = None) -> Dict[str, An
         "total": 0,
         "usage_rate": 0.0,
     }
-    for row in pool_rows:
+    for row in rows:
         status = str(row["pool_status"] or "").strip().lower()
         count = int(row["cnt"] or 0)
-        pool_snapshot["total"] += count
+        snapshot["total"] += count
         if status == "available":
-            pool_snapshot["available"] += count
+            snapshot["available"] += count
         elif status == "claimed":
-            pool_snapshot["in_use"] += count
+            snapshot["in_use"] += count
         elif status == "cooldown":
-            pool_snapshot["cooldown"] += count
+            snapshot["cooldown"] += count
         elif status == "used":
-            pool_snapshot["used"] += count
+            snapshot["used"] += count
         elif status in {"frozen", "retired"}:
-            pool_snapshot["disabled"] += count
-    pool_snapshot["usage_rate"] = _safe_div(pool_snapshot["in_use"], pool_snapshot["total"])
+            snapshot["disabled"] += count
+    snapshot["usage_rate"] = _safe_div(snapshot["in_use"], snapshot["total"])
+    return snapshot
 
+
+def _summarize_refresh_health(db: sqlite3.Connection) -> Dict[str, Any]:
+    """最近一次刷新运行 + 近 7 天成功率。"""
     refresh_last = db.execute("""
         SELECT started_at, finished_at, total, success_count, failed_count
         FROM refresh_runs
@@ -136,6 +136,20 @@ def get_overview_summary(conn: sqlite3.Connection | None = None) -> Dict[str, An
         ).fetchone()
         duration_seconds = int(duration_row["duration_s"] or 0) if duration_row else 0
 
+    return {
+        "last_run_at": refresh_last["started_at"] if refresh_last else None,
+        "last_success_count": int(refresh_last["success_count"] or 0) if refresh_last else 0,
+        "last_fail_count": int(refresh_last["failed_count"] or 0) if refresh_last else 0,
+        "last_duration_s": duration_seconds,
+        "success_rate_7d": _safe_div(
+            int(refresh_7d["success_sum"] or 0) if refresh_7d else 0,
+            int(refresh_7d["total_sum"] or 0) if refresh_7d else 0,
+        ),
+    }
+
+
+def _summarize_today_kpi(db: sqlite3.Connection) -> Dict[str, Any]:
+    """今日 KPI：收信数 / 验证码提取数 / 活跃临时邮箱数。"""
     today_start = int(datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
     today_logs = db.execute(
         """
@@ -155,25 +169,21 @@ def get_overview_summary(conn: sqlite3.Connection | None = None) -> Dict[str, An
         FROM temp_emails
         WHERE COALESCE(status, 'active') = 'active'
         """).fetchone()
-
     return {
-        "account_status": account_status,
-        "pool_snapshot": pool_snapshot,
-        "refresh_health": {
-            "last_run_at": refresh_last["started_at"] if refresh_last else None,
-            "last_success_count": int(refresh_last["success_count"] or 0) if refresh_last else 0,
-            "last_fail_count": int(refresh_last["failed_count"] or 0) if refresh_last else 0,
-            "last_duration_s": duration_seconds,
-            "success_rate_7d": _safe_div(
-                int(refresh_7d["success_sum"] or 0) if refresh_7d else 0,
-                int(refresh_7d["total_sum"] or 0) if refresh_7d else 0,
-            ),
-        },
-        "kpi": {
-            "emails_received": int(today_messages["message_count"] or 0) if today_messages else 0,
-            "verification_extracted": int(today_logs["verification_count"] or 0) if today_logs else 0,
-            "temp_emails_active": int(temp_mail_active["active_count"] or 0) if temp_mail_active else 0,
-        },
+        "emails_received": int(today_messages["message_count"] or 0) if today_messages else 0,
+        "verification_extracted": int(today_logs["verification_count"] or 0) if today_logs else 0,
+        "temp_emails_active": int(temp_mail_active["active_count"] or 0) if temp_mail_active else 0,
+    }
+
+
+def get_overview_summary(conn: sqlite3.Connection | None = None) -> Dict[str, Any]:
+    # 概览大盘入口：聚合账号状态、邮箱池快照、刷新健康度、今日 KPI，供前端 dashboard 一次性加载
+    db = _db(conn)
+    return {
+        "account_status": _summarize_account_status(db),
+        "pool_snapshot": _summarize_pool_snapshot(db),
+        "refresh_health": _summarize_refresh_health(db),
+        "kpi": _summarize_today_kpi(db),
     }
 
 
