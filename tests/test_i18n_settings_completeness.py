@@ -64,6 +64,20 @@ class SettingsI18nCompletenessTests(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(f"'{stale}'", js)
 
+    def test_dynamic_message_patterns_exist(self):
+        """拼接型动态消息必须由 patterns 正则整句翻译（防英文混排回潮）。"""
+        js = self._get_i18n_js()
+        for zh_pattern, en_sample in (
+            (r"刷新完成！成功: (\d+), 失败: (\d+)", "Refresh finished! Success: $1, Failed: $2"),
+            (r"🔄 正在刷新 Token\.\.\. (\d+) \/ (\d+)", "🔄 Refreshing Token... $1 / $2"),
+            (r"部分删除失败 \((\d+) 封\)", "Partial delete failed ($1 messages)"),
+            (r"临时邮箱已生成: (.+)", "Temp mailbox created: $1"),
+            (r"已复制: (.+)", "Copied: $1"),
+            (r"成功删除 (\d+) 封邮件", "Deleted $1 messages"),
+        ):
+            with self.subTest(pattern=zh_pattern):
+                self.assertIn(f"{{ zh: /{zh_pattern}/, en: '{en_sample}' }}", js)
+
     def test_basic_settings_has_translation(self):
         js = self._get_i18n_js()
         self._assert_exact_map_entry(js, "基础设置", "Basic Settings")

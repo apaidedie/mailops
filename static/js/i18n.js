@@ -2044,6 +2044,17 @@
     );
 
     const patterns = [
+        { zh: /✅ 连通正常（(\d+)ms，HTTP (\d+)）；契约校验未通过：(.+)/, en: '✅ Reachable ($1ms, HTTP $2); contract check failed: $3' },
+        { zh: /✅ 可用（(\d+)ms，code=(\d+)，confidence=(\d+)）/, en: '✅ Available ($1ms, code=$2, confidence=$3)' },
+        { zh: /重试完成！成功: (\d+), 失败: (\d+)/, en: 'Retry finished! Success: $1, Failed: $2' },
+        { zh: /刷新完成！成功: (\d+), 失败: (\d+)/, en: 'Refresh finished! Success: $1, Failed: $2' },
+        { zh: /🔄 正在刷新 Token\.\.\. (\d+) \/ (\d+)/, en: '🔄 Refreshing Token... $1 / $2' },
+        { zh: /保存失败，\[(.+)\] Tab 的修改尚未保存，请手动重试/, en: 'Save failed: changes in the [$1] tab were not saved. Please retry manually.' },
+        { zh: /部分删除失败 \((\d+) 封\)/, en: 'Partial delete failed ($1 messages)' },
+        { zh: /已从当前邮件兜底复制: (.+)/, en: 'Copied from the current message as fallback: $1' },
+        { zh: /临时邮箱已生成: (.+)/, en: 'Temp mailbox created: $1' },
+        { zh: /已复制: (.+)/, en: 'Copied: $1' },
+        { zh: /成功删除 (\d+) 封邮件/, en: 'Deleted $1 messages' },,
         { zh: /^已更新：(.+)$/, en: 'Updated: $1' },
         { zh: /^已设置：(.+)$/, en: 'Configured: $1' },
         { zh: /^共 (\d+) 个账号 · (\d+) 个 Token 有效$/, en: '$1 accounts · $2 valid tokens' },
