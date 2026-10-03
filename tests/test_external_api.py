@@ -4237,8 +4237,15 @@ class GuardRateLimitTests(ExternalApiGuardBaseTest):
             self.assertEqual(settings_repo.get_external_api_rate_limit(), 1)
 
         client = self.app.test_client()
-        first = client.get("/api/v1/external/health", headers=self._auth_headers())
-        second = client.get("/api/v1/external/health", headers=self._auth_headers())
+        # 冻结分钟桶：两个请求跨过真实分钟边界时 429 不会触发（时序抖动）
+        from unittest.mock import patch
+
+        with patch(
+            "mailops.security.external_api_guard._current_minute_bucket",
+            return_value=987654321,
+        ):
+            first = client.get("/api/v1/external/health", headers=self._auth_headers())
+            second = client.get("/api/v1/external/health", headers=self._auth_headers())
         self.assertEqual(
             first.status_code,
             200,
