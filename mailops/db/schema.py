@@ -53,738 +53,7 @@ _SQL_TEXT_DEFAULT_NULL = "TEXT DEFAULT NULL"
 # v24：2026-07-01 临时邮箱接入邮箱池（temp_emails 新增池生命周期字段：pool_status/claimed_by/...，可被 claim-random 领取）
 
 
-def init_db(database_path: Optional[str] = None):
-    """初始化数据库（含升级记录与可验证状态）"""
-    path = database_path or config.get_database_path()
-    login_password_default = config.get_login_password_default()
-    temp_mail_api_key_default = config.get_temp_mail_api_key_default()
-
-    db_existed = False
-    try:
-        db_existed = os.path.exists(path) and os.path.getsize(path) > 0
-    except Exception:
-        db_existed = False
-
-    conn = create_sqlite_connection(path)
-    cursor = conn.cursor()
-
-    # 基础并发配置（对既存数据库同样生效）
-    try:
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-    except Exception:
-        pass
-
-    migration_id = None
-    migration_trace_id = None
-    upgrading = False
-
-    try:
-        # 获取写锁：避免多进程启动时并发迁移导致的偶发失败
-        cursor.execute("BEGIN IMMEDIATE")
-
-        # 创建设置表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS settings (
-                key TEXT PRIMARY KEY,
-                value TEXT,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """)
-
-        # 数据库迁移记录（用于升级可验证/可诊断）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS schema_migrations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                from_version INTEGER NOT NULL,
-                to_version INTEGER NOT NULL,
-                status TEXT NOT NULL,
-                started_at REAL NOT NULL,
-                finished_at REAL,
-                error TEXT,
-                trace_id TEXT
-            )
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_schema_migrations_started_at
-            ON schema_migrations(started_at)
-            """)
-
-        # 在锁内读取当前 schema 版本（保证一致性）
-        row = cursor.execute("SELECT value FROM settings WHERE key = ?", (DB_SCHEMA_VERSION_KEY,)).fetchone()
-        current_version = int(row["value"]) if row and row["value"] is not None else 0
-
-        upgrading = current_version < DB_SCHEMA_VERSION
-        if upgrading:
-            migration_trace_id = generate_trace_id()
-            if db_existed:
-                try:
-                    print("=" * 60)
-                    print(f"[升级提示] 检测到数据库需要升级：v{current_version} -> v{DB_SCHEMA_VERSION}")
-                    print(f"[升级提示] 强烈建议先备份数据库文件：{path}")
-                    print(f'[升级提示] 示例：cp "{path}" "{path}.backup"')
-                    print(f"[升级提示] trace_id={migration_trace_id}")
-                    print("=" * 60)
-                except Exception:
-                    pass
-
-            cursor.execute(
-                """
-                INSERT INTO schema_migrations (from_version, to_version, status, started_at, trace_id)
-                VALUES (?, ?, 'running', ?, ?)
-            """,
-                (current_version, DB_SCHEMA_VERSION, time.time(), migration_trace_id),
-            )
-            migration_id = cursor.lastrowid
-            cursor.execute("SAVEPOINT migration_work")
-
-        # -------------------- Schema 创建/迁移（幂等） --------------------
-
-        # 分组表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS groups (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                description TEXT,
-                color TEXT DEFAULT '#1a1a1a',
-                proxy_url TEXT,
-                is_system INTEGER DEFAULT 0,
-                verification_code_length TEXT DEFAULT '6-6',
-                verification_code_regex TEXT DEFAULT '',
-                verification_ai_enabled INTEGER DEFAULT 0,
-                verification_ai_model TEXT DEFAULT '',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        # 邮箱账号表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS accounts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT,
-                client_id TEXT NOT NULL,
-                refresh_token TEXT NOT NULL,
-                account_type TEXT DEFAULT 'outlook',
-                provider TEXT DEFAULT 'outlook',
-                imap_host TEXT,
-                imap_port INTEGER DEFAULT 993,
-                imap_password TEXT,
-                group_id INTEGER,
-                remark TEXT,
-                status TEXT DEFAULT 'active',
-                last_refresh_at TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (group_id) REFERENCES groups (id)
-            )
-        """)
-
-        # 临时邮箱表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS temp_emails (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE NOT NULL,
-                status TEXT DEFAULT 'active',
-                mailbox_type TEXT NOT NULL DEFAULT 'user',
-                visible_in_ui INTEGER NOT NULL DEFAULT 1,
-                source TEXT NOT NULL DEFAULT 'cloudflare_temp_mail',
-                prefix TEXT,
-                domain TEXT,
-                task_token TEXT UNIQUE,
-                consumer_key TEXT,
-                caller_id TEXT,
-                task_id TEXT,
-                finished_at TIMESTAMP,
-                meta_json TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        # 临时邮件表（本地缓存，按邮箱地址 + message_id 维度唯一）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS temp_email_messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                message_id TEXT NOT NULL,
-                email_address TEXT NOT NULL,
-                from_address TEXT,
-                subject TEXT,
-                content TEXT,
-                html_content TEXT,
-                has_html INTEGER DEFAULT 0,
-                timestamp INTEGER,
-                raw_content TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (email_address) REFERENCES temp_emails (email),
-                UNIQUE(email_address, message_id)
-            )
-            """)
-
-        # 刷新记录表（账号级）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS account_refresh_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                account_id INTEGER NOT NULL,
-                account_email TEXT NOT NULL,
-                refresh_type TEXT DEFAULT 'manual',
-                status TEXT NOT NULL,
-                error_message TEXT,
-                run_id TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
-            )
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_run_id
-            ON account_refresh_logs(run_id)
-            """)
-
-        # 审计日志表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS audit_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                action TEXT NOT NULL,
-                resource_type TEXT NOT NULL,
-                resource_id TEXT,
-                user_ip TEXT,
-                operator TEXT,
-                status TEXT DEFAULT '',
-                details TEXT,
-                trace_id TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_audit_logs_trace_id
-            ON audit_logs(trace_id)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
-            ON audit_logs(created_at)
-            """)
-        cursor.execute("PRAGMA table_info(audit_logs)")
-        audit_logs_columns = [col[1] for col in cursor.fetchall()]
-        if "operator" not in audit_logs_columns:
-            cursor.execute("ALTER TABLE audit_logs ADD COLUMN operator TEXT")
-        if "status" not in audit_logs_columns:
-            cursor.execute("ALTER TABLE audit_logs ADD COLUMN status TEXT DEFAULT ''")
-
-        # 标签表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tags (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                color TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """)
-
-        # 账号标签关联表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS account_tags (
-                account_id INTEGER NOT NULL,
-                tag_id INTEGER NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (account_id, tag_id),
-                FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE,
-                FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
-            )
-            """)
-
-        # 分布式锁（用于刷新冲突控制/多进程一致性）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS distributed_locks (
-                name TEXT PRIMARY KEY,
-                owner_id TEXT NOT NULL,
-                acquired_at REAL NOT NULL,
-                expires_at REAL NOT NULL
-            )
-            """)
-
-        # 导出二次验证 Token（持久化，支持重启/多进程）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS export_verify_tokens (
-                token TEXT PRIMARY KEY,
-                ip TEXT,
-                user_agent TEXT,
-                expires_at REAL NOT NULL,
-                created_at REAL NOT NULL
-            )
-            """)
-
-        # 登录速率限制（持久化，支持重启/多进程）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS login_attempts (
-                ip TEXT PRIMARY KEY,
-                count INTEGER NOT NULL,
-                last_attempt_at REAL NOT NULL,
-                locked_until_at REAL
-            )
-            """)
-
-        # 刷新运行记录（用于“最近触发/来源/统计/运行中状态”的可验证性）
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS refresh_runs (
-                id TEXT PRIMARY KEY,
-                trigger_source TEXT NOT NULL,
-                status TEXT NOT NULL,
-                requested_by_ip TEXT,
-                requested_by_user_agent TEXT,
-                started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                finished_at TIMESTAMP,
-                total INTEGER DEFAULT 0,
-                success_count INTEGER DEFAULT 0,
-                failed_count INTEGER DEFAULT 0,
-                message TEXT,
-                trace_id TEXT
-            )
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_refresh_runs_started_at
-            ON refresh_runs(started_at)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_refresh_runs_trigger_source
-            ON refresh_runs(trigger_source)
-            """)
-
-        # 兼容旧 schema：补齐缺失列
-        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
-        columns = [col[1] for col in cursor.fetchall()]
-
-        if "password" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN password TEXT")
-        if "client_id" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN client_id TEXT NOT NULL DEFAULT ''")
-        if "refresh_token" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN refresh_token TEXT NOT NULL DEFAULT ''")
-        if "group_id" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN group_id INTEGER DEFAULT 1")
-        if "remark" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN remark TEXT")
-        if "status" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN status TEXT DEFAULT 'active'")
-        if "updated_at" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-        if "last_refresh_at" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN last_refresh_at TIMESTAMP")
-        if "account_type" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN account_type TEXT DEFAULT 'outlook'")
-        if "provider" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN provider TEXT DEFAULT 'outlook'")
-        if "imap_host" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_host TEXT")
-        if "imap_port" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_port INTEGER DEFAULT 993")
-        if "imap_password" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_password TEXT")
-        if "telegram_push_enabled" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN telegram_push_enabled INTEGER NOT NULL DEFAULT 0")
-        if "telegram_last_checked_at" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN telegram_last_checked_at TEXT DEFAULT NULL")
-        if "latest_email_subject" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_subject TEXT DEFAULT ''")
-        if "latest_email_from" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_from TEXT DEFAULT ''")
-        if "latest_email_folder" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_folder TEXT DEFAULT ''")
-        if "latest_email_received_at" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_received_at TEXT DEFAULT ''")
-        if "latest_verification_code" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_code TEXT DEFAULT ''")
-        if "latest_verification_folder" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_folder TEXT DEFAULT ''")
-        if "latest_verification_received_at" not in columns:
-            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_received_at TEXT DEFAULT ''")
-
-        cursor.execute("PRAGMA table_info(groups)")
-        group_columns = [col[1] for col in cursor.fetchall()]
-        if "is_system" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN is_system INTEGER DEFAULT 0")
-        if "proxy_url" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN proxy_url TEXT")
-        if "verification_code_length" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN verification_code_length TEXT DEFAULT '6-6'")
-        if "verification_code_regex" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN verification_code_regex TEXT DEFAULT ''")
-        if "verification_ai_enabled" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN verification_ai_enabled INTEGER DEFAULT 0")
-        if "verification_ai_model" not in group_columns:
-            cursor.execute("ALTER TABLE groups ADD COLUMN verification_ai_model TEXT DEFAULT ''")
-
-        # 回填策略字段默认值（幂等）
-        cursor.execute(
-            "UPDATE groups SET verification_code_length = '6-6' WHERE verification_code_length IS NULL OR TRIM(verification_code_length) = ''"
-        )
-        cursor.execute("UPDATE groups SET verification_code_regex = '' WHERE verification_code_regex IS NULL")
-        cursor.execute("UPDATE groups SET verification_ai_enabled = 0 WHERE verification_ai_enabled IS NULL")
-        cursor.execute("UPDATE groups SET verification_ai_model = '' WHERE verification_ai_model IS NULL")
-
-        cursor.execute("PRAGMA table_info(account_refresh_logs)")
-        refresh_log_columns = [col[1] for col in cursor.fetchall()]
-        if "run_id" not in refresh_log_columns:
-            cursor.execute("ALTER TABLE account_refresh_logs ADD COLUMN run_id TEXT")
-
-        cursor.execute("PRAGMA table_info(temp_emails)")
-        temp_email_columns = [col[1] for col in cursor.fetchall()]
-        for col_def in [
-            ("mailbox_type", "TEXT NOT NULL DEFAULT 'user'"),
-            ("visible_in_ui", "INTEGER NOT NULL DEFAULT 1"),
-            ("source", "TEXT NOT NULL DEFAULT 'cloudflare_temp_mail'"),
-            ("prefix", "TEXT"),
-            ("domain", "TEXT"),
-            ("task_token", "TEXT"),
-            ("consumer_key", "TEXT"),
-            ("caller_id", "TEXT"),
-            ("task_id", "TEXT"),
-            ("finished_at", "TIMESTAMP"),
-            ("meta_json", "TEXT"),
-        ]:
-            if col_def[0] not in temp_email_columns:
-                cursor.execute(f"ALTER TABLE temp_emails ADD COLUMN {col_def[0]} {col_def[1]}")
-
-        # P0: task_token 需要唯一约束；旧库通过 ADD COLUMN 无法携带 UNIQUE
-        # - 先把空字符串规范为 NULL（避免 '' 触发唯一冲突）
-        # - 若存在重复 token：中止升级并给出可执行 SQL 指引（不自动修复）
-        # - 无重复：补齐唯一索引
-        try:
-            cursor.execute("UPDATE temp_emails SET task_token = NULL WHERE task_token IS NOT NULL AND TRIM(task_token) = ''")
-        except Exception:
-            pass
-        duplicate_sample = cursor.execute("""
-            SELECT task_token, COUNT(*) AS c
-            FROM temp_emails
-            WHERE task_token IS NOT NULL AND TRIM(task_token) != ''
-            GROUP BY task_token
-            HAVING COUNT(*) > 1
-            LIMIT 5
-            """).fetchall()
-        if duplicate_sample:
-            dup_count_row = cursor.execute("""
-                SELECT COUNT(*) AS c
-                FROM (
-                    SELECT task_token
-                    FROM temp_emails
-                    WHERE task_token IS NOT NULL AND TRIM(task_token) != ''
-                    GROUP BY task_token
-                    HAVING COUNT(*) > 1
-                )
-                """).fetchone()
-            dup_count = int(dup_count_row["c"] if dup_count_row and dup_count_row["c"] is not None else 0)
-            trace_text = str(migration_trace_id or "").strip()
-            sql_hint = (
-                "-- 1) 找出重复 task_token\n"
-                "SELECT task_token, COUNT(*) AS c\n"
-                "FROM temp_emails\n"
-                "WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
-                "GROUP BY task_token\n"
-                "HAVING COUNT(*) > 1;\n\n"
-                "-- 2) 查看重复 token 对应的行\n"
-                "SELECT id, email, task_token, mailbox_type, status, created_at, updated_at\n"
-                "FROM temp_emails\n"
-                "WHERE task_token IN (\n"
-                "  SELECT task_token\n"
-                "  FROM temp_emails\n"
-                "  WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
-                "  GROUP BY task_token\n"
-                "  HAVING COUNT(*) > 1\n"
-                ")\n"
-                "ORDER BY task_token, id;\n\n"
-                "-- 3) 示例（请先备份并人工确认）：保留每个 task_token 的第一条，其余置空\n"
-                "WITH d AS (\n"
-                "  SELECT id, task_token,\n"
-                "         ROW_NUMBER() OVER (PARTITION BY task_token ORDER BY id) AS rn\n"
-                "  FROM temp_emails\n"
-                "  WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
-                ")\n"
-                "UPDATE temp_emails\n"
-                "SET task_token = NULL\n"
-                "WHERE id IN (SELECT id FROM d WHERE rn > 1);\n"
-            )
-            raise Exception(
-                "数据库升级被中止：检测到 temp_emails.task_token 存在重复值，无法创建唯一索引。"
-                f" duplicate_task_token_count={dup_count or len(duplicate_sample)}"
-                + (f" trace_id={trace_text}" if trace_text else "")
-                + "\n请先备份数据库并清理重复 task_token 后重试。参考 SQL：\n"
-                + sql_hint
-            )
-        cursor.execute("""
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_temp_emails_task_token_unique
-            ON temp_emails(task_token)
-            """)
-        cursor.execute("UPDATE temp_emails SET mailbox_type = 'user' WHERE mailbox_type IS NULL OR TRIM(mailbox_type) = ''")
-        cursor.execute("UPDATE temp_emails SET visible_in_ui = 1 WHERE visible_in_ui IS NULL")
-        cursor.execute("UPDATE temp_emails SET source = 'legacy_gptmail' WHERE source IS NULL OR TRIM(source) = ''")
-        cursor.execute("""
-            UPDATE temp_emails
-            SET prefix = substr(email, 1, instr(email, '@') - 1)
-            WHERE (prefix IS NULL OR TRIM(prefix) = '')
-              AND instr(email, '@') > 1
-        """)
-        cursor.execute("""
-            UPDATE temp_emails
-            SET domain = substr(email, instr(email, '@') + 1)
-            WHERE (domain IS NULL OR TRIM(domain) = '')
-              AND instr(email, '@') > 1
-        """)
-
-        cursor.execute("PRAGMA table_info(temp_email_messages)")
-        temp_email_message_columns = [col[1] for col in cursor.fetchall()]
-        if "raw_content" not in temp_email_message_columns:
-            cursor.execute("ALTER TABLE temp_email_messages ADD COLUMN raw_content TEXT")
-        temp_message_create_sql_row = cursor.execute(
-            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'temp_email_messages'"
-        ).fetchone()
-        temp_message_create_sql = str(temp_message_create_sql_row[0] if temp_message_create_sql_row else "")
-        needs_temp_email_message_rebuild = "UNIQUE(email_address, message_id)" not in temp_message_create_sql
-        if needs_temp_email_message_rebuild:
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS temp_email_messages_v2 (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    message_id TEXT NOT NULL,
-                    email_address TEXT NOT NULL,
-                    from_address TEXT,
-                    subject TEXT,
-                    content TEXT,
-                    html_content TEXT,
-                    has_html INTEGER DEFAULT 0,
-                    timestamp INTEGER,
-                    raw_content TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (email_address) REFERENCES temp_emails (email),
-                    UNIQUE(email_address, message_id)
-                )
-            """)
-            cursor.execute("""
-                INSERT OR REPLACE INTO temp_email_messages_v2 (
-                    message_id, email_address, from_address, subject, content,
-                    html_content, has_html, timestamp, raw_content, created_at
-                )
-                SELECT
-                    message_id,
-                    email_address,
-                    from_address,
-                    subject,
-                    content,
-                    html_content,
-                    has_html,
-                    timestamp,
-                    raw_content,
-                    created_at
-                FROM temp_email_messages
-                ORDER BY id ASC
-            """)
-            cursor.execute("DROP TABLE temp_email_messages")
-            cursor.execute("ALTER TABLE temp_email_messages_v2 RENAME TO temp_email_messages")
-
-        cursor.execute("PRAGMA table_info(audit_logs)")
-        audit_columns = [col[1] for col in cursor.fetchall()]
-        if "trace_id" not in audit_columns:
-            cursor.execute("ALTER TABLE audit_logs ADD COLUMN trace_id TEXT")
-
-        # 默认分组
-        cursor.execute("""
-            INSERT OR IGNORE INTO groups (name, description, color)
-            VALUES ('默认分组', '未分组的邮箱', '#666666')
-            """)
-
-        # 临时邮箱分组（系统分组）
-        cursor.execute("""
-            INSERT OR IGNORE INTO groups (name, description, color, is_system)
-            VALUES ('临时邮箱', '自建临时邮箱服务', '#00bcf2', 1)
-            """)
-        cursor.execute("""
-            UPDATE groups
-            SET description = '自建临时邮箱服务'
-            WHERE name = '临时邮箱' AND description IN ('GPTMail 临时邮箱服务', '临时邮箱服务')
-            """)
-
-        # 初始化默认设置：登录密码（自动迁移明文 -> 哈希）
-        cursor.execute("SELECT value FROM settings WHERE key = 'login_password'")
-        existing_password = cursor.fetchone()
-        if existing_password:
-            password_value = existing_password[0]
-            if password_value and not is_password_hashed(password_value):
-                hashed_password = hash_password(password_value)
-                cursor.execute(
-                    """
-                    UPDATE settings SET value = ? WHERE key = 'login_password'
-                    """,
-                    (hashed_password,),
-                )
-        else:
-            hashed_password = hash_password(login_password_default)
-            cursor.execute(
-                """
-                INSERT INTO settings (key, value)
-                VALUES ('login_password', ?)
-                """,
-                (hashed_password,),
-            )
-
-        cursor.execute(
-            """
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('gptmail_api_key', ?)
-            """,
-            (temp_mail_api_key_default,),
-        )
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_provider', 'cloudflare_temp_mail')
-            """)
-        cursor.execute(
-            """
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_api_base_url', ?)
-            """,
-            (config.get_temp_mail_base_url(),),
-        )
-        cursor.execute(
-            """
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_api_key', ?)
-            """,
-            (temp_mail_api_key_default,),
-        )
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_domains', '[]')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_default_domain', '')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('temp_mail_prefix_rules', '{"min_length":1,"max_length":32,"pattern":"^[a-z0-9][a-z0-9._-]*$"}')
-            """)
-
-        # v0.3: 设置页面 Tab 重构 — CF Worker 独立域名 key
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('cf_worker_domains', '[]')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('cf_worker_default_domain', '')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('cf_worker_prefix_rules', '{"min_length":1,"max_length":32,"pattern":"^[a-z0-9][a-z0-9._-]*$"}')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('emailnator_api_key', '')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('emailnator_email_types', '["public_gmail_plus"]')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('duckmail_api_base', 'https://api.duckmail.sbs')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('duckmail_bearer_token', '')
-            """)
-
-        # PRD-00008 / FD-00008：对外开放 API Key（默认空，建议加密存储）
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('external_api_key', '')
-            """)
-
-        # 验证码 AI 增强（系统级配置）
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('verification_ai_enabled', 'false')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('verification_ai_base_url', '')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('verification_ai_api_key', '')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('verification_ai_model', '')
-            """)
-
-        # 初始化刷新配置
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('refresh_interval_days', '30')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('refresh_delay_seconds', '5')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('refresh_cron', '0 2 * * *')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('use_cron_schedule', 'false')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('enable_scheduled_refresh', 'true')
-            """)
-
-        # 初始化轮询配置
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('enable_auto_polling', 'false')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('polling_interval', '10')
-            """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('polling_count', '5')
-        """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('email_notification_enabled', 'false')
-        """)
-        cursor.execute("""
-            INSERT OR IGNORE INTO settings (key, value)
-            VALUES ('email_notification_recipient', '')
-        """)
-
-        # 索引（性能基线）
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_accounts_last_refresh_at
-            ON accounts(last_refresh_at)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_accounts_status
-            ON accounts(status)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_accounts_group_id
-            ON accounts(group_id)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_account_id
-            ON account_refresh_logs(account_id)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_account_id_id
-            ON account_refresh_logs(account_id, id)
-            """)
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_account_tags_tag_id
-            ON account_tags(tag_id)
-            """)
-
+def _ensure_versioned_tables(cursor, current_version):
         # v5: Telegram 推送去重日志（BUG-00011 P2）
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS telegram_push_log (
@@ -1213,6 +482,777 @@ def init_db(database_path: Optional[str] = None):
             SET prefix = substr(email, 1, instr(email, '@') - 1)
             WHERE (prefix IS NULL OR prefix = '') AND instr(email, '@') > 0
             """)
+
+
+
+def _ensure_performance_indexes(cursor):
+        # 索引（性能基线）
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_accounts_last_refresh_at
+            ON accounts(last_refresh_at)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_accounts_status
+            ON accounts(status)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_accounts_group_id
+            ON accounts(group_id)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_account_id
+            ON account_refresh_logs(account_id)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_account_id_id
+            ON account_refresh_logs(account_id, id)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_account_tags_tag_id
+            ON account_tags(tag_id)
+            """)
+
+
+
+def _seed_default_data(cursor, login_password_default, temp_mail_api_key_default):
+        # 默认分组
+        cursor.execute("""
+            INSERT OR IGNORE INTO groups (name, description, color)
+            VALUES ('默认分组', '未分组的邮箱', '#666666')
+            """)
+
+        # 临时邮箱分组（系统分组）
+        cursor.execute("""
+            INSERT OR IGNORE INTO groups (name, description, color, is_system)
+            VALUES ('临时邮箱', '自建临时邮箱服务', '#00bcf2', 1)
+            """)
+        cursor.execute("""
+            UPDATE groups
+            SET description = '自建临时邮箱服务'
+            WHERE name = '临时邮箱' AND description IN ('GPTMail 临时邮箱服务', '临时邮箱服务')
+            """)
+
+        # 初始化默认设置：登录密码（自动迁移明文 -> 哈希）
+        cursor.execute("SELECT value FROM settings WHERE key = 'login_password'")
+        existing_password = cursor.fetchone()
+        if existing_password:
+            password_value = existing_password[0]
+            if password_value and not is_password_hashed(password_value):
+                hashed_password = hash_password(password_value)
+                cursor.execute(
+                    """
+                    UPDATE settings SET value = ? WHERE key = 'login_password'
+                    """,
+                    (hashed_password,),
+                )
+        else:
+            hashed_password = hash_password(login_password_default)
+            cursor.execute(
+                """
+                INSERT INTO settings (key, value)
+                VALUES ('login_password', ?)
+                """,
+                (hashed_password,),
+            )
+
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('gptmail_api_key', ?)
+            """,
+            (temp_mail_api_key_default,),
+        )
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_provider', 'cloudflare_temp_mail')
+            """)
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_api_base_url', ?)
+            """,
+            (config.get_temp_mail_base_url(),),
+        )
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_api_key', ?)
+            """,
+            (temp_mail_api_key_default,),
+        )
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_domains', '[]')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_default_domain', '')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('temp_mail_prefix_rules', '{"min_length":1,"max_length":32,"pattern":"^[a-z0-9][a-z0-9._-]*$"}')
+            """)
+
+        # v0.3: 设置页面 Tab 重构 — CF Worker 独立域名 key
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('cf_worker_domains', '[]')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('cf_worker_default_domain', '')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('cf_worker_prefix_rules', '{"min_length":1,"max_length":32,"pattern":"^[a-z0-9][a-z0-9._-]*$"}')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('emailnator_api_key', '')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('emailnator_email_types', '["public_gmail_plus"]')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('duckmail_api_base', 'https://api.duckmail.sbs')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('duckmail_bearer_token', '')
+            """)
+
+        # PRD-00008 / FD-00008：对外开放 API Key（默认空，建议加密存储）
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('external_api_key', '')
+            """)
+
+        # 验证码 AI 增强（系统级配置）
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('verification_ai_enabled', 'false')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('verification_ai_base_url', '')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('verification_ai_api_key', '')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('verification_ai_model', '')
+            """)
+
+        # 初始化刷新配置
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('refresh_interval_days', '30')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('refresh_delay_seconds', '5')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('refresh_cron', '0 2 * * *')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('use_cron_schedule', 'false')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('enable_scheduled_refresh', 'true')
+            """)
+
+        # 初始化轮询配置
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('enable_auto_polling', 'false')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('polling_interval', '10')
+            """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('polling_count', '5')
+        """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('email_notification_enabled', 'false')
+        """)
+        cursor.execute("""
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('email_notification_recipient', '')
+        """)
+
+
+
+def _ensure_audit_trace_id_column(cursor):
+        cursor.execute("PRAGMA table_info(audit_logs)")
+        audit_columns = [col[1] for col in cursor.fetchall()]
+        if "trace_id" not in audit_columns:
+            cursor.execute("ALTER TABLE audit_logs ADD COLUMN trace_id TEXT")
+
+
+
+def _rebuild_temp_email_messages_table(cursor):
+        cursor.execute("PRAGMA table_info(temp_email_messages)")
+        temp_email_message_columns = [col[1] for col in cursor.fetchall()]
+        if "raw_content" not in temp_email_message_columns:
+            cursor.execute("ALTER TABLE temp_email_messages ADD COLUMN raw_content TEXT")
+        temp_message_create_sql_row = cursor.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'temp_email_messages'"
+        ).fetchone()
+        temp_message_create_sql = str(temp_message_create_sql_row[0] if temp_message_create_sql_row else "")
+        needs_temp_email_message_rebuild = "UNIQUE(email_address, message_id)" not in temp_message_create_sql
+        if needs_temp_email_message_rebuild:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS temp_email_messages_v2 (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    message_id TEXT NOT NULL,
+                    email_address TEXT NOT NULL,
+                    from_address TEXT,
+                    subject TEXT,
+                    content TEXT,
+                    html_content TEXT,
+                    has_html INTEGER DEFAULT 0,
+                    timestamp INTEGER,
+                    raw_content TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (email_address) REFERENCES temp_emails (email),
+                    UNIQUE(email_address, message_id)
+                )
+            """)
+            cursor.execute("""
+                INSERT OR REPLACE INTO temp_email_messages_v2 (
+                    message_id, email_address, from_address, subject, content,
+                    html_content, has_html, timestamp, raw_content, created_at
+                )
+                SELECT
+                    message_id,
+                    email_address,
+                    from_address,
+                    subject,
+                    content,
+                    html_content,
+                    has_html,
+                    timestamp,
+                    raw_content,
+                    created_at
+                FROM temp_email_messages
+                ORDER BY id ASC
+            """)
+            cursor.execute("DROP TABLE temp_email_messages")
+            cursor.execute("ALTER TABLE temp_email_messages_v2 RENAME TO temp_email_messages")
+
+
+
+def _migrate_legacy_columns(cursor, migration_trace_id):
+        # 兼容旧 schema：补齐缺失列
+        cursor.execute(_PRAGMA_TABLE_INFO_ACCOUNTS)
+        columns = [col[1] for col in cursor.fetchall()]
+
+        if "password" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN password TEXT")
+        if "client_id" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN client_id TEXT NOT NULL DEFAULT ''")
+        if "refresh_token" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN refresh_token TEXT NOT NULL DEFAULT ''")
+        if "group_id" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN group_id INTEGER DEFAULT 1")
+        if "remark" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN remark TEXT")
+        if "status" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN status TEXT DEFAULT 'active'")
+        if "updated_at" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+        if "last_refresh_at" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN last_refresh_at TIMESTAMP")
+        if "account_type" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN account_type TEXT DEFAULT 'outlook'")
+        if "provider" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN provider TEXT DEFAULT 'outlook'")
+        if "imap_host" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_host TEXT")
+        if "imap_port" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_port INTEGER DEFAULT 993")
+        if "imap_password" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN imap_password TEXT")
+        if "telegram_push_enabled" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN telegram_push_enabled INTEGER NOT NULL DEFAULT 0")
+        if "telegram_last_checked_at" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN telegram_last_checked_at TEXT DEFAULT NULL")
+        if "latest_email_subject" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_subject TEXT DEFAULT ''")
+        if "latest_email_from" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_from TEXT DEFAULT ''")
+        if "latest_email_folder" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_folder TEXT DEFAULT ''")
+        if "latest_email_received_at" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_email_received_at TEXT DEFAULT ''")
+        if "latest_verification_code" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_code TEXT DEFAULT ''")
+        if "latest_verification_folder" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_folder TEXT DEFAULT ''")
+        if "latest_verification_received_at" not in columns:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN latest_verification_received_at TEXT DEFAULT ''")
+
+        cursor.execute("PRAGMA table_info(groups)")
+        group_columns = [col[1] for col in cursor.fetchall()]
+        if "is_system" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN is_system INTEGER DEFAULT 0")
+        if "proxy_url" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN proxy_url TEXT")
+        if "verification_code_length" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN verification_code_length TEXT DEFAULT '6-6'")
+        if "verification_code_regex" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN verification_code_regex TEXT DEFAULT ''")
+        if "verification_ai_enabled" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN verification_ai_enabled INTEGER DEFAULT 0")
+        if "verification_ai_model" not in group_columns:
+            cursor.execute("ALTER TABLE groups ADD COLUMN verification_ai_model TEXT DEFAULT ''")
+
+        # 回填策略字段默认值（幂等）
+        cursor.execute(
+            "UPDATE groups SET verification_code_length = '6-6' WHERE verification_code_length IS NULL OR TRIM(verification_code_length) = ''"
+        )
+        cursor.execute("UPDATE groups SET verification_code_regex = '' WHERE verification_code_regex IS NULL")
+        cursor.execute("UPDATE groups SET verification_ai_enabled = 0 WHERE verification_ai_enabled IS NULL")
+        cursor.execute("UPDATE groups SET verification_ai_model = '' WHERE verification_ai_model IS NULL")
+
+        cursor.execute("PRAGMA table_info(account_refresh_logs)")
+        refresh_log_columns = [col[1] for col in cursor.fetchall()]
+        if "run_id" not in refresh_log_columns:
+            cursor.execute("ALTER TABLE account_refresh_logs ADD COLUMN run_id TEXT")
+
+        cursor.execute("PRAGMA table_info(temp_emails)")
+        temp_email_columns = [col[1] for col in cursor.fetchall()]
+        for col_def in [
+            ("mailbox_type", "TEXT NOT NULL DEFAULT 'user'"),
+            ("visible_in_ui", "INTEGER NOT NULL DEFAULT 1"),
+            ("source", "TEXT NOT NULL DEFAULT 'cloudflare_temp_mail'"),
+            ("prefix", "TEXT"),
+            ("domain", "TEXT"),
+            ("task_token", "TEXT"),
+            ("consumer_key", "TEXT"),
+            ("caller_id", "TEXT"),
+            ("task_id", "TEXT"),
+            ("finished_at", "TIMESTAMP"),
+            ("meta_json", "TEXT"),
+        ]:
+            if col_def[0] not in temp_email_columns:
+                cursor.execute(f"ALTER TABLE temp_emails ADD COLUMN {col_def[0]} {col_def[1]}")
+
+        # P0: task_token 需要唯一约束；旧库通过 ADD COLUMN 无法携带 UNIQUE
+        # - 先把空字符串规范为 NULL（避免 '' 触发唯一冲突）
+        # - 若存在重复 token：中止升级并给出可执行 SQL 指引（不自动修复）
+        # - 无重复：补齐唯一索引
+        try:
+            cursor.execute("UPDATE temp_emails SET task_token = NULL WHERE task_token IS NOT NULL AND TRIM(task_token) = ''")
+        except Exception:
+            pass
+        duplicate_sample = cursor.execute("""
+            SELECT task_token, COUNT(*) AS c
+            FROM temp_emails
+            WHERE task_token IS NOT NULL AND TRIM(task_token) != ''
+            GROUP BY task_token
+            HAVING COUNT(*) > 1
+            LIMIT 5
+            """).fetchall()
+        if duplicate_sample:
+            dup_count_row = cursor.execute("""
+                SELECT COUNT(*) AS c
+                FROM (
+                    SELECT task_token
+                    FROM temp_emails
+                    WHERE task_token IS NOT NULL AND TRIM(task_token) != ''
+                    GROUP BY task_token
+                    HAVING COUNT(*) > 1
+                )
+                """).fetchone()
+            dup_count = int(dup_count_row["c"] if dup_count_row and dup_count_row["c"] is not None else 0)
+            trace_text = str(migration_trace_id or "").strip()
+            sql_hint = (
+                "-- 1) 找出重复 task_token\n"
+                "SELECT task_token, COUNT(*) AS c\n"
+                "FROM temp_emails\n"
+                "WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
+                "GROUP BY task_token\n"
+                "HAVING COUNT(*) > 1;\n\n"
+                "-- 2) 查看重复 token 对应的行\n"
+                "SELECT id, email, task_token, mailbox_type, status, created_at, updated_at\n"
+                "FROM temp_emails\n"
+                "WHERE task_token IN (\n"
+                "  SELECT task_token\n"
+                "  FROM temp_emails\n"
+                "  WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
+                "  GROUP BY task_token\n"
+                "  HAVING COUNT(*) > 1\n"
+                ")\n"
+                "ORDER BY task_token, id;\n\n"
+                "-- 3) 示例（请先备份并人工确认）：保留每个 task_token 的第一条，其余置空\n"
+                "WITH d AS (\n"
+                "  SELECT id, task_token,\n"
+                "         ROW_NUMBER() OVER (PARTITION BY task_token ORDER BY id) AS rn\n"
+                "  FROM temp_emails\n"
+                "  WHERE task_token IS NOT NULL AND TRIM(task_token) != ''\n"
+                ")\n"
+                "UPDATE temp_emails\n"
+                "SET task_token = NULL\n"
+                "WHERE id IN (SELECT id FROM d WHERE rn > 1);\n"
+            )
+            raise Exception(
+                "数据库升级被中止：检测到 temp_emails.task_token 存在重复值，无法创建唯一索引。"
+                f" duplicate_task_token_count={dup_count or len(duplicate_sample)}"
+                + (f" trace_id={trace_text}" if trace_text else "")
+                + "\n请先备份数据库并清理重复 task_token 后重试。参考 SQL：\n"
+                + sql_hint
+            )
+        cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_temp_emails_task_token_unique
+            ON temp_emails(task_token)
+            """)
+        cursor.execute("UPDATE temp_emails SET mailbox_type = 'user' WHERE mailbox_type IS NULL OR TRIM(mailbox_type) = ''")
+        cursor.execute("UPDATE temp_emails SET visible_in_ui = 1 WHERE visible_in_ui IS NULL")
+        cursor.execute("UPDATE temp_emails SET source = 'legacy_gptmail' WHERE source IS NULL OR TRIM(source) = ''")
+        cursor.execute("""
+            UPDATE temp_emails
+            SET prefix = substr(email, 1, instr(email, '@') - 1)
+            WHERE (prefix IS NULL OR TRIM(prefix) = '')
+              AND instr(email, '@') > 1
+        """)
+        cursor.execute("""
+            UPDATE temp_emails
+            SET domain = substr(email, instr(email, '@') + 1)
+            WHERE (domain IS NULL OR TRIM(domain) = '')
+              AND instr(email, '@') > 1
+        """)
+
+
+
+def _ensure_base_tables(cursor):
+        # 分组表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS groups (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT,
+                color TEXT DEFAULT '#1a1a1a',
+                proxy_url TEXT,
+                is_system INTEGER DEFAULT 0,
+                verification_code_length TEXT DEFAULT '6-6',
+                verification_code_regex TEXT DEFAULT '',
+                verification_ai_enabled INTEGER DEFAULT 0,
+                verification_ai_model TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # 邮箱账号表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT,
+                client_id TEXT NOT NULL,
+                refresh_token TEXT NOT NULL,
+                account_type TEXT DEFAULT 'outlook',
+                provider TEXT DEFAULT 'outlook',
+                imap_host TEXT,
+                imap_port INTEGER DEFAULT 993,
+                imap_password TEXT,
+                group_id INTEGER,
+                remark TEXT,
+                status TEXT DEFAULT 'active',
+                last_refresh_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (group_id) REFERENCES groups (id)
+            )
+        """)
+
+        # 临时邮箱表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS temp_emails (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                status TEXT DEFAULT 'active',
+                mailbox_type TEXT NOT NULL DEFAULT 'user',
+                visible_in_ui INTEGER NOT NULL DEFAULT 1,
+                source TEXT NOT NULL DEFAULT 'cloudflare_temp_mail',
+                prefix TEXT,
+                domain TEXT,
+                task_token TEXT UNIQUE,
+                consumer_key TEXT,
+                caller_id TEXT,
+                task_id TEXT,
+                finished_at TIMESTAMP,
+                meta_json TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # 临时邮件表（本地缓存，按邮箱地址 + message_id 维度唯一）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS temp_email_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                message_id TEXT NOT NULL,
+                email_address TEXT NOT NULL,
+                from_address TEXT,
+                subject TEXT,
+                content TEXT,
+                html_content TEXT,
+                has_html INTEGER DEFAULT 0,
+                timestamp INTEGER,
+                raw_content TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (email_address) REFERENCES temp_emails (email),
+                UNIQUE(email_address, message_id)
+            )
+            """)
+
+        # 刷新记录表（账号级）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS account_refresh_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER NOT NULL,
+                account_email TEXT NOT NULL,
+                refresh_type TEXT DEFAULT 'manual',
+                status TEXT NOT NULL,
+                error_message TEXT,
+                run_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
+            )
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_account_refresh_logs_run_id
+            ON account_refresh_logs(run_id)
+            """)
+
+        # 审计日志表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action TEXT NOT NULL,
+                resource_type TEXT NOT NULL,
+                resource_id TEXT,
+                user_ip TEXT,
+                operator TEXT,
+                status TEXT DEFAULT '',
+                details TEXT,
+                trace_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_audit_logs_trace_id
+            ON audit_logs(trace_id)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
+            ON audit_logs(created_at)
+            """)
+        cursor.execute("PRAGMA table_info(audit_logs)")
+        audit_logs_columns = [col[1] for col in cursor.fetchall()]
+        if "operator" not in audit_logs_columns:
+            cursor.execute("ALTER TABLE audit_logs ADD COLUMN operator TEXT")
+        if "status" not in audit_logs_columns:
+            cursor.execute("ALTER TABLE audit_logs ADD COLUMN status TEXT DEFAULT ''")
+
+        # 标签表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                color TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+
+        # 账号标签关联表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS account_tags (
+                account_id INTEGER NOT NULL,
+                tag_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (account_id, tag_id),
+                FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
+            )
+            """)
+
+        # 分布式锁（用于刷新冲突控制/多进程一致性）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS distributed_locks (
+                name TEXT PRIMARY KEY,
+                owner_id TEXT NOT NULL,
+                acquired_at REAL NOT NULL,
+                expires_at REAL NOT NULL
+            )
+            """)
+
+        # 导出二次验证 Token（持久化，支持重启/多进程）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS export_verify_tokens (
+                token TEXT PRIMARY KEY,
+                ip TEXT,
+                user_agent TEXT,
+                expires_at REAL NOT NULL,
+                created_at REAL NOT NULL
+            )
+            """)
+
+        # 登录速率限制（持久化，支持重启/多进程）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                ip TEXT PRIMARY KEY,
+                count INTEGER NOT NULL,
+                last_attempt_at REAL NOT NULL,
+                locked_until_at REAL
+            )
+            """)
+
+        # 刷新运行记录（用于“最近触发/来源/统计/运行中状态”的可验证性）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS refresh_runs (
+                id TEXT PRIMARY KEY,
+                trigger_source TEXT NOT NULL,
+                status TEXT NOT NULL,
+                requested_by_ip TEXT,
+                requested_by_user_agent TEXT,
+                started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                finished_at TIMESTAMP,
+                total INTEGER DEFAULT 0,
+                success_count INTEGER DEFAULT 0,
+                failed_count INTEGER DEFAULT 0,
+                message TEXT,
+                trace_id TEXT
+            )
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_refresh_runs_started_at
+            ON refresh_runs(started_at)
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_refresh_runs_trigger_source
+            ON refresh_runs(trigger_source)
+            """)
+
+
+
+def _ensure_schema_bookkeeping_tables(cursor):
+        # 创建设置表
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+
+        # 数据库迁移记录（用于升级可验证/可诊断）
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS schema_migrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_version INTEGER NOT NULL,
+                to_version INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                started_at REAL NOT NULL,
+                finished_at REAL,
+                error TEXT,
+                trace_id TEXT
+            )
+            """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_schema_migrations_started_at
+            ON schema_migrations(started_at)
+            """)
+
+
+
+def init_db(database_path: Optional[str] = None):
+    """初始化数据库（含升级记录与可验证状态）"""
+    path = database_path or config.get_database_path()
+    login_password_default = config.get_login_password_default()
+    temp_mail_api_key_default = config.get_temp_mail_api_key_default()
+
+    db_existed = False
+    try:
+        db_existed = os.path.exists(path) and os.path.getsize(path) > 0
+    except Exception:
+        db_existed = False
+
+    conn = create_sqlite_connection(path)
+    cursor = conn.cursor()
+
+    # 基础并发配置（对既存数据库同样生效）
+    try:
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+    except Exception:
+        pass
+
+    migration_id = None
+    migration_trace_id = None
+    upgrading = False
+
+    try:
+        # 获取写锁：避免多进程启动时并发迁移导致的偶发失败
+        cursor.execute("BEGIN IMMEDIATE")
+
+        _ensure_schema_bookkeeping_tables(cursor)
+
+        # 在锁内读取当前 schema 版本（保证一致性）
+        row = cursor.execute("SELECT value FROM settings WHERE key = ?", (DB_SCHEMA_VERSION_KEY,)).fetchone()
+        current_version = int(row["value"]) if row and row["value"] is not None else 0
+
+        upgrading = current_version < DB_SCHEMA_VERSION
+        if upgrading:
+            migration_trace_id = generate_trace_id()
+            if db_existed:
+                try:
+                    print("=" * 60)
+                    print(f"[升级提示] 检测到数据库需要升级：v{current_version} -> v{DB_SCHEMA_VERSION}")
+                    print(f"[升级提示] 强烈建议先备份数据库文件：{path}")
+                    print(f'[升级提示] 示例：cp "{path}" "{path}.backup"')
+                    print(f"[升级提示] trace_id={migration_trace_id}")
+                    print("=" * 60)
+                except Exception:
+                    pass
+
+            cursor.execute(
+                """
+                INSERT INTO schema_migrations (from_version, to_version, status, started_at, trace_id)
+                VALUES (?, ?, 'running', ?, ?)
+            """,
+                (current_version, DB_SCHEMA_VERSION, time.time(), migration_trace_id),
+            )
+            migration_id = cursor.lastrowid
+            cursor.execute("SAVEPOINT migration_work")
+
+        # -------------------- Schema 创建/迁移（幂等） --------------------
+
+        _ensure_base_tables(cursor)
+
+        _migrate_legacy_columns(cursor, migration_trace_id)
+
+        _rebuild_temp_email_messages_table(cursor)
+
+        _ensure_audit_trace_id_column(cursor)
+
+        _seed_default_data(cursor, login_password_default, temp_mail_api_key_default)
+
+        _ensure_performance_indexes(cursor)
+
+        _ensure_versioned_tables(cursor, current_version)
 
         # 迁移现有明文数据为加密数据
         migrate_sensitive_data(conn)
