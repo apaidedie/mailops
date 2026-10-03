@@ -262,7 +262,7 @@ def api_update_settings() -> Any:
             updated.append("临时邮箱可用域名")
         except ValueError as exc:
             errors.append(str(exc))
-        except (TypeError, json.JSONDecodeError):
+        except TypeError:
             errors.append("temp_mail_domains 格式无效")
 
     if "temp_mail_default_domain" in data:
@@ -279,7 +279,7 @@ def api_update_settings() -> Any:
             updated.append("临时邮箱前缀规则")
         except ValueError as exc:
             errors.append(str(exc))
-        except (TypeError, json.JSONDecodeError):
+        except TypeError:
             errors.append("temp_mail_prefix_rules 格式无效")
 
     # v0.3: CF Worker 独立域名配置（Tab 重构）
@@ -290,7 +290,7 @@ def api_update_settings() -> Any:
             updated.append("CF Worker 可用域名")
         except ValueError as exc:
             errors.append(str(exc))
-        except (TypeError, json.JSONDecodeError):
+        except TypeError:
             errors.append("cf_worker_domains 格式无效")
 
     if "cf_worker_default_domain" in data:
@@ -310,7 +310,7 @@ def api_update_settings() -> Any:
             updated.append("CF Worker 前缀规则")
         except ValueError as exc:
             errors.append(str(exc))
-        except (TypeError, json.JSONDecodeError):
+        except TypeError:
             errors.append("cf_worker_prefix_rules 格式无效")
 
     # Cloudflare Worker 独立配置（与GPTMail设置完全隔离）
@@ -353,7 +353,7 @@ def api_update_settings() -> Any:
             updated.append("Emailnator 邮箱类型")
         except ValueError as exc:
             errors.append(str(exc))
-        except (TypeError, json.JSONDecodeError):
+        except TypeError:
             errors.append("emailnator_email_types 格式无效")
 
     if "duckmail_api_base" in data:

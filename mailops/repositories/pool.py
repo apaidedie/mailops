@@ -70,7 +70,7 @@ def _parse_claimed_by(claimed_by: Optional[str]) -> tuple[str, str]:
     """从 claimed_by 字段解析 caller_id 和 task_id（兼容旧格式）。"""
     if not claimed_by:
         return "", ""
-    parts = (claimed_by or ":").split(":", 1)
+    parts = claimed_by.split(':', 1)
     return parts[0], parts[1] if len(parts) > 1 else ""
 
 

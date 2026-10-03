@@ -684,7 +684,12 @@ module.exports = {
 };
 
 if (require.main === module) {
-  main().then((exitCode) => {
-    process.exitCode = exitCode;
-  });
+  main()
+    .then((exitCode) => {
+      process.exitCode = exitCode;
+    })
+    .catch((error) => {
+      console.error(error && error.message ? error.message : error);
+      process.exitCode = 2;
+    });
 }

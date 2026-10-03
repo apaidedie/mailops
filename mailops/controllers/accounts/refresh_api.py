@@ -234,7 +234,7 @@ def api_get_refresh_logs() -> Any:
 
     cursor = db.execute(
         """
-        SELECT l.*, a.email as account_email
+        SELECT l.*, a.email as joined_account_email
         FROM account_refresh_logs l
         LEFT JOIN accounts a ON l.account_id = a.id
         WHERE l.refresh_type IN ('manual', 'manual_all', 'scheduled', 'retry')
@@ -251,7 +251,7 @@ def api_get_refresh_logs() -> Any:
             {
                 "id": row["id"],
                 "account_id": row["account_id"],
-                "account_email": row["account_email"] or row["account_email"],
+                "account_email": row["joined_account_email"] or row["account_email"],
                 "refresh_type": row["refresh_type"],
                 "status": row["status"],
                 "error_message": row["error_message"],
@@ -303,7 +303,7 @@ def api_get_failed_refresh_logs() -> Any:
 
     # 获取每个账号最近一次失败的刷新记录
     cursor = db.execute("""
-        SELECT l.*, a.email as account_email, a.status as account_status
+        SELECT l.*, a.email as joined_account_email, a.status as account_status
         FROM account_refresh_logs l
         INNER JOIN (
             SELECT account_id, MAX(created_at) as last_refresh
@@ -321,7 +321,7 @@ def api_get_failed_refresh_logs() -> Any:
             {
                 "id": row["id"],
                 "account_id": row["account_id"],
-                "account_email": row["account_email"] or row["account_email"],
+                "account_email": row["joined_account_email"] or row["account_email"],
                 "account_status": row["account_status"],
                 "refresh_type": row["refresh_type"],
                 "status": row["status"],
