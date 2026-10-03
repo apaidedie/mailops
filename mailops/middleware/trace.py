@@ -27,8 +27,8 @@ def ensure_trace_id():
         g.trace_id = generate_trace_id()
 
 
-def attach_trace_id_and_normalize_errors(response):
-    """统一写入 X-Trace-Id，并把 legacy 的字符串错误格式标准化为结构化错误"""
+def _attach_trace_header(response) -> Any:
+    """把 trace_id 写入响应头，返回当前 trace_id（可能为 None）。"""
     trace_id_value = None
     try:
         trace_id_value = getattr(g, "trace_id", None)
@@ -36,7 +36,82 @@ def attach_trace_id_and_normalize_errors(response):
             response.headers.setdefault("X-Trace-Id", trace_id_value)
     except Exception:
         trace_id_value = None
+    return trace_id_value
 
+
+def _default_structured_error_fields(error_obj: Dict[str, Any], trace_id_value: Any, status_code: int) -> bool:
+    """补齐结构化错误缺失的 trace_id/status/code/message/message_en，返回是否有变更。"""
+    mutated = False
+    if not error_obj.get("trace_id") and trace_id_value:
+        error_obj["trace_id"] = trace_id_value
+        mutated = True
+    if not error_obj.get("status"):
+        error_obj["status"] = status_code if status_code >= 400 else 400
+        mutated = True
+    if not error_obj.get("code"):
+        error_obj["code"] = "UNKNOWN_ERROR"
+        mutated = True
+    if not error_obj.get("message"):
+        error_obj["message"] = "请求失败"
+        mutated = True
+    if not error_obj.get("message_en"):
+        error_obj["message_en"] = resolve_message_en(error_obj.get("code"), int(error_obj.get("status") or 500))
+        mutated = True
+    return mutated
+
+
+def _normalize_structured_error(response, data: Dict[str, Any], trace_id_value: Any):
+    """error 为 dict：补齐缺失字段并同步到响应顶层。"""
+    error_obj = dict(data["error"])
+    mutated = _default_structured_error_fields(error_obj, trace_id_value, response.status_code)
+
+    # 如果 error 中有 status 字段，且当前 HTTP 状态码是 200，则修正为正确的状态码
+    error_status = error_obj.get("status")
+    if error_status and isinstance(error_status, int) and response.status_code == 200:
+        response.status_code = error_status
+        mutated = True
+
+    new_data = dict(data)
+    new_data["error"] = error_obj
+    for key in ("trace_id", "code", "message", "message_en", "status"):
+        if new_data.get(key) != error_obj.get(key):
+            new_data[key] = error_obj.get(key)
+            mutated = True
+
+    if mutated:
+        response.set_data(json.dumps(new_data, ensure_ascii=False))
+    return response
+
+
+def _convert_legacy_error(response, data: Dict[str, Any], trace_id_value: Any):
+    """error 为字符串：包装成结构化错误载荷并同步到响应顶层。"""
+    legacy_message = data.get("error") or "请求失败"
+    status_for_payload = response.status_code if response.status_code >= 400 else 400
+    error_payload = build_error_payload(
+        code="LEGACY_ERROR",
+        message=legacy_message,
+        err_type="LegacyError",
+        status=status_for_payload,
+        details="",
+        trace_id=trace_id_value,
+    )
+    new_data = dict(data)
+    new_data["error"] = error_payload
+    new_data["trace_id"] = error_payload.get("trace_id")
+    new_data["code"] = error_payload.get("code")
+    new_data["message"] = error_payload.get("message")
+    new_data["message_en"] = error_payload.get("message_en")
+    new_data["status"] = error_payload.get("status")
+    # legacy 错误默认使用 400 状态码（如果当前是 200）
+    if response.status_code == 200:
+        response.status_code = 400
+    response.set_data(json.dumps(new_data, ensure_ascii=False))
+    return response
+
+
+def attach_trace_id_and_normalize_errors(response):
+    """统一写入 X-Trace-Id，并把 legacy 的字符串错误格式标准化为结构化错误"""
+    trace_id_value = _attach_trace_header(response)
     try:
         if response.is_streamed:
             return response
@@ -52,67 +127,12 @@ def attach_trace_id_and_normalize_errors(response):
         if data.get("success") is not False:
             return response
 
-        # 统一补齐 trace_id/status 等字段
         if isinstance(data.get("error"), dict):
-            error_obj = dict(data["error"])
-            mutated = False
-            if not error_obj.get("trace_id") and trace_id_value:
-                error_obj["trace_id"] = trace_id_value
-                mutated = True
-            if not error_obj.get("status"):
-                error_obj["status"] = response.status_code if response.status_code >= 400 else 400
-                mutated = True
-            if not error_obj.get("code"):
-                error_obj["code"] = "UNKNOWN_ERROR"
-                mutated = True
-            if not error_obj.get("message"):
-                error_obj["message"] = "请求失败"
-                mutated = True
-            if not error_obj.get("message_en"):
-                error_obj["message_en"] = resolve_message_en(error_obj.get("code"), int(error_obj.get("status") or 500))
-                mutated = True
-
-            # 如果 error 中有 status 字段，且当前 HTTP 状态码是 200，则修正为正确的状态码
-            error_status = error_obj.get("status")
-            if error_status and isinstance(error_status, int) and response.status_code == 200:
-                response.status_code = error_status
-                mutated = True
-
-            new_data = dict(data)
-            new_data["error"] = error_obj
-            for key in ("trace_id", "code", "message", "message_en", "status"):
-                if new_data.get(key) != error_obj.get(key):
-                    new_data[key] = error_obj.get(key)
-                    mutated = True
-
-            if mutated:
-                response.set_data(json.dumps(new_data, ensure_ascii=False))
-            return response
+            return _normalize_structured_error(response, data, trace_id_value)
 
         # legacy：error 为字符串
         if isinstance(data.get("error"), str):
-            legacy_message = data.get("error") or "请求失败"
-            status_for_payload = response.status_code if response.status_code >= 400 else 400
-            error_payload = build_error_payload(
-                code="LEGACY_ERROR",
-                message=legacy_message,
-                err_type="LegacyError",
-                status=status_for_payload,
-                details="",
-                trace_id=trace_id_value,
-            )
-            new_data = dict(data)
-            new_data["error"] = error_payload
-            new_data["trace_id"] = error_payload.get("trace_id")
-            new_data["code"] = error_payload.get("code")
-            new_data["message"] = error_payload.get("message")
-            new_data["message_en"] = error_payload.get("message_en")
-            new_data["status"] = error_payload.get("status")
-            # legacy 错误默认使用 400 状态码（如果当前是 200）
-            if response.status_code == 200:
-                response.status_code = 400
-            response.set_data(json.dumps(new_data, ensure_ascii=False))
-            return response
+            return _convert_legacy_error(response, data, trace_id_value)
     except Exception:
         return response
 
