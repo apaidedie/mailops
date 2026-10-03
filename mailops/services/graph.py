@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
+
 _MSG_TOKEN_FETCH_FAILED = "获取访问令牌失败"
 
 from mailops.errors import build_error_payload

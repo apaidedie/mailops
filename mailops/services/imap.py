@@ -3,6 +3,7 @@ from __future__ import annotations
 import email
 import hashlib
 import imaplib
+
 _MSG_TOKEN_FETCH_FAILED = "获取访问令牌失败"
 _MSG_UNKNOWN_SENDER = "未知发件人"
 _IMAP_RFC822 = "(RFC822)"

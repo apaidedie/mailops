@@ -18,6 +18,7 @@ from mailops.services.pool import VALID_RESULTS
 from mailops.services.provider_catalog import EXTERNAL_API_V1_PREFIX, get_external_api_capabilities_contract
 
 from .builders import _json_value_schema, _nullable_string_enum_schema, _string_array_schema
+
 SCHEMA_REF_PROVIDER_DEPLOYMENT_PROFILE = "#/components/schemas/ProviderDeploymentProfile"
 SCHEMA_REF_PROVIDER_SELECTION_POLICY = "#/components/schemas/ProviderSelectionPolicy"
 SCHEMA_REF_PROVIDER_INTEGRATION_GUIDE = "#/components/schemas/ProviderIntegrationGuide"
