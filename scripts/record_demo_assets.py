@@ -46,8 +46,9 @@ def wait_for_demo(timeout_seconds: int = 60) -> None:
                     return
         except Exception:
             time.sleep(2)
-    raise SystemExit("demo stack is not reachable on :5001 — start it with: "
-                     "docker compose -f docker-compose.demo.yml up -d")
+    raise SystemExit(
+        "demo stack is not reachable on :5001 — start it with: " "docker compose -f docker-compose.demo.yml up -d"
+    )
 
 
 def record(context_factory, page_flow, lang: str) -> None:
@@ -154,12 +155,28 @@ def record_and_convert(lang: str) -> None:
     src = sorted((OUT_DIR / f"recording-{lang}").glob("*.webm"))[-1]
     palette = OUT_DIR / f"palette-{lang}.png"
     out = IMG_DIR / f"demo{'-en' if lang == 'en' else ''}.gif"
-    subprocess.run([ffmpeg, "-y", "-i", str(src), "-vf",
-                    "fps=12,scale=880:-1:flags=lanczos,palettegen=max_colors=200", str(palette)],
-                   check=True, capture_output=True)
-    subprocess.run([ffmpeg, "-y", "-i", str(src), "-i", str(palette), "-lavfi",
-                    "fps=12,scale=880:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=3",
-                    "-loop", "0", str(out)], check=True, capture_output=True)
+    subprocess.run(
+        [ffmpeg, "-y", "-i", str(src), "-vf", "fps=12,scale=880:-1:flags=lanczos,palettegen=max_colors=200", str(palette)],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        [
+            ffmpeg,
+            "-y",
+            "-i",
+            str(src),
+            "-i",
+            str(palette),
+            "-lavfi",
+            "fps=12,scale=880:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=3",
+            "-loop",
+            "0",
+            str(out),
+        ],
+        check=True,
+        capture_output=True,
+    )
     palette.unlink(missing_ok=True)
     print(f"  -> {out.relative_to(ROOT)} ({out.stat().st_size} bytes)")
 
