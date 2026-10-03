@@ -89,7 +89,7 @@ class PublicTempMailProviderTests(unittest.TestCase):
         self.assertEqual(options["provider_name"], "mail_tm")
         self.assertEqual(options["provider_label"], "Mail.tm")
         self.assertEqual(options["domains"][0], {"name": "mail.tm", "enabled": True, "is_default": True})
-        self.assertEqual(options["domains"][1]["enabled"], False)
+        self.assertFalse(options["domains"][1]["enabled"])
 
     def test_mail_tm_api_base_can_come_from_environment(self):
         from mailops.services.temp_mail_provider_public import MailTmTempMailProvider

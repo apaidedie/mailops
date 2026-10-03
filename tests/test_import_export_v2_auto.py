@@ -38,7 +38,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()
@@ -100,7 +100,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         verify = client.post("/api/export/verify", json={"password": "testpass123"})
         self.assertEqual(verify.status_code, 200)
         data = verify.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
         token = data.get("verify_token")
         self.assertTrue(token)
         return token
@@ -189,7 +189,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
             )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         summary = data.get("summary") or {}
         self.assertEqual(summary.get("mode"), "auto")
@@ -329,7 +329,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         row = self._get_account_row(email_addr)
         self.assertIsNotNone(row)
@@ -362,7 +362,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         data = resp.get_json()
 
         # 允许部分失败：只要有成功导入或跳过，则整体 success=True（对齐 TDD-00006）
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         summary = data.get("summary") or {}
         self.assertEqual(summary.get("mode"), "auto")
@@ -419,7 +419,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         summary = data.get("summary") or {}
         self.assertEqual(summary.get("mode"), "auto")
@@ -475,7 +475,7 @@ class ImportExportV2AutoTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         summary = data.get("summary") or {}
         self.assertEqual(summary.get("mode"), "auto")

@@ -24,7 +24,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
     def _login(self, client, password: str = "testpass123"):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()
@@ -178,7 +178,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 400)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertEqual((data.get("error") or {}).get("code"), "ACCOUNT_REFRESH_UNSUPPORTED")
         mocked_refresh.assert_not_called()
 
@@ -202,7 +202,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
             resp = client.post(f"/api/accounts/{account_id}/refresh")
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
         mocked_refresh.assert_called_once()
 
         row = self._get_account_row(account_id)
@@ -228,7 +228,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
             resp = client.post(f"/api/accounts/{account_id}/refresh")
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
         mocked_refresh.assert_called_once()
 
         row = self._get_account_row(account_id)
@@ -463,7 +463,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
         self.assertEqual(data.get("total"), 1)
         self.assertEqual(data.get("success_count"), 1)
         self.assertEqual(len(calls), 1)
@@ -566,7 +566,7 @@ class RefreshOutlookOnlyTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 409)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         error = data.get("error") or {}
         self.assertEqual(error.get("code"), "REFRESH_CONFLICT")
         self.assertIn("等待当前任务完成后再重试", error.get("message") or "")

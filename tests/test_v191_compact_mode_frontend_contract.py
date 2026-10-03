@@ -17,7 +17,7 @@ class V191CompactModeFrontendContractTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _get_text(self, client, path: str) -> str:
         resp = client.get(path)

@@ -18,7 +18,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()
@@ -141,7 +141,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
         row = self._get_account_row(account["id"])
         self.assertIsNotNone(row)
@@ -168,7 +168,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
         row = self._get_account_row(account["id"])
         self.assertIsNotNone(row)
@@ -194,7 +194,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
         row = self._get_account_row(account["id"])
         self.assertIsNotNone(row)
@@ -221,7 +221,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 400)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertIsInstance(data.get("error"), dict)
         self.assertEqual(data["error"].get("code"), "OUTLOOK_REFRESH_TOKEN_REQUIRED")
 
@@ -246,7 +246,7 @@ class AccountRemarkOnlyUpdateTests(unittest.TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
         row = self._get_account_row(account["id"])
         self.assertIsNotNone(row)

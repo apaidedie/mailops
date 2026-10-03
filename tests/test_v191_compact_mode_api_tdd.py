@@ -31,7 +31,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _db(self):
         return self.module.create_sqlite_connection()
@@ -141,7 +141,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         resp = client.get(f"/api/accounts?group_id={group_id}")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         accounts = data.get("accounts") or []
         self.assertGreaterEqual(len(accounts), 1)
@@ -291,7 +291,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         payload = resp.get_json() or {}
-        self.assertEqual(payload.get("success"), True)
+        self.assertTrue(payload.get("success"))
         account_summary = payload.get("account_summary") or {}
         self.assertEqual(account_summary.get("latest_email_subject"), "Daily digest")
         self.assertEqual(account_summary.get("latest_verification_code"), "663421")
@@ -328,7 +328,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         payload = resp.get_json() or {}
-        self.assertEqual(payload.get("success"), True)
+        self.assertTrue(payload.get("success"))
 
     def test_t_api_006_single_account_tagging_reuses_batch_tags_endpoint(self):
         client = self.app.test_client()
@@ -343,7 +343,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         conn = self._db()
         try:
@@ -368,7 +368,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         conn = self._db()
         try:
@@ -428,7 +428,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         conn = self._db()
         try:
@@ -460,7 +460,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         conn = self._db()
         try:
@@ -487,7 +487,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
             "TDD-00011 要求备注更新仅提交 remark 即可成功，不应要求 email/client_id/refresh_token",
         )
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def test_t_api_013_remark_patch_account_not_found_returns_structured_error(self):
         client = self.app.test_client()
@@ -500,7 +500,7 @@ class V191CompactModeApiRedTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 404)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertIsInstance(data.get("error"), dict)
         self.assertEqual(data["error"].get("code"), "ACCOUNT_NOT_FOUND")
 

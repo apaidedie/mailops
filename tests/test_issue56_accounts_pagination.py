@@ -20,7 +20,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         resp = client.post("/login", json={"password": "testpass123"})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _db(self):
         return self.module.create_sqlite_connection()
@@ -99,7 +99,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         resp = client.get(f"/api/accounts?group_id={group_id}&page=2&page_size=20")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         pagination = data.get("pagination") or {}
         self.assertEqual(pagination.get("page"), 2)
@@ -122,7 +122,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         resp = client.get(f"/api/accounts?group_id={group_a}&search=shared-search-key&page=1&page_size=50")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         accounts = data.get("accounts") or []
         self.assertEqual(len(accounts), 1)
@@ -147,7 +147,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         accounts = data.get("accounts") or []
         self.assertEqual(len(accounts), 2)
@@ -165,7 +165,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         resp = client.get(f"/api/accounts?group_id={group_id}&page=99&page_size=10")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         pagination = data.get("pagination") or {}
         self.assertEqual(pagination.get("page"), 3)
@@ -200,7 +200,7 @@ class Issue56AccountsPaginationTests(unittest.TestCase):
         resp = client.get(f"/api/accounts?group_id={group_id}&sort_by=unexpected&sort_order=unexpected&page=1&page_size=50")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         emails = [account.get("email") for account in (data.get("accounts") or [])]
         self.assertGreaterEqual(len(emails), 3)

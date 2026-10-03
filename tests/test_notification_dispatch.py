@@ -118,7 +118,7 @@ class NotificationDispatchTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json() or {}
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
         smtp_mock.return_value.__enter__.return_value.send_message.assert_called_once()
         sent_message = smtp_mock.return_value.__enter__.return_value.send_message.call_args[0][0]
         self.assertEqual(sent_message["To"], "notify@example.com")

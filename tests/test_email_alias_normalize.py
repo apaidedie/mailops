@@ -26,7 +26,7 @@ class TestNormalizeAliasEmail(unittest.TestCase):
 
     def test_empty_and_none(self):
         self.assertEqual(normalize_alias_email(""), "")
-        self.assertEqual(normalize_alias_email(None), None)
+        self.assertIsNone(normalize_alias_email(None))
 
     def test_invalid_format(self):
         self.assertEqual(normalize_alias_email("no-at-sign"), "no-at-sign")

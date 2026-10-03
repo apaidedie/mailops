@@ -414,7 +414,7 @@ class UnifiedMailboxCatalogTests(unittest.TestCase):
             temp_email,
         )
         self.assertEqual(temp_contract["internal"]["open_mailbox"]["mode"], "temp-emails")
-        self.assertEqual(temp_contract["internal"]["open_mailbox"]["group_id"], None)
+        self.assertIsNone(temp_contract["internal"]["open_mailbox"]["group_id"])
         self.assertEqual(
             temp_contract["internal"]["read_messages"]["endpoint"],
             "/api/temp-emails/{email}/messages",

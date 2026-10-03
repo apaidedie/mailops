@@ -34,7 +34,7 @@ class RefreshSelectedIssue45Tests(unittest.TestCase):
     def _login(self, client, password: str = "testpass123"):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()

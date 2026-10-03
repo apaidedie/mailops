@@ -23,7 +23,7 @@ class SettingsSchedulerReloadTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def test_update_settings_reload_scheduler_passes_real_app_object(self):
         client = self.app.test_client()
@@ -38,8 +38,8 @@ class SettingsSchedulerReloadTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         payload = resp.get_json() or {}
-        self.assertEqual(payload.get("success"), True)
-        self.assertEqual(payload.get("scheduler_reloaded"), True)
+        self.assertTrue(payload.get("success"))
+        self.assertTrue(payload.get("scheduler_reloaded"))
 
         self.assertTrue(configure_jobs.called, "预期触发调度器重载，但 configure_scheduler_jobs 未被调用")
         args, kwargs = configure_jobs.call_args

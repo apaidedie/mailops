@@ -29,8 +29,8 @@ class SettingsPasswordChangeGuardTests(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 401)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
-        self.assertEqual(data.get("need_login"), True)
+        self.assertFalse(data.get("success"))
+        self.assertTrue(data.get("need_login"))
         self.assertEqual((data.get("error") or {}).get("code"), "AUTH_REQUIRED")
 
     def test_get_settings_exposes_password_change_switch(self):

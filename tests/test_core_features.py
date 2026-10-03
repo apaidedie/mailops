@@ -25,7 +25,7 @@ class CoreFeatureTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
         return resp
 
     def test_logout_revokes_session(self):
@@ -38,8 +38,8 @@ class CoreFeatureTests(unittest.TestCase):
         resp = client.get("/api/system/health")
         self.assertEqual(resp.status_code, 401)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
-        self.assertEqual(data.get("need_login"), True)
+        self.assertFalse(data.get("success"))
+        self.assertTrue(data.get("need_login"))
 
     def test_group_crud_and_audit_trace_id(self):
         client = self.app.test_client()
@@ -59,7 +59,7 @@ class CoreFeatureTests(unittest.TestCase):
         )
         self.assertEqual(create.status_code, 200)
         create_data = create.get_json()
-        self.assertEqual(create_data.get("success"), True)
+        self.assertTrue(create_data.get("success"))
         group_id = create_data.get("group_id")
         self.assertIsInstance(group_id, int)
 
@@ -69,7 +69,7 @@ class CoreFeatureTests(unittest.TestCase):
         audit = client.get("/api/audit-logs?resource_type=group&limit=200")
         self.assertEqual(audit.status_code, 200)
         audit_data = audit.get_json()
-        self.assertEqual(audit_data.get("success"), True)
+        self.assertTrue(audit_data.get("success"))
         logs = audit_data.get("logs") or []
         self.assertTrue(any(l.get("trace_id") == create_trace_id for l in logs))
 
@@ -83,17 +83,17 @@ class CoreFeatureTests(unittest.TestCase):
             },
         )
         self.assertEqual(update.status_code, 200)
-        self.assertEqual(update.get_json().get("success"), True)
+        self.assertTrue(update.get_json().get("success"))
 
         delete = client.delete(f"/api/groups/{group_id}")
         self.assertEqual(delete.status_code, 200)
-        self.assertEqual(delete.get_json().get("success"), True)
+        self.assertTrue(delete.get_json().get("success"))
 
         # 删除后再次获取：应返回结构化 404，不再沿用 legacy 400
         get_after = client.get(f"/api/groups/{group_id}")
         self.assertEqual(get_after.status_code, 404)
         data = get_after.get_json()
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertIsInstance(data.get("error"), dict)
         self.assertEqual(data["error"].get("code"), "GROUP_NOT_FOUND")
         self.assertEqual(data["error"].get("message"), "分组不存在")
@@ -108,26 +108,26 @@ class CoreFeatureTests(unittest.TestCase):
         create = client.post("/api/tags", json={"name": tag_name, "color": "#abcdef"})
         self.assertEqual(create.status_code, 200)
         data = create.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
         tag_id = data.get("tag", {}).get("id")
         self.assertIsInstance(tag_id, int)
 
         dup = client.post("/api/tags", json={"name": tag_name, "color": "#000000"})
         self.assertEqual(dup.status_code, 400)
         dup_data = dup.get_json()
-        self.assertEqual(dup_data.get("success"), False)
+        self.assertFalse(dup_data.get("success"))
         self.assertIsInstance(dup_data.get("error"), dict)
         self.assertEqual(dup_data["error"].get("message"), "标签名称已存在")
 
         listing = client.get("/api/tags")
         self.assertEqual(listing.status_code, 200)
         listing_data = listing.get_json()
-        self.assertEqual(listing_data.get("success"), True)
+        self.assertTrue(listing_data.get("success"))
         self.assertIn(tag_name, [t.get("name") for t in (listing_data.get("tags") or [])])
 
         delete = client.delete(f"/api/tags/{tag_id}")
         self.assertEqual(delete.status_code, 200)
-        self.assertEqual(delete.get_json().get("success"), True)
+        self.assertTrue(delete.get_json().get("success"))
 
     def test_export_verify_and_export_all_download_contains_account(self):
         client = self.app.test_client()
@@ -154,7 +154,7 @@ class CoreFeatureTests(unittest.TestCase):
         verify = client.post("/api/export/verify", json={"password": "testpass123"})
         self.assertEqual(verify.status_code, 200)
         verify_data = verify.get_json()
-        self.assertEqual(verify_data.get("success"), True)
+        self.assertTrue(verify_data.get("success"))
         verify_token = verify_data.get("verify_token")
         self.assertTrue(verify_token)
 
@@ -173,7 +173,7 @@ class CoreFeatureTests(unittest.TestCase):
         audit = client.get("/api/audit-logs?limit=200")
         self.assertEqual(audit.status_code, 200)
         audit_data = audit.get_json()
-        self.assertEqual(audit_data.get("success"), True)
+        self.assertTrue(audit_data.get("success"))
         logs = audit_data.get("logs") or []
         self.assertTrue(any(l.get("trace_id") == export_trace_id for l in logs))
 
@@ -196,13 +196,13 @@ class CoreFeatureTests(unittest.TestCase):
             created = client.post("/api/temp-emails/generate", json={"prefix": "x", "domain": "y"})
         self.assertEqual(created.status_code, 200)
         created_data = created.get_json()
-        self.assertEqual(created_data.get("success"), True)
+        self.assertTrue(created_data.get("success"))
         self.assertEqual(created_data.get("email"), email_addr)
 
         listing = client.get("/api/temp-emails")
         self.assertEqual(listing.status_code, 200)
         listing_data = listing.get_json()
-        self.assertEqual(listing_data.get("success"), True)
+        self.assertTrue(listing_data.get("success"))
         self.assertIn(email_addr, [e.get("email") for e in (listing_data.get("emails") or [])])
 
     def test_refresh_all_stream_has_start_and_complete_events(self):

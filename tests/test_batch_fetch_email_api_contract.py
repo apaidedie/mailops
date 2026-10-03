@@ -131,7 +131,7 @@ class BatchFetchEmailApiContractTests(unittest.TestCase):
         mock_imap_get_emails.assert_not_called()
         self.assertEqual(resp.status_code, 502)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertIsInstance(data.get("error"), dict)
         self.assertEqual(data.get("error", {}).get("code"), "EMAIL_PROXY_CONNECTION_FAILED")
         self.assertEqual(data.get("status"), 502)

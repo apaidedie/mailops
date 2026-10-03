@@ -69,7 +69,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         resp = client.post("/login", json={"password": password})
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()
@@ -100,7 +100,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         resp = client.get("/api/providers")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         providers = data.get("providers") or []
         # PRD-00006 / FD-00006：providers 列表新增 "auto"（智能识别混合导入）
@@ -1251,7 +1251,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         conn = self.module.create_sqlite_connection()
         try:
@@ -1343,7 +1343,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         delete_resp = client.post("/api/emails/delete", json={"email": email_addr, "ids": ["1"]})
         self.assertEqual(delete_resp.status_code, 400)
         delete_data = delete_resp.get_json()
-        self.assertEqual(delete_data.get("success"), False)
+        self.assertFalse(delete_data.get("success"))
         err = delete_data.get("error") or {}
         self.assertIsInstance(err, dict)
         self.assertIn("不支持远程删除", err.get("message", ""))
@@ -1362,7 +1362,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
             skip=0,
             top=1,
         )
-        self.assertEqual(result.get("success"), False)
+        self.assertFalse(result.get("success"))
         self.assertEqual(result.get("error_code"), "IMAP_CONNECT_FAILED")
 
         # 确保返回内容不包含明文密码
@@ -1504,7 +1504,7 @@ class MultiMailboxSupportTests(unittest.TestCase):
         verify = client.post("/api/export/verify", json={"password": "testpass123"})
         self.assertEqual(verify.status_code, 200)
         verify_data = verify.get_json()
-        self.assertEqual(verify_data.get("success"), True)
+        self.assertTrue(verify_data.get("success"))
         token = verify_data.get("verify_token")
         self.assertTrue(token)
 

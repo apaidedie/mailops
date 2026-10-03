@@ -27,7 +27,7 @@ class MaskingAuditAndImportTests(unittest.TestCase):
     def _login(self, client):
         resp = client.post("/login", json={"password": "testpass123"})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
     def _default_group_id(self) -> int:
         conn = self.module.create_sqlite_connection()
@@ -44,7 +44,7 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         resp = client.get("/api/settings")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         settings = data.get("settings") or {}
         self.assertNotIn("login_password", settings)
@@ -87,15 +87,15 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         resp = client.get(f"/api/accounts/{account_id}")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         account = data.get("account") or {}
         self.assertEqual(account.get("id"), account_id)
         self.assertEqual(account.get("email"), email_addr)
         self.assertEqual(account.get("password"), "")
         self.assertEqual(account.get("refresh_token"), "")
-        self.assertEqual(account.get("has_password"), True)
-        self.assertEqual(account.get("has_refresh_token"), True)
+        self.assertTrue(account.get("has_password"))
+        self.assertTrue(account.get("has_refresh_token"))
 
         body_text = resp.get_data(as_text=True)
         self.assertNotIn(password, body_text)
@@ -124,7 +124,7 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 403)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), False)
+        self.assertFalse(data.get("success"))
         self.assertIsInstance(data.get("error"), dict)
         self.assertEqual(data["error"].get("code"), "SYSTEM_GROUP_PROTECTED")
         self.assertEqual(data["error"].get("status"), 403)
@@ -156,7 +156,7 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         summary = data.get("summary") or {}
         self.assertEqual(summary.get("imported"), 1)
@@ -198,14 +198,14 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         )
         self.assertEqual(create.status_code, 200)
         created = create.get_json()
-        self.assertEqual(created.get("success"), True)
+        self.assertTrue(created.get("success"))
         group_id = created.get("group_id")
         self.assertIsInstance(group_id, int)
 
         resp = client.get("/api/audit-logs?action=create&resource_type=group&limit=200")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
-        self.assertEqual(data.get("success"), True)
+        self.assertTrue(data.get("success"))
 
         logs = data.get("logs") or []
         matched = [r for r in logs if str(r.get("resource_id")) == str(group_id) and group_name in (r.get("details") or "")]
@@ -226,12 +226,12 @@ class MaskingAuditAndImportTests(unittest.TestCase):
         with patch.object(gptmail_service, "generate_temp_email", return_value=(email_addr, None)):
             resp = client.post("/api/temp-emails/generate", json={})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.get_json().get("success"), True)
+        self.assertTrue(resp.get_json().get("success"))
 
         create_audit = client.get("/api/audit-logs?resource_type=temp_email&action=create&limit=200")
         self.assertEqual(create_audit.status_code, 200)
         create_data = create_audit.get_json()
-        self.assertEqual(create_data.get("success"), True)
+        self.assertTrue(create_data.get("success"))
         create_logs = create_data.get("logs") or []
         self.assertTrue([r for r in create_logs if r.get("resource_id") == email_addr])
 
@@ -251,12 +251,12 @@ class MaskingAuditAndImportTests(unittest.TestCase):
 
             clear_resp = client.delete(f"/api/temp-emails/{email_addr}/clear")
         self.assertEqual(clear_resp.status_code, 200)
-        self.assertEqual(clear_resp.get_json().get("success"), True)
+        self.assertTrue(clear_resp.get_json().get("success"))
 
         audit_resp = client.get("/api/audit-logs?resource_type=temp_email_messages&action=delete&limit=200")
         self.assertEqual(audit_resp.status_code, 200)
         audit = audit_resp.get_json()
-        self.assertEqual(audit.get("success"), True)
+        self.assertTrue(audit.get("success"))
 
         logs = audit.get("logs") or []
         matched = [r for r in logs if (r.get("resource_id") == email_addr)]

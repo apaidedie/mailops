@@ -167,7 +167,7 @@ class TempMailTargetContractTests(unittest.TestCase):
         self.assertIn("data", data)
         self.assertIn("email", data["data"])
         self.assertIn("task_token", data["data"])
-        self.assertEqual(data["data"]["visible_in_ui"], False)
+        self.assertFalse(data["data"]["visible_in_ui"])
 
     def test_external_finish_endpoint_marks_task_mailbox_finished(self):
         with self.app.app_context():
