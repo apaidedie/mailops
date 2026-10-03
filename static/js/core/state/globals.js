@@ -1,6 +1,19 @@
 // split globals from state.js
 // Extracted from main.js lines 1-6282 (W3 frontend split)
 // 全局状态
+// 全局兜底：fire-and-forget 调用的同步异常与 Promise rejection 统一记录，
+// 防止后台加载失败静默中断页面初始化（S9383 的体系化出口）。
+        function runSafely(task) {
+            try {
+                const result = task();
+                if (result && typeof result.catch === 'function') {
+                    result.catch((error) => console.error('[mailops] background action failed:', error));
+                }
+            } catch (error) {
+                console.error('[mailops] background action failed:', error);
+            }
+        }
+
         let csrfToken = null;
         let csrfTokenRefreshPromise = null;
         // True when the in-flight CSRF token GET was started with force.

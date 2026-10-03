@@ -80,7 +80,7 @@
                 element.addEventListener('change', () => {
                     unifiedMailboxState.page = 1;
                     syncUnifiedQuickViews();
-                    loadUnifiedMailboxes(true);
+                    runSafely(() => loadUnifiedMailboxes(true));
                 });
             });
             if (workspaceViewSwitch && !workspaceViewSwitch.dataset.boundUnifiedWorkspaceView) {
@@ -118,7 +118,7 @@
                     if (!button || !setupGuide.contains(button)) return;
                     const setupAction = String(button.dataset.unifiedSetupAction || '').trim();
                     if (setupAction === 'refresh') {
-                        loadUnifiedMailboxes(true);
+                        runSafely(() => loadUnifiedMailboxes(true));
                         return;
                     }
                     if (setupAction === 'quick-view') {
@@ -153,7 +153,7 @@
                     if (!button || !operationalLens.contains(button)) return;
                     const lensAction = String(button.dataset.unifiedLensAction || '').trim();
                     if (lensAction === 'refresh') {
-                        loadUnifiedMailboxes(true);
+                        runSafely(() => loadUnifiedMailboxes(true));
                         return;
                     }
                     if (lensAction === 'quick-view') {

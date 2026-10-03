@@ -177,7 +177,7 @@ class OverviewFrontendContractTests(unittest.TestCase):
         self.assertNotIn("loadTags();", boot_slice)
         # Mailbox still loads groups on demand when empty (soft-load friendly).
         self.assertIn("if (groups.length === 0)", js_text)
-        self.assertIn("loadGroups();", js_text)
+        self.assertIn("runSafely(() => loadGroups());", js_text)
         # Tag modal still loads tags on open (soft by default).
         self.assertIn("async function showTagManagementModal()", js_text)
         modal_start = js_text.index("async function showTagManagementModal()")
@@ -700,7 +700,7 @@ class OverviewFrontendContractTests(unittest.TestCase):
         # Navigate empty path stays soft default.
         nav_start = main_js.index("function navigate(page)")
         nav_end = main_js.index("function updateTopbar(page)", nav_start)
-        self.assertIn("loadGroups();", main_js[nav_start:nav_end])
+        self.assertIn("runSafely(() => loadGroups());", main_js[nav_start:nav_end])
         self.assertNotIn("loadGroups(true)", main_js[nav_start:nav_end])
 
     def test_edit_group_soft_loads_warm_groups_cache(self):

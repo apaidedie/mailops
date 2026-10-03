@@ -1,7 +1,7 @@
 // split from temp_emails.js → messages.js
         function refreshTempEmailMessages() {
             if (currentAccount && isTempEmailGroup) {
-                loadTempEmailMessages(currentAccount, true);
+                runSafely(() => loadTempEmailMessages(currentAccount, true));
             }
         }
 

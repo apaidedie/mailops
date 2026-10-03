@@ -214,7 +214,7 @@
                     await loadRefreshStats(true);
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, '批量停用失败');
@@ -275,9 +275,9 @@
                     await loadRefreshStats(true);
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                 } else {
                     handleApiError(data, '批量删除失败');
                 }

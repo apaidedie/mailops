@@ -283,7 +283,7 @@
 
                 if (currentGroupId) {
                     invalidateAccountsCache(currentGroupId);
-                    loadAccountsByGroup(currentGroupId, true);
+                    runSafely(() => loadAccountsByGroup(currentGroupId, true));
                 }
             } catch (error) {
                 showToast(translateAppTextLocal('备注更新失败'), 'error');
@@ -375,11 +375,11 @@
                     }
 
                     // 刷新分组列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
 
                     // 刷新当前分组的邮箱列表
                     if (currentGroupId) {
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(result, '更新失败');
@@ -412,7 +412,7 @@
                     // 清除当前分组的缓存
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, failureFallbackZh);
@@ -442,7 +442,7 @@
                     );
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, '通知参与切换失败');

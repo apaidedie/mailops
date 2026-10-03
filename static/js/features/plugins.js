@@ -308,7 +308,7 @@ const PluginManager = (() => {
         if (typeof onTempMailProviderChange === 'function') {
             onTempMailProviderChange(name);
         } else {
-            showProviderConfig(name);
+            runSafely(() => showProviderConfig(name));
         }
         _scrollToProviderConfigPanel();
     }
@@ -443,7 +443,7 @@ const PluginManager = (() => {
     function confirmUninstall(name, displayName) {
         // Pass Chinese source; window.confirm is wrapped to translateAppText.
         if (!confirm('确认卸载插件「' + displayName + '」？\n\n卸载后插件文件将被删除，关联邮箱记录保留。')) return;
-        uninstall(name);
+        runSafely(() => uninstall(name));
     }
 
     async function uninstall(name) {

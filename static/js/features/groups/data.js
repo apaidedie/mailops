@@ -39,7 +39,7 @@
                 if (group) {
                     // 刷新当前分组的邮箱列表
                     if (currentGroupId === tempEmailGroupId) {
-                        loadTempEmails(true);
+                        runSafely(() => loadTempEmails(true));
                     } else {
                         // Fire-and-forget account refresh; callers may still await loadGroups.
                         Promise.resolve(loadAccountsByGroup(currentGroupId, true)).catch(() => {});
@@ -52,7 +52,7 @@
                 // 仅在其他页面（mailbox/dashboard 等）才执行首次自动选组。
                 const firstNormalGroup = groups.find(g => !isTempMailboxGroup(g));
                 if (firstNormalGroup) {
-                    selectGroup(firstNormalGroup.id);
+                    runSafely(() => selectGroup(firstNormalGroup.id));
                 }
             }
         }

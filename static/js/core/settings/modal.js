@@ -326,7 +326,7 @@
                         Array.isArray(mailboxProviderCatalogCache)
                         && mailboxProviderCatalogCache.length
                     );
-                    loadMailboxProviderCatalog(forceCatalogLoad);
+                    runSafely(() => loadMailboxProviderCatalog(forceCatalogLoad));
                     // Schema panel hydrates only when temp-mail radios/config are bound.
                     if (isTempMailSettingsProviderMountBound()) {
                         renderTempMailProviderConfigPanel(mappedProvider);
@@ -408,9 +408,9 @@
                     // switchSettingsTab('api-security') paints + soft-loads on first visit.
                     if (currentSettingsTab === 'api-security') {
                         paintApiSecuritySurfacesFromSnapshot(data.settings || {}, 'ready');
-                        loadProviderPreflightSnapshot(false, false);
-                        loadExternalApiContractCheck(false);
-                        loadOperationalReadinessSnapshot(false);
+                        runSafely(() => loadProviderPreflightSnapshot(false, false));
+                        runSafely(() => loadExternalApiContractCheck(false));
+                        runSafely(() => loadOperationalReadinessSnapshot(false));
                     }
 
                     // 加载刷新配置
@@ -488,7 +488,7 @@
                     }
 
                     // Soft-load deployment warnings; force only when cache cold.
-                    loadDeploymentInfo({ silent: true, forceRefresh: false });
+                    runSafely(() => loadDeploymentInfo({ silent: true, forceRefresh: false }));
                 }
             } catch (error) {
                 console.error('loadSettings error:', error);
@@ -790,13 +790,13 @@
                         paintApiSecuritySurfacesFromSnapshot(externalApiSettingsSnapshot, 'ready');
                     }
                     if (typeof loadProviderPreflightSnapshot === 'function') {
-                        loadProviderPreflightSnapshot(false, false);
+                        runSafely(() => loadProviderPreflightSnapshot(false, false));
                     }
                     if (typeof loadExternalApiContractCheck === 'function') {
-                        loadExternalApiContractCheck(false);
+                        runSafely(() => loadExternalApiContractCheck(false));
                     }
                     if (typeof loadOperationalReadinessSnapshot === 'function') {
-                        loadOperationalReadinessSnapshot(false);
+                        runSafely(() => loadOperationalReadinessSnapshot(false));
                     }
                 }
                 if (nextTab === 'temp-mail') {
@@ -838,7 +838,7 @@
 
             // 4. 后台异步触发自动保存（基础 Tab 除外）
             if (prevTab && prevTab !== 'basic' && typeof autoSaveSettings === 'function') {
-                autoSaveSettings(prevTab);
+                runSafely(() => autoSaveSettings(prevTab));
             }
         }
 
@@ -971,14 +971,14 @@
                 if (tabName === 'api-security') {
                     externalApiSettingsSnapshot = { ...externalApiSettingsSnapshot, ...settings };
                     renderProviderWorkbench(externalApiSettingsSnapshot, 'ready');
-                    loadProviderPreflightSnapshot(true, false);
+                    runSafely(() => loadProviderPreflightSnapshot(true, false));
                     renderExternalApiCommandCenter(externalApiSettingsSnapshot, 'ready');
-                    loadExternalApiContractCheck(true);
-                    loadOperationalReadinessSnapshot(true);
+                    runSafely(() => loadExternalApiContractCheck(true));
+                    runSafely(() => loadOperationalReadinessSnapshot(true));
                 }
                 if (tabName === 'temp-mail') {
                     await refreshTempMailSettingsSnapshotFromServer();
-                    loadMailboxProviderCatalog(true);
+                    runSafely(() => loadMailboxProviderCatalog(true));
                     if (typeof window.invalidateTempEmailOptionsCache === 'function') {
                         window.invalidateTempEmailOptionsCache();
                     }

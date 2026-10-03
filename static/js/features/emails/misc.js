@@ -420,11 +420,11 @@
             if (currentAccount) {
                 if (isTempEmailGroup) {
                     // Explicit refresh must force network for temp mailboxes.
-                    loadTempEmailMessages(currentAccount, true);
+                    runSafely(() => loadTempEmailMessages(currentAccount, true));
                 } else {
                     // 清除当前缓存并强制刷新
                     clearEmailListCacheForMailbox(currentAccount, currentFolder);
-                    loadEmails(currentAccount, true);
+                    runSafely(() => loadEmails(currentAccount, true));
                 }
             } else {
                 showToast(translateAppTextLocal('请先选择一个邮箱账号'), 'error');
@@ -476,7 +476,7 @@
             const emailElement = document.getElementById('currentAccountEmail');
             if (emailElement && emailElement.textContent) {
                 const email = emailElement.textContent.replace(/\s+\((临时|Temp)\)$/, '').trim();
-                copyEmail(email);
+                runSafely(() => copyEmail(email));
             }
         }
 

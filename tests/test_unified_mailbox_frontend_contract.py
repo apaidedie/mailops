@@ -301,7 +301,7 @@ class UnifiedMailboxFrontendContractTests(unittest.TestCase):
             "const requestSignature = getUnifiedMailboxRequestSignature();",
             "if (requestSignature !== getUnifiedMailboxRequestSignature()) {",
             "const pendingForceRefresh = unifiedMailboxState.pendingForceRefresh;",
-            "loadUnifiedMailboxes(pendingForceRefresh);",
+            "runSafely(() => loadUnifiedMailboxes(pendingForceRefresh));",
             "directoryPayload: null",
             "directorySignature: ''",
             "directoryLoadSeq: 0",

@@ -120,7 +120,7 @@
             setUnifiedQuickViewDomFilters(unifiedMailboxState.filters);
             unifiedMailboxState.page = 1;
             renderUnifiedQuickViews(unifiedMailboxState.filters, unifiedMailboxState.contract || {});
-            loadUnifiedMailboxes(true);
+            runSafely(() => loadUnifiedMailboxes(true));
         }
 
         function renderUnifiedCommandQuickViews(filters = unifiedMailboxState.filters, contract = unifiedMailboxState.contract || {}) {

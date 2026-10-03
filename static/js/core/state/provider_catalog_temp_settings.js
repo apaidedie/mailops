@@ -637,7 +637,7 @@
                     if (!target || !target.closest) return;
                     const actionBtn = target.closest('[data-temp-provider-action]');
                     if (!actionBtn) return;
-                    runTempProviderSettingsAction(actionBtn);
+                    runSafely(() => runTempProviderSettingsAction(actionBtn));
                 });
                 body.dataset.boundTempProviderActions = 'true';
             }
@@ -648,7 +648,7 @@
                 if (usageBtn) {
                     setTimeout(() => {
                         if (document.body.contains(usageBtn)) {
-                            runTempProviderSettingsAction(usageBtn);
+                            runSafely(() => runTempProviderSettingsAction(usageBtn));
                         }
                     }, 80);
                 }

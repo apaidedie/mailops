@@ -46,17 +46,19 @@
                         );
 
                         // 刷新统计
-                        loadRefreshStats(true);
+                        runSafely(() => loadRefreshStats(true));
 
                         // 失效 Token 治理
                         const retryInvalidTokenCount = Number(data.invalid_token_failed_count || 0);
                         latestInvalidTokenDetectedCount = retryInvalidTokenCount;
                         if (retryInvalidTokenCount > 0) {
                             showInvalidTokenDetectionSummary(retryInvalidTokenCount, data.invalid_token_failed_list || []);
-                            loadInvalidTokenGovernanceCandidates({
-                                forceRefresh: true,
-                                keepVisibleWhenEmpty: true,
-                                silentWhenEmpty: false
+                            runSafely(() => {
+                                loadInvalidTokenGovernanceCandidates({
+                                                                forceRefresh: true,
+                                                                keepVisibleWhenEmpty: true,
+                                                                silentWhenEmpty: false
+                                                            });
                             });
                         }
 
@@ -105,10 +107,10 @@
                         translateAppTextLocal(accountEmail + ' 刷新成功'),
                         'success'
                     );
-                    loadRefreshStats(true);
+                    runSafely(() => loadRefreshStats(true));
 
                     // 刷新失败列表（force network after single retry mutation）
-                    loadFailedLogs(true);
+                    runSafely(() => loadFailedLogs(true));
                     if (typeof invalidateRefreshLogPageCache === 'function') {
                         invalidateRefreshLogPageCache();
                     }
@@ -423,7 +425,7 @@
                     await loadTags(true);
                     // 刷新账号列表以更新标签显示
                     if (currentGroupId) {
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, '删除失败');
@@ -487,7 +489,7 @@
                 return;
             }
 
-            batchDeleteAccounts();
+            runSafely(() => batchDeleteAccounts());
         }
 
         // 批量删除账号
@@ -530,10 +532,10 @@
                     // 清空选中状态
                     selectedAccountIds.clear();
                     // 刷新分组和邮箱列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                     // 更新批量操作栏
                     updateBatchActionBar();
@@ -587,7 +589,7 @@
                 return;
             }
 
-            batchFetchSelectedEmails(accounts);
+            runSafely(() => batchFetchSelectedEmails(accounts));
         }
 
         async function batchFetchSelectedEmails(accounts) {
@@ -763,10 +765,10 @@
                         selectedAccountIds.clear();
                     }
                     // 刷新列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                     updateBatchActionBar();
                 } else {
@@ -890,11 +892,11 @@
                         selectedAccountIds.clear();
                     }
                     // 刷新分组列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                     // 刷新当前分组的邮箱列表
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                     updateBatchActionBar();
                 } else {

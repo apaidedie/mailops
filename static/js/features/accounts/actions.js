@@ -73,7 +73,7 @@
 
             // 自动加载邮件列表（优先使用缓存，无缓存时自动 fetch）
             if (typeof loadEmails === 'function') {
-                loadEmails(email);
+                runSafely(() => loadEmails(email));
             }
 
             // 标准模式：选中账号后自动启动轮询（如果轮询已启用且该账号尚未在轮询中）
@@ -192,7 +192,7 @@
                 if (fbPortEl) fbPortEl.value = '993';
                 const skipRadio = document.querySelector('input[name="duplicateStrategy"][value="skip"]');
                 if (skipRadio) skipRadio.checked = true;
-            });
+            }).catch((error) => console.error('[mailops] loadProviders failed:', error));
             document.getElementById('addAccountModal').classList.add('show');
         }
 
@@ -465,11 +465,11 @@
                     }
 
                     // 刷新分组列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
 
                     // 刷新当前分组的邮箱列表
                     if (currentGroupId) {
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 }
             } catch (error) {
@@ -519,11 +519,11 @@
                     }
 
                     // 刷新分组列表
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
 
                     // 刷新当前分组的邮箱列表
                     if (currentGroupId) {
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, '删除账号失败');
@@ -554,7 +554,7 @@
                     );
                     if (currentGroupId) {
                         invalidateAccountsCache(currentGroupId);
-                        loadAccountsByGroup(currentGroupId, true);
+                        runSafely(() => loadAccountsByGroup(currentGroupId, true));
                     }
                 } else {
                     handleApiError(data, translateAppTextLocal('批量操作失败'));

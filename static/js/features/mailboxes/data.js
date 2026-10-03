@@ -519,7 +519,7 @@
                     const pendingForceRefresh = unifiedMailboxState.pendingForceRefresh;
                     unifiedMailboxState.pendingReload = false;
                     unifiedMailboxState.pendingForceRefresh = false;
-                    loadUnifiedMailboxes(pendingForceRefresh);
+                    runSafely(() => loadUnifiedMailboxes(pendingForceRefresh));
                 }
             }
         }
@@ -529,7 +529,7 @@
             const totalPages = Number(unifiedMailboxState.pagination.total_pages || 0);
             if (target < 1 || (totalPages && target > totalPages)) return;
             unifiedMailboxState.page = target;
-            loadUnifiedMailboxes(true);
+            runSafely(() => loadUnifiedMailboxes(true));
         }
 
         function debounceUnifiedMailboxSearch() {
@@ -537,7 +537,7 @@
             syncUnifiedQuickViews();
             unifiedMailboxState.searchTimer = setTimeout(() => {
                 unifiedMailboxState.page = 1;
-                loadUnifiedMailboxes(true);
+                runSafely(() => loadUnifiedMailboxes(true));
             }, 250);
         }
 

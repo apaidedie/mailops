@@ -1,3 +1,18 @@
+
+// node 单测直接执行本文件时没有全局 runSafely，这里做独立兜底。
+var runSafely = typeof runSafely === "function"
+    ? runSafely
+    : function (task) {
+        try {
+            var result = task();
+            if (result && typeof result.catch === "function") {
+                result.catch(function (error) { console.error("[mailops] action failed:", error); });
+            }
+        } catch (error) {
+            console.error("[mailops] action failed:", error);
+        }
+    };
+
 ﻿        function getCompactVisibleAccounts() {
             return Array.isArray(accountsCache[currentGroupId]) ? accountsCache[currentGroupId] : [];
         }
@@ -95,13 +110,13 @@
                     bindUnifiedMailboxControls();
                 }
                 if (typeof loadUnifiedMailboxes === 'function') {
-                    loadUnifiedMailboxes(false);
+                    runSafely(() => loadUnifiedMailboxes(false));
                 }
                 return;
             }
 
             if (currentPage === 'mailbox' && (!Array.isArray(groups) || groups.length === 0) && typeof loadGroups === 'function') {
-                loadGroups();
+                runSafely(() => loadGroups());
                 return;
             }
 
@@ -192,16 +207,16 @@
             }
 
             if (buttonElement) {
-                copyVerificationInfo(account.email, buttonElement);
+                runSafely(() => copyVerificationInfo(account.email, buttonElement));
             }
         }
 
         function openCompactSingleTagModal(accountId) {
-            showBatchTagModal('add', { scopedAccountIds: [accountId] });
+            runSafely(() => showBatchTagModal('add', { scopedAccountIds: [accountId] }));
         }
 
         function openCompactSingleMoveGroupModal(accountId) {
-            showBatchMoveGroupModal({ scopedAccountIds: [accountId] });
+            runSafely(() => showBatchMoveGroupModal({ scopedAccountIds: [accountId] }));
         }
 
         async function refreshCompactAccount(accountId, buttonElement) {

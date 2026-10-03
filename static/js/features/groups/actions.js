@@ -284,7 +284,7 @@
                 if (data.success) {
                     showToast(pickApiMessage(data, data.message, 'Group saved successfully'), 'success');
                     hideAddGroupModal();
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                 } else {
                     handleApiError(data, '保存分组失败');
                 }
@@ -311,7 +311,7 @@
                     if (currentGroupId === groupId) {
                         currentGroupId = 1;
                     }
-                    loadGroups(true);
+                    runSafely(() => loadGroups(true));
                 } else {
                     handleApiError(data, '删除分组失败');
                 }

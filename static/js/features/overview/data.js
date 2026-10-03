@@ -1,7 +1,7 @@
 // split from overview.js → data.js
 function refreshOverview() {
     invalidateOverviewCache();
-    loadOverviewTab(__overviewState.activeTab || 'summary', true);
+    runSafely(() => loadOverviewTab(__overviewState.activeTab || 'summary', true));
     updateOverviewRefreshTime();
 }
 

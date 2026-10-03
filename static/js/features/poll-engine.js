@@ -231,7 +231,7 @@
                             if (res && res.success && res.data && res.data.verification_code) {
                                 var code = res.data.verification_code;
                                 state.isPolling = false;
-                                if (typeof copyToClipboard === 'function') copyToClipboard(code);
+                                if (typeof copyToClipboard === 'function') runSafely(() => copyToClipboard(code));
                                 stopPoll(email, pollT('检测到验证码') + '：' + code, 'success');
                             } else {
                                 _notifyNewEmailAndStop(email, state);
@@ -269,41 +269,43 @@
 
             pollMap.set(email, state);
 
-            Promise.allSettled([
-                fetch('/api/emails/' + encodeURIComponent(email) + '?folder=inbox'),
-                fetch('/api/emails/' + encodeURIComponent(email) + '?folder=sentitems')
-            ]).then(function(results) {
-                results.forEach(function(r, index) {
-                    if (r.status === 'fulfilled' && r.value && r.value.ok) {
-                        r.value.json().then(function(payload) {
-                            if (payload && payload.emails && Array.isArray(payload.emails)) {
-                                payload.emails.forEach(function(e) { if (e && e.id) state.baselineIds.add(e.id); });
-                            }
-                            if (payload && payload.account_summary && typeof syncAccountSummaryToAccountCache === 'function') {
-                                syncAccountSummaryToAccountCache(email, payload.account_summary);
-                            }
-                            // Soft-load: seed list cache from baseline fetch (inbox/sentitems).
-                            if (payload) {
-                                seedPollEmailListCache(email, POLL_LIST_FOLDERS[index] || 'inbox', payload);
-                            }
-                        }).catch(function() {});
-                    }
-                });
-
-                if (!pollMap.has(email)) return;
-
-                // 触发 UI 回调和倒计时（先于首次轮询，让用户立即看到状态变化）
-                if (_pollUICallbacks.onPollStart) {
-                    _pollUICallbacks.onPollStart(email, state.maxCount, { reapply: false, silent: !!(opts && opts.silent) });
-                }
-                startGlobalCountdown();
-
-                // 立即执行首次轮询（150ms 延迟，确保 baseline 微任务完成），后续按间隔继续
-                setTimeout(function() {
-                    if (pollMap.has(email)) pollSingleEmail(email, state);
-                }, POLL_INITIAL_DELAY_MS);
-
-                state.timer = setInterval(function() { pollSingleEmail(email, state); }, state.intervalSec * 1000);
+            runSafely(() => {
+                Promise.allSettled([
+                                fetch('/api/emails/' + encodeURIComponent(email) + '?folder=inbox'),
+                                fetch('/api/emails/' + encodeURIComponent(email) + '?folder=sentitems')
+                            ]).then(function(results) {
+                                results.forEach(function(r, index) {
+                                    if (r.status === 'fulfilled' && r.value && r.value.ok) {
+                                        r.value.json().then(function(payload) {
+                                            if (payload && payload.emails && Array.isArray(payload.emails)) {
+                                                payload.emails.forEach(function(e) { if (e && e.id) state.baselineIds.add(e.id); });
+                                            }
+                                            if (payload && payload.account_summary && typeof syncAccountSummaryToAccountCache === 'function') {
+                                                syncAccountSummaryToAccountCache(email, payload.account_summary);
+                                            }
+                                            // Soft-load: seed list cache from baseline fetch (inbox/sentitems).
+                                            if (payload) {
+                                                seedPollEmailListCache(email, POLL_LIST_FOLDERS[index] || 'inbox', payload);
+                                            }
+                                        }).catch(function() {});
+                                    }
+                                });
+                
+                                if (!pollMap.has(email)) return;
+                
+                                // 触发 UI 回调和倒计时（先于首次轮询，让用户立即看到状态变化）
+                                if (_pollUICallbacks.onPollStart) {
+                                    _pollUICallbacks.onPollStart(email, state.maxCount, { reapply: false, silent: !!(opts && opts.silent) });
+                                }
+                                startGlobalCountdown();
+                
+                                // 立即执行首次轮询（150ms 延迟，确保 baseline 微任务完成），后续按间隔继续
+                                setTimeout(function() {
+                                    if (pollMap.has(email)) pollSingleEmail(email, state);
+                                }, POLL_INITIAL_DELAY_MS);
+                
+                                state.timer = setInterval(function() { pollSingleEmail(email, state); }, state.intervalSec * 1000);
+                            });
             });
         }
 

@@ -28,7 +28,7 @@ function initOverview() {
 
             const pageIsActive = !page.classList.contains('page-hidden');
             if (pageIsActive) {
-                loadOverviewTab(__overviewState.activeTab || 'summary', true);
+                runSafely(() => loadOverviewTab(__overviewState.activeTab || 'summary', true));
             }
         });
         __overviewBound = true;
@@ -58,7 +58,7 @@ function switchOverviewTab(tabId) {
         renderOverviewTab(targetTab, __overviewState.cache[targetTab]);
         return;
     }
-    loadOverviewTab(targetTab);
+    runSafely(() => loadOverviewTab(targetTab));
 }
 
 function syncOverviewStaticText() {

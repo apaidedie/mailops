@@ -108,9 +108,9 @@
                         }
                     } else {
                         if (groups.length === 0) {
-                            loadGroups();
+                            runSafely(() => loadGroups());
                         } else if (currentGroupId) {
-                            loadAccountsByGroup(currentGroupId);
+                            runSafely(() => loadAccountsByGroup(currentGroupId));
                         }
                         if (typeof switchMailboxViewMode === 'function') {
                             switchMailboxViewMode(mailboxViewMode);
@@ -119,17 +119,17 @@
                         scheduleAccountPanelDensitySync();
                     }
                 }
-                if (page === 'temp-emails' && typeof loadTempEmails === 'function') loadTempEmails(false);
+                if (page === 'temp-emails' && typeof loadTempEmails === 'function') runSafely(() => loadTempEmails(false));
                 if (page === 'settings') {
                     if (typeof bindSettingsTabNav === 'function') bindSettingsTabNav();
                     if (typeof currentSettingsTab === 'undefined' || !currentSettingsTab) {
                         currentSettingsTab = 'basic';
                     }
-                    loadSettings();
+                    runSafely(() => loadSettings());
                 }
-                if (page === 'refresh-log') loadRefreshLogPage();
+                if (page === 'refresh-log') runSafely(() => loadRefreshLogPage());
                 if (page === 'pool-admin' && typeof loadPoolAdmin === 'function') loadPoolAdmin(false);
-                if (page === 'audit') loadAuditLogPage();
+                if (page === 'audit') runSafely(() => loadAuditLogPage());
             };
 
             if (typeof requestAnimationFrame === 'function') {

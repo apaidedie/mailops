@@ -282,7 +282,7 @@
 
         // 复制临时邮箱页面顶栏当前邮箱地址
         function onTempEmailProviderChange(selectedProvider) {
-            syncTempEmailProviderSelection(selectedProvider, { forceRefresh: false });
+            runSafely(() => syncTempEmailProviderSelection(selectedProvider, { forceRefresh: false }));
         }
 
         document.addEventListener('change', event => {

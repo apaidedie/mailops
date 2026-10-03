@@ -96,7 +96,7 @@
                     }
                     // Soft-paint import provider select if modal already opened (no second GET).
                     if (typeof loadProviders === 'function') {
-                        loadProviders(false);
+                        runSafely(() => loadProviders(false));
                     }
                     if (typeof refreshUnifiedMailboxProviderLabelsFromCatalog === 'function') {
                         refreshUnifiedMailboxProviderLabelsFromCatalog();
@@ -242,7 +242,7 @@
                     ? mailboxProviderCatalogCache
                     : [];
                 if (!catalog.length) {
-                    try { loadMailboxProviderCatalog(false); } catch (_e) { /* ignore soft-load failures */ }
+                    runSafely(() => loadMailboxProviderCatalog(false));
                 }
             }
 

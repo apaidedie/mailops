@@ -73,7 +73,7 @@ function loadPoolAdmin(forceRefresh = false) {
     if (!wrapper) return;
     const force = Boolean(forceRefresh);
 
-    ensurePoolAdminGroupOptions();
+    runSafely(() => ensurePoolAdminGroupOptions());
     ensurePoolAdminProviderOptions();
 
     // Capture query signature at request start so rapid filter switches cannot paint

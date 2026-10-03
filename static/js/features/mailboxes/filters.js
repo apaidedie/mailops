@@ -295,6 +295,6 @@
             unifiedMailboxState.filters.provider = provider;
             unifiedMailboxState.page = 1;
             renderUnifiedQuickViews(unifiedMailboxState.filters, unifiedMailboxState.contract || {});
-            loadUnifiedMailboxes(true);
+            runSafely(() => loadUnifiedMailboxes(true));
         }
 

@@ -113,7 +113,7 @@
             } catch (e) {}
             try {
                 if (typeof loadProviders === 'function') {
-                    loadProviders(false);
+                    runSafely(() => loadProviders(false));
                 }
             } catch (e) {}
 

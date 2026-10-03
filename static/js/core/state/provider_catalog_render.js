@@ -828,7 +828,7 @@
                 }
                 const templateCopyTarget = event.target && event.target.closest ? event.target.closest('[data-provider-template-copy]') : null;
                 if (templateCopyTarget) {
-                    copyProviderConfigTemplate();
+                    runSafely(() => copyProviderConfigTemplate());
                     return;
                 }
                 const externalApiStarterModeTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-starter-mode]') : null;
@@ -838,37 +838,37 @@
                 }
                 const externalApiCommandCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-command-copy]') : null;
                 if (externalApiCommandCopyTarget) {
-                    copyExternalApiCommandSnippet();
+                    runSafely(() => copyExternalApiCommandSnippet());
                     return;
                 }
                 const externalApiQuickstartCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-quickstart-copy]') : null;
                 if (externalApiQuickstartCopyTarget) {
-                    copyExternalApiQuickstart();
+                    runSafely(() => copyExternalApiQuickstart());
                     return;
                 }
                 const externalApiSmokeCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-smoke-copy]') : null;
                 if (externalApiSmokeCopyTarget) {
-                    copyExternalApiSmokeCommand();
+                    runSafely(() => copyExternalApiSmokeCommand());
                     return;
                 }
                 const externalApiContractRefreshTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-contract-refresh]') : null;
                 if (externalApiContractRefreshTarget) {
-                    loadExternalApiContractCheck(true);
+                    runSafely(() => loadExternalApiContractCheck(true));
                     return;
                 }
                 const externalApiBundleCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-bundle-copy]') : null;
                 if (externalApiBundleCopyTarget) {
-                    copyExternalApiBundleCommand();
+                    runSafely(() => copyExternalApiBundleCommand());
                     return;
                 }
                 const externalApiHandoffCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-handoff-copy]') : null;
                 if (externalApiHandoffCopyTarget) {
-                    copyExternalApiHandoffKit();
+                    runSafely(() => copyExternalApiHandoffKit());
                     return;
                 }
                 const externalApiSessionCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-session-copy]') : null;
                 if (externalApiSessionCopyTarget) {
-                    copyExternalApiMailboxSessionLifecycle();
+                    runSafely(() => copyExternalApiMailboxSessionLifecycle());
                     return;
                 }
                 const externalProviderRecipeTarget = event.target && event.target.closest ? event.target.closest('[data-external-provider-recipe-key]') : null;
@@ -878,7 +878,7 @@
                 }
                 const externalProviderRecipeCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-provider-recipe-copy]') : null;
                 if (externalProviderRecipeCopyTarget) {
-                    copyExternalProviderRecipe();
+                    runSafely(() => copyExternalProviderRecipe());
                     return;
                 }
                 const externalApiWorkflowTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-workflow-key]') : null;
@@ -888,7 +888,7 @@
                 }
                 const externalApiWorkflowCopyTarget = event.target && event.target.closest ? event.target.closest('[data-external-api-workflow-copy]') : null;
                 if (externalApiWorkflowCopyTarget) {
-                    copyExternalApiWorkflowPlaybook();
+                    runSafely(() => copyExternalApiWorkflowPlaybook());
                     return;
                 }
                 const integrationFilterTarget = event.target && event.target.closest ? event.target.closest('[data-provider-integration-filter]') : null;
@@ -898,23 +898,27 @@
                 }
                 const providerPreflightProbeTarget = event.target && event.target.closest ? event.target.closest('[data-provider-preflight-probe]') : null;
                 if (providerPreflightProbeTarget) {
-                    loadProviderPreflightSnapshot(true, true);
+                    runSafely(() => loadProviderPreflightSnapshot(true, true));
                     return;
                 }
                 const integrationCopyTarget = event.target && event.target.closest ? event.target.closest('[data-provider-integration-copy]') : null;
                 if (integrationCopyTarget) {
-                    copyProviderIntegrationSnippet(
-                        integrationCopyTarget.getAttribute('data-provider-name') || '',
-                        integrationCopyTarget.getAttribute('data-provider-kind') || ''
-                    );
+                    runSafely(() => {
+                        copyProviderIntegrationSnippet(
+                                                integrationCopyTarget.getAttribute('data-provider-name') || '',
+                                                integrationCopyTarget.getAttribute('data-provider-kind') || ''
+                                            );
+                    });
                     return;
                 }
                 const healthTarget = event.target && event.target.closest ? event.target.closest('[data-provider-health-action]') : null;
                 if (healthTarget) {
-                    probeMailboxProviderHealth(
-                        healthTarget.getAttribute('data-provider-kind') || '',
-                        healthTarget.getAttribute('data-provider-name') || ''
-                    );
+                    runSafely(() => {
+                        probeMailboxProviderHealth(
+                                                healthTarget.getAttribute('data-provider-kind') || '',
+                                                healthTarget.getAttribute('data-provider-name') || ''
+                                            );
+                    });
                 }
             });
         }
@@ -927,9 +931,9 @@
                     refreshSettingsProviderSurfaces(externalApiSettingsSnapshot, 'ready');
                     softPaintSettingsSecretHintsIfOpen();
                     if (currentSettingsTab === 'api-security') {
-                        loadProviderPreflightSnapshot(false, false);
-                        loadExternalApiContractCheck(false);
-                        loadOperationalReadinessSnapshot(false);
+                        runSafely(() => loadProviderPreflightSnapshot(false, false));
+                        runSafely(() => loadExternalApiContractCheck(false));
+                        runSafely(() => loadOperationalReadinessSnapshot(false));
                     }
                 }
                 // Theme toggle label is painted in JS; re-translate on language change.

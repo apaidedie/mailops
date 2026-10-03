@@ -742,8 +742,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("/api/providers/preflight?probe_network=true", js_text)
         self.assertIn("data.provider_preflight", js_text)
         self.assertIn("data-provider-preflight-probe", js_text)
-        self.assertIn("loadProviderPreflightSnapshot(true, false);", js_text)
-        self.assertIn("loadProviderPreflightSnapshot(true, true);", js_text)
+        self.assertIn("runSafely(() => loadProviderPreflightSnapshot(true, false));", js_text)
+        self.assertIn("runSafely(() => loadProviderPreflightSnapshot(true, true));", js_text)
         self.assertIn("renderProviderPreflightConsole();", js_text)
         self.assertIn("function renderExternalApiCommandCenter", js_text)
         self.assertIn("function getExternalApiCommandStarterCommand", js_text)
@@ -777,13 +777,13 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("function renderExternalApiContractCheckGroup", js_text)
         self.assertIn("function renderExternalApiContractCheckRow", js_text)
         self.assertIn("data-external-api-contract-refresh", js_text)
-        self.assertIn("loadExternalApiContractCheck(false);", js_text)
-        self.assertIn("loadExternalApiContractCheck(true);", js_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(false));", js_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(true));", js_text)
         switch_tab_start = js_text.index("function switchSettingsTab")
         switch_tab_end = js_text.index("async function autoSaveSettings", switch_tab_start)
         switch_tab_text = js_text[switch_tab_start:switch_tab_end]
         self.assertIn("nextTab === 'api-security'", switch_tab_text)
-        self.assertIn("loadExternalApiContractCheck(false);", switch_tab_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(false));", switch_tab_text)
         self.assertIn("loadProviderPreflightSnapshot(false, false)", switch_tab_text)
         # loadSettings only soft-loads api-security network panels when already on that tab.
         load_settings_start = js_text.index("async function loadSettings(forceRefresh = false)")
@@ -1326,8 +1326,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
             command_center_text.index("renderExternalApiQuickstartCockpit()"),
             command_center_text.index("renderExternalApiMailboxSessionLifecycle()"),
         )
-        self.assertIn("loadOperationalReadinessSnapshot(true);", js_text)
-        self.assertIn("loadOperationalReadinessSnapshot(false);", js_text)
+        self.assertIn("runSafely(() => loadOperationalReadinessSnapshot(true));", js_text)
+        self.assertIn("runSafely(() => loadOperationalReadinessSnapshot(false));", js_text)
         readiness_load_start = js_text.index("async function loadOperationalReadinessSnapshot")
         readiness_load_end = js_text.index("async function loadExternalApiContractCheck", readiness_load_start)
         readiness_load = js_text[readiness_load_start:readiness_load_end]
@@ -1383,8 +1383,8 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         self.assertIn("report.mutation_safe", js_text)
         self.assertIn("data-external-api-contract-refresh", js_text)
         self.assertIn("externalApiContractRefreshTarget", js_text)
-        self.assertIn("loadExternalApiContractCheck(false);", js_text)
-        self.assertIn("loadExternalApiContractCheck(true);", js_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(false));", js_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(true));", js_text)
         contract_load_start = js_text.index("async function loadExternalApiContractCheck")
         contract_load_end = (
             js_text.index(
@@ -1409,7 +1409,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         switch_tab_end = js_text.index("async function autoSaveSettings", switch_tab_start)
         switch_tab_text = js_text[switch_tab_start:switch_tab_end]
         self.assertIn("nextTab === 'api-security'", switch_tab_text)
-        self.assertIn("loadExternalApiContractCheck(false);", switch_tab_text)
+        self.assertIn("runSafely(() => loadExternalApiContractCheck(false));", switch_tab_text)
         # loadSettings gates these network loads to the api-security tab.
         load_settings_start = js_text.index("async function loadSettings(forceRefresh = false)")
         load_settings_end = js_text.index("console.error('loadSettings error:'", load_settings_start)
@@ -1575,9 +1575,9 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         click_end = js_text.index("if (typeof window !== 'undefined')", click_start)
         click_text = js_text[click_start:click_end]
         self.assertIn("externalApiBundleCopyTarget", click_text)
-        self.assertIn("copyExternalApiBundleCommand();", click_text)
+        self.assertIn("runSafely(() => copyExternalApiBundleCommand());", click_text)
         self.assertIn("externalApiHandoffCopyTarget", click_text)
-        self.assertIn("copyExternalApiHandoffKit();", click_text)
+        self.assertIn("runSafely(() => copyExternalApiHandoffKit());", click_text)
 
     def test_external_api_consumer_usage_console_contract_is_safe(self):
         """外部 API 消费方用量台应只消费 settings 安全字段，不读取密钥输入。"""
@@ -1725,7 +1725,7 @@ class SettingsTabRefactorFrontendTests(unittest.TestCase):
         click_end = js_text.index("if (typeof window !== 'undefined')", click_start)
         click_text = js_text[click_start:click_end]
         self.assertIn("data-provider-preflight-probe", click_text)
-        self.assertIn("loadProviderPreflightSnapshot(true, true);", click_text)
+        self.assertIn("runSafely(() => loadProviderPreflightSnapshot(true, true));", click_text)
 
     def test_provider_health_console_styles_and_translations_exist(self):
         """Provider 控制台应包含上游探测的样式与中英文本。"""

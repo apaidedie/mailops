@@ -192,7 +192,7 @@
             const requestOnce = () => {
                 if (!('Notification' in window) || Notification.permission !== 'default') return;
                 try {
-                    Notification.requestPermission();
+                    runSafely(() => Notification.requestPermission());
                 } catch (_error) {
                     /* permission prompt may be blocked; ignore */
                 }
@@ -241,7 +241,7 @@
             handleResponsiveGroups();
 
             // 初始化轮询设置
-            initPollingSettings();
+            runSafely(() => initPollingSettings());
 
             // Settings-only boot work is deferred to showSettingsModal:
             // - temp-mail provider radios (bind + render)
@@ -252,7 +252,7 @@
             // Preload secret-free provider catalog so account tags / import / pool
             // filters can resolve labels without waiting for Settings navigation.
             if (typeof loadMailboxProviderCatalog === 'function') {
-                loadMailboxProviderCatalog(false);
+                runSafely(() => loadMailboxProviderCatalog(false));
             }
 
             // Browser notification permission is deferred until first user gesture
@@ -265,7 +265,7 @@
             const searchInput = document.getElementById('globalSearch');
             if (searchInput) {
                 const debouncedSearch = debounce((e) => {
-                    searchAccounts(e.target.value);
+                    runSafely(() => searchAccounts(e.target.value));
                 }, 300);
                 searchInput.addEventListener('input', debouncedSearch);
             }
@@ -298,7 +298,7 @@
                 // 检查是否滚动到底部
                 if (emailList.scrollHeight - emailList.scrollTop <= emailList.clientHeight + 50) {
                     if (!isLoadingMore && hasMoreEmails && currentAccount && !isTempEmailGroup) {
-                        loadMoreEmails();
+                        runSafely(() => loadMoreEmails());
                     }
                 }
             });
@@ -627,7 +627,7 @@
             }
             document.getElementById('editAccountFromErrorBtn').onclick = function () {
                 hideRefreshErrorModal();
-                showEditAccountModal(accountId);
+                runSafely(() => showEditAccountModal(accountId));
             };
         }
 

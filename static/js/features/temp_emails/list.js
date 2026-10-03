@@ -9,7 +9,7 @@
                 ? translateAppTextLocal(placeholderZh)
                 : placeholderZh;
             if (text && text !== placeholderZh && text !== placeholderEn) {
-                copyEmail(text);
+                runSafely(() => copyEmail(text));
             }
         }
 
@@ -38,10 +38,10 @@
 
             const providerSelect = document.getElementById('tempEmailProviderSelect');
             if (providerSelect) {
-                syncTempEmailProviderSelection(providerSelect.value, { forceRefresh });
+                runSafely(() => syncTempEmailProviderSelection(providerSelect.value, { forceRefresh }));
             }
             if (typeof loadMailboxProviderCatalog === 'function') {
-                loadMailboxProviderCatalog(forceRefresh);
+                runSafely(() => loadMailboxProviderCatalog(forceRefresh));
             }
 
             const force = Boolean(forceRefresh);
@@ -197,7 +197,7 @@
                     // BUG-06: 不调用 loadGroups()，因为 loadTempEmails 内部已更新分组徽章。
                     // loadGroups() 在 currentGroupId 为 null 时会触发 selectGroup()，
                     // 进而清空 currentAccount，导致当前选中临时邮箱被意外重置。
-                    loadTempEmails(true);
+                    runSafely(() => loadTempEmails(true));
                 } else {
                     handleApiError(data, '生成临时邮箱失败');
                 }
@@ -244,7 +244,7 @@
                 // Bind force-refresh here so HTML onclick can stay short / soft-safe.
                 tempRefreshBtn.onclick = () => {
                     if (currentAccount && isTempEmailGroup) {
-                        loadTempEmailMessages(currentAccount, true);
+                        runSafely(() => loadTempEmailMessages(currentAccount, true));
                     }
                 };
             }
@@ -284,7 +284,7 @@
             if (tag) tag.style.display = 'none';
 
             // Soft-load messages when warm; explicit refresh forces network.
-            loadTempEmailMessages(email, false);
+            runSafely(() => loadTempEmailMessages(email, false));
         }
 
         // 清空临时邮箱的所有邮件
@@ -342,7 +342,7 @@
                         }
                     }
 
-                    loadTempEmails(true);
+                    runSafely(() => loadTempEmails(true));
                     // BUG-06: 同 generateTempEmail，不调用 loadGroups()，
                     // 避免 currentGroupId 为 null 时触发 selectGroup() 清空 currentAccount。
                 } else {

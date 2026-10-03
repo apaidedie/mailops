@@ -17,8 +17,11 @@ All notable changes to MailOps are documented in this file.
 
 ### 修复 / Fixed
 
+- **前端未处理 Promise 全量收口**：SonarCloud 首次分析暴露 120 处 fire-and-forget 异步调用（集中在 Provider 目录 / 设置 / 号池管理），任一 rejection 都会静默中断页面初始化。新增全局 `runSafely` 兜底助手并包裹全部调用点（同步异常与 Promise rejection 统一记录）；`mailbox_compact.js` 附独立执行兜底。
+- **SonarCloud 接入**：项目已接入并完成首次分析（Free 计划 / 组织 `apaidedie`）；故意为之的安全敏感项（伪随机数 ×4、CSRF 配置开关 ×3、开发期拆分脚本路径参数 ×17）经审查标记为已接受。
 - **镜像安全**：`.dockerignore` 此前未排除 `.env`，真实 `SECRET_KEY`/`LOGIN_PASSWORD` 会进入镜像层；已排除并同步排除本地工作区状态。
-- **Windows 构建**：`.gitattributes` 强制 `*.sh` 为 LF——CRLF 检出会让 `start-gunicorn.sh` 的 shebang 携带 `` 导致容器 crash-loop。
+- **Windows 构建**：`.gitattributes` 强制 `*.sh` 为 LF——CRLF 检出会让 `start-gunicorn.sh` 的 shebang 携带 `
+` 导致容器 crash-loop。
 - **Dockerfile 可移植性**：pip 源参数化（`ARG PIP_INDEX_URL`，默认官方 PyPI；CI 发布流程经 build-arg 保留清华镜像）。
 
 ## [v2.7.3] - 2026-10-02

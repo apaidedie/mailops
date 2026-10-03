@@ -26,7 +26,7 @@
             const totalPages = Number(getAccountListMeta().total_pages || 0);
             if (page < 1 || page > totalPages) return;
             currentAccountPage = page;
-            loadAccountsByGroup(currentGroupId, false, page);
+            runSafely(() => loadAccountsByGroup(currentGroupId, false, page));
             const containers = [
                 document.getElementById('accountList'),
                 document.getElementById('compactAccountList')
@@ -112,7 +112,7 @@
 
             if (currentGroupId) {
                 currentAccountPage = 1;  // 排序时重置到第 1 页
-                loadAccountsByGroup(currentGroupId, true, 1);
+                runSafely(() => loadAccountsByGroup(currentGroupId, true, 1));
             }
         }
 
@@ -125,7 +125,7 @@
         function handleTagFilterChange() {
             if (currentGroupId) {
                 currentAccountPage = 1;  // 标签过滤时重置到第 1 页
-                loadAccountsByGroup(currentGroupId, true, 1);
+                runSafely(() => loadAccountsByGroup(currentGroupId, true, 1));
             }
         }
 
@@ -149,7 +149,7 @@
 
             if (!currentAccountSearchQuery) {
                 currentAccountPage = 1;  // 清空搜索时重置页码
-                loadAccountsByGroup(currentGroupId, true, 1);
+                runSafely(() => loadAccountsByGroup(currentGroupId, true, 1));
                 return;
             }
 

@@ -285,10 +285,12 @@
 
                             if (invalidTokenFailedCount > 0) {
                                 showInvalidTokenDetectionSummary(invalidTokenFailedCount, data.invalid_token_failed_list || []);
-                                loadInvalidTokenGovernanceCandidates({
-                                    forceRefresh: true,
-                                    keepVisibleWhenEmpty: true,
-                                    silentWhenEmpty: false
+                                runSafely(() => {
+                                    loadInvalidTokenGovernanceCandidates({
+                                                                        forceRefresh: true,
+                                                                        keepVisibleWhenEmpty: true,
+                                                                        silentWhenEmpty: false
+                                                                    });
                                 });
                             }
 
@@ -301,7 +303,7 @@
 
                             // 刷新账号列表以更新刷新时间
                             if (currentGroupId) {
-                                loadAccountsByGroup(currentGroupId, true);
+                                runSafely(() => loadAccountsByGroup(currentGroupId, true));
                             }
                             // New refresh-log / audit rows may exist; drop soft-load caches.
                             if (typeof invalidateRefreshLogPageCache === 'function') {
@@ -992,7 +994,7 @@
 
                 // 刷新账号列表以同步状态
                 if (currentGroupId) {
-                    loadAccountsByGroup(currentGroupId, true);
+                    runSafely(() => loadAccountsByGroup(currentGroupId, true));
                 }
                 if (typeof invalidateRefreshLogPageCache === 'function') {
                     invalidateRefreshLogPageCache();
