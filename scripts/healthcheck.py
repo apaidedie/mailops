@@ -21,7 +21,7 @@ def _response_requires_json_check(content_type: str, body: bytes) -> bool:
     if "json" in content_type.lower():
         return True
     stripped = body.lstrip()
-    return stripped.startswith(b"{") or stripped.startswith(b"[")
+    return stripped.startswith((b"{", b"["))
 
 
 def check_health(

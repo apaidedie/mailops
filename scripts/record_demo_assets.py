@@ -152,7 +152,7 @@ def record_and_convert(lang: str) -> None:
     except ImportError:
         raise SystemExit("imageio-ffmpeg is required: pip install imageio imageio-ffmpeg")
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-    src = sorted((OUT_DIR / f"recording-{lang}").glob("*.webm"))[-1]
+    src = max((OUT_DIR / f"recording-{lang}").glob("*.webm"), key=lambda p: p.stat().st_mtime)
     palette = OUT_DIR / f"palette-{lang}.png"
     out = IMG_DIR / f"demo{'-en' if lang == 'en' else ''}.gif"
     subprocess.run(

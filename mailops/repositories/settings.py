@@ -196,7 +196,7 @@ def _resolve_registered_temp_mail_provider(normalized: str) -> str:
     if DEFAULT_TEMP_MAIL_PROVIDER in supported:
         return DEFAULT_TEMP_MAIL_PROVIDER
     if supported:
-        return sorted(supported)[0]
+        return min(supported)
     return DEFAULT_TEMP_MAIL_PROVIDER
 
 

@@ -402,11 +402,10 @@ def extract_verification_for_outlook(
         if not emails:
             continue
 
-        latest = sorted(
+        latest = max(
             emails,
             key=lambda x: x.get("date", "") or x.get("receivedDateTime", ""),
-            reverse=True,
-        )[0]
+        )
 
         if channel.startswith("imap_"):
             detail = channel_result.get("detail")
