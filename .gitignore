@@ -122,3 +122,6 @@ static/js/bundles/
 
 # Local Playwright CLI artifacts
 .playwright-cli/
+
+# 覆盖率报告生成产物（jest/layout-system）
+tests/layout-system/coverage/
