@@ -35,7 +35,7 @@ class SeedDemoWorkspaceTests(unittest.TestCase):
             self.assertTrue(result["success"])
             self.assertEqual(result["counts"]["accounts"], 3)
             self.assertEqual(result["counts"]["temp_emails"], 4)
-            self.assertEqual(result["counts"]["temp_email_messages"], 6)
+            self.assertEqual(result["counts"]["temp_email_messages"], 7)
             self.assertEqual(result["counts"]["verification_extract_logs"], 8)
             self.assertEqual(result["counts"]["external_api_consumer_usage_daily"], 9)
             self.assertIn("web_mailops_app.py", result["startup_command"])

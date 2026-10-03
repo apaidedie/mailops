@@ -11,7 +11,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -314,17 +313,92 @@ def _insert_temp_mailboxes(conn: sqlite3.Connection, now: datetime) -> list[int]
     return temp_ids
 
 
+def _demo_code_email_html(title: str, code: str, brand: str) -> str:
+    """演示用品牌化验证码邮件 HTML（带明显的高亮验证码块）。"""
+    return (
+        f'<div style="font-family:Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;'
+        f'border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">'
+        f'<div style="background:#1d4ed8;color:#fff;padding:14px 20px;font-size:16px;font-weight:600">{brand}</div>'
+        f'<div style="padding:22px 20px;color:#111827">'
+        f'<p style="margin:0 0 12px">{title}</p>'
+        f'<div style="background:#f3f4f6;border:1px dashed #9ca3af;border-radius:8px;'
+        f'padding:14px;text-align:center;font-size:26px;letter-spacing:8px;font-weight:700;color:#111827">{code}</div>'
+        f'<p style="margin:14px 0 0;color:#6b7280;font-size:12px">'
+        f"If you did not request this code you can safely ignore this email.</p>"
+        f"</div></div>"
+    )
+
+
 def _insert_temp_messages(conn: sqlite3.Connection, now: datetime) -> None:
     messages = [
-        ("duck.demo@temp.demo.local", "duck-1", "no-reply@acme.example", "DuckMail signup code 391247", "Your verification code is 391247.", 1),
-        ("duck.demo@temp.demo.local", "duck-2", "alerts@acme.example", "Welcome to Acme", "Your demo registration mailbox is ready.", 2),
-        ("lol.demo@temp.demo.local", "lol-1", "login@saas.example", "Security code 820114", "Use 820114 to finish signing in.", 3),
-        ("nator.demo@mail.example", "nator-1", "team@workspace.example", "Confirm email address", "Click the confirmation link in this synthetic message.", 4),
-        ("worker.demo@temp.demo.local", "worker-1", "robot@ci.example", "CI worker mailbox code 640288", "Code: 640288", 5),
-        ("worker.demo@temp.demo.local", "worker-2", "ops@example.test", "Pool lease notice", "This mailbox is currently claimed by signup-worker.", 6),
+        # (email, message_id, sender, subject, content, html, minutes)
+        (
+            "duck.demo@temp.demo.local",
+            "duck-1",
+            "no-reply@acme.example",
+            "Your Acme verification code",
+            "Your verification code is 391247. It expires in 10 minutes.",
+            _demo_code_email_html("Use this code to finish signing up for Acme", "391247", "Acme"),
+            2,
+        ),
+        (
+            "duck.demo@temp.demo.local",
+            "duck-2",
+            "alerts@acme.example",
+            "Welcome to Acme",
+            "Your demo registration mailbox is ready.",
+            "<p>Your demo registration mailbox is ready.</p>",
+            16,
+        ),
+        (
+            "lol.demo@temp.demo.local",
+            "lol-1",
+            "login@saas.example",
+            "Security code 820114",
+            "Use 820114 to finish signing in.",
+            _demo_code_email_html("Finish signing in to Saas Demo", "820114", "Saas Demo"),
+            3,
+        ),
+        (
+            "lol.demo@temp.demo.local",
+            "lol-2",
+            "news@saas.example",
+            "Saas Demo monthly notes",
+            "This month: mailbox pools, temp providers, and faster first paint.",
+            "<p>This month: mailbox pools, temp providers, and faster first paint.</p>",
+            25,
+        ),
+        (
+            "nator.demo@mail.example",
+            "nator-1",
+            "team@workspace.example",
+            "Confirm your email address",
+            "Confirm your address: https://verify.workspace.example/confirm?token=demo-link-7f3a",
+            '<p>Confirm your address:</p><p><a href="https://verify.workspace.example/confirm?token=demo-link-7f3a">'
+            "https://verify.workspace.example/confirm?token=demo-link-7f3a</a></p>",
+            4,
+        ),
+        (
+            "worker.demo@temp.demo.local",
+            "worker-1",
+            "robot@ci.example",
+            "CI worker mailbox code 640288",
+            "Code: 640288",
+            _demo_code_email_html("CI lease verification", "640288", "CI Worker"),
+            1,
+        ),
+        (
+            "worker.demo@temp.demo.local",
+            "worker-2",
+            "ops@example.test",
+            "Pool lease notice",
+            "This mailbox is currently claimed by signup-worker.",
+            "<p>This mailbox is currently claimed by signup-worker.</p>",
+            30,
+        ),
     ]
-    for email, message_id, sender, subject, content, minutes in messages:
-        created = now - timedelta(minutes=minutes * 7)
+    for email, message_id, sender, subject, content, html, minutes in messages:
+        created = now - timedelta(minutes=minutes)
         conn.execute(
             """
             INSERT INTO temp_email_messages (
@@ -339,7 +413,7 @@ def _insert_temp_messages(conn: sqlite3.Connection, now: datetime) -> None:
                 sender,
                 subject,
                 content,
-                f"<p>{content}</p>",
+                html,
                 1,
                 int(created.timestamp()),
                 json.dumps({"demo": True, "message_id": message_id}, sort_keys=True),
@@ -348,11 +422,40 @@ def _insert_temp_messages(conn: sqlite3.Connection, now: datetime) -> None:
         )
 
 
-def _insert_pool_and_observability(conn: sqlite3.Connection, account_ids: list[int], temp_ids: list[int], now: datetime) -> None:
+def _insert_pool_and_observability(
+    conn: sqlite3.Connection, account_ids: list[int], temp_ids: list[int], now: datetime
+) -> None:
     claim_rows = [
-        (account_ids[0], "demo-claim-001", "signup-worker", "checkout-flow", "claim", None, "leased graph demo", now - timedelta(hours=3)),
-        (account_ids[0], "demo-claim-001", "signup-worker", "checkout-flow", "complete", "success", "code extracted", now - timedelta(hours=2, minutes=52)),
-        (account_ids[2], "demo-claim-token", "signup-worker", "registration-flow", "claim", None, "active demo lease", now - timedelta(minutes=6)),
+        (
+            account_ids[0],
+            "demo-claim-001",
+            "signup-worker",
+            "checkout-flow",
+            "claim",
+            None,
+            "leased graph demo",
+            now - timedelta(hours=3),
+        ),
+        (
+            account_ids[0],
+            "demo-claim-001",
+            "signup-worker",
+            "checkout-flow",
+            "complete",
+            "success",
+            "code extracted",
+            now - timedelta(hours=2, minutes=52),
+        ),
+        (
+            account_ids[2],
+            "demo-claim-token",
+            "signup-worker",
+            "registration-flow",
+            "claim",
+            None,
+            "active demo lease",
+            now - timedelta(minutes=6),
+        ),
     ]
     for account_id, token, caller_id, task_id, action, result, detail, created in claim_rows:
         conn.execute(
@@ -368,7 +471,14 @@ def _insert_pool_and_observability(conn: sqlite3.Connection, account_ids: list[i
 
     project_rows = [
         (account_ids[0], "demo-webhook", "checkout-flow", now - timedelta(hours=3), now - timedelta(hours=2, minutes=52), 1),
-        (account_ids[1], "demo-ci-worker", "registration-flow", now - timedelta(hours=5), now - timedelta(hours=4, minutes=47), 2),
+        (
+            account_ids[1],
+            "demo-ci-worker",
+            "registration-flow",
+            now - timedelta(hours=5),
+            now - timedelta(hours=4, minutes=47),
+            2,
+        ),
     ]
     for account_id, consumer_key, project_key, first_claimed, last_success, success_count in project_rows:
         conn.execute(
@@ -427,15 +537,95 @@ def _insert_pool_and_observability(conn: sqlite3.Connection, account_ids: list[i
         )
 
     usage_rows = [
-        ("demo-webhook", "Checkout Worker", "checkout", "/api/v1/external/mailbox-sessions/start", 38, 37, 1, "ok", now - timedelta(minutes=9)),
-        ("demo-webhook", "Checkout Worker", "checkout", "/api/v1/external/mailbox-sessions/read", 92, 89, 3, "ok", now - timedelta(minutes=6)),
-        ("demo-webhook", "Checkout Worker", "checkout", "/api/v1/external/mailbox-sessions/close", 36, 36, 0, "ok", now - timedelta(minutes=5)),
-        ("demo-browser-extension", "Browser Extension", "extension", "/api/v1/external/mailboxes", 55, 55, 0, "ok", now - timedelta(minutes=17)),
-        ("demo-browser-extension", "Browser Extension", "extension", "/api/v1/external/verification-code", 24, 22, 2, "ok", now - timedelta(minutes=11)),
+        (
+            "demo-webhook",
+            "Checkout Worker",
+            "checkout",
+            "/api/v1/external/mailbox-sessions/start",
+            38,
+            37,
+            1,
+            "ok",
+            now - timedelta(minutes=9),
+        ),
+        (
+            "demo-webhook",
+            "Checkout Worker",
+            "checkout",
+            "/api/v1/external/mailbox-sessions/read",
+            92,
+            89,
+            3,
+            "ok",
+            now - timedelta(minutes=6),
+        ),
+        (
+            "demo-webhook",
+            "Checkout Worker",
+            "checkout",
+            "/api/v1/external/mailbox-sessions/close",
+            36,
+            36,
+            0,
+            "ok",
+            now - timedelta(minutes=5),
+        ),
+        (
+            "demo-browser-extension",
+            "Browser Extension",
+            "extension",
+            "/api/v1/external/mailboxes",
+            55,
+            55,
+            0,
+            "ok",
+            now - timedelta(minutes=17),
+        ),
+        (
+            "demo-browser-extension",
+            "Browser Extension",
+            "extension",
+            "/api/v1/external/verification-code",
+            24,
+            22,
+            2,
+            "ok",
+            now - timedelta(minutes=11),
+        ),
         ("demo-ci-worker", "CI Worker", "ci", "/api/v1/external/providers", 18, 18, 0, "ok", now - timedelta(minutes=40)),
-        ("demo-ci-worker", "CI Worker", "ci", "/api/v1/external/pool/claim-random", 14, 12, 2, "error", now - timedelta(minutes=37)),
-        ("demo-ci-worker", "CI Worker", "ci", "/api/v1/external/temp-emails/apply", 11, 11, 0, "ok", now - timedelta(minutes=35)),
-        ("demo-ci-worker", "CI Worker", "ci", "/api/v1/external/integration-bundle", 9, 9, 0, "ok", now - timedelta(minutes=32)),
+        (
+            "demo-ci-worker",
+            "CI Worker",
+            "ci",
+            "/api/v1/external/pool/claim-random",
+            14,
+            12,
+            2,
+            "error",
+            now - timedelta(minutes=37),
+        ),
+        (
+            "demo-ci-worker",
+            "CI Worker",
+            "ci",
+            "/api/v1/external/temp-emails/apply",
+            11,
+            11,
+            0,
+            "ok",
+            now - timedelta(minutes=35),
+        ),
+        (
+            "demo-ci-worker",
+            "CI Worker",
+            "ci",
+            "/api/v1/external/integration-bundle",
+            9,
+            9,
+            0,
+            "ok",
+            now - timedelta(minutes=32),
+        ),
     ]
     usage_date = now.date().isoformat()
     for consumer_key, consumer_name, caller_id, endpoint, total, success, errors, last_status, last_used in usage_rows:
@@ -484,7 +674,13 @@ def _insert_pool_and_observability(conn: sqlite3.Connection, account_ids: list[i
 
     audit_rows = [
         ("demo_seed", "database", "workspace", "ok", "Demo workspace seeded"),
-        ("external_api_access", "external_api", "/api/v1/external/mailbox-sessions/start", "ok", "Checkout worker started a mailbox session"),
+        (
+            "external_api_access",
+            "external_api",
+            "/api/v1/external/mailbox-sessions/start",
+            "ok",
+            "Checkout worker started a mailbox session",
+        ),
         ("pool_claim", "account", "pool.reserve@demo.local", "ok", "Mailbox leased to signup worker"),
     ]
     for index, (action, resource_type, resource_id, status, detail) in enumerate(audit_rows):
@@ -548,11 +744,23 @@ def _collect_counts(conn: sqlite3.Connection) -> dict[str, int]:
     queries = {
         "accounts": ("SELECT COUNT(*) AS c FROM accounts WHERE email IN (?, ?, ?)", DEMO_ACCOUNT_EMAILS),
         "temp_emails": ("SELECT COUNT(*) AS c FROM temp_emails WHERE email IN (?, ?, ?, ?)", DEMO_TEMP_EMAILS),
-        "temp_email_messages": ("SELECT COUNT(*) AS c FROM temp_email_messages WHERE email_address IN (?, ?, ?, ?)", DEMO_TEMP_EMAILS),
-        "verification_extract_logs": ("SELECT COUNT(*) AS c FROM verification_extract_logs WHERE trace_id LIKE 'demo-trace-%'", ()),
-        "external_api_consumer_usage_daily": ("SELECT COUNT(*) AS c FROM external_api_consumer_usage_daily WHERE consumer_key IN (?, ?, ?)", DEMO_CONSUMER_KEYS),
+        "temp_email_messages": (
+            "SELECT COUNT(*) AS c FROM temp_email_messages WHERE email_address IN (?, ?, ?, ?)",
+            DEMO_TEMP_EMAILS,
+        ),
+        "verification_extract_logs": (
+            "SELECT COUNT(*) AS c FROM verification_extract_logs WHERE trace_id LIKE 'demo-trace-%'",
+            (),
+        ),
+        "external_api_consumer_usage_daily": (
+            "SELECT COUNT(*) AS c FROM external_api_consumer_usage_daily WHERE consumer_key IN (?, ?, ?)",
+            DEMO_CONSUMER_KEYS,
+        ),
         "account_claim_logs": ("SELECT COUNT(*) AS c FROM account_claim_logs WHERE claim_token LIKE 'demo-claim%'", ()),
-        "account_project_usage": ("SELECT COUNT(*) AS c FROM account_project_usage WHERE consumer_key IN (?, ?, ?)", DEMO_CONSUMER_KEYS),
+        "account_project_usage": (
+            "SELECT COUNT(*) AS c FROM account_project_usage WHERE consumer_key IN (?, ?, ?)",
+            DEMO_CONSUMER_KEYS,
+        ),
         "audit_logs": ("SELECT COUNT(*) AS c FROM audit_logs WHERE operator = ?", (DEMO_OPERATOR,)),
         "refresh_runs": ("SELECT COUNT(*) AS c FROM refresh_runs WHERE id LIKE 'demo-refresh-%'", ()),
     }
@@ -565,9 +773,17 @@ def _collect_counts(conn: sqlite3.Connection) -> dict[str, int]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Seed a local-only demo workspace database for Outlook Email Plus.")
-    parser.add_argument("--database", "--db", dest="database", default="", help="Target SQLite database path. Defaults to output/demo/mailops-demo.db.")
+    parser.add_argument(
+        "--database",
+        "--db",
+        dest="database",
+        default="",
+        help="Target SQLite database path. Defaults to output/demo/mailops-demo.db.",
+    )
     parser.add_argument("--reset", action="store_true", help="Remove the target SQLite database before seeding it.")
-    parser.add_argument("--dry-run", action="store_true", help="Print the planned target and row counts without touching the database.")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print the planned target and row counts without touching the database."
+    )
     parser.add_argument("--format", choices=("text", "json"), default="text", help="Output format. Default: text.")
     return parser
 
