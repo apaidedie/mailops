@@ -22,6 +22,8 @@ from mailops.services.provider_catalog import (
     temp_mail_provider_label,
 )
 
+_MSG_INTERNAL_ERROR = "服务内部错误"
+
 
 def _audit(endpoint: str, status: str, *, details: dict[str, Any], email_addr: str = "") -> None:
     external_api_service.audit_external_api_access(
