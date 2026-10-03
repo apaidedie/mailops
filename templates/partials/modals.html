@@ -8,12 +8,12 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">插件名称 <span class="form-req">*</span></label>
+                    <label class="form-label" for="customPluginName">插件名称 <span class="form-req">*</span></label>
                     <input type="text" class="form-input" id="customPluginName" placeholder="例如：moemail" aria-label="例如：moemail">
                     <div class="form-hint">将作为插件文件名（.py）和 provider 名称，建议使用小写字母+下划线。</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">下载地址 <span class="form-req">*</span></label>
+                    <label class="form-label" for="customPluginUrl">下载地址 <span class="form-req">*</span></label>
                     <input type="url" class="form-input" id="customPluginUrl" placeholder="https://raw.githubusercontent.com/xxx/plugin.py" aria-label="https://raw.githubusercontent.com/xxx/plugin.py">
                     <div class="form-hint">粘贴插件 .py 文件的原始下载地址（GitHub raw / Gitee / 自建服务器）。</div>
                 </div>
@@ -37,15 +37,15 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">分组名称</label>
+                    <label class="form-label" for="groupName">分组名称</label>
                     <input type="text" class="form-input" id="groupName" placeholder="输入分组名称" aria-label="输入分组名称">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">分组描述</label>
+                    <label class="form-label" for="groupDescription">分组描述</label>
                     <input type="text" class="form-input" id="groupDescription" placeholder="可选" aria-label="可选">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">分组颜色</label>
+                    <label class="form-label" for="customColorInput">分组颜色</label>
                     <div class="color-picker-group" id="colorPicker">
                         <div class="color-option selected" style="background-color: #2563EB" data-color="#2563EB"></div>
                         <div class="color-option" style="background-color: #06B6D4" data-color="#06B6D4"></div>
@@ -75,20 +75,20 @@
                 <details class="form-help-details modal-advanced-details">
                     <summary>高级选项</summary>
                     <div class="form-group">
-                        <label class="form-label">代理设置</label>
+                        <label class="form-label" for="groupProxyUrl">代理设置</label>
                         <input type="text" class="form-input" id="groupProxyUrl"
                             placeholder="http://host:port 或 socks5://user:pass@host:port"
                             title="可选，设置后该分组下所有邮箱获取邮件时走此代理（支持 HTTP/SOCKS5）" aria-label="http://host:port 或 socks5://user:pass@host:port">
                         <div class="form-hint">可选，设置后该分组下所有邮箱获取邮件时走此代理（支持 HTTP/SOCKS5）</div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">验证码长度范围</label>
+                        <label class="form-label" for="groupVerificationCodeLength">验证码长度范围</label>
                         <input type="text" class="form-input" id="groupVerificationCodeLength" placeholder="例如：6-6 或 4-8"
                             title="仅作用于验证码提取，格式为 min-max。" aria-label="例如：6-6 或 4-8">
                         <div class="form-hint">仅作用于验证码提取，格式为 min-max。</div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">验证码自定义正则</label>
+                        <label class="form-label" for="groupVerificationCodeRegex">验证码自定义正则</label>
                         <input type="text" class="form-input" id="groupVerificationCodeRegex" placeholder="可选，例如：\\b[A-Z0-9]{6}\\b"
                             title="同组内 regex 优先于 length。" aria-label="可选，例如：\\b[A-Z0-9]{6}\\b">
                         <div class="form-hint">同组内 regex 优先于 length。</div>
@@ -111,20 +111,20 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">选择分组</label>
+                    <label class="form-label" for="importGroupSelect">选择分组</label>
                     <select class="form-select" id="importGroupSelect" aria-label="导入账号的目标分组">
                         <!-- 分组选项将通过 JS 动态加载 -->
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">邮箱类型</label>
+                    <label class="form-label" for="accountProvider">邮箱类型</label>
                     <select class="form-select" id="accountProvider" onchange="onProviderChange(this.value)" aria-live="polite aria-label="账号类型（自动识别或指定 Provider）""
                         title="按所选 Provider 使用授权码/应用专用密码或 OAuth 凭据（非网页登录密码）">
                         <option value="">加载 Provider 目录…</option>
                     </select>
                 </div>
                 <div class="form-group" id="customImapFields" style="display:none;">
-                    <label class="form-label">自定义 IMAP 配置</label>
+                    <label class="form-label" for="imapHost">自定义 IMAP 配置</label>
                     <div class="form-stack">
                         <input type="text" class="form-input" id="imapHost" placeholder="imap.example.com" title="仅自定义 IMAP 需要填写；端口通常为 993（SSL）" aria-label="imap.example.com">
                         <input type="number" class="form-input" id="imapPort" placeholder="993" value="993" min="1" max="65535" title="端口通常为 993（SSL）" aria-label="993">
@@ -133,8 +133,8 @@
                 </div>
                 <!-- 重复账号处理策略（仅混合导入模式显示）-->
                 <div class="form-group" id="duplicateStrategyGroup" style="display:none;">
-                    <label class="form-label">重复账号处理</label>
-                    <div class="radio-group">
+                    <label class="form-label" id="duplicateStrategyLabel">重复账号处理</label>
+                    <div class="radio-group" role="radiogroup" aria-labelledby="duplicateStrategyLabel">
                         <label class="radio-label">
                             <input type="radio" name="duplicateStrategy" value="skip" checked>
                             跳过重复（已存在的账号保持不变）
@@ -147,7 +147,7 @@
                 </div>
                 <!-- 兜底 IMAP 设置（仅混合导入模式显示）-->
                 <div class="form-group" id="fallbackImapGroup" style="display:none;">
-                    <label class="form-label">未知域名的 IMAP 设置（可选）</label>
+                    <label class="form-label" for="fallbackImapHost">未知域名的 IMAP 设置（可选）</label>
                     <div class="form-inline-pair">
                         <input type="text" class="form-input" id="fallbackImapHost"
                                placeholder="imap.example.com" title="当邮箱域名无法自动识别时，使用此 IMAP 服务器地址" aria-label="imap.example.com">
@@ -157,7 +157,7 @@
                     <div class="form-hint">当邮箱域名无法自动识别时，使用此 IMAP 服务器地址</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">账号信息</label>
+                    <label class="form-label" for="accountInput">账号信息</label>
                     <textarea class="form-textarea form-textarea--import" id="accountInput"
                         placeholder="邮箱----密码----client_id----refresh_token"
                         title="格式：邮箱----密码----client_id----refresh_token，支持批量导入（每行一个）" aria-label="账号信息（每行一个，支持 Outlook/IMAP/临时邮箱）"></textarea>
@@ -193,29 +193,29 @@
                 <input type="hidden" id="editAccountId">
                 <input type="hidden" id="editAccountType">
                 <div class="form-group">
-                    <label class="form-label">邮箱地址</label>
+                    <label class="form-label" for="editEmail">邮箱地址</label>
                     <input type="text" class="form-input" id="editEmail" placeholder="example@outlook.com" aria-label="example@outlook.com">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" id="editPasswordLabel">密码</label>
+                    <label class="form-label" id="editPasswordLabel" for="editPassword">密码</label>
                     <input type="text" class="form-input" id="editPassword" placeholder="可选，留空则不修改" aria-label="可选，留空则不修改">
                 </div>
                 <div class="form-group" id="editClientIdGroup">
-                    <label class="form-label">Client ID</label>
+                    <label class="form-label" for="editClientId">Client ID</label>
                     <input type="text" class="form-input" id="editClientId" aria-label="Client ID（可选，留空则不修改）">
                 </div>
                 <div class="form-group" id="editRefreshTokenGroup">
-                    <label class="form-label">Refresh Token</label>
+                    <label class="form-label" for="editRefreshToken">Refresh Token</label>
                     <textarea class="form-textarea form-textarea--token" id="editRefreshToken"></textarea aria-label="Refresh Token（可选，留空则不修改）">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">所属分组</label>
+                    <label class="form-label" for="editGroupSelect">所属分组</label>
                     <select class="form-select" id="editGroupSelect" aria-label="编辑账号的分组">
                         <!-- 分组选项将通过 JS 动态加载 -->
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">备注</label>
+                    <label class="form-label" for="editRemark">备注</label>
                     <textarea class="form-textarea" id="editRemark" placeholder="可选" rows="3"></textarea aria-label="可选">
                     <div class="form-hint">备注支持单独保存，不会连带修改账号凭据等其他字段。</div>
                     <div class="form-hint">这里会调用轻量 PATCH 接口，只更新备注本身。</div>
@@ -225,7 +225,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">状态</label>
+                    <label class="form-label" for="editStatus">状态</label>
                     <select class="form-select" id="editStatus" aria-label="编辑账号的状态">
                         <option value="active">正常</option>
                         <option value="inactive">停用</option>
@@ -251,7 +251,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">选择要导出的分组</label>
+                    <label class="form-label" for="selectAllGroups">选择要导出的分组</label>
                     <div id="exportGroupList" class="modal-select-list">
                         <!-- 分组列表将通过 JS 动态加载 -->
                     </div>
@@ -279,7 +279,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">请输入登录密码以确认导出操作</label>
+                    <label class="form-label" for="exportVerifyPassword">请输入登录密码以确认导出操作</label>
                     <input type="password" class="form-input" id="exportVerifyPassword" placeholder="输入登录密码" aria-label="输入登录密码">
                     <div class="form-hint form-hint--danger">导出文件包含敏感信息（Refresh Token），请妥善保管</div>
                 </div>
@@ -437,7 +437,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">新建标签</label>
+                    <label class="form-label" for="newTagName">新建标签</label>
                     <div class="tag-create-row">
                         <input type="text" class="form-input" id="newTagName" placeholder="标签名称" aria-label="标签名称">
                         <input type="color" class="form-control form-control-color tag-color-input" id="newTagColor" value="#563d7c"
@@ -447,7 +447,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">已有标签</label>
+                    <div class="form-label">已有标签</div>
                     <div id="tagList" class="tag-list-shell">
                         <!-- 标签列表动态加载 -->
                         <div class="modal-loading-hint">加载中...</div>
@@ -466,7 +466,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">选择标签</label>
+                    <label class="form-label" for="batchTagSelect">选择标签</label>
                     <select class="form-select" id="batchTagSelect" aria-label="批量打标签的选择">
                         <option value="">请选择标签...</option>
                     </select>
@@ -488,7 +488,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">选择目标分组</label>
+                    <label class="form-label" for="batchMoveGroupSelect">选择目标分组</label>
                     <select class="form-select" id="batchMoveGroupSelect" aria-label="批量移动到的分组">
                         <option value="">请选择分组...</option>
                     </select>
@@ -574,7 +574,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">解决建议</label>
+                    <div class="form-label">解决建议</div>
                     <ul class="solution-list" id="refreshErrorSuggestions">
                         <li>检查账号信息中的 <strong>Client ID</strong> 和 <strong>Refresh Token</strong> 是否填写正确且没有多余的空格。</li>
                         <li>尝试使用"获取 Refresh Token"功能，重新为该账号生成一个新的 Token。</li>
