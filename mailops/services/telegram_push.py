@@ -181,15 +181,9 @@ def _should_fetch_account_via_graph(account: dict) -> bool:
     return str(account.get("provider") or "").strip().lower() == "outlook"
 
 
-def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> List[dict]:
-    """通过 IMAP 获取 received_at > since 的邮件，最多返回 50 封。
-
-    两步策略：先用 INTERNALDATE 快速过滤，再对命中的邮件下载正文。
-    """
-    import email as email_lib
-    import email.header
+def _imap_connect(account: dict) -> Any:
+    """建立 IMAP SSL 连接并登录，处理 Outlook BasicAuth 阻断错误。"""
     import imaplib
-    from datetime import datetime as dt
 
     from mailops.security.crypto import decrypt_data
 
@@ -198,163 +192,171 @@ def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> 
     password_raw = account.get("imap_password", "")
     password = decrypt_data(password_raw) if password_raw else ""
     user = account.get("email", "")
+    conn = imaplib.IMAP4_SSL(host, port, timeout=15)
+    try:
+        conn.login(user, password)
+    except imaplib.IMAP4.error as exc:
+        raw_message = str(exc or "")
+        lowered = raw_message.lower()
+        if (account.get("provider") or "").strip().lower() == "outlook" and "basicauthblocked" in lowered:
+            raise RuntimeError("Outlook.com 已阻止 Basic Auth（账号密码直连）；请将该账号改为 Outlook OAuth 导入") from exc
+        raise
+    return conn
 
-    since_dt = dt.fromisoformat(since)
-    since_date_str = since_dt.strftime("%d-%b-%Y")
+
+def _imap_select_folder(conn: Any, account: dict, folder: str) -> bool:
+    """按优先级尝试多个文件夹名，返回是否成功选中。"""
+    last_select_error = None
+    for folder_name in _resolve_imap_folder(account, folder):
+        try:
+            status, _ = conn.select(folder_name, readonly=True)
+            if status == "OK":
+                return True
+            last_select_error = f"select {folder_name} status={status}"
+        except Exception as exc:
+            last_select_error = str(exc)
+            continue
+    logger.warning(
+        "[telegram_push] folder select failed email=%s provider=%s folder=%s err=%s",
+        account.get("email"),
+        account.get("provider"),
+        folder,
+        last_select_error or "unknown",
+    )
+    return False
+
+
+def _imap_filter_by_internaldate(conn: Any, since_date_str: str, since: str) -> list:
+    """批量获取 INTERNALDATE 并过滤出 since 之后的邮件 ID。"""
+    import re
+
+    _, data = conn.search(None, f'(SINCE "{since_date_str}")')
+    msg_ids = data[0].split() if data[0] else []
+    if not msg_ids:
+        return []
+
+    candidate_ids = msg_ids[-MAX_EMAILS_PER_FETCH:]
+    id_range = b",".join(candidate_ids)
+    _, date_data = conn.fetch(id_range, "(INTERNALDATE)")
+
+    date_pattern = re.compile(rb'INTERNALDATE "([^"]+)"')
+    new_msg_ids = []
+    for item in date_data:
+        if not isinstance(item, tuple):
+            continue
+        header_line = item[0] if isinstance(item[0], bytes) else b""
+        mid_match = re.match(rb"(\d+)", header_line)
+        date_match = date_pattern.search(header_line)
+        if not mid_match or not date_match:
+            continue
+        mid = mid_match.group(1)
+        try:
+            import calendar
+            from imaplib import Internaldate2tuple
+
+            tt = Internaldate2tuple(b'"' + date_match.group(1) + b'"')
+            if tt:
+                from datetime import datetime as dt
+                from mailops.services.telegram_push import _ISO_TS_FORMAT
+
+                ts = calendar.timegm(tt)
+                idate_iso = dt.fromtimestamp(ts, tz=timezone.utc).strftime(_ISO_TS_FORMAT)
+                if idate_iso <= since:
+                    continue
+        except Exception:
+            pass  # 解析失败时保留，由后续 RFC822 过滤
+        new_msg_ids.append(mid)
+    return new_msg_ids
+
+
+def _imap_parse_email_body(msg: Any) -> str:
+    """从 email.Message 提取纯文本正文（text/plain 优先，text/html 降级）。"""
+    if msg.is_multipart():
+        body = ""
+        for part in msg.walk():
+            ct = part.get_content_type()
+            if ct == "text/plain":
+                payload = part.get_payload(decode=True)
+                if payload:
+                    return payload.decode(part.get_content_charset() or "utf-8", errors="replace")
+            elif ct == "text/html" and not body:
+                payload = part.get_payload(decode=True)
+                if payload:
+                    body = _html_to_plain(payload.decode(part.get_content_charset() or "utf-8", errors="replace"))
+        return body
+    payload = msg.get_payload(decode=True)
+    if not payload:
+        return ""
+    charset = msg.get_content_charset() or "utf-8"
+    raw_body = payload.decode(charset, errors="replace")
+    if msg.get_content_type() == "text/html":
+        return _html_to_plain(raw_body)
+    return raw_body
+
+
+def _imap_fetch_and_parse_one(conn: Any, mid: Any, account: dict, folder: str, since: str) -> Optional[dict]:
+    """下载单封邮件并解析为结构化 dict；received_at <= since 时返回 None。"""
+    import email as email_lib
+    import email.header
+    from email.utils import parsedate_to_datetime
+
+    _, msg_data = conn.fetch(mid, "(RFC822)")
+    raw = msg_data[0][1]
+    msg = email_lib.message_from_bytes(raw)
+
+    subject_parts = email.header.decode_header(msg.get("Subject", ""))
+    subject = "".join(part.decode(charset or "utf-8") if isinstance(part, bytes) else part for part, charset in subject_parts)
+    sender = msg.get("From", "")
+    raw_message_id = msg.get("Message-ID", "") or msg.get("Message-Id", "")
+    if not raw_message_id:
+        raw_message_id = f"imap:{account.get('email', '')}:{mid.decode() if isinstance(mid, bytes) else mid}"
+    date_str = msg.get("Date", "")
+    try:
+        received_dt = parsedate_to_datetime(date_str)
+        if received_dt.tzinfo is not None:
+            received_dt = received_dt.astimezone(timezone.utc)
+        received_iso = received_dt.strftime(_ISO_TS_FORMAT)
+    except Exception:
+        received_iso = date_str
+
+    if received_iso <= since:
+        return None
+
+    body = _imap_parse_email_body(msg)
+    preview = body[:MAX_PREVIEW_LENGTH] if body else ""
+    return {
+        "message_id": raw_message_id.strip(),
+        "subject": subject,
+        "sender": sender,
+        "received_at": received_iso,
+        "preview": preview,
+        "content": body,
+        "folder": folder,
+    }
+
+
+def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> List[dict]:
+    """通过 IMAP 获取 received_at > since 的邮件，最多返回 50 封。
+
+    两步策略：先用 INTERNALDATE 快速过滤，再对命中的邮件下载正文。
+    """
+    from datetime import datetime as dt
 
     results: List[dict] = []
     conn = None
     try:
-        conn = imaplib.IMAP4_SSL(host, port, timeout=15)
-        try:
-            conn.login(user, password)
-        except imaplib.IMAP4.error as exc:
-            raw_message = str(exc or "")
-            lowered = raw_message.lower()
-            if (account.get("provider") or "").strip().lower() == "outlook" and "basicauthblocked" in lowered:
-                raise RuntimeError("Outlook.com 已阻止 Basic Auth（账号密码直连）；请将该账号改为 Outlook OAuth 导入") from exc
-            raise
-        selected = False
-        last_select_error = None
-        for folder_name in _resolve_imap_folder(account, folder):
-            try:
-                status, _ = conn.select(folder_name, readonly=True)
-                if status == "OK":
-                    selected = True
-                    break
-                last_select_error = f"select {folder_name} status={status}"
-            except Exception as exc:
-                last_select_error = str(exc)
-                continue
-        if not selected:
-            logger.warning(
-                "[telegram_push] folder select failed email=%s provider=%s folder=%s err=%s",
-                user,
-                account.get("provider"),
-                folder,
-                last_select_error or "unknown",
-            )
+        conn = _imap_connect(account)
+        if not _imap_select_folder(conn, account, folder):
             return results
 
-        _, data = conn.search(None, f'(SINCE "{since_date_str}")')
-        msg_ids = data[0].split() if data[0] else []
+        since_dt = dt.fromisoformat(since)
+        since_date_str = since_dt.strftime("%d-%b-%Y")
+        new_msg_ids = _imap_filter_by_internaldate(conn, since_date_str, since)
 
-        if not msg_ids:
-            return results
-
-        # 第一步：批量获取 INTERNALDATE 快速过滤
-        candidate_ids = msg_ids[-MAX_EMAILS_PER_FETCH:]
-        id_range = b",".join(candidate_ids)
-        _, date_data = conn.fetch(id_range, "(INTERNALDATE)")
-
-        import re
-
-        date_pattern = re.compile(rb'INTERNALDATE "([^"]+)"')
-        new_msg_ids = []
-
-        for item in date_data:
-            if not isinstance(item, tuple):
-                continue
-            header_line = item[0] if isinstance(item[0], bytes) else b""
-            mid_match = re.match(rb"(\d+)", header_line)
-            date_match = date_pattern.search(header_line)
-            if not mid_match or not date_match:
-                continue
-
-            mid = mid_match.group(1)
-            _ = date_match.group(1).decode("ascii", errors="replace")
-            try:
-                import calendar
-                from imaplib import Internaldate2tuple
-
-                tt = Internaldate2tuple(b'"' + date_match.group(1) + b'"')
-                if tt:
-                    ts = calendar.timegm(tt)
-                    idate_iso = datetime.fromtimestamp(ts, tz=timezone.utc).strftime(_ISO_TS_FORMAT)
-                    if idate_iso <= since:
-                        continue
-            except Exception:
-                pass  # 解析失败时保留，由后续 RFC822 过滤
-            new_msg_ids.append(mid)
-
-        # 第二步：仅对候选邮件下载 RFC822
         for mid in new_msg_ids[-MAX_EMAILS_PER_FETCH:]:
-            try:
-                _, msg_data = conn.fetch(mid, "(RFC822)")
-                raw = msg_data[0][1]
-                msg = email_lib.message_from_bytes(raw)
-
-                subject_parts = email.header.decode_header(msg.get("Subject", ""))
-                subject = "".join(
-                    part.decode(charset or "utf-8") if isinstance(part, bytes) else part for part, charset in subject_parts
-                )
-
-                sender = msg.get("From", "")
-                # 提取 Message-ID（BUG-00011 P2 去重用）
-                raw_message_id = msg.get("Message-ID", "") or msg.get("Message-Id", "")
-                if not raw_message_id:
-                    raw_message_id = f"imap:{account.get('email', '')}:{mid.decode() if isinstance(mid, bytes) else mid}"
-                date_str = msg.get("Date", "")
-                try:
-                    from email.utils import parsedate_to_datetime
-
-                    received_dt = parsedate_to_datetime(date_str)
-                    if received_dt.tzinfo is not None:
-                        received_dt = received_dt.astimezone(timezone.utc)
-                    received_iso = received_dt.strftime(_ISO_TS_FORMAT)
-                except Exception:
-                    received_iso = date_str
-
-                if received_iso <= since:
-                    continue
-
-                body = ""
-                if msg.is_multipart():
-                    for part in msg.walk():
-                        ct = part.get_content_type()
-                        if ct == "text/plain":
-                            payload = part.get_payload(decode=True)
-                            if payload:
-                                body = payload.decode(
-                                    part.get_content_charset() or "utf-8",
-                                    errors="replace",
-                                )
-                            break
-                        elif ct == "text/html" and not body:
-                            payload = part.get_payload(decode=True)
-                            if payload:
-                                body = _html_to_plain(
-                                    payload.decode(
-                                        part.get_content_charset() or "utf-8",
-                                        errors="replace",
-                                    )
-                                )
-                else:
-                    payload = msg.get_payload(decode=True)
-                    if payload:
-                        charset = msg.get_content_charset() or "utf-8"
-                        raw_body = payload.decode(charset, errors="replace")
-                        if msg.get_content_type() == "text/html":
-                            body = _html_to_plain(raw_body)
-                        else:
-                            body = raw_body
-
-                preview = body[:MAX_PREVIEW_LENGTH] if body else ""
-
-                results.append(
-                    {
-                        "message_id": raw_message_id.strip(),
-                        "subject": subject,
-                        "sender": sender,
-                        "received_at": received_iso,
-                        "preview": preview,
-                        "content": body,
-                        "folder": folder,
-                    }
-                )
-            except Exception:
-                continue
-
+            parsed = _imap_fetch_and_parse_one(conn, mid, account, folder, since)
+            if parsed:
+                results.append(parsed)
     except Exception as e:
         logger.warning("[telegram_push] IMAP fetch error for %s: %s", account.get("email"), e)
         raise
