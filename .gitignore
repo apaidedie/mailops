@@ -125,3 +125,6 @@ static/js/bundles/
 
 # 覆盖率报告生成产物（jest/layout-system）
 tests/layout-system/coverage/
+
+# Trellis 历史任务归档（本地保留，不进仓库）
+.trellis/tasks/archive/
