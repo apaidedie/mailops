@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import re
 from datetime import datetime, timezone
-from typing import List
+from typing import Any, List, Optional
 
 _ISO_TS_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
