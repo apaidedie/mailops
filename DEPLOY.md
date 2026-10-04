@@ -27,6 +27,35 @@ docker compose down
 
 数据目录：`./data`
 
+数据目录：`./data`
+
+### 低内存服务器（≤2GB RAM）部署指南
+
+2GB 服务器部署时建议以下调整（`docker-compose.yml` 已内置默认启用）：
+
+| 配置 | 默认值 | 低内存建议 | 说明 |
+|------|--------|-----------|------|
+| `GUNICORN_THREADS` | 8 | **4** | 减少线程降低上下文切换和栈内存 |
+| `GUNICORN_MAX_REQUESTS` | 0（关闭） | **500** | worker 回收防止长期运行内存泄漏 |
+| `GUNICORN_MAX_REQUESTS_JITTER` | 0 | **50** | 抖动避免所有 worker 同时回收 |
+| 系统 swap | 无 | **≥2GB** | 强烈建议添加 swap，防止 OOM killer 终止容器 |
+
+```bash
+# 添加 2GB swap（一次性操作，重启持久）
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+如果 2GB 服务器同时运行其他服务（Nginx、数据库等），建议在 `docker-compose.yml` 中添加内存限制：
+
+```yaml
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+```
+
 ## 本机源码构建（可选）
 
 ```bash

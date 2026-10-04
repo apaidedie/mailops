@@ -11,3 +11,9 @@ services:
       # 必填：随机密钥（生成：python -c "import secrets; print(secrets.token_hex(32))"）
       SECRET_KEY: "change-me-to-a-random-secret"
       LOGIN_PASSWORD: "admin123"
+      # ── 低内存服务器优化（2GB 以下建议启用）──
+      # 减少线程数降低上下文切换开销；worker 回收防止内存泄漏累积
+      GUNICORN_THREADS: "4"
+      GUNICORN_MAX_REQUESTS: "500"
+      GUNICORN_MAX_REQUESTS_JITTER: "50"
+      # ── 高内存服务器（4GB+）可注释掉上面三行，恢复默认 8 线程 ──
