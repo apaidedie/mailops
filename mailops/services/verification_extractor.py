@@ -511,6 +511,63 @@ def _pick_preferred_link(links: List[str], prefer_link_keywords: List[str]) -> O
     return links[0]
 
 
+def _select_source_text(email: Dict[str, Any], code_source: str) -> tuple[str, str, str, str]:
+    """按 code_source 选择提取源文本，返回 (subject, content, html_content, source_text) 及 match_source。"""
+    subject = str(email.get("subject") or "").strip()
+    content = _extract_content_text_without_subject(email)
+    html_content = str(email.get("body_html") or email.get("html_content") or "").strip()
+
+    source = str(code_source or "all").strip().lower()
+    if source == "subject":
+        return subject, content, html_content, subject
+    if source == "content":
+        return subject, content, html_content, content
+    if source == "html":
+        return subject, content, html_content, html_content
+    return subject, content, html_content, f"{subject} {content} {html_content}".strip()
+
+
+def _extract_code_with_confidence(
+    source_text: str,
+    code_re: re.Pattern,
+    *,
+    caller_directed_code: bool,
+) -> tuple[Optional[str], str]:
+    """两级验证码提取：关键词命中 → fallback 正则。返回 (code, confidence)。"""
+    code = _smart_extract_code_by_keywords(source_text, code_re)
+    if code:
+        return code, "high"
+    code = _fallback_extract_code(source_text, code_re)
+    if code and caller_directed_code:
+        return code, "high"
+    return code, "low"
+
+
+def _pick_link_with_confidence(
+    links: List[str],
+    prefer_keywords: List[str],
+    subject: str,
+    content: str,
+) -> tuple[Optional[str], str]:
+    """从 links 中选取验证链接并计算置信度，返回 (link, confidence)。"""
+    link = _pick_preferred_link(links, prefer_keywords)
+    if not link:
+        return None, "low"
+
+    # 优先检查 URL 本身是否含验证关键词
+    for kw in prefer_keywords:
+        if kw and kw.lower() in link.lower():
+            return link, "high"
+
+    # URL 不含关键词时，检查邮件正文/主题是否有强验证语境短语
+    full_text_lower = f"{subject} {content}".lower()
+    for phrase in LINK_CONTEXT_PHRASES:
+        if phrase.lower() in full_text_lower:
+            return link, "high"
+
+    return link, "low"
+
+
 def extract_verification_info_with_options(
     email: Dict[str, Any],
     *,
@@ -539,59 +596,38 @@ def extract_verification_info_with_options(
 
     注意：该函数主要服务外部 API，不主动抛“未找到验证码/链接”的异常，方便上层按需映射错误码。
     """
-    subject = str(email.get("subject") or "").strip()
-    content = _extract_content_text_without_subject(email)
-    html_content = str(email.get("body_html") or email.get("html_content") or "").strip()
-
-    source = str(code_source or "all").strip().lower()
-    if source == "subject":
-        source_text = subject
+    subject, content, html_content, source_text = _select_source_text(email, code_source)
+    match_source = "all"
+    if code_source == "subject":
         match_source = "subject"
-    elif source == "content":
-        source_text = content
+    elif code_source == "content":
         match_source = "content"
-    elif source == "html":
-        source_text = html_content
+    elif code_source == "html":
         match_source = "html"
-    else:
-        source_text = f"{subject} {content} {html_content}".strip()
-        match_source = "all"
 
     code_re = _build_code_regex(code_regex=code_regex, code_length=code_length)
-    # 仅 code_regex 具有判别力，code_length 只是宽度约束，不自动提权
     caller_directed_code = bool(code_regex)
 
     # ── 验证码提取 & 置信度 ──
-    verification_code = _smart_extract_code_by_keywords(source_text, code_re)
-    code_confidence: str = "high" if verification_code else "low"
-    if not verification_code:
-        verification_code = _fallback_extract_code(source_text, code_re)
-        # 调用方显式指定了 code_regex（强判别力正则）→ 提取命中即视为可信
-        if verification_code and caller_directed_code:
-            code_confidence = "high"
+    verification_code, code_confidence = _extract_code_with_confidence(
+        source_text,
+        code_re,
+        caller_directed_code=caller_directed_code,
+    )
 
     # ── 链接提取 & 置信度 ──
     links = extract_links(f"{subject} {content} {html_content}".strip())
     prefer_keywords = prefer_link_keywords or DEFAULT_LINK_KEYWORDS
 
-    verification_link = None
-    link_confidence: str = "low"
+    verification_link, link_confidence = None, "low"
     should_pick_link = (not enforce_mutual_exclusion) or (not verification_code)
     if should_pick_link:
-        verification_link = _pick_preferred_link(links, prefer_keywords)
-        if verification_link:
-            # 优先检查 URL 本身是否含验证关键词
-            for kw in prefer_keywords:
-                if kw and kw.lower() in verification_link.lower():
-                    link_confidence = "high"
-                    break
-            # URL 不含关键词时，检查邮件正文/主题是否有强验证语境短语
-            if link_confidence != "high":
-                full_text_lower = f"{subject} {content}".lower()
-                for phrase in LINK_CONTEXT_PHRASES:
-                    if phrase.lower() in full_text_lower:
-                        link_confidence = "high"
-                        break
+        verification_link, link_confidence = _pick_link_with_confidence(
+            links,
+            prefer_keywords,
+            subject,
+            content,
+        )
 
     # 总 confidence 向后兼容：取 code / link 中较高者
     confidence = "high" if code_confidence == "high" or link_confidence == "high" else "low"
