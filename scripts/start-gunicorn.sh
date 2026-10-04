@@ -27,8 +27,7 @@ require_positive_int() {
 require_positive_int GUNICORN_WORKERS "$GUNICORN_WORKERS"
 require_positive_int GUNICORN_THREADS "$GUNICORN_THREADS"
 require_positive_int GUNICORN_TIMEOUT "$GUNICORN_TIMEOUT"
-require_positive_int GUNICORN_MAX_REQUESTS "$GUNICORN_MAX_REQUESTS"
-require_positive_int GUNICORN_MAX_REQUESTS_JITTER "$GUNICORN_MAX_REQUESTS_JITTER"
+# GUNICORN_MAX_REQUESTS / JITTER 允许 0（= 关闭 worker 回收），不做正整数校验
 
 # Keep the default to one worker so the in-process scheduler is not duplicated.
 # Threads let sync endpoints such as wait-message share the worker instead of
