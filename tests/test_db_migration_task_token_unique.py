@@ -60,7 +60,7 @@ class DbMigrationTaskTokenUniqueTests(unittest.TestCase):
 
             from mailops.db import init_db
 
-            with self.assertRaises(Exception) as ctx:
+            with self.assertRaises(RuntimeError) as ctx:
                 init_db(database_path=str(db_path))
 
             message = str(ctx.exception)

@@ -73,7 +73,7 @@ print(f"✅ GET /api/accounts/invalid-token-candidates → success={data['succes
 r = s.post(f"{BASE_URL}/api/accounts/batch-update-status", json={"account_ids": [], "status": "inactive"})
 data = r.json()
 assert not data.get("success"), "空 account_ids 应被拒绝"
-print(f"✅ POST /api/accounts/batch-update-status (空 ids) → 正确拒绝")
+print("✅ POST /api/accounts/batch-update-status (空 ids) → 正确拒绝")
 
 # 7. 检查刷新模态框中治理面板位置
 print("=== Step 7: 检查治理面板位置（在刷新模态框内） ===")

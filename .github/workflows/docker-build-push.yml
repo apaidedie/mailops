@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   quality-gate:
@@ -55,6 +54,9 @@ jobs:
   build-and-push:
     needs: quality-gate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

@@ -270,7 +270,7 @@ def _fetch_new_emails_imap(account: dict, since: str, folder: str = "inbox") -> 
                 tt = Internaldate2tuple(b'"' + date_match.group(1) + b'"')
                 if tt:
                     ts = calendar.timegm(tt)
-                    idate_iso = dt.utcfromtimestamp(ts).strftime(_ISO_TS_FORMAT)
+                    idate_iso = datetime.fromtimestamp(ts, tz=timezone.utc).strftime(_ISO_TS_FORMAT)
                     if idate_iso <= since:
                         continue
             except Exception:

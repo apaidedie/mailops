@@ -1459,7 +1459,7 @@ def _pool_claim_default_provider_diagnostic(catalog: list[dict[str, Any]], *, st
     valid = provider_value == "auto" or provider_value in catalog_provider_names or provider_value in alias_names
     alias_info = alias_contract.get(provider_value) if isinstance(alias_contract, dict) else None
     canonical_provider: str | None = None
-    kind = "auto"
+    kind: str = "auto"  # noqa: unused assignment kept for clarity
     if provider_value in catalog_provider_names:
         canonical_provider = provider_value
         kind = "account" if provider_value in provider_names_by_kind["account"] else "temp"

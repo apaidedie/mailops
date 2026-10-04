@@ -121,7 +121,7 @@ def load_plugins() -> list[dict[str, Any]]:
             results.append(failure)
             _PLUGIN_LOAD_STATE[name] = dict(failure)
             _FAILED_PLUGIN_MTIMES[file_key] = mtime_ns
-            logger.error("[plugin] 加载失败 %s: %s", name, exc)
+            logger.exception("[plugin] 加载失败 %s: %s", name, exc)
 
     return results
 

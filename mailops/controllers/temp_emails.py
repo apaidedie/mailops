@@ -112,7 +112,7 @@ def api_generate_temp_email() -> Any:
             }
         )
     except TempMailError as exc:
-        logger.error(f"临时邮箱生成失败: {exc.message}, prefix={prefix}, domain={domain}")
+        logger.exception(f"临时邮箱生成失败: {exc.message}, prefix={prefix}, domain={domain}")
         return build_error_response(
             exc.code,
             exc.message,

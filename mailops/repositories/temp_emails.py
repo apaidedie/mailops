@@ -62,9 +62,7 @@ def _score_temp_email_payload(payload: Any) -> int:
         score += 20
     for key in _TEMP_EMAIL_RICH_KEYS:
         value = payload_dict.get(key)
-        if isinstance(value, dict) and value:
-            score += 30
-        elif isinstance(value, list) and value:
+        if isinstance(value, (dict, list)) and value:
             score += 30
     score += min(len(payload_dict), 20)
     return score

@@ -277,7 +277,7 @@ def get_container_info(container_id_or_name: str) -> Optional[Dict[str, Any]]:
         }
 
     except Exception as e:
-        logger.error(f"获取容器信息失败 ({container_id_or_name}): {str(e)}", exc_info=True)
+        logger.exception(f"获取容器信息失败 ({container_id_or_name}): {str(e)}")
         return None
 
 
@@ -304,7 +304,7 @@ def get_current_container_info() -> Optional[Dict[str, Any]]:
             return None
         return get_container_info(containers[0].id)
     except Exception as e:
-        logger.error(f"获取当前容器信息失败: {str(e)}", exc_info=True)
+        logger.exception(f"获取当前容器信息失败: {str(e)}")
         return None
 
 
@@ -430,7 +430,7 @@ def spawn_update_helper_container(
         return True, f"更新任务已启动: {helper_name} ({container.short_id})"
 
     except Exception as e:
-        logger.error(f"启动 updater 容器失败: {str(e)}", exc_info=True)
+        logger.exception(f"启动 updater 容器失败: {str(e)}")
         return False, f"启动 updater 容器失败: {str(e)}"
 
 
@@ -462,7 +462,7 @@ def pull_latest_image(image_name: str) -> Tuple[bool, str, Optional[str]]:
 
     except Exception as e:
         error_msg = f"拉取镜像失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg, None
 
 
@@ -534,7 +534,7 @@ def create_new_container(
 
     except Exception as e:
         error_msg = f"创建新容器失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg, None
 
 
@@ -610,7 +610,7 @@ def start_new_container(container: Any) -> Tuple[bool, str]:
 
     except Exception as e:
         error_msg = f"启动新容器失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg
 
 
@@ -658,7 +658,7 @@ def health_check_new_container(container: Any, timeout: int = 30) -> Tuple[bool,
 
     except Exception as e:
         error_msg = f"健康检查失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg
 
 
@@ -687,7 +687,7 @@ def stop_old_container(container_id: str) -> Tuple[bool, str]:
 
     except Exception as e:
         error_msg = f"停止旧容器失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg
 
 
@@ -722,7 +722,7 @@ def rename_containers(old_container_id: str, new_container_id: str) -> Tuple[boo
 
     except Exception as e:
         error_msg = f"重命名容器失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg
 
 
@@ -752,7 +752,7 @@ def cleanup_old_container(container_id: str, remove: bool = False) -> Tuple[bool
 
     except Exception as e:
         error_msg = f"清理旧容器失败: {str(e)}"
-        logger.error(error_msg, exc_info=True)
+        logger.exception(error_msg)
         return False, error_msg
 
 
@@ -981,13 +981,13 @@ def self_update(
             old_c.start()
             logger.info("新容器启动失败，已尝试重新启动旧容器")
         except Exception as e:
-            logger.error(f"新容器启动失败，恢复旧容器也失败: {str(e)}")
+            logger.exception(f"新容器启动失败，恢复旧容器也失败: {str(e)}")
 
         try:
             new_container.remove(force=True)
             logger.info(f"新容器启动失败，已删除: {new_container.short_id}")
         except Exception as e:
-            logger.error(f"删除失败的新容器时出错: {str(e)}")
+            logger.exception(f"删除失败的新容器时出错: {str(e)}")
 
         return {
             "success": False,
@@ -1015,7 +1015,7 @@ def self_update(
             new_container.remove(force=True)
             logger.info(f"新容器健康检查失败，已删除: {new_container.short_id}")
         except Exception as e:
-            logger.error(f"删除不健康的新容器时出错: {str(e)}")
+            logger.exception(f"删除不健康的新容器时出错: {str(e)}")
 
         try:
             import docker
@@ -1025,7 +1025,7 @@ def self_update(
             old_c.start()
             logger.info("新容器健康检查失败，已尝试重新启动旧容器")
         except Exception as e:
-            logger.error(f"新容器健康检查失败，恢复旧容器也失败: {str(e)}")
+            logger.exception(f"新容器健康检查失败，恢复旧容器也失败: {str(e)}")
 
         return {
             "success": False,

@@ -902,7 +902,7 @@ def _migrate_legacy_columns(cursor, migration_trace_id):
             "SET task_token = NULL\n"
             "WHERE id IN (SELECT id FROM d WHERE rn > 1);\n"
         )
-        raise Exception(
+        raise RuntimeError(
             "数据库升级被中止：检测到 temp_emails.task_token 存在重复值，无法创建唯一索引。"
             f" duplicate_task_token_count={dup_count or len(duplicate_sample)}"
             + (f" trace_id={trace_text}" if trace_text else "")
